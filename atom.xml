@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-06-12T16:44:47.000Z</updated>
+  <updated>2017-06-12T16:46:38.000Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,44 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>jeesite代码解析</title>
+    <link href="http://YiuTerran.github.io/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+    <id>http://YiuTerran.github.io/2017/06/13/jeesite代码解析/</id>
+    <published>2017-06-12T16:46:00.000Z</published>
+    <updated>2017-06-12T16:46:38.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
+<h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
+<li>直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明；</li>
+<li>首页会匹配到<code>modules/sys/web/LoginController</code>里面的<code>index</code>方法；</li>
+<li>该类继承自<code>BaseController</code>，这里定义了<code>logger</code>, <code>adminPath</code>, <code>frontPath</code>和<code>urlSuffix</code>，这些变量是从bean里面注入的. 同时定义了一些通用的方法；</li>
+<li>所以index方法中的map, <code>${adminPath}</code>会被渲染为<code>a</code>；</li>
+<li>该方法有两个注释，<code>RequiresPermissions</code>是<code>Apache shiro</code>进行鉴权，详见鉴权流程。</li>
+</ol>
+<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a href="http://howiefh.github.io/2015/05/12/shiro-note/" target="_blank" rel="external">这篇blog</a>。使用流程如下：</p>
+<ol>
+<li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>，</li>
+<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>systemAuthorizingRealm</code></li>
+<li>该类继承自<code>AuthorizingRealm</code>，</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
+      <category term="web" scheme="http://YiuTerran.github.io/tags/web/"/>
+    
+      <category term="jeesite" scheme="http://YiuTerran.github.io/tags/jeesite/"/>
+    
+  </entry>
   
   <entry>
     <title>hello-world</title>
@@ -137,44 +175,6 @@
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
       <category term="web" scheme="http://YiuTerran.github.io/tags/web/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>jeesite代码解析</title>
-    <link href="http://YiuTerran.github.io/2017/06/12/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    <id>http://YiuTerran.github.io/2017/06/12/jeesite代码解析/</id>
-    <published>2017-06-12T15:49:11.000Z</published>
-    <updated>2017-06-12T16:27:36.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
-<h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
-<li>直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明；</li>
-<li>首页会匹配到<code>modules/sys/web/LoginController</code>里面的<code>index</code>方法；</li>
-<li>该类继承自<code>BaseController</code>，这里定义了<code>logger</code>, <code>adminPath</code>, <code>frontPath</code>和<code>urlSuffix</code>，这些变量是从bean里面注入的. 同时定义了一些通用的方法；</li>
-<li>所以index方法中的map, <code>${adminPath}</code>会被渲染为<code>a</code>；</li>
-<li>该方法有两个注释，<code>RequiresPermissions</code>是<code>Apache shiro</code>进行鉴权，详见鉴权流程。</li>
-</ol>
-<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a href="http://howiefh.github.io/2015/05/12/shiro-note/" target="_blank" rel="external">这篇blog</a>。使用流程如下：</p>
-<ol>
-<li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>，</li>
-<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>systemAuthorizingRealm</code></li>
-<li>该类继承自<code>AuthorizingRealm</code>，</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架
-    
-    </summary>
-    
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
-    
-      <category term="web" scheme="http://YiuTerran.github.io/tags/web/"/>
-    
-      <category term="jeesite" scheme="http://YiuTerran.github.io/tags/jeesite/"/>
     
   </entry>
   
