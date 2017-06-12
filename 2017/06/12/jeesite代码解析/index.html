@@ -13,24 +13,24 @@
     
     
     
-    <title>Hello World | 浮生倒影 | 技术类文章博客</title>
+    <title>jeesite代码解析 | 浮生倒影 | 技术类文章博客</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="">
-    <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta name="keywords" content="blog python java js 前端 后端 全栈">
+    <meta name="keywords" content="java,web,jeesite">
+    <meta name="description" content="现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。 流程解析 直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明； 首页会匹配到modules/s">
+<meta name="keywords" content="java,web,jeesite">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://YiuTerran.github.io/2017/05/22/hello-world/index.html">
+<meta property="og:title" content="jeesite代码解析">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/jeesite代码解析/index.html">
 <meta property="og:site_name" content="浮生倒影">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta property="og:updated_time" content="2017-05-22T06:37:04.000Z">
+<meta property="og:description" content="现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。 流程解析 直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明； 首页会匹配到modules/s">
+<meta property="og:updated_time" content="2017-06-12T16:27:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="jeesite代码解析">
+<meta name="twitter:description" content="现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。 流程解析 直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明； 首页会匹配到modules/s">
     
         <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
     
@@ -107,7 +107,7 @@
         <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
           <i class="icon icon-lg icon-navicon"></i>
         </a>
-        <div class="flex-col header-title ellipsis">Hello World</div>
+        <div class="flex-col header-title ellipsis">jeesite代码解析</div>
         
         <div class="search-wrap" id="search-wrap">
             <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
@@ -129,11 +129,11 @@
 <header class="content-header post-header">
 
     <div class="container fade-scale">
-        <h1 class="title">Hello World</h1>
+        <h1 class="title">jeesite代码解析</h1>
         <h5 class="subtitle">
             
-                <time datetime="2017-05-22T06:37:04.000Z" itemprop="datePublished" class="page-time">
-  2017-05-22
+                <time datetime="2017-06-12T15:49:11.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
 </time>
 
 
@@ -152,17 +152,17 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Quick-Start"><span class="post-toc-number">1.</span> <span class="post-toc-text">Quick Start</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Create-a-new-post"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">Create a new post</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Run-server"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">Run server</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Generate-static-files"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Generate static files</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Deploy-to-remote-sites"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">Deploy to remote sites</span></a></li></ol></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#流程解析"><span class="post-toc-number">1.</span> <span class="post-toc-text">流程解析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#鉴权流程"><span class="post-toc-number">2.</span> <span class="post-toc-text">鉴权流程</span></a></li></ol>
         </nav>
     </aside>
     
-<article id="post-hello-world"
+<article id="post-jeesite代码解析"
   class="post-article article-type-post fade" itemprop="blogPost">
 
     <div class="post-card">
-        <h1 class="post-card-title">Hello World</h1>
+        <h1 class="post-card-title">jeesite代码解析</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-05-22 14:37:04" datetime="2017-05-22T06:37:04.000Z"  itemprop="datePublished">2017-05-22</time>
+            <time class="post-time" title="2017-06-12 23:49:11" datetime="2017-06-12T15:49:11.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -177,15 +177,20 @@
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+            <p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
+<h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
+<li>直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明；</li>
+<li>首页会匹配到<code>modules/sys/web/LoginController</code>里面的<code>index</code>方法；</li>
+<li>该类继承自<code>BaseController</code>，这里定义了<code>logger</code>, <code>adminPath</code>, <code>frontPath</code>和<code>urlSuffix</code>，这些变量是从bean里面注入的. 同时定义了一些通用的方法；</li>
+<li>所以index方法中的map, <code>${adminPath}</code>会被渲染为<code>a</code>；</li>
+<li>该方法有两个注释，<code>RequiresPermissions</code>是<code>Apache shiro</code>进行鉴权，详见鉴权流程。</li>
+</ol>
+<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a href="http://howiefh.github.io/2015/05/12/shiro-note/" target="_blank" rel="external">这篇blog</a>。使用流程如下：</p>
+<ol>
+<li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>，</li>
+<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>systemAuthorizingRealm</code></li>
+<li>该类继承自<code>AuthorizingRealm</code>，</li>
+</ol>
 
         </div>
 
@@ -193,12 +198,12 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-05-22T06:37:04.000Z" itemprop="dateUpdated">2017-05-22 14:37:04</time>
+    最后更新时间：<time datetime="2017-06-12T16:27:36.000Z" itemprop="dateUpdated">2017-06-13 00:27:36</time>
 </span><br>
 
 
         
-        <a href="/2017/05/22/hello-world/" target="_blank" rel="external">http://YiuTerran.github.io/2017/05/22/hello-world/</a>
+        <a href="/2017/06/12/jeesite代码解析/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/jeesite代码解析/</a>
         
     </div>
     <footer>
@@ -218,6 +223,8 @@
 
         <div class="post-footer">
             
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jeesite/">jeesite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+
 
             
 <div class="page-share-wrap">
@@ -226,7 +233,7 @@
 <div class="page-share" id="pageShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/05/22/hello-world/&title=《Hello World》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&title=《jeesite代码解析》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -236,22 +243,22 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/05/22/hello-world/&title=《Hello World》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&title=《jeesite代码解析》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/05/22/hello-world/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Hello World》 — 浮生倒影&url=http://YiuTerran.github.io/2017/05/22/hello-world/&via=http://YiuTerran.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《jeesite代码解析》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&via=http://YiuTerran.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/05/22/hello-world/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -271,6 +278,26 @@
     </div>
 
     
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/java web基础学习/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">java web基础学习</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/lua5.1要点笔记/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">lua5.1要点笔记</h4>
+      </a>
+    </div>
+  
+</nav>
+
 
 
     
@@ -366,7 +393,7 @@
 <div class="global-share" id="globalShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/05/22/hello-world/&title=《Hello World》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&title=《jeesite代码解析》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -376,22 +403,22 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/05/22/hello-world/&title=《Hello World》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&title=《jeesite代码解析》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/05/22/hello-world/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Hello World》 — 浮生倒影&url=http://YiuTerran.github.io/2017/05/22/hello-world/&via=http://YiuTerran.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《jeesite代码解析》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/&via=http://YiuTerran.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/05/22/hello-world/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/jeesite代码解析/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -402,7 +429,7 @@
 <div class="page-modal wx-share" id="wxShare">
     <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3ay07DMBAF0P7/TxeJFaiQ3jtOEXWOV5FInZwshnn4dovX/XMl93y98/H6cR3vcPLCwMB4W8b9cCUvke+QfKZ2ZwwMjOswkq2PAb/ttv6Bon8AGBgYGOV1HmSPf4WBgYExY+R/PS5KZ+EbAwPjyow2RUsaZ+ttuJfU4hgYGG/IaAcDf3n9wvkGBgbGmzDu5VoPgsmd9VthYGBszUia/vnBi5XW28qRDgwMjL0ZycPaw1tJ+ZoUtMU7YGBgbM1oH1ana2VTr/0QGBgYV2C0zfo21CbJX36M7EktjoGBsSljlvy1R77a8nVYDGNgYGzKaA9VtIEyTz1nzbsf5hsYGBibMpIQuVKa5iOHPEn9dicGBsbWjPZFk3RtNhCdhW8MDIxrMpKwux5MZ0lhEXAxMDA2YqyUr7Mgm6d6xQfFwMC4GKNtrrUDhrNSTAwMjOswZu2tWUidDTWL32JgYGzKmCV57WGIBNDuH01iMTAwtmCsHPCaFZ+z5lqExMDA2JQxGzTmaV/eUGsbfBgYGBh5+z4J2fk9s8MfGBgYezOSFC1v07fHMs7lYWBg7MqYJXyzcePKaOFJoMfAwNiasRLmVqj5oY3ZmAEDA2M/Rts4y0Nq/rXyHZ6UrxgYGFsz2rI2aYTNBpntUzAwMDDy4nNpDBkfv3gy5cDAwMCIXz0veldSSQwMjKsx2iK2hQ1b+XmJi4GBsTVjZTAwuz5rIHE7azsMDIz/y/gAReTMUpFyTFEAAAAASUVORK5CYII=" alt="微信分享二维码">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIElEQVR42u3aS27DMAwFwNz/0uk2Wdh4JJ0CkkarorEtjRcEP3694vX+WNXr83uru5QXBgbGsoz37bq65vP/90++f8LVlfnZMDAwzmEkh8jjXn6g3r4YGBgYyYGeShyre2FgYGDMGVdBthqUMTAwMHpFbK9ZlpTE/1qLY2BgLMiYl6a/+/sn8w0MDIylGO/i6rX7qyOH8qkwMDC2ZvTSvnxsmYwzq8+/TEMxMDAOZlSbZRP2BIaBgbE3I98gIfWGnXkaWh6aYmBgLM7IN07eQZ78zQcSGBgYpzESQC+N67XVcgAGBsYJjKSNlbf7e0Vy/llGc6iJgYGxOCMZQFab/tW32BuXfv2KgYGxNSNveM1b/HnbLjn05XkwMDC2ZlQxeestoVaDeDNZxMDAWJDxVCjslbh5yRq9ewwMjAMYkzZceegYd8kKH1tgYGBsyug9bpKBJqlnc7KBgYGxKaMaRnujzd4QtFAeY2BgbM1IQmr147CkSM7DbnOygYGBsSkjSd2SDK3X2psPSjEwME5gVMeW1c+58hSzeRcGBsYBjHz7KrV6ZbW3hoGBsTejF0zzRLCXUFaDOAYGxt6MfM3DZV649lJMDAyMvRmTovTZUDtq+WFgYBzAyFvwzxa91VQvmm9gYGAcz3iqBL0PzdWyGQMDA6P3cVj1oL2WHAYGxjmMfADZu2uSgD7cbsPAwFiQMQl5k7I2adv1ElYMDIyNGH8rX2qY3jcxBgAAAABJRU5ErkJggg==" alt="微信分享二维码">
 </div>
 
 

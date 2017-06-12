@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>cometd使用haproxy做负载均衡的配置指南 | 浮生倒影 | 技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="cometd,haproxy,websocket">
+    <meta name="description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+<meta name="keywords" content="cometd,haproxy,websocket">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cometd使用haproxy做负载均衡的配置指南">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/index.html">
+<meta property="og:site_name" content="浮生倒影">
+<meta property="og:description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+<meta property="og:updated_time" content="2017-06-12T16:22:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cometd使用haproxy做负载均衡的配置指南">
+<meta name="twitter:description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+    
+        <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">cometd使用haproxy做负载均衡的配置指南</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">cometd使用haproxy做负载均衡的配置指南</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:47:30.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#下载安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">下载安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">2.</span> <span class="post-toc-text">使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#rsyslog"><span class="post-toc-number">3.</span> <span class="post-toc-text">rsyslog</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-cometd使用haproxy做负载均衡的配置指南"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">cometd使用haproxy做负载均衡的配置指南</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:47:30" datetime="2017-06-12T15:47:30.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo add-apt-repository ppa:vbernat/haproxy-1.5</div></pre></td></tr></table></figure></p>
+<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if [ -e /etc/default/haproxy ]; then</div><div class="line">	. /etc/default/haproxy</div><div class="line">fi</div></pre></td></tr></table></figure></p>
+<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf</code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
+<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/" target="_blank" rel="external">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">global</div><div class="line">  log 127.0.0.1 local0  #see /etc/rsyslog.d/haproxy.conf</div><div class="line">  chroot /var/lib/haproxy</div><div class="line">  pidfile /var/run/haproxy.pid</div><div class="line">  uid 99</div><div class="line">  gid 99</div><div class="line">  daemon        #run as service</div><div class="line">  nbproc 1      #only one instance allowed</div><div class="line">  maxconn 120000</div><div class="line"></div><div class="line">defaults</div><div class="line">  mode http</div><div class="line">  log global</div><div class="line">  option httplog        #log http info</div><div class="line">  option  http-server-close     #Don&apos;t keepalive between haproxy and server</div><div class="line">  option  redispatch    #if health check failed, dispath new server</div><div class="line">  option  forwardfor    #for server get Ip of client</div><div class="line">  retries 3             #connect to server fail max times before redispatch</div><div class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</div><div class="line">  timeout client 50s    #timeout client inactivity</div><div class="line">  timeout server 50s    #timeout for server to process the request</div><div class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</div><div class="line">  timeout http-keep-alive 2s</div><div class="line">  timeout http-request 15s</div><div class="line">  default-server inter 5s rise 2 fall 3</div><div class="line">  stats uri /stats</div><div class="line">  stats refresh 10s</div><div class="line">  stats auth baina:P@55word</div><div class="line"></div><div class="line">frontend ft_web</div><div class="line">  bind *:80</div><div class="line">  timeout client 10m</div><div class="line">  timeout client-fin 5s</div><div class="line">  maxconn 120000</div><div class="line">  option  http-pretend-keepalive        #without this, handshake can&apos;t be established</div><div class="line">  default_backend cometd</div><div class="line"></div><div class="line">backend cometd</div><div class="line">  timeout server 10m</div><div class="line">  timeout tunnel 10m</div><div class="line">  balance roundrobin</div><div class="line">#  balance source</div><div class="line">  option httpchk GET /cometd HTTP/1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</div><div class="line">  http-check expect status 101</div><div class="line">  cookie SERVERID insert</div><div class="line"></div><div class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</div><div class="line"></div><div class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</div><div class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</div><div class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</div></pre></td></tr></table></figure></p>
+<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
+<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
+<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">local0.* /var/log/haproxy/haproxy.log</div></pre></td></tr></table></figure></p>
+<p>即可指定到具体文件。</p>
+<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux" target="_blank" rel="external">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ModLoad imudp</div><div class="line">$UDPServerRun 514</div><div class="line">$template Haproxy,&quot;%msg%\n&quot;</div><div class="line">local0.* -/var/log/haproxy.log;Haproxy</div><div class="line">&amp; ~</div></pre></td></tr></table></figure></p>
+<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html" target="_blank" rel="external">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
+<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">/var/log/haproxy.log &#123;</div><div class="line">    daily       #按日滚动</div><div class="line">    rotate 10   #保留10个</div><div class="line">    missingok</div><div class="line">    notifempty</div><div class="line">    compress</div><div class="line">    delaycompress</div><div class="line">    postrotate</div><div class="line">        invoke-rc.d rsyslog rotate &gt;/dev/null 2&gt;&amp;1 || true</div><div class="line">    endscript</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html" target="_blank" rel="external">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:22:51.000Z" itemprop="dateUpdated">2017-06-13 00:22:51</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/haproxy/">haproxy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/websocket/">websocket</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/Cometd使用笔记/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">cometd 学习文档</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/CometD源码学习_1/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">CometD源码学习[0]</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《cometd使用haproxy做负载均衡的配置指南》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADJElEQVR42u3awVLjQAwEUP7/p9lziiXplkxVPHk+pcDE88YHodZ8fcXX99Mr+dufn/On/HZP8p2rCxsbG/sm7IT02+Nz5PPvbHnP1xm9HmxsbOzj2Ang2qXkz3q+KUkxw8bGxsbO2Xkxu7aBwcbGxsZum4q82GyiJWxsbGzsnJ2ESvmXtoVttn2rb8PGxsY+iJ1PRd//85/Mt7GxsbHfmP09umax/ixUmgVeL9aPjY2NfRB7Fh7lv83jns1oIW+fsLGxsU9lt9FSvri8nCRD5TxauqwtwcbGxn57dnJQchbobIbE7dYkQdjDT7CxsbEPYs+S87bstZFTGy21a8bGxsY+iT1rM/b/7e/vn23oQ93GxsbGPpQ9G9a2pByQtxZFs4SNjY19EDuP49vGow36N9+ZR2PY2NjYp7JnM9B9SvM8eNqMJeomChsbG/u27DbcT5Z71XGfZHybr/bhHmxsbOxD2Vc1CbOx7mZgXJcxbGxs7OPYeaC/aRVmhScfMORrxsbGxj6JPRv6zkKiNhJqB8P5IR5sbGzsk9g5Lw+Y/q5czZ71n8/Y2NjYh7LbIrE5QJOQZoeBogYGGxsb+2h2vvTZgZ68kdiPkLGxsbE/gf0XoVISBiWbst+a6FnY2NjYB7FnN81K3Sbib6/6lWBjY2Pfit0OANp/+pPgvt2ONmB6UauxsbGxb85uy1Ie5eftymackKyq2AJsbGzs27LbRbeNSp7Mb6pM3sxgY2Njn8eejUiTRedh034lq1eFjY2NfVv2/nDMZjs2sdFq/IyNjY19EHvWeFw7AG6ps1CpeD/Y2NjYt2K3BaYtFbO456r7o1YEGxsb++bs2eGYvCDlC2rblc04ARsbG/sk9nd5bVqRPMZqx7Rtk4ONjY19Eju/ZgPX9uDOrOxdFYRhY2Nj35edF638AZsRQtuctD/HxsbGPpXdDoDzctU2GEnL0ZbeX8cD2NjY2B/GbovNfnC72ZQXZRUbGxv7I9l5QcoD/XZr8me9KHXY2NjYx7FnoVI7pt03HvkI+cULxsbGxj6I3UYzbWTf3nnVUOGC4zvY2NjY787+B51RRShQbEOwAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

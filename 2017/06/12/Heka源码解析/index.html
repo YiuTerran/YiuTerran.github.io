@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Heka源码解析 | 浮生倒影 | 技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="heka,golang">
+    <meta name="description" content="Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。 先看最外层的文件目录结构(0.11.0dev):123456789101112131415161718192021222324252627282930313233343536$ tree -L 1 -av --dirsfirst.├── .g">
+<meta name="keywords" content="heka,golang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Heka源码解析">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/Heka源码解析/index.html">
+<meta property="og:site_name" content="浮生倒影">
+<meta property="og:description" content="Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。 先看最外层的文件目录结构(0.11.0dev):123456789101112131415161718192021222324252627282930313233343536$ tree -L 1 -av --dirsfirst.├── .g">
+<meta property="og:updated_time" content="2017-06-12T16:26:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Heka源码解析">
+<meta name="twitter:description" content="Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。 先看最外层的文件目录结构(0.11.0dev):123456789101112131415161718192021222324252627282930313233343536$ tree -L 1 -av --dirsfirst.├── .g">
+    
+        <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Heka源码解析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Heka源码解析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:48:46.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#入口"><span class="post-toc-number">1.</span> <span class="post-toc-text">入口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#自上而下"><span class="post-toc-number">2.</span> <span class="post-toc-text">自上而下</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#运行过程"><span class="post-toc-number">3.</span> <span class="post-toc-text">运行过程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Runner"><span class="post-toc-number">4.</span> <span class="post-toc-text">Runner</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-Heka源码解析"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Heka源码解析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:48:46" datetime="2017-06-12T15:48:46.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
+<p>先看最外层的文件目录结构(0.11.0dev):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$ tree -L 1 -av --dirsfirst</div><div class="line">.</div><div class="line">├── .git</div><div class="line">├── build           # source `build.sh`生成</div><div class="line">├── client</div><div class="line">├── cmake</div><div class="line">├── cmd             # 命令行工具</div><div class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</div><div class="line">├── docker          # docker相关</div><div class="line">├── docs            # 文档</div><div class="line">├── examples</div><div class="line">├── externals       # 用户自定义程序放置位置</div><div class="line">├── logstreamer     # 日志流相关</div><div class="line">├── message         # Message相关</div><div class="line">├── packaging       # 打包</div><div class="line">├── pipeline        # 流程</div><div class="line">├── plugins         # 插件</div><div class="line">├── ringbuf</div><div class="line">├── rpm             # build to rpm</div><div class="line">├── sandbox         # 沙盒系统(lua)</div><div class="line">├── .dockerignore</div><div class="line">├── .gitattributes</div><div class="line">├── .gitignore</div><div class="line">├── .gitmodules</div><div class="line">├── .travis.yml     # for Travis Ci</div><div class="line">├── CHANGES.txt</div><div class="line">├── CMakeLists.txt  # cmake root file</div><div class="line">├── CPackConfig.cmake</div><div class="line">├── Dockerfile</div><div class="line">├── LICENSE.txt</div><div class="line">├── README.md</div><div class="line">├── build.bat</div><div class="line">├── build.sh</div><div class="line">├── coverage.txt    # 测试代码覆盖率</div><div class="line">├── env.bat</div><div class="line">└── env.sh</div></pre></td></tr></table></figure></p>
+<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
+<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/" target="_blank" rel="external">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
+<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
+<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
+<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
+<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
+<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
+<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
+<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
+<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
+<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
+<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
+<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
+<p>最后，调用<code>Run</code>方法，开始运行。</p>
+<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
+<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
+<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
+<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
+<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:26:34.000Z" itemprop="dateUpdated">2017-06-13 00:26:34</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/Heka源码解析/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/Heka源码解析/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heka/">heka</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&title=《Heka源码解析》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&title=《Heka源码解析》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Heka源码解析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Heka源码解析》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/lua5.1要点笔记/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">lua5.1要点笔记</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/Go语言学习/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Go语言学习</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&title=《Heka源码解析》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&title=《Heka源码解析》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Heka源码解析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Heka源码解析》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Heka源码解析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKElEQVR42u3azY6DMAxFYd7/pRlpVlNV0HPtUA3mZNVFSvOxcP2TbcNr/11/P7+vo53kW+97tiuWDBkybsvYT9fRnvMfPueRZ/KzyZAh4zkMHmR5AF31ms7PJkOGDBlkD8eQRFCGDBky1jLOYTx9JGWwDBkyZPAmWr8DRgLxhbW4DBkybsioDQa+8/ny+YYMGTL+PWMPV23MecVJXp4vQ4aM0YxVTXly6PRF8CJZhgwZT2OQUMjL1HTwmRa6hwFXhgwZgxj8QYTUSf46lzxkyJAxm0FaXbWLXCTSp0EcFbEyZMgYxyBJGBk0pgVtP7lsHU6GDBm3YqTDy3QMmRax5FdqL0uGDBn3ZaQPSsecvOhNE82XE8qQIWM0I03UakNHHpo7xbMMGTKmMtImGm+cpfg03fzwvyFDhoxBDNIs61+2qO3nvytDhoxnMq4bEvBAvCDDlSFDxjgGaaKlVyjWNuDQTEOGDBnjGDx09ltjaUgNrqnJkCFjNKM2qqxdI6s12gKkDBkyhjLSRJAfhT+nloDKkCFDBl99TL/ZJ0OGjNmM9LJX5yh8eECej/bLkCFjBKMWXjslLv8WTxllyJAxm8FXfGvjsgQxmMrKkCFjEGNVkCX708FnEGRlyJDxAEan+cWPm5bNQdErQ4YMGeFR0rI2bdh9uBYmQ4aMxzM4L00ceUksQ4aMZzJ4EZumj/00EZW4MmTIGM1YOxiohWY+wSgCZMiQcVfGD/GhzFIf+1esAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

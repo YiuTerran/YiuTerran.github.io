@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>cometd 学习文档 | 浮生倒影 | 技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="cometd,java,push">
+    <meta name="description" content="cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote">
+<meta name="keywords" content="cometd,java,push">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cometd 学习文档">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/index.html">
+<meta property="og:site_name" content="浮生倒影">
+<meta property="og:description" content="cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote">
+<meta property="og:updated_time" content="2017-06-12T16:22:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cometd 学习文档">
+<meta name="twitter:description" content="cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote">
+    
+        <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">cometd 学习文档</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">cometd 学习文档</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:47:35.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+<article id="post-Cometd使用笔记"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">cometd 学习文档</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:47:35" datetime="2017-06-12T15:47:35.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <ol>
+<li>cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote client直接连接的session时，必须先创建一个local client；</li>
+<li>local client的作用在于，如果server并非简单的无条件转发信息到其他remote client，而是想要做一些server端的处理（比如仅仅发往特定的客户端），就需要一个local client。service通道都对应一个local client；</li>
+<li>通道类型分为meta channel, broadcast channel和service channel，meta channel是禁止订阅的，用来处理协议的基本功能，包括/meta/handshake, /meta/connect, /meta/disconnect, /meta/subscribe, /meta/unsubscribe, /meta/publish, /meta/unsucessful；而broadcast channel类似与聊天室，服务器无条件转发来自broadcast channel的信息到所有的subscribers；service channel则类似于私聊，服务器有条件转发到指定的订阅了该服务的某一个或多个remote client；</li>
+<li>server端是一个<code>BayeuxServer</code>对象，相关联的对象包括：<ul>
+<li>transport，包括http和websocket，或其他自己实现的接口，这里用来实现bayeux的底层通信方式；</li>
+<li>channels，通道</li>
+<li>extensions，扩展用来与bayeux协议交互，是一种listener，可以用于在消息接收后、发送前等时刻对消息进行自定义处理</li>
+<li>authorization，认证机制，一般通过<code>SecurityPolicy</code>来实现；也可以通过<code>Authorizer</code>进行更细粒度（如针对某个channel）的处理；</li>
+<li>消息处理，可以通过回调（监听）对客户端发来的消息进行处理；</li>
+</ul>
+</li>
+<li><p>Listener.</p>
+<ul>
+<li>客户端对某个channel的listener，用来处理服务器发送（或转发）的message(通过<code>ClientSession.getChannel(String).addListener(ClientSessionChannel.MessageListener)</code>来添加)；此外也可以通过添加extension对消息做最初或最后的处理；</li>
+<li>Server端的Listener类似，但更加丰富，包括：<ul>
+<li>extension, 对server的或对session的</li>
+<li>channel create|destroy listener</li>
+<li>subscribe|unsubscribe channel</li>
+<li>session被remove</li>
+<li>与server的message queue交互(<code>MaxQueueListener</code>, <code>DeQueueListener</code>等)</li>
+<li>MessageListener</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>消息流动的过程：</p>
+<ol>
+<li>客户端通过client-side的channel发送消息，这些消息首先通过clientsession extension，做最后的过滤；然后通过底层的transport发往server。transport会将message转换为JSON格式，server transport接受到这些消息后，再将JSON字符串转为普通消息；</li>
+<li>消息在server侧首先通过server extension，做最初的处理，此时如果被拒绝，返回给client的错误标示该消息已被删除；</li>
+<li>消息随即被送往serversession extension，如果被拒绝，操作同上；</li>
+<li>消息被送往security policy和authorizers接受审核，如果被拒绝，返回给客户端说明未通过认证；</li>
+<li>消息被送往channel listener，服务器可以在channel listener里面对消息做任意修改；该步骤后，消息被冻结；</li>
+<li>如果是nonbroadcast channel，会随即回复一条消息给发送者，表明服务器已收到消息并且该消息不是广播消息（貌似是将消息原样返回）；</li>
+<li>如果是broadcast message，消息会通过serversession extension，然后插入server的message queue，准备发出；</li>
+<li>如果是lazy message，消息需要等待一段时间，否则消息被立即发送出去；如果消息被发往remote client，会单独开一个线程进行异步发送，后续步骤包括转换为JSON格式，通过底层的transport等，类似客户端发送消息之前的方式；如果是local client，就直接发送过去；</li>
+<li>不管是不是广播消息，消息被插入消息队列后，服务器会返回一条信息给发送者，标明发送结束；</li>
+<li>客户端接收到消息，底层的tranport将消息转回普通格式，然后依次经过client session extension, channel listener和channel subscriber；</li>
+<li>server每收到一条bayeux消息，会分配一个单独的线程进行消息处理，所有的listener都在这个单独的线程中被依序唤醒。client与server之间的连接是有限的，如果同一个连接在短时间内收到大量消息，而消息的处理过程过慢，就会导致后续消息被堵塞而无法得到及时处理。因此服务器在处理消息过程中如果有<strong>耗时处理</strong>，务必要<strong>单开线程</strong>；</li>
+</ol>
+</li>
+<li>消息类型：<ul>
+<li>客户端发往server的，主要是meta消息；</li>
+<li>客户端发往指定客户端的，需要通过service通道，然后通过clientId deliver过去</li>
+<li>服务器发往客户端的，需要服务器本地起一个local client session，与服务器握手，然后在该通道publish一个消息，这个local client充当了消息的sender</li>
+<li>即使client没有subscribe一个channel，也可以在这个channel上publish message</li>
+</ul>
+</li>
+<li>cometd server无法保证消息被正确送往client，除非client和server都打开message acknowledgment extension，这样二者在handshake时会在ext段增加特殊属性，协商完毕后，客户端会对每一条接受到的消息做出应答；这种机制提供了一种<strong>不可靠的</strong>失败重传功能；</li>
+<li>seti是oort集群时用来发送消息的一种工具，如果a想向b发送信息，但是二者连在不同的comet节点上，这时候就需要转发消息、操作clientId等。seti可以将client与其他标识进行关联，这种关联可以是一对一的，也可以是一对多的。比如说，一个userid有多个deviceid，我们可以将userid与该用户的所有device的clientId都关联起来，也可以将其deviceid和对应的clientid对应起来，这样就可以直接转发了。</li>
+<li>每个oort节点仅有1个seti对象，当userid第一次与seti关联时，会向所有节点广播此消息，这样其他节点都知道如果需要向某个userid发消息，需要把消息转发给这个seti；用户断开连接或者超时被移除session，这种关联会自动取消。当一个seti中，userid关联的所有session都断开连接时，userid会解除与seti的关联，然后广播此消息。我们可以监听这两种广播消息。</li>
+<li>通过seti发送消息很简单，我们只需要指定userid，seti会自动找到其所连接的comet节点，进行发送；</li>
+<li>comet节点之间的数据共享。<code>OortObject</code>用于解决此问题，这是一个分布式的架构，所有节点拥有此对象，此对象存放所有节点的共享数据，每个节点只能修改属于自己的那一部分，其他的是只读的，每次修改会广播给其他节点，其他节点可以监听这种广播，并做一些自定义修改。</li>
+<li>服务转发功能，如果集群各个节点提供的服务不一致，可能需要此功能用于转发服务。</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:22:36.000Z" itemprop="dateUpdated">2017-06-13 00:22:36</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/Cometd使用笔记/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/push/">push</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&title=《cometd 学习文档》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&title=《cometd 学习文档》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《cometd 学习文档》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/java Proxy模式/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">java Proxy模式</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">cometd使用haproxy做负载均衡的配置指南</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&title=《cometd 学习文档》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&title=《cometd 学习文档》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《cometd 学习文档》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Cometd使用笔记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNUlEQVR42u3azXLDIAxF4bz/S7vbdlLjcyWSGeCw8qT+4WOhSojXC4/rZrz/ldxPvvL6xJAhQ8ayjGs47u75/XuKeZ8oeefDosiQIeMAxl0EG98zfs/dLzXSw5xlyJAhIwysZEK1p2TIkCGDM8ZTGb9nfKcMGTJkdIrYTsHJ8R+vxWXIkLEgg++6f//6I/0NGTJkLMW4wlErPkl47QwZMmTszUg3/Uk5miZ8vBh++IoMGTIOYJDwyhuNZEL86AZKFmXIkLEpg2/Zd7bv0zDNU88/Ga4MGTI2ZfBJ8IDbf4q3V2XIkCFjVthNA2txmWTIkLE1I21ethK4SankhB6sDBkyFmF0jjjwyXUCN2knyJAhY2/GrCZl2lSohVr0ZhkyZGzHSItD0rZME03+NlSFy5AhY2sGf3jWAa/awY5ilipDhoxlGbxhSbbb+ofA0gD9kOHKkCFjIwYJphOq5FK5OyHUypAhY3HGrM5nGoLTpXmAyZAhY2sGL195osY/Xwu7DwstQ4aMTRnppht5Kk0f02L4nznIkCHjAEb/sMVcQFziypAh4wAGPwDBm5o8leRlM0oNZciQsRHjCkdamqapXroQMmTIOIFR2/ond6YBvXYdY2TIkLEsgyd8/WvSjCRzKPZRZciQsTgj2IIvTWLW8Y6gvyFDhozjGbUNOz51vnAyZMiQ0Tl+wZ+tFcbT/m/IkCFjEQZvTI6p6ZGvzoEwGTJknMNolY74M/3W5oRGpgwZMtZj/AAznCLgxi1n4AAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

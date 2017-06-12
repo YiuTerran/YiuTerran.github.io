@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>java GC调优步骤 | 浮生倒影 | 技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="java,gc,jvm">
+    <meta name="description" content="0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution-XX">
+<meta name="keywords" content="java,gc,jvm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java GC调优步骤">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/java GC调优步骤/index.html">
+<meta property="og:site_name" content="浮生倒影">
+<meta property="og:description" content="0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution-XX">
+<meta property="og:updated_time" content="2017-06-12T16:26:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java GC调优步骤">
+<meta name="twitter:description" content="0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution-XX">
+    
+        <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">java GC调优步骤</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">java GC调优步骤</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:48:32.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+<article id="post-java GC调优步骤"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">java GC调优步骤</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:48:32" datetime="2017-06-12T15:48:32.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>0.增加GC相关选项：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">-verbose:gc</div><div class="line">-XX:+UseGCLogFileRotation</div><div class="line">-XX:NumberOfGCLogFiles=5</div><div class="line">-XX:GCLogFileSize=512K</div><div class="line">-XX:+PrintGCDetails</div><div class="line">-XX:+PrintGCTimeStamps</div><div class="line">-XX:+PrintGCDateStamps</div><div class="line">-XX:+PrintTenuringDistribution</div><div class="line">-XX:+PrintGCApplicationStoppedTime</div><div class="line">-Xloggc:/var/app/log/Push-server/gc.log</div></pre></td></tr></table></figure></p>
+<ol>
+<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
+<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
+<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
+<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
+<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
+<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
+<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
+<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
+<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
+<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
+<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
+<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
+<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
+<li>注意调节Survivor大小时，保持Eden大小不变；</li>
+<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
+<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
+<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
+<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
+<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
+<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
+<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
+<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
+<li>如果缺少长时间调优的条件，安全起见，可以使用G1，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">-d64</div><div class="line">-Xmx5g</div><div class="line">-Xms5g</div><div class="line">-XX:PermSize=100m</div><div class="line">-XX:MaxPermSize=100m</div><div class="line">-XX:MaxDirectMemorySize=1g</div><div class="line">-XX:+UseG1GC</div><div class="line">-XX:MaxGCPauseMillis=80</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:26:50.000Z" itemprop="dateUpdated">2017-06-13 00:26:50</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/java GC调优步骤/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/java GC调优步骤/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&title=《java GC调优步骤》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&title=《java GC调优步骤》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《java GC调优步骤》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/Heka插件开发/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Heka插件开发</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/web开发进阶/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">web开发进阶</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&title=《java GC调优步骤》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&title=《java GC调优步骤》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《java GC调优步骤》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/java GC调优步骤/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJElEQVR42u3aS27cMBAFQN//0hMgKwOOxu+xNQFEFleGZUksLdr94ddXvF5/V/v33+9KnvDzrpsXBgbGYxmvt+tqE1dXr56QP+f90y6pGBgYBzDeB9kE+ctryk+Q7w0DAwNjLVBOEkcMDAyMecBtQ/D7D5EnnRgYGBh3JX8try2Jb6jFMTAwHshoBwP/8+cPzjcwMDAewniVa9KSWwvK0a4wMDC2ZiSttHbTE/xkVICBgXEaoz0e0R65aAFRsoiBgXEAIz8WlrT487ZaPjD45SoGBsamjPwIV46ct/PqZh8GBsYBjLyUXQu7edGbF9L/6BpiYGAcxsiDaZ7YJUlhfgQtCrgYGBhbMJJ0cC1ZnIwtWxgGBsY5jHmB2g4M2sCNgYFxJiM5DJG8ZlLcTo59YGBgnMAYRei4Dddi1opkDAyMExjzRO3ecUL9cTEwMLZmTBpqSbutHZTmTUAMDIwTGGvbagvRjx/FwMDA2JqxFhAnL2sHn/VkAwMDYztG+/o8pK4NQRefg4GBcQAjT9TyRDBJNPPUcPE/BgYGxhaMu45N5JuYJIjFJBYDA2MjxqtcbSmb/z656/IqBgbG1oy2sPzcIbD8GMekPMbAwHguY5LYTULhzW07DAyMAxj54HA+sKzjPQYGBkbMaAefbTieFNUYGBgY+abbJHIt1F6OBzAwMLZmtM36vOhNQuoIgIGBcQBjMhhYa7flY4a7QjYGBsZjGX8A63gi4H/SFpwAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

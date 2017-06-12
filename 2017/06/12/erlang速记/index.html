@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>erlang速记 | 浮生倒影 | 技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="erlang,FP">
+    <meta name="description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta name="keywords" content="erlang,FP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="erlang速记">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/erlang速记/index.html">
+<meta property="og:site_name" content="浮生倒影">
+<meta property="og:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta property="og:updated_time" content="2017-06-12T16:25:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="erlang速记">
+<meta name="twitter:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+    
+        <link rel="alternate" type="application/atom+xml" title="浮生倒影" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">erlang速记</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">erlang速记</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:48:18.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语法结构"><span class="post-toc-number">1.</span> <span class="post-toc-text">语法结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#并发编程"><span class="post-toc-number">2.</span> <span class="post-toc-text">并发编程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#小结"><span class="post-toc-number">3.</span> <span class="post-toc-text">小结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-erlang速记"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">erlang速记</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
+<h2 id="语法结构"><a href="#语法结构" class="headerlink" title="语法结构"></a>语法结构</h2><ol>
+<li>首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。</li>
+<li>tuple用{}表示，列表用[]表示；</li>
+<li>用<code>=</code>作模式匹配，用<code>|</code>做头尾区分，用双引号表示字符串（本质是一串数字，可以用<code>$</code>取得字符对应的数字）;</li>
+<li><code>.</code>表示模式终结，<code>,</code>用来分割参数，函数；<code>;</code>用来分割子句；</li>
+<li>函数的参数个数，称为函数的目；<code>func</code>关键字用来定义匿名函数；</li>
+</ol>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>可以把返回值放到括号里面。</p>
+<ol>
+<li>标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；</li>
+<li>没有<code>for</code>循环，和haskell一样，使用尾递归；</li>
+<li>使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；</li>
+<li><p>列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</div><div class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></div><div class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</div><div class="line">    [H] ++</div><div class="line">    qsort([X || X &lt;- T, X &gt;= H]).</div></pre></td></tr></table></figure>
+</li>
+<li><p>断言，关键字<code>when</code>。使用<code>,</code>表示<code>andalso</code>语义， 使用<code>orelse</code>而不是<code>or</code>因为后者不是短路求值；</p>
+</li>
+<li>使用<code>record</code>表示字典，声明方式：<figure class="highlight erl"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">X=#todo&#123;&#125;.</div><div class="line">Y=#todo&#123;status=urgent, text=<span class="string">"Fix errata in book"</span>&#125;.</div><div class="line">Z=Y#todo&#123;status=done&#125;.</div><div class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></div></pre></td></tr></table></figure></p>
+<p>可以使用<code>is_record</code>做模式匹配；</p>
+<ol>
+<li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></div><div class="line">    odds_and_evens_acc(L, [], []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></div><div class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</div><div class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</div><div class="line">    <span class="keyword">end</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></div><div class="line">    &#123;Odds, Evens&#125;.</div></pre></td></tr></table></figure>
+</li>
+<li><p>异常的捕捉采用<code>try...catch..after...end</code>格式，非常类似java；</p>
+</li>
+<li>数字格式包括<code>2#01011</code>其中<code>#</code>前面是进制，浮点数可以用科学计数法，即<code>-2.3e+6</code>等；</li>
+<li>每个进程都有一个私有数据存储，称为进程字典，可以用<code>put</code>,<code>get</code>, <code>get_keys</code>, <code>erase</code>等函数进行操作；但是如果使用进程字典，代码就不再是没有副作用的，因此要避免使用；</li>
+<li>引用是全局唯一的Erlang值，使用<code>erlang:make_ref()</code>来创建引用；</li>
+<li>奇怪的操作符： <code>==</code>, <code>/=</code>, <code>=:=</code>全等，<code>=/=</code>不全等；数值比较会有隐式转换；<code>==</code>仅限于浮点数和整数的比较，大部分情况下，应该使用<code>=:=</code>；</li>
+<li>奇怪的排序：<code>number</code>&lt;<code>atom</code>&lt;<code>reference</code>&lt;<code>fun</code>&lt;<code>port</code>&lt;<code>pid</code>&lt;<code>tuple</code>&lt;<code>list</code>&lt;<code>binary</code>；</li>
+<li><p>下划线变量：仅用来声明不准备使用的变量（占位符）；或者用来调试；</p>
+</li>
+<li><p>对于大的程序，还是要使用makefile的，然而直到今天我还是不会写makefile，不过我决定抽个时间学习以下cmake的使用；使用<code>code:get_path()</code>查看搜索路径，<code>code:add_patha</code>, <code>code:add_pathz</code>用来增加新目录；</p>
+</li>
+<li>可以在<code>~/.erlang</code>下增加一些命令，当启动<code>erl</code>shell时，会先执行这里的初始化语句；当前目录下的<code>.erlang</code>会覆盖home下的执行优先级。可以使用<code>init:get_argument(home)</code>确定home的路径（for windows）；</li>
+<li>erlang需要在运行前编译，或者用<code>escript</code>命令执行而无需编译（解释器）。escript的语法与erlang本身略有不同。当然我想不到在什么情况下要写erlang脚本。。。因为erlang并不是一门好的脚本语言。python才是现在的最优选择：）</li>
+</ol>
+<h2 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h2><ol>
+<li>和go一样，很简单的创建进程：<code>Pid=spawn(Fun)</code>；</li>
+<li>发送消息： <code>Pid ! Message</code>，异步发送。返回值是消息本身，这意味着使用<code>Pid1 ! Pid2 ! M</code>会将M发送到所有的Pid中；</li>
+<li><p><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">receive</span></div><div class="line">    Pattern1 [When Guard1] -&gt;</div><div class="line">        Expression1;</div><div class="line">    Pattern2 [When Guard2] -&gt;</div><div class="line">        Expression2;</div><div class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></div><div class="line">    Expressions</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</p>
+</li>
+<li><p>除了Pid机制外，可以采用注册进程的方式公开进程。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></div><div class="line"><span class="title">unregister</span><span class="params">(Name)</span></div><div class="line"><span class="title">whereis</span><span class="params">(Name)</span> -&gt; Pid | undefined <span class="comment">%检测是否注册成功</span></div><div class="line">registered() <span class="comment">%已注册进程list</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</p>
+</li>
+<li>使用<code>link(Pid)</code>在两个进程之间建立联系。二者之中任意一个挂掉，另一个都会收到系统通知；</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Erlang并不难，但是OTP很难。Erlang设计很用心，目标很明确，对于分布式大型系统的构建提供了很多基础支撑。缺点是生态系统略显封闭，社区不活跃，各种第三方库支持不全。相比之下，个人更看好Go的发展，虽然后者并不是为构建大规模系统而生，但是CPS模型的并发写起来也很舒服，加上简单的语法，快速的编译过程，完善的生态链，杰出的性能，是一个很不错的工具。</p>
+<p>目前来看，Skynet+Lua就是仿制了Erlang的思想。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:25:21.000Z" itemprop="dateUpdated">2017-06-13 00:25:21</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/erlang速记/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/erlang速记/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FP/">FP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/erlang/">erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《erlang速记》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/erlang速记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/web开发进阶/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">web开发进阶</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/java Proxy模式/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">java Proxy模式</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 浮生倒影&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 浮生倒影&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《erlang速记》 — 浮生倒影&url=http://YiuTerran.github.io/2017/06/12/erlang速记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3awWrDMBAE0Pz/T7vQUyHEmVm5gchPp+CCqqfDImn28YjH8Tuev/z9/vz7ebRzXjwwMDC+lnGcjldLTH5f++V8UzAwMO7AOC+y56XwvJjmfz3fvjdrxsDAwIinTvD50jEwMDBmBfd8cUlpnh1DMTAwMJKp84XOjpj59mFgYNyN0QYDn/z9j/kGBgbGlzCOcuQzzP7vcFUYGBhbM5LDXP49edbPY8s2KsDAwLgbI1lcXohXDp3FlRUDA2NTRlva2oawtpi2N1YMDIw7MFZaK9YDg/X2izd5LAYGxhaMvLwmJW/2JLc+GwYGxt6MvMVh9mQ2K6P5ejAwMO7DKKwXLbq90EZlGgMD4waM/HkrKcezB7WVaBMDA2NvRn6JXY8K8iaM2UUaAwNjb8Z6eU2WOAss6zYODAyMrRlJ+WujyjZTvaxRAwMDYyPGeoPXSgGdbeLLYAADA2M7Rlsc24Nj22xxPl5uBwYGxtaM2RP8rAS3m1KHDRgYGJsy8ulW2inaA2W9TRgYGDdgzCZtg8a2iBfHUAwMjK0ZeVbQPtbPLqv5g92bAyIGBsZGjKMc+XV0JYys58TAwNiasR49JofC/AEuDyeGMSoGBsbXMmZF9jNNFcX/xcDAuAEjDx1nT3LrtR8DAwOjPbrNGrna7Sie5zAwMDBGYUDehNGW2iKPxcDA2IgxCyDbC+qs+EYzY2BgbM244AK5sLj1cBQDA2Nrxg8joImHIQDYSgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
