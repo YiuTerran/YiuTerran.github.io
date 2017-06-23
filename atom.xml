@@ -40,7 +40,7 @@
     <link href="http://YiuTerran.github.io/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
     <id>http://YiuTerran.github.io/2017/06/13/jeesite代码解析/</id>
     <published>2017-06-12T16:46:00.000Z</published>
-    <updated>2017-06-15T06:49:19.000Z</updated>
+    <updated>2017-06-23T02:22:21.000Z</updated>
     
     <content type="html"><![CDATA[<p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
 <h2 id="基础知识补充"><a href="#基础知识补充" class="headerlink" title="基础知识补充"></a>基础知识补充</h2><p>常见Java注解：</p>
@@ -64,7 +64,31 @@
 <p>用例子说明：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//`User` is Entity</span></div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">CurdDao</span>&lt;<span class="title">User</span>&gt; </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">get</span><span class="params">(String id)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">&lt;sql id="userColumns"&gt;  # sql片段</div><div class="line">    a.id,</div><div class="line">    a.company_id AS "company.id",   # compony是`User`的一个成员</div><div class="line">    a.office_id AS "office.id",</div><div class="line">    a.login_name,</div><div class="line">    a.password,</div><div class="line">    a.create_by AS "createBy.id",</div><div class="line">    a.create_date,</div><div class="line">    a.update_by AS "updateBy.id",</div><div class="line">    a.update_date,</div><div class="line">    a.del_flag,</div><div class="line">    c.name AS "company.name",</div><div class="line">    c.parent_id AS "company.parent.id",</div><div class="line">    c.parent_ids AS "company.parentIds",</div><div class="line">&lt;/sql&gt;</div><div class="line"></div><div class="line">&lt;sql id="userJoins"&gt;  # sql片段</div><div class="line">    LEFT JOIN sys_office c ON c.id = a.company_id</div><div class="line">&lt;/sql&gt;</div><div class="line"></div><div class="line">	&lt;select id="get" resultType="User" parameterType="string"&gt;  # id对应Dao中方法的名字，resultType是</div><div class="line">		SELECT</div><div class="line">			&lt;include refid="userColumns"/&gt;</div><div class="line">		FROM sys_user a</div><div class="line">		&lt;include refid="userJoins"/&gt;</div><div class="line">		WHERE a.id = #&#123;id&#125;</div><div class="line">	&lt;/select&gt;</div><div class="line"></div><div class="line">&lt;select&gt;</div></pre></td></tr></table></figure>
-<p>熟悉了很快就能上手，一般情况下，自动映射可以处理绝大多数问题，只有特别复杂的结果集需要自定义<code>resultMap</code></p>
+<p>熟悉了很快就能上手，一般情况下，自动映射可以处理绝大多数问题，只有特别复杂的结果集需要自定义<code>resultMap</code>.</p>
+<h3 id="ehcache"><a href="#ehcache" class="headerlink" title="ehcache"></a>ehcache</h3><p>Java中常用的cache，支持单机也支持分布式，但是分布式配置较为复杂，一般还是使用Redis居多。</p>
+<p>这里ehcache的使用看得我一脸懵逼，好像直接缓存了POJO类，然后取出来后直接强制转换回来就可以了。理论上这不对啊，缓存肯定要序列化的…然后仔细研究了一下Java的序列化（类似Python的<code>pickle</code>）。</p>
+<p>结果发现只要标记了<code>Serializable</code>的类都可以被序列化，但是如果类被修改了，就要注意是不是修改<code>serialVersionUID</code>了。必须要修改（一般是递增）该ID的情况有（来自Java官方网站）：</p>
+<ul>
+<li>删除了成员</li>
+<li>修改了类的继承层次</li>
+<li>将一个非静态成员改成静态，或者将一个非忽略成员改成忽略(transient)</li>
+<li>修了了原始类型成员的类型声明</li>
+<li>修改了<code>writeObject</code>或者<code>readObject</code>方法</li>
+<li>将类从<code>Serializable</code>改为<code>Externalizable</code>，或者移除了标记</li>
+<li>将类改为枚举类型</li>
+</ul>
+<p>但是以下情况无须修改：</p>
+<ul>
+<li>增加成员：新增成员会使用默认值</li>
+<li>增加类：也是使用默认值</li>
+<li>移除类</li>
+<li>增加<code>writeObject/readObject</code>方法</li>
+<li>移除<code>writeObject/readObject</code>方法</li>
+<li>增加<code>java.io.Serializable</code></li>
+<li>修改成员的修饰符</li>
+<li>将成员由静态改为非静态，或者忽略改成非忽略</li>
+</ul>
+<p>其实这些并不是很好记忆…所以更好的使用经验是，不要试图序列化整个类存在缓存中，而是只缓存一些必须的变量，然后用这些变量构造对象，变量使用Java标准库内置的数据结构，这些数据结构默认都是可序列化的。</p>
 <h3 id="Entity"><a href="#Entity" class="headerlink" title="Entity"></a>Entity</h3><p>这一层本质上是db上对应表的model，但是和Python不一样，这里和表不是一一对应的，而是一个整合的数据集。</p>
 <p>换句话说，每个<code>Entity</code>可能对应很多个表，这里的抽象思路和Python不一样。Entity是一个POJO，而不是继承某个类而得来。当然我还是更喜欢Python的抽象思路，Model原子性和Table保持一致，可以自由组合。</p>
 <p>项目抽象了<code>BaseEntity</code>，在此基础上又总结了集中常见的数据模型。</p>
@@ -105,9 +129,16 @@
 <p>使用流程如下：</p>
 <ol>
 <li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>；</li>
-<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>systemAuthorizingRealm</code>；</li>
+<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>SystemAuthorizingRealm</code>；</li>
 <li>该类继承自<code>AuthorizingRealm</code>。<code>doGetAuthenticationInfo</code>是登陆验证，验证账号密码；<code>doGetAuthorizationInfo</code>是权限验证，这里也是用了自带的<code>SimpleAuthorizationInfo</code>；</li>
+<li>权限这里，根据用户角色，获取其前端菜单列表，每个菜单元素对应着一个权限字符串（如<code>sys:role:view</code>对应查看角色列表，<code>sys:role:create</code>对应创建新角色等）；</li>
+<li>由于用户角色、权限等信息需要在所有页面使用，所以这里注册了一个单例<code>SystemService</code>，来随时获取这些信息；</li>
 <li>在需要验证权限的地方，调用<code>hasRole</code>或者<code>isPermitted</code>等函数来验证权利（或者使用注解）.JSP里面也有相关的语法。</li>
+</ol>
+<h2 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h2><p>这里采用了一个设计，所有常量被存放在数据库中，而不是在代码中使用枚举。<code>sys_dict</code>表中根据<code>type</code>存放了所有枚举值，所以枚举的<code>value</code>类型被统一为<code>String</code>。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>分页。这里分页有明显的性能问题，直接查找了所有数据，然后在内存中分页（以及排序），在数据集非常大的时候这是不可取的。应该在<code>BaseEntity</code>里面存入<code>limit</code>, <code>offset</code>和<code>orderBy</code>，然后在sql里面根据这些参数来写sql；</li>
+<li>id. ID应该用自增主键，主要是出于性能考虑。MySQL的uuid主键性能很差，这是由innoDB底层实现决定的。</li>
 </ol>
 ]]></content>
     
@@ -530,9 +561,9 @@
     </summary>
     
     
-      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
-    
       <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
+    
+      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
     
   </entry>
   
