@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>oracle学习笔记 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="oracle,db">
+    <meta name="description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
+<meta name="keywords" content="oracle,db">
+<meta property="og:type" content="article">
+<meta property="og:title" content="oracle学习笔记">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/07/03/oracle学习笔记/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
+<meta property="og:updated_time" content="2017-07-03T09:34:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="oracle学习笔记">
+<meta name="twitter:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
+    
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">oracle学习笔记</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">oracle学习笔记</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-07-03T06:21:18.000Z" itemprop="datePublished" class="page-time">
+  2017-07-03
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#体系结构"><span class="post-toc-number">2.</span> <span class="post-toc-text">体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限"><span class="post-toc-number">3.</span> <span class="post-toc-text">权限</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">4.</span> <span class="post-toc-text">使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PL-SQL"><span class="post-toc-number">5.</span> <span class="post-toc-text">PL/SQL</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语句"><span class="post-toc-number">6.</span> <span class="post-toc-text">语句</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#其他"><span class="post-toc-number">7.</span> <span class="post-toc-text">其他</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">8.</span> <span class="post-toc-text">异常</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-oracle学习笔记"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">oracle学习笔记</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-07-03 14:21:18" datetime="2017-07-03T06:21:18.000Z"  itemprop="datePublished">2017-07-03</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
+<h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><p>MySQL的体系结构非常简单：<code>database</code> ——&gt; <code>table</code>，可以随意创建用户，然后我们通过<code>grant</code>命令赋予用户对库、表的访问权利。</p>
+<p>Oracle的体系稍微麻烦一些，<code>database</code>还存在，但是下一级不是<code>table</code>，而是<code>tablespace</code>，再下一层才是<code>table</code>以及其他对象。而用户在建立并创建任意属于这个用户的object后，会默认生成一个方案(<code>schema</code>)，这个方案指向属于这个用户的所有object，这些object可以属于不同的<code>tablespace</code>. 换句话说，<code>schema</code>与<code>tablespace</code>是正交的概念。后者是物理存储的角度，前者是权限概念的角度。</p>
+<p>Oracle并不能手动创建<code>schema</code>，必须通过创建用户来创建它，所以二者是一一对应的。用户本身是属于<code>database</code>下的，并不是全局的。</p>
+<p>一般流程：创建<code>database</code> -&gt; 创建<code>tablespace</code> -&gt; 创建<code>user</code>（指定默认的<code>tablespace</code>） -&gt; 用户建表。显然用户可以在建表的时候切换tablespace，但是无论如何这个表的权限属于这个建表的人。</p>
+<p>有关表的元数据被存放在数据字典中。</p>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>默认情况下，oracle会自动创建若干个用户，如<code>sys</code>, <code>system</code>和<code>scott(Tiger)</code>，并提示输入默认密码. 使用<code>sqlplus</code>登入后，使用命令<code>select username,account_status from dba_users;</code>获取所有账户状态，有需要的话可以使用<code>password</code>命令修改密码。</p>
+<p>创建用户：类似MySQL，使用<code>create user root identified by &#39;123456&#39;;</code>，然后使用<code>alter user root account unlock</code>解锁用户。</p>
+<p>权限：分为系统权限（如建表、建库等）和具体的数据权限（增删改查等）。用户可以将自己<code>schema</code>下的object授权给其他用户，或者使用管理员账户进行授权。语句格式大致为<code>grant select on emp to root with grant option</code>.</p>
+<p>收回权限：<code>revoke select on emp from root</code>.</p>
+<p>删除用户： <code>drop user root cascade</code>，删除用户会导致用户名下所有的数据都被删除，谨慎使用。</p>
+<p>可以使用<code>profile</code>进行安全策略的限制（输错密码次数、密码过期时间、密码强度限制等等）。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们先通过<code>sys</code>等系统dba账户登入，创建项目需要的管理员账户，然后赋予<code>connect</code>, <code>resource</code>和<code>dba</code>的权利。然后使用这个账户登入，创建项目需要的表。</p>
+<p>注意：oracle命令默认是<strong>区分</strong>大小写的，但是如果不加双引号的话，所有的字段、命令都会被转化为大写。一般情况下，使用单引号来引用字符串，如果字符串里面有单引号，需要使用两个单引号转义。如果用了系统关键字（或者空格等符号），则使用双引号包围字符串。</p>
+<p>使用上和MySQL有很多细节的不同，主要包括：</p>
+<ol>
+<li>自增。需要先<code>create sequence myseq increment by 1 start with 1000</code>创建一个自增序列，然后在插入的时候使用<code>myseq.nextval</code>来取得自增的值（有点类似mongo）；</li>
+<li>外部脚本。使用<code>@ xxx.sql</code>导入；</li>
+<li>表达式。使用<code>select 3 * 2 from dual</code>;</li>
+<li>系统时间。使用<code>select sysdate from dual</code>，具体格式可以使用<code>select to_char(sysdate,&#39;yyyy-mm-dd&#39;) from dual;</code>;</li>
+<li>修改表名。 <code>rename xx to yy</code>;</li>
+<li>分页。Oracle的分页做的很挫…最好使用id分页，如果要用数据库自身的分页，需要使用嵌套子查询。oracle对每一列有<code>rownum</code>和<code>rowid</code>两个虚列，前者是结果集的序列（从1开始），后者是物理上每一行的id。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span></div><div class="line">(</div><div class="line"><span class="keyword">SELECT</span> A.*, <span class="keyword">ROWNUM</span> RN</div><div class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> TABLE_NAME) A</div><div class="line"><span class="keyword">WHERE</span> <span class="keyword">ROWNUM</span> &lt;= <span class="number">40</span></div><div class="line">)</div><div class="line"><span class="keyword">WHERE</span> RN &gt;= <span class="number">21</span></div></pre></td></tr></table></figure>
+<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.</p>
+<h2 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h2><p>PL/SQL是针对Oracle特有的SQL语句，不可移植。</p>
+<p>基本单位：块(block).</p>
+<p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
+<p>运算符：注意<code>||</code>是字符串连接，其他和MySQL差不多</p>
+<p>###变量</p>
+<p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
+<pre><code>至多有30个字符
+不能是保留字
+必须以字母开头
+不允许和数据库中表的列名相同
+不可包括$,_和数字以外的字符
+</code></pre><p>变量定义（类似go语言）： <code>V_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+<p>复合数据类型:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">TYPE type_name IS RECORD(</div><div class="line">    fieldname fieldtype,</div><div class="line">    fieldname fieldtype</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
+<p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
+<p>游标：游标是查询结果集的指针。语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
+<p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>包系统：有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
+<p>存储过程：类似函数，除了无返回值，定义语法：</p>
+<pre><code>CREATE ［OR REPLACE］PROCEDURE procedure_name
+[(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
+AS | IS
+BEGIN
+    procedure_body;
+END [procedure_name];
+</code></pre><p>其中:</p>
+<pre><code>IN：表示是一个输入参数，可以指定缺省值。如省略参数类型，则缺省为in类型
+OUT：表示是一个输出参数
+IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
+</code></pre><p>调用语法：</p>
+<pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
+</code></pre><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>预定义了以下异常：</p>
+<pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
+DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
+CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
+TOO_MANY_ROWS          SELECT ... INTO ... 时，查询的结果是多值
+ZERO_DIVIDE            零被整除
+</code></pre><p>当然也可以自己声明<code>EXCEPTION</code>, 在程序中<code>RAISE</code>出来。处理语法是<code>BEGIN..EXCEPTION..WHEN..THEN..END</code></p>
+<p>使用<code>SQLCODE</code>和<code>SQLERRM</code>分别取得错误码和错误信息，还可以使用<code>RAISE_APPLICATION_ERROR</code>将异常传递到客户端</p>
+<p>事务：在<code>BEGIN</code>后面隐式开始事务，也可以使用<code>SET TRANSACTION</code>显式开启。</p>
+<p>使用<code>SELECT..FOR UPDATE OF..</code>可以查询结果后自动锁表。如果函数/存储过程会被其他函数调用，可以将事务声明为自主事务，方法是在<code>BEGIN</code>前声明<code>PRAGMA AUTONOMOUS_TRANSACTION</code>.</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-07-03T09:34:23.000Z" itemprop="dateUpdated">2017-07-03 17:34:23</time>
+</span><br>
+
+
+        
+        <a href="/2017/07/03/oracle学习笔记/" target="_blank" rel="external">http://YiuTerran.github.io/2017/07/03/oracle学习笔记/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&title=《oracle学习笔记》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&title=《oracle学习笔记》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《oracle学习笔记》 — 无心呢喃&url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/26/maven和gradle一些选项/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">maven和gradle一些选项</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&title=《oracle学习笔记》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&title=《oracle学习笔记》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《oracle学习笔记》 — 无心呢喃&url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/07/03/oracle学习笔记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLklEQVR42u3aQXLDIBAEQP//08o1qUTyDFipEjQnlyQj2oc1y+7rFY/jZPy+mzyfvOV1x8DAwHgs47gcZ898v95ifi80mfPNj4KBgbEB4yyCnT0zc+U6sF6/9/Q6BgYGxmVgvQ64LQkDAwPjU4w8+Uy2j8ldDAwMjCSJTaaeT4lvz8UxMDAeyMhP3f//8y31DQwMjEcxjnIkYTE53J9Zwx+zYWBgLM3IA1ybXiZFypwavQUDA2NRxh3hNW/wmgnTU90iGBgYCzGSRbTBNy9/FmVUDAyMbRhjRcexlLVt4Ci2hhgYGMsx2oaGvMw5sxltC6UYGBg7MNqQ17ZltGG3TYYxMDDWZuRhLn/lWBtHC/vxGQMDY2lGstAk4LaHa2MHc8XMGBgYCzHaA/r2GG6snJBvSaNHMTAwHs6Y//JMEXS+PICBgbED445SZdt4MTbz6dYQAwNjG0abmuah9ohH8Y+BgYGxDaOtDM4ctLXB/c11DAyMpRl5+nr38VnbnBFVNjAwMBZitGXLNsVtA/RgswUGBsZmjDZZnQd8oGCAgYGxMaMtVebX22JnvTXEwMBYgnGUY6w5Yya5TX5iDAyMtRltu9jMstqNYLttxcDAWJvRNj20ATEvZI41nGFgYOzDaIPgWLPFp5LYN8dtGBgY2zPyhoyxb7WNYhgYGBhtU9fY/G0x4DSJxcDAWJrRtlC0ye1YabNov8DAwFiaMZM6jrV/jW0NP1DIxMDAeB7jCxTJ0T8Ljf1oAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

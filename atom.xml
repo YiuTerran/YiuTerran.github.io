@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-06-14T14:55:26.000Z</updated>
+  <updated>2017-07-03T09:34:23.000Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,135 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>oracle学习笔记</title>
+    <link href="http://YiuTerran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://YiuTerran.github.io/2017/07/03/oracle学习笔记/</id>
+    <published>2017-07-03T06:21:18.000Z</published>
+    <updated>2017-07-03T09:34:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
+<h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><p>MySQL的体系结构非常简单：<code>database</code> ——&gt; <code>table</code>，可以随意创建用户，然后我们通过<code>grant</code>命令赋予用户对库、表的访问权利。</p>
+<p>Oracle的体系稍微麻烦一些，<code>database</code>还存在，但是下一级不是<code>table</code>，而是<code>tablespace</code>，再下一层才是<code>table</code>以及其他对象。而用户在建立并创建任意属于这个用户的object后，会默认生成一个方案(<code>schema</code>)，这个方案指向属于这个用户的所有object，这些object可以属于不同的<code>tablespace</code>. 换句话说，<code>schema</code>与<code>tablespace</code>是正交的概念。后者是物理存储的角度，前者是权限概念的角度。</p>
+<p>Oracle并不能手动创建<code>schema</code>，必须通过创建用户来创建它，所以二者是一一对应的。用户本身是属于<code>database</code>下的，并不是全局的。</p>
+<p>一般流程：创建<code>database</code> -&gt; 创建<code>tablespace</code> -&gt; 创建<code>user</code>（指定默认的<code>tablespace</code>） -&gt; 用户建表。显然用户可以在建表的时候切换tablespace，但是无论如何这个表的权限属于这个建表的人。</p>
+<p>有关表的元数据被存放在数据字典中。</p>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>默认情况下，oracle会自动创建若干个用户，如<code>sys</code>, <code>system</code>和<code>scott(Tiger)</code>，并提示输入默认密码. 使用<code>sqlplus</code>登入后，使用命令<code>select username,account_status from dba_users;</code>获取所有账户状态，有需要的话可以使用<code>password</code>命令修改密码。</p>
+<p>创建用户：类似MySQL，使用<code>create user root identified by &#39;123456&#39;;</code>，然后使用<code>alter user root account unlock</code>解锁用户。</p>
+<p>权限：分为系统权限（如建表、建库等）和具体的数据权限（增删改查等）。用户可以将自己<code>schema</code>下的object授权给其他用户，或者使用管理员账户进行授权。语句格式大致为<code>grant select on emp to root with grant option</code>.</p>
+<p>收回权限：<code>revoke select on emp from root</code>.</p>
+<p>删除用户： <code>drop user root cascade</code>，删除用户会导致用户名下所有的数据都被删除，谨慎使用。</p>
+<p>可以使用<code>profile</code>进行安全策略的限制（输错密码次数、密码过期时间、密码强度限制等等）。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们先通过<code>sys</code>等系统dba账户登入，创建项目需要的管理员账户，然后赋予<code>connect</code>, <code>resource</code>和<code>dba</code>的权利。然后使用这个账户登入，创建项目需要的表。</p>
+<p>注意：oracle命令默认是<strong>区分</strong>大小写的，但是如果不加双引号的话，所有的字段、命令都会被转化为大写。一般情况下，使用单引号来引用字符串，如果字符串里面有单引号，需要使用两个单引号转义。如果用了系统关键字（或者空格等符号），则使用双引号包围字符串。</p>
+<p>使用上和MySQL有很多细节的不同，主要包括：</p>
+<ol>
+<li>自增。需要先<code>create sequence myseq increment by 1 start with 1000</code>创建一个自增序列，然后在插入的时候使用<code>myseq.nextval</code>来取得自增的值（有点类似mongo）；</li>
+<li>外部脚本。使用<code>@ xxx.sql</code>导入；</li>
+<li>表达式。使用<code>select 3 * 2 from dual</code>;</li>
+<li>系统时间。使用<code>select sysdate from dual</code>，具体格式可以使用<code>select to_char(sysdate,&#39;yyyy-mm-dd&#39;) from dual;</code>;</li>
+<li>修改表名。 <code>rename xx to yy</code>;</li>
+<li>分页。Oracle的分页做的很挫…最好使用id分页，如果要用数据库自身的分页，需要使用嵌套子查询。oracle对每一列有<code>rownum</code>和<code>rowid</code>两个虚列，前者是结果集的序列（从1开始），后者是物理上每一行的id。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span></div><div class="line">(</div><div class="line"><span class="keyword">SELECT</span> A.*, <span class="keyword">ROWNUM</span> RN</div><div class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> TABLE_NAME) A</div><div class="line"><span class="keyword">WHERE</span> <span class="keyword">ROWNUM</span> &lt;= <span class="number">40</span></div><div class="line">)</div><div class="line"><span class="keyword">WHERE</span> RN &gt;= <span class="number">21</span></div></pre></td></tr></table></figure>
+<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.</p>
+<h2 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h2><p>PL/SQL是针对Oracle特有的SQL语句，不可移植。</p>
+<p>基本单位：块(block).</p>
+<p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
+<p>运算符：注意<code>||</code>是字符串连接，其他和MySQL差不多</p>
+<p>###变量</p>
+<p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
+<pre><code>至多有30个字符
+不能是保留字
+必须以字母开头
+不允许和数据库中表的列名相同
+不可包括$,_和数字以外的字符
+</code></pre><p>变量定义（类似go语言）： <code>V_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+<p>复合数据类型:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">TYPE type_name IS RECORD(</div><div class="line">    fieldname fieldtype,</div><div class="line">    fieldname fieldtype</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
+<p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
+<p>游标：游标是查询结果集的指针。语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
+<p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>包系统：有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
+<p>存储过程：类似函数，除了无返回值，定义语法：</p>
+<pre><code>CREATE ［OR REPLACE］PROCEDURE procedure_name
+[(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
+AS | IS
+BEGIN
+    procedure_body;
+END [procedure_name];
+</code></pre><p>其中:</p>
+<pre><code>IN：表示是一个输入参数，可以指定缺省值。如省略参数类型，则缺省为in类型
+OUT：表示是一个输出参数
+IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
+</code></pre><p>调用语法：</p>
+<pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
+</code></pre><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>预定义了以下异常：</p>
+<pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
+DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
+CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
+TOO_MANY_ROWS          SELECT ... INTO ... 时，查询的结果是多值
+ZERO_DIVIDE            零被整除
+</code></pre><p>当然也可以自己声明<code>EXCEPTION</code>, 在程序中<code>RAISE</code>出来。处理语法是<code>BEGIN..EXCEPTION..WHEN..THEN..END</code></p>
+<p>使用<code>SQLCODE</code>和<code>SQLERRM</code>分别取得错误码和错误信息，还可以使用<code>RAISE_APPLICATION_ERROR</code>将异常传递到客户端</p>
+<p>事务：在<code>BEGIN</code>后面隐式开始事务，也可以使用<code>SET TRANSACTION</code>显式开启。</p>
+<p>使用<code>SELECT..FOR UPDATE OF..</code>可以查询结果后自动锁表。如果函数/存储过程会被其他函数调用，可以将事务声明为自主事务，方法是在<code>BEGIN</code>前声明<code>PRAGMA AUTONOMOUS_TRANSACTION</code>.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。&lt;/p&gt;
+&lt;h2 id=&quot;安装&quot;&gt;&lt;a href=&quot;#安装&quot; class=&quot;headerlink&quot; title=&quot;安装&quot;
+    
+    </summary>
+    
+    
+      <category term="oracle" scheme="http://YiuTerran.github.io/tags/oracle/"/>
+    
+      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>maven和gradle一些选项</title>
+    <link href="http://YiuTerran.github.io/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/"/>
+    <id>http://YiuTerran.github.io/2017/06/26/maven和gradle一些选项/</id>
+    <published>2017-06-26T01:32:23.000Z</published>
+    <updated>2017-06-26T03:21:49.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Java的包依赖系统简单粗暴，就是直接下载jar包，经历了<code>Ant</code> -&gt; <code>Maven</code> -&gt; <code>Gradle</code>这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。</p>
+<p>如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。</p>
+<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），而Gradle会尝试自动解决该问题（使用公共依赖的最新版本）。</p>
+<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p>类似<code>npm</code>中的概念：这个包是啥时候被需要。显然有些包只是编译的时候需求，运行的时候不再被需要，因为Maven中的<code>scope</code>分为以下几种：</p>
+<ul>
+<li>compile. 默认范围，会被打包。</li>
+<li>provided. 这个概念比较模糊，意思是这东西由外部容器提供，不需要自己打包进去。</li>
+<li>runtime. 只有运行和测试系统的时候需要，编译的时候不需要。一个典型的例子就是<code>jdbc</code>的接口API在编译时必须要可用，但是具体实现可以只在运行时插入。</li>
+<li>test. 只被测试依赖。Maven有标准的测试流程。</li>
+<li>system. 系统范围，jar包被放在本地，无须从仓库中寻找。当然一般不推荐使用。</li>
+</ul>
+<h2 id="Idea的使用"><a href="#Idea的使用" class="headerlink" title="Idea的使用"></a>Idea的使用</h2><p>Idea中可以在<code>Project Structure</code>里面直接修改配置，会自动生成/修改对应的Pom文件，主要在<code>modules/dependencies</code>里面改。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Java的包依赖系统简单粗暴，就是直接下载jar包，经历了&lt;code&gt;Ant&lt;/code&gt; -&amp;gt; &lt;code&gt;Maven&lt;/code&gt; -&amp;gt; &lt;code&gt;Gradle&lt;/code&gt;这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。&lt;
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
+      <category term="maven" scheme="http://YiuTerran.github.io/tags/maven/"/>
+    
+      <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
+    
+  </entry>
   
   <entry>
     <title>Bash on Ubuntu on Windows下载过慢问题的简单解决</title>
@@ -561,9 +690,9 @@
     </summary>
     
     
-      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
-    
       <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
+    
+      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
     
   </entry>
   
@@ -889,11 +1018,11 @@
     </summary>
     
     
-      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
+      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
+      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
   </entry>
   
@@ -984,11 +1113,11 @@
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
@@ -1056,11 +1185,11 @@
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
