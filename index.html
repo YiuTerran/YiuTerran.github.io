@@ -169,8 +169,7 @@
     
         工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。
 安装Mac下可以使用docker安装，可以参考这篇博客.
-体系结构MySQL的体系结构非常简单：database ——&gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。
-Oracle的体系稍微麻...
+概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的...
     
 
         <a href="/2017/07/03/oracle学习笔记/" class="post-more waves-effect waves-button">

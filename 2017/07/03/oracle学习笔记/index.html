@@ -20,17 +20,17 @@
     
     
     <meta name="keywords" content="oracle,db">
-    <meta name="description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
+    <meta name="description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响">
 <meta name="keywords" content="oracle,db">
 <meta property="og:type" content="article">
 <meta property="og:title" content="oracle学习笔记">
 <meta property="og:url" content="http://YiuTerran.github.io/2017/07/03/oracle学习笔记/index.html">
 <meta property="og:site_name" content="无心呢喃">
-<meta property="og:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
-<meta property="og:updated_time" content="2017-07-03T09:34:23.000Z">
+<meta property="og:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响">
+<meta property="og:updated_time" content="2017-07-04T02:12:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="oracle学习笔记">
-<meta name="twitter:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 体系结构MySQL的体系结构非常简单：database ——&amp;gt; table，可以随意创建用户，然后我们通过grant命令赋予用户对库、表的访问权利。 Oracle的体系稍微麻烦一些">
+<meta name="twitter:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响">
     
         <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
     
@@ -145,7 +145,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#体系结构"><span class="post-toc-number">2.</span> <span class="post-toc-text">体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限"><span class="post-toc-number">3.</span> <span class="post-toc-text">权限</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">4.</span> <span class="post-toc-text">使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PL-SQL"><span class="post-toc-number">5.</span> <span class="post-toc-text">PL/SQL</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语句"><span class="post-toc-number">6.</span> <span class="post-toc-text">语句</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#其他"><span class="post-toc-number">7.</span> <span class="post-toc-text">其他</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">8.</span> <span class="post-toc-text">异常</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概念"><span class="post-toc-number">2.</span> <span class="post-toc-text">概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#索引"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分区表"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">分区表</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#锁"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">锁</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#体系结构"><span class="post-toc-number">3.</span> <span class="post-toc-text">体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限"><span class="post-toc-number">4.</span> <span class="post-toc-text">权限</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">5.</span> <span class="post-toc-text">使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PL-SQL"><span class="post-toc-number">6.</span> <span class="post-toc-text">PL/SQL</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#游标"><span class="post-toc-number">7.</span> <span class="post-toc-text">游标</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语句"><span class="post-toc-number">8.</span> <span class="post-toc-text">语句</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#其他"><span class="post-toc-number">9.</span> <span class="post-toc-text">其他</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">10.</span> <span class="post-toc-text">异常</span></a></li></ol>
         </nav>
     </aside>
     
@@ -172,6 +172,14 @@
         <div class="post-content" id="post-content" itemprop="postContent">
             <p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><code>OLTP</code>：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响应。<br><code>OLAP</code>：在线分析系统，强调数据分析，强调SQL 执行时长，强调磁盘I/O，强调分区等。主要用户数据分析，对于性能要求没那么高。</p>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>oracle的索引分为B-tree, Bitmap，Hash等，其中位图索引不能被声明为唯一索引，适合候选值很少，且不频繁改动的列。对于高并发系统，不要使用位图索引。</p>
+<p>函数索引：如果查询的时候总是使用某个函数，使用函数索引较多。例如，对于搜索大小写不敏感的字段，查询的时候总会使用<code>Upper</code>函数将其转为大写，但是存放的时候还是用户的原始数据，就可以建立一个函数索引。</p>
+<h3 id="分区表"><a href="#分区表" class="headerlink" title="分区表"></a>分区表</h3><p>类似MySQL中的shard，不同的是Oracle自带了这个功能。现在基于MySQL的TiDB，以及各类开源的Proxy功能也可以实现透明分区。注意：含有LONG、LONGRAW数据类型的表不能进行分区。</p>
+<p>分区方法：范围分区（适合以日期分割的历史数据），哈希分区（没有合适的条件，可以这么干），列表分区（根据有限枚举的列分区）。还可以用Range分区作为根分区方法，其他分区作为子分区，这是组合分区。Oracle可以自动根据时间建立分区表。</p>
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>整体和MySQL类似。使用<code>LOCK TABLE tablename</code>的格式加表锁。</p>
+<p>使用<code>SELECT..FOR UPDATE</code>方式加行级锁。</p>
+<p>当<code>COMMIT</code>或者<code>ROLLBACK</code>后，释放锁。但是<code>ROLLBACK</code>不能释放行级锁。其他的锁主要是供系统使用，是DBA需要掌握的内容，包括如何解决死锁等。</p>
 <h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><p>MySQL的体系结构非常简单：<code>database</code> ——&gt; <code>table</code>，可以随意创建用户，然后我们通过<code>grant</code>命令赋予用户对库、表的访问权利。</p>
 <p>Oracle的体系稍微麻烦一些，<code>database</code>还存在，但是下一级不是<code>table</code>，而是<code>tablespace</code>，再下一层才是<code>table</code>以及其他对象。而用户在建立并创建任意属于这个用户的object后，会默认生成一个方案(<code>schema</code>)，这个方案指向属于这个用户的所有object，这些object可以属于不同的<code>tablespace</code>. 换句话说，<code>schema</code>与<code>tablespace</code>是正交的概念。后者是物理存储的角度，前者是权限概念的角度。</p>
 <p>Oracle并不能手动创建<code>schema</code>，必须通过创建用户来创建它，所以二者是一一对应的。用户本身是属于<code>database</code>下的，并不是全局的。</p>
@@ -213,7 +221,8 @@
 <p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
 <p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
-<p>游标：游标是查询结果集的指针。语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
 <h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
 <p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>包系统：有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
@@ -247,7 +256,7 @@ ZERO_DIVIDE            零被整除
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-07-03T09:34:23.000Z" itemprop="dateUpdated">2017-07-03 17:34:23</time>
+    最后更新时间：<time datetime="2017-07-04T02:12:06.000Z" itemprop="dateUpdated">2017-07-04 10:12:06</time>
 </span><br>
 
 
