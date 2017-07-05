@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-07-04T02:12:06.000Z</updated>
+  <updated>2017-07-05T07:26:52.000Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://YiuTerran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     <id>http://YiuTerran.github.io/2017/07/03/oracle学习笔记/</id>
     <published>2017-07-03T06:21:18.000Z</published>
-    <updated>2017-07-04T02:12:06.000Z</updated>
+    <updated>2017-07-05T07:26:52.000Z</updated>
     
     <content type="html"><![CDATA[<p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
@@ -60,8 +60,7 @@
 <p>基本单位：块(block).</p>
 <p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
 <p>运算符：注意<code>||</code>是字符串连接，其他和MySQL差不多</p>
-<p>###变量</p>
-<p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
 <pre><code>至多有30个字符
 不能是保留字
 必须以字母开头
@@ -73,6 +72,7 @@
 <p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
 <p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
+<p>除了普通变量外，还有替换变量。主要用于人机交互，<code>&amp;</code>前缀表示提示用户输入，且仅此次有效，<code>&amp;&amp;</code>前缀则表示永久有效，仅需要输入一次。</p>
 <h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
 <p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
 <h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
@@ -699,9 +699,9 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
-    
       <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
+    
+      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
     
   </entry>
   
