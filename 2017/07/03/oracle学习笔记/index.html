@@ -27,7 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/07/03/oracle学习笔记/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响">
-<meta property="og:updated_time" content="2017-07-05T07:26:52.000Z">
+<meta property="og:updated_time" content="2017-07-05T09:08:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="oracle学习笔记">
 <meta name="twitter:description" content="工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。 安装Mac下可以使用docker安装，可以参考这篇博客. 概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响">
@@ -145,7 +145,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概念"><span class="post-toc-number">2.</span> <span class="post-toc-text">概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#索引"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分区表"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">分区表</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#锁"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">锁</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#体系结构"><span class="post-toc-number">3.</span> <span class="post-toc-text">体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限"><span class="post-toc-number">4.</span> <span class="post-toc-text">权限</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">5.</span> <span class="post-toc-text">使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PL-SQL"><span class="post-toc-number">6.</span> <span class="post-toc-text">PL/SQL</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#变量"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">变量</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#游标"><span class="post-toc-number">7.</span> <span class="post-toc-text">游标</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语句"><span class="post-toc-number">8.</span> <span class="post-toc-text">语句</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#其他"><span class="post-toc-number">9.</span> <span class="post-toc-text">其他</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">10.</span> <span class="post-toc-text">异常</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装"><span class="post-toc-number">1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概念"><span class="post-toc-number">2.</span> <span class="post-toc-text">概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#索引"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分区表"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">分区表</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#锁"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">锁</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#体系结构"><span class="post-toc-number">3.</span> <span class="post-toc-text">体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限"><span class="post-toc-number">4.</span> <span class="post-toc-text">权限</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用"><span class="post-toc-number">5.</span> <span class="post-toc-text">使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PL-SQL"><span class="post-toc-number">6.</span> <span class="post-toc-text">PL/SQL</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#变量"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">变量</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#游标"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">游标</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#语句"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">语句</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#包（package）"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">包（package）</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#存储过程-Proceduce"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">存储过程(Proceduce)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异常"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">异常</span></a></li></ol></li></ol>
         </nav>
     </aside>
     
@@ -215,18 +215,19 @@
 不允许和数据库中表的列名相同
 不可包括$,_和数字以外的字符
 </code></pre><p>变量定义（类似go语言）： <code>V_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+<p>基本数据类型就是JDBC中的那些</p>
 <p>复合数据类型:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">TYPE type_name IS RECORD(</div><div class="line">    fieldname fieldtype,</div><div class="line">    fieldname fieldtype</div><div class="line">);</div></pre></td></tr></table></figure>
 <p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
 <p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
 <p>除了普通变量外，还有替换变量。主要用于人机交互，<code>&amp;</code>前缀表示提示用户输入，且仅此次有效，<code>&amp;&amp;</code>前缀则表示永久有效，仅需要输入一次。</p>
-<h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
 <p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
-<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
+<h3 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h3><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
 <p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>包系统：有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
-<p>存储过程：类似函数，除了无返回值，定义语法：</p>
+<h3 id="包（package）"><a href="#包（package）" class="headerlink" title="包（package）"></a>包（package）</h3><p>有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
+<h3 id="存储过程-Proceduce"><a href="#存储过程-Proceduce" class="headerlink" title="存储过程(Proceduce)"></a>存储过程(Proceduce)</h3><p>类似函数，除了无返回值，定义语法：</p>
 <pre><code>CREATE ［OR REPLACE］PROCEDURE procedure_name
 [(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
 AS | IS
@@ -239,7 +240,7 @@ OUT：表示是一个输出参数
 IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
 </code></pre><p>调用语法：</p>
 <pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
-</code></pre><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>预定义了以下异常：</p>
+</code></pre><h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><p>预定义了以下异常：</p>
 <pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
 DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
 CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
@@ -256,7 +257,7 @@ ZERO_DIVIDE            零被整除
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-07-05T07:26:52.000Z" itemprop="dateUpdated">2017-07-05 15:26:52</time>
+    最后更新时间：<time datetime="2017-07-05T09:08:38.000Z" itemprop="dateUpdated">2017-07-05 17:08:38</time>
 </span><br>
 
 
@@ -336,7 +337,14 @@ ZERO_DIVIDE            零被整除
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/07/07/报表打印-pdf-技术选型/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">报表打印(pdf)技术选型</h4>
+      </a>
+    </div>
   
 
   

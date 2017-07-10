@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-07-05T07:26:52.000Z</updated>
+  <updated>2017-07-10T05:32:38.000Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -16,11 +16,59 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>报表打印(pdf)技术选型</title>
+    <link href="http://YiuTerran.github.io/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/"/>
+    <id>http://YiuTerran.github.io/2017/07/07/报表打印-pdf-技术选型/</id>
+    <published>2017-07-06T16:21:00.000Z</published>
+    <updated>2017-07-10T05:32:38.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧<em>(:зゝ∠)</em></p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install libxrender1 fontconfig xvfb</div><div class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</div><div class="line"><span class="built_in">cd</span> /opt/</div><div class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</div><div class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</div></pre></td></tr></table></figure>
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">pdfkit.from_string(page, outfile, options=&#123;</div><div class="line">    <span class="string">'page-size'</span>: <span class="string">'A4'</span>,</div><div class="line">    <span class="string">'margin-top'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-right'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-left'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-bottom'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'encoding'</span>: <span class="string">"UTF-8"</span>,</div><div class="line">    <span class="string">'no-outline'</span>: <span class="keyword">None</span>,</div><div class="line">    <span class="comment"># 'zoom': 1.5,  # when run on mac</span></div><div class="line">    <span class="comment"># 'dpi': 250</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。&lt;/p&gt;
+&lt;p&gt;首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件
+    
+    </summary>
+    
+    
+      <category term="js" scheme="http://YiuTerran.github.io/tags/js/"/>
+    
+      <category term="python" scheme="http://YiuTerran.github.io/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
     <title>oracle学习笔记</title>
     <link href="http://YiuTerran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     <id>http://YiuTerran.github.io/2017/07/03/oracle学习笔记/</id>
     <published>2017-07-03T06:21:18.000Z</published>
-    <updated>2017-07-05T07:26:52.000Z</updated>
+    <updated>2017-07-05T09:08:38.000Z</updated>
     
     <content type="html"><![CDATA[<p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
@@ -67,18 +115,19 @@
 不允许和数据库中表的列名相同
 不可包括$,_和数字以外的字符
 </code></pre><p>变量定义（类似go语言）： <code>V_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+<p>基本数据类型就是JDBC中的那些</p>
 <p>复合数据类型:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">TYPE type_name IS RECORD(</div><div class="line">    fieldname fieldtype,</div><div class="line">    fieldname fieldtype</div><div class="line">);</div></pre></td></tr></table></figure>
 <p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">declare</span></div><div class="line">            <span class="keyword">type</span> ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename%<span class="keyword">type</span></div><div class="line">            <span class="keyword">index</span> <span class="keyword">by</span> binary_integer;</div><div class="line">ename_table ename_table_type;</div></pre></td></tr></table></figure>
 <p>可以使用<code>ename_table(-1)</code>进行下标访问。</p>
 <p>除了普通变量外，还有替换变量。主要用于人机交互，<code>&amp;</code>前缀表示提示用户输入，且仅此次有效，<code>&amp;&amp;</code>前缀则表示永久有效，仅需要输入一次。</p>
-<h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><p>游标是查询结果集的指针。<br>语法：<code>CURSOR cursor_name IS select_statement;</code>，游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
 <p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
-<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
+<h3 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h3><p>条件语句：<code>IF..THEN..ELSEIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
 <p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>包系统：有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
-<p>存储过程：类似函数，除了无返回值，定义语法：</p>
+<h3 id="包（package）"><a href="#包（package）" class="headerlink" title="包（package）"></a>包（package）</h3><p>有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
+<h3 id="存储过程-Proceduce"><a href="#存储过程-Proceduce" class="headerlink" title="存储过程(Proceduce)"></a>存储过程(Proceduce)</h3><p>类似函数，除了无返回值，定义语法：</p>
 <pre><code>CREATE ［OR REPLACE］PROCEDURE procedure_name
 [(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
 AS | IS
@@ -91,7 +140,7 @@ OUT：表示是一个输出参数
 IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
 </code></pre><p>调用语法：</p>
 <pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
-</code></pre><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>预定义了以下异常：</p>
+</code></pre><h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><p>预定义了以下异常：</p>
 <pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
 DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
 CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
@@ -699,9 +748,9 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
-    
       <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
+    
+      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
     
   </entry>
   
