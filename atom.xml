@@ -85,29 +85,6 @@
   </entry>
   
   <entry>
-    <title>kotlin学习</title>
-    <link href="http://YiuTerran.github.io/2017/08/20/kotlin%E5%AD%A6%E4%B9%A0/"/>
-    <id>http://YiuTerran.github.io/2017/08/20/kotlin学习/</id>
-    <published>2017-08-20T08:41:25.000Z</published>
-    <updated>2017-08-20T10:37:27.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>swift4马上就要出了，所以swift还是等iOS11以及macOS11出了以后再学吧，还是有准备写一个iOS的APP的。现在公司的技术栈全部基于Java，那么kotlin作为一门可以无缝替代Java并受到Google官方支持的语言，还是很值得学习一下的。</p>
-<p>#</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;swift4马上就要出了，所以swift还是等iOS11以及macOS11出了以后再学吧，还是有准备写一个iOS的APP的。现在公司的技术栈全部基于Java，那么kotlin作为一门可以无缝替代Java并受到Google官方支持的语言，还是很值得学习一下的。&lt;/p&gt;
-&lt;p&gt;
-    
-    </summary>
-    
-    
-      <category term="kotlin" scheme="http://YiuTerran.github.io/tags/kotlin/"/>
-    
-  </entry>
-  
-  <entry>
     <title>SpringMvc4 Rest Api最佳实践</title>
     <link href="http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
     <id>http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api最佳实践/</id>
