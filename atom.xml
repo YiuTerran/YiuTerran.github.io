@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-07-10T05:32:38.000Z</updated>
+  <updated>2017-10-16T07:17:07.000Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,168 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>spring boot学习</title>
+    <link href="http://YiuTerran.github.io/2017/10/09/spring-boot%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://YiuTerran.github.io/2017/10/09/spring-boot学习/</id>
+    <published>2017-10-09T01:23:40.000Z</published>
+    <updated>2017-10-16T07:17:07.000Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
+      <category term="spring" scheme="http://YiuTerran.github.io/tags/spring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>gradle学习</title>
+    <link href="http://YiuTerran.github.io/2017/09/29/gradle%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://YiuTerran.github.io/2017/09/29/gradle学习/</id>
+    <published>2017-09-29T05:30:57.000Z</published>
+    <updated>2017-09-29T05:31:15.000Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
+      <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>swift4学习</title>
+    <link href="http://YiuTerran.github.io/2017/09/25/swift4%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://YiuTerran.github.io/2017/09/25/swift4学习/</id>
+    <published>2017-09-25T14:35:54.000Z</published>
+    <updated>2017-12-10T14:32:48.262Z</updated>
+    
+    <content type="html"><![CDATA[<p>本来打算学习 3 的，结果 4 马上就出来了，耽搁了一段时间，从头搞起。完了准备写一些 macOS 的应用玩，或者 iOS 的。</p>
+<p>主流工程编程语言主要发展了四代，C 语言（命令式） -&gt; C++/Java/C#( 静态面向对象 ) -&gt; js/python/ruby( 动态函数式 + 面向对象 ) -&gt; swift/kotlin/rust( 静态函数式 + 面向对象 )，最后的 swift/kotlin， 这些又被成为现代编程语言。严格来说 golang 也算是这类的，但是 golang 的设计实在太工业化，缺乏很多高级特性，更像是一门 DSL.</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>用 macOS，装上 xcode，完事。swift 自带了 repl 和 playground 功能，后者比 ipython book 更牛逼，适合用来写文档，同时其中的代码可以直接运行。</p>
+<h1 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h1><h2 id="变量与语句"><a href="#变量与语句" class="headerlink" title="变量与语句"></a>变量与语句</h2><ol>
+<li>使用<code>let</code>声明常量，使用<code>var</code>声明类型推导的变量；</li>
+<li>使用<code>:</code>在变量名后面声明类型。类似 haskell，所有类型名首字母均大写；</li>
+<li>String 是不可变的值类型，String 的基本构成是<code>Character</code></li>
+<li>类型转换类似 Python，format 语句倒是类似 es6 的<code>${}</code>，不过是<code>\(v)</code>这种格式；</li>
+<li>dict 和 list 都是使用<code>[]</code>来创建，也就是说类似 lua 的设计。声明方式：<code>var t1=[String]()</code>, <code>let t2 = [String: Int]()</code></li>
+<li>使用<code>Set&lt;T&gt;</code>创建 set</li>
+<li><code>for</code>, <code>if</code>的语法很像 golang，注意和 Python 不同，没有隐式的 bool；</li>
+<li>可以使用<code>guard</code>来做提前退出（这个关键字同样来自 haskell）</li>
+<li>所有变量默认为非 nil 的，如果可能为 nil，在变量名后面加<code>?</code>，类似其他语言中的<code>optional</code>或者 haskell 中的<code>Empty</code></li>
+<li>如果确定不可能为 nil，可以使用<code>!</code>后缀声明变量</li>
+<li>判断是不是 nil，可以在 if 的条件中直接将带<code>?</code>的变量赋给一般变量，如果为<code>nil</code>则<code>if</code>语句为 false；或者用<code>??</code>赋值，相当于在 js 中使用<code>||</code></li>
+<li>可以使用<code>repeat</code>语法；</li>
+<li>可以使用<code>1..&lt;3</code>或者<code>1...3</code>语法，表示数字范围；</li>
+<li><code>switch..case</code>可以用来实现模式匹配；</li>
+<li>使用<code>typealias</code>给类型别名</li>
+<li>使用断言 (assert) 做测试，使用前置条件 (precondtion) 做约束判断，换而言之 assert 在 release 时是不会生效的</li>
+</ol>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><ol>
+<li>函数语法也类似 golang，但是引入了<code>label</code>系统，所以格式看起来很奇怪，label 用来实现 Python 中的指定名称传参</li>
+<li>默认情况下所有函数参数是不可变的，需要改变的话需要<code>inout</code>修饰变量类型，如<code>test: inout String</code></li>
+<li>使用<code>()</code>创建 tuple</li>
+<li>可以使用<code>{}</code>创建匿名闭包函数，用<code>in</code>来分割声明和函数体；</li>
+<li>在闭包中可以用<code>$0</code>, <code>$1</code>代指第一个、第二个参数</li>
+</ol>
+<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><ol>
+<li>使用<code>init</code>初始化（构造器）</li>
+<li>使用<code>self</code>指代自己 (this)</li>
+<li>使用<code>deinit</code>析构</li>
+<li>在声明变量时可以定义<code>get</code>, <code>set</code>, <code>willSet</code>, <code>didSet</code>，后两者相当于触发器：如果变量改变，之前和之后做什么</li>
+<li>swift 的<code>enum</code>异常强大，除了普通的值以外，还能定义模式；使用<code>indirect</code>关键字可以实现递归 enum</li>
+<li>struct 和 class 的区别在于前者永远是深拷贝的（值类型），后者使用引用（引用类型）; 还有一点，struct 默认是不可变的，如果需要在方法中修改对象，需要加上<code>mutating</code>修饰符</li>
+</ol>
+<h2 id="协议和扩展"><a href="#协议和扩展" class="headerlink" title="协议和扩展"></a>协议和扩展</h2><ol>
+<li>可以把协议（<code>protocol</code>）理解为其他语言中的<code>interface</code></li>
+<li><code>extension</code>用来扩展已有类的功能</li>
+</ol>
+<h2 id="异常和错误处理"><a href="#异常和错误处理" class="headerlink" title="异常和错误处理"></a>异常和错误处理</h2><ol>
+<li>实现<code>Error</code>这个协议的类均可以被抛出</li>
+<li>使用<code>do..catch</code>这个语法</li>
+<li>可以使用类似 go 中的<code>defer</code>语法</li>
+</ol>
+<h2 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h2><ol>
+<li>类似 C 系语言中的语法，使用<code>&lt;&gt;</code>标明泛型，使用<code>where</code>对类型进行约束</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本来打算学习 3 的，结果 4 马上就出来了，耽搁了一段时间，从头搞起。完了准备写一些 macOS 的应用玩，或者 iOS 的。&lt;/p&gt;
+&lt;p&gt;主流工程编程语言主要发展了四代，C 语言（命令式） -&amp;gt; C++/Java/C#( 静态面向对象 ) -&amp;gt; js/py
+    
+    </summary>
+    
+    
+      <category term="swift" scheme="http://YiuTerran.github.io/tags/swift/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>kotlin学习</title>
+    <link href="http://YiuTerran.github.io/2017/08/20/kotlin%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://YiuTerran.github.io/2017/08/20/kotlin学习/</id>
+    <published>2017-08-20T08:41:25.000Z</published>
+    <updated>2017-08-20T10:37:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>swift4马上就要出了，所以swift还是等iOS11以及macOS11出了以后再学吧，还是有准备写一个iOS的APP的。现在公司的技术栈全部基于Java，那么kotlin作为一门可以无缝替代Java并受到Google官方支持的语言，还是很值得学习一下的。</p>
+<p>#</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;swift4马上就要出了，所以swift还是等iOS11以及macOS11出了以后再学吧，还是有准备写一个iOS的APP的。现在公司的技术栈全部基于Java，那么kotlin作为一门可以无缝替代Java并受到Google官方支持的语言，还是很值得学习一下的。&lt;/p&gt;
+&lt;p&gt;
+    
+    </summary>
+    
+    
+      <category term="kotlin" scheme="http://YiuTerran.github.io/tags/kotlin/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SpringMvc4 Rest Api最佳实践</title>
+    <link href="http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
+    <id>http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api最佳实践/</id>
+    <published>2017-07-16T02:33:34.000Z</published>
+    <updated>2017-07-17T06:47:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
+<p>在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰器，但是却更加magic一些，它实际上利用了JVM虚拟机的机制，和Java语言自身反而关系不大，这就很让人讨厌了。有时候你不看配置只看代码根本看不出来有某个功能，程序的入口千疮百孔。</p>
+<h2 id="RestController"><a href="#RestController" class="headerlink" title="RestController"></a>RestController</h2><p>这个玩意儿相当于<code>Controller</code> + <code>ResponseBody</code>，表明该类的所有方法均是返回REST的数据，而非视图</p>
+<h2 id="入参校验"><a href="#入参校验" class="headerlink" title="入参校验"></a>入参校验</h2><p>一般将入参直接转化为对应的POJO，称作VO（Value Object）。在VO上使用<code>JSR 303</code>来做校验，在对应的方法中使用<code>@Valid</code>配合<code>@RequestBody</code>将参数自动转化为对应的对象进行自动校验。</p>
+<h2 id="返回值包装"><a href="#返回值包装" class="headerlink" title="返回值包装"></a>返回值包装</h2><p>使用统一的返回值模型，包装成如下格式：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="string">"status"</span>: <span class="number">0</span>,  <span class="comment"># 业务状态</span></div><div class="line">    <span class="string">"msg"</span>: <span class="string">""</span>,    <span class="comment"># 错误信息</span></div><div class="line">    <span class="string">"data"</span>: &#123;&#125;,  <span class="comment"># 真正的数据</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>写几个POJO即可</p>
+<h2 id="全局错误处理"><a href="#全局错误处理" class="headerlink" title="全局错误处理"></a>全局错误处理</h2><p>首先需要自定义错误的异常层次，然后使用<code>ControllerAdvice</code>建立全局异常拦截器，拦截异常后，返回的仍然是上面的标准格式。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>在Spring的配置里面，MVC层扫描<code>Controller</code>, <code>RestController</code>和<code>ControllerAdvice</code>这几层，其他的交给底层的容器。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。&lt;/p&gt;
+&lt;p&gt;在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰
+    
+    </summary>
+    
+    
+      <category term="Java" scheme="http://YiuTerran.github.io/tags/Java/"/>
+    
+      <category term="SpringMVC" scheme="http://YiuTerran.github.io/tags/SpringMVC/"/>
+    
+      <category term="Web" scheme="http://YiuTerran.github.io/tags/Web/"/>
+    
+  </entry>
   
   <entry>
     <title>报表打印(pdf)技术选型</title>
@@ -68,7 +230,7 @@
     <link href="http://YiuTerran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     <id>http://YiuTerran.github.io/2017/07/03/oracle学习笔记/</id>
     <published>2017-07-03T06:21:18.000Z</published>
-    <updated>2017-07-05T09:08:38.000Z</updated>
+    <updated>2017-10-10T02:24:33.000Z</updated>
     
     <content type="html"><![CDATA[<p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a href="http://blog.csdn.net/xp541130126/article/details/70138904" target="_blank" rel="external">这篇博客</a>.</p>
@@ -102,8 +264,12 @@
 <li>修改表名。 <code>rename xx to yy</code>;</li>
 <li>分页。Oracle的分页做的很挫…最好使用id分页，如果要用数据库自身的分页，需要使用嵌套子查询。oracle对每一列有<code>rownum</code>和<code>rowid</code>两个虚列，前者是结果集的序列（从1开始），后者是物理上每一行的id。</li>
 </ol>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span></div><div class="line">(</div><div class="line"><span class="keyword">SELECT</span> A.*, <span class="keyword">ROWNUM</span> RN</div><div class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> TABLE_NAME) A</div><div class="line"><span class="keyword">WHERE</span> <span class="keyword">ROWNUM</span> &lt;= <span class="number">40</span></div><div class="line">)</div><div class="line"><span class="keyword">WHERE</span> RN &gt;= <span class="number">21</span></div></pre></td></tr></table></figure>
-<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span></div><div class="line">(</div><div class="line"><span class="keyword">SELECT</span> A.*, <span class="keyword">ROWNUM</span> RN</div><div class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> TABLE_NAME <span class="keyword">ORDER</span> <span class="keyword">BY</span> x) A</div><div class="line"><span class="keyword">WHERE</span> <span class="keyword">ROWNUM</span> &lt;= <span class="number">40</span></div><div class="line">) T</div><div class="line"><span class="keyword">WHERE</span> RN &gt;= <span class="number">21</span></div></pre></td></tr></table></figure>
+<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.<br>需要注意：</p>
+<ol>
+<li><code>rownum</code>是自动生成的，所以内层的<code>rownum</code>只能用<code>&lt;=</code>，而绝对不能用<code>&gt;=10</code>这种，因为生成的列永远从1开始；</li>
+<li>如果有<code>order by</code>字段，必须有三层查询，最内层做排序，次外层选择前N条，最外层做偏移量</li>
+</ol>
 <h2 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h2><p>PL/SQL是针对Oracle特有的SQL语句，不可移植。</p>
 <p>基本单位：块(block).</p>
 <p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
@@ -114,7 +280,7 @@
 必须以字母开头
 不允许和数据库中表的列名相同
 不可包括$,_和数字以外的字符
-</code></pre><p>变量定义（类似go语言）： <code>V_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+</code></pre><p>变量定义（类似go语言）： <code>v_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
 <p>基本数据类型就是JDBC中的那些</p>
 <p>复合数据类型:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">TYPE type_name IS RECORD(</div><div class="line">    fieldname fieldtype,</div><div class="line">    fieldname fieldtype</div><div class="line">);</div></pre></td></tr></table></figure>
@@ -196,9 +362,9 @@ ZERO_DIVIDE            零被整除
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="maven" scheme="http://YiuTerran.github.io/tags/maven/"/>
-    
       <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
+    
+      <category term="maven" scheme="http://YiuTerran.github.io/tags/maven/"/>
     
   </entry>
   

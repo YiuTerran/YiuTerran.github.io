@@ -19,9 +19,9 @@
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="java,maven,gradle">
+    <meta name="keywords" content="java,gradle,maven">
     <meta name="description" content="Java的包依赖系统简单粗暴，就是直接下载jar包，经历了Ant -&amp;gt; Maven -&amp;gt; Gradle这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。 如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。 冲突Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），">
-<meta name="keywords" content="java,maven,gradle">
+<meta name="keywords" content="java,gradle,maven">
 <meta property="og:type" content="article">
 <meta property="og:title" content="maven和gradle一些选项">
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/26/maven和gradle一些选项/index.html">
@@ -470,10 +470,10 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
     var OriginTitile = document.title, titleTime;
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
-            document.title = '死鬼去哪里了！';
+            document.title = '赶紧回来啊~';
             clearTimeout(titleTime);
         } else {
-            document.title = '(つェ⊂)咦!又好了!';
+            document.title = '欢迎光临惹!';
             titleTime = setTimeout(function() {
                 document.title = OriginTitile;
             },2000);
