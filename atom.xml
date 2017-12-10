@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2017-10-16T07:17:07.000Z</updated>
+  <updated>2017-12-10T14:32:48.262Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,42 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>spring boot学习</title>
-    <link href="http://YiuTerran.github.io/2017/10/09/spring-boot%E5%AD%A6%E4%B9%A0/"/>
-    <id>http://YiuTerran.github.io/2017/10/09/spring-boot学习/</id>
-    <published>2017-10-09T01:23:40.000Z</published>
-    <updated>2017-10-16T07:17:07.000Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
-    
-      <category term="spring" scheme="http://YiuTerran.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>gradle学习</title>
-    <link href="http://YiuTerran.github.io/2017/09/29/gradle%E5%AD%A6%E4%B9%A0/"/>
-    <id>http://YiuTerran.github.io/2017/09/29/gradle学习/</id>
-    <published>2017-09-29T05:30:57.000Z</published>
-    <updated>2017-09-29T05:31:15.000Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
-    
-      <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
-    
-  </entry>
   
   <entry>
     <title>swift4学习</title>
@@ -362,9 +326,9 @@ ZERO_DIVIDE            零被整除
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
-    
       <category term="maven" scheme="http://YiuTerran.github.io/tags/maven/"/>
+    
+      <category term="gradle" scheme="http://YiuTerran.github.io/tags/gradle/"/>
     
   </entry>
   
