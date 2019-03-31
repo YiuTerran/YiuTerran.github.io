@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/Heka源码解析/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。 先看最外层的文件目录结构(0.11.0dev):123456789101112131415161718192021222324252627282930313233343536$ tree -L 1 -av --dirsfirst.├── .g">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-06-12T16:26:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Heka源码解析">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">Heka源码解析</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:48:46" datetime="2017-06-12T15:48:46.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:48:46" datetime="2017-06-12T15:48:46.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -171,9 +172,9 @@
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
             <p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
-<p>先看最外层的文件目录结构(0.11.0dev):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$ tree -L 1 -av --dirsfirst</div><div class="line">.</div><div class="line">├── .git</div><div class="line">├── build           # source `build.sh`生成</div><div class="line">├── client</div><div class="line">├── cmake</div><div class="line">├── cmd             # 命令行工具</div><div class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</div><div class="line">├── docker          # docker相关</div><div class="line">├── docs            # 文档</div><div class="line">├── examples</div><div class="line">├── externals       # 用户自定义程序放置位置</div><div class="line">├── logstreamer     # 日志流相关</div><div class="line">├── message         # Message相关</div><div class="line">├── packaging       # 打包</div><div class="line">├── pipeline        # 流程</div><div class="line">├── plugins         # 插件</div><div class="line">├── ringbuf</div><div class="line">├── rpm             # build to rpm</div><div class="line">├── sandbox         # 沙盒系统(lua)</div><div class="line">├── .dockerignore</div><div class="line">├── .gitattributes</div><div class="line">├── .gitignore</div><div class="line">├── .gitmodules</div><div class="line">├── .travis.yml     # for Travis Ci</div><div class="line">├── CHANGES.txt</div><div class="line">├── CMakeLists.txt  # cmake root file</div><div class="line">├── CPackConfig.cmake</div><div class="line">├── Dockerfile</div><div class="line">├── LICENSE.txt</div><div class="line">├── README.md</div><div class="line">├── build.bat</div><div class="line">├── build.sh</div><div class="line">├── coverage.txt    # 测试代码覆盖率</div><div class="line">├── env.bat</div><div class="line">└── env.sh</div></pre></td></tr></table></figure></p>
+<p>先看最外层的文件目录结构(0.11.0dev):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source `build.sh`生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure></p>
 <p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
-<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/" target="_blank" rel="external">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
+<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/" target="_blank" rel="noopener">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
 <p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
 <p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
 <p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
@@ -198,7 +199,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:26:34.000Z" itemprop="dateUpdated">2017-06-13 00:26:34</time>
+    最后更新时间：<time datetime="2017-06-12T16:26:34.000Z" itemprop="dateUpdated">2017-06-12 23:26:34</time>
 </span><br>
 
 
@@ -379,7 +380,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -489,7 +490,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

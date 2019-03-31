@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -19,14 +19,15 @@
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="java,cometd,jetty">
+    <meta name="keywords" content="cometd,jetty,java">
     <meta name="description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
-<meta name="keywords" content="java,cometd,jetty">
+<meta name="keywords" content="cometd,jetty,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CometD源码学习[1]">
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-06-12T16:24:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CometD源码学习[1]">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">CometD源码学习[1]</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:47:20" datetime="2017-06-12T15:47:20.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:47:20" datetime="2017-06-12T15:47:20.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -204,7 +205,7 @@
 <h3 id="OnMessage-1"><a href="#OnMessage-1" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>handshake的时候session理论上还不存在，于是新建一个<code>ServerSession</code>，并且将HTTP的相关报头转移过来（UA），然后得到关联(<code>getAssociated</code>)的消息实体（消息可能是捎带回去的）。<br>这时候先判断<code>SecurityPolicy</code>有没有设置，如果设置了，就先判断<code>canHandshake</code>是不是成立，如果不成立，就要<code>reply.setSuccessful(false)</code>，并设置错误原因。</p>
 <p>这里有个问题，reply并没有传给<code>canHandshake</code>，但是<code>message</code>被传进去了。根据<code>ServerMessageImpl</code>的实现，<code>canHandshake</code>也可以用<code>message.getAssociated</code>里面拿到reply，然后增加想要的字段（ext）。代码显示，这里并没有往advice里面添加重连间隔（<code>interval</code>)字段。<br>【这里显示了nest class如何得到outer class的实例，直接用<code>BayeuxServerImpl.this</code>.】</p>
 <p>一切正常，<code>ServerSession</code>首先和自己握手，增加<code>ServerSession</code>（在此处<strong>通知回调</strong>，即应用程序注册的监听Session添加的方法），定义reply中的某些字段；如果<code>canHandshake</code>返回false，则返回403（handshake denied）错误；注意：如果应用程序的监听器没有设置<code>advice</code>中的<code>reconnect</code>字段，这里默认会填入<code>none</code>。</p>
-<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a href="http://docs.cometd.org/reference/bayeux_message_fields.html" target="_blank" rel="external">^1</a></p>
+<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a href="http://docs.cometd.org/reference/bayeux_message_fields.html" target="_blank" rel="noopener">^1</a></p>
 <h2 id="BayeuxServerImpl-ConnectHandler"><a href="#BayeuxServerImpl-ConnectHandler" class="headerlink" title="BayeuxServerImpl.ConnectHandler"></a>BayeuxServerImpl.ConnectHandler</h2><p>心跳信息处理。</p>
 <h3 id="OnMessage-2"><a href="#OnMessage-2" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>如果session未知，那就需要重新握手，返回402错误。否则对session进行续期，并返回advice，内容包括<code>timeout</code>和<code>interval</code>字段（如果没有设置，默认是不过期的）</p>
 <h2 id="BayeuxServerImpl-SubscribeHandler"><a href="#BayeuxServerImpl-SubscribeHandler" class="headerlink" title="BayeuxServerImpl.SubscribeHandler"></a>BayeuxServerImpl.SubscribeHandler</h2><p>订阅Channel处理。</p>
@@ -224,7 +225,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:24:33.000Z" itemprop="dateUpdated">2017-06-13 00:24:33</time>
+    最后更新时间：<time datetime="2017-06-12T16:24:33.000Z" itemprop="dateUpdated">2017-06-12 23:24:33</time>
 </span><br>
 
 
@@ -405,7 +406,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -515,7 +516,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

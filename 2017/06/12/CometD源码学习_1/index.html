@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -19,14 +19,15 @@
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="java,cometd,jetty">
+    <meta name="keywords" content="cometd,jetty,java">
     <meta name="description" content="jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中来实现">
-<meta name="keywords" content="java,cometd,jetty">
+<meta name="keywords" content="cometd,jetty,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CometD源码学习[0]">
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中来实现">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg">
 <meta property="og:image" content="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg">
 <meta property="og:updated_time" content="2017-06-12T16:24:14.000Z">
@@ -39,11 +40,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -158,7 +159,7 @@
     <div class="post-card">
         <h1 class="post-card-title">CometD源码学习[0]</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:47:25" datetime="2017-06-12T15:47:25.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:47:25" datetime="2017-06-12T15:47:25.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -200,7 +201,7 @@
 <li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
 <li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
 </ol>
-<p>NIO的一般工作原理用代码描述如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></div><div class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></div><div class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></div><div class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></div><div class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</div><div class="line">SocketChannel sc = ss.accept();</div><div class="line">sc.configureBlocking( <span class="keyword">false</span> );</div><div class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</div><div class="line">Set selectedKeys = selector.selectedKeys();</div></pre></td></tr></table></figure></p>
+<p>NIO的一般工作原理用代码描述如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure></p>
 <h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
 <p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
 <hr>
@@ -212,7 +213,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:24:14.000Z" itemprop="dateUpdated">2017-06-13 00:24:14</time>
+    最后更新时间：<time datetime="2017-06-12T16:24:14.000Z" itemprop="dateUpdated">2017-06-12 23:24:14</time>
 </span><br>
 
 
@@ -393,7 +394,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -503,7 +504,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

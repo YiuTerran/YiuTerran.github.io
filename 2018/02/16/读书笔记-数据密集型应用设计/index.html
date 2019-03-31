@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2018-03-19T01:03:46.489Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="读书笔记-数据密集型应用设计">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -125,7 +126,7 @@
         <h1 class="title">读书笔记-数据密集型应用设计</h1>
         <h5 class="subtitle">
             
-                <time datetime="2018-02-16T00:49:36.000Z" itemprop="datePublished" class="page-time">
+                <time datetime="2018-02-16T01:49:36.000Z" itemprop="datePublished" class="page-time">
   2018-02-16
 </time>
 
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">读书笔记-数据密集型应用设计</h1>
         <div class="post-meta">
-            <time class="post-time" title="2018-02-16 08:49:36" datetime="2018-02-16T00:49:36.000Z"  itemprop="datePublished">2018-02-16</time>
+            <time class="post-time" title="2018-02-16 08:49:36" datetime="2018-02-16T01:49:36.000Z"  itemprop="datePublished">2018-02-16</time>
 
             
 
@@ -182,7 +183,7 @@
 <p>其中错误容忍性又分为硬件错误（如断电、内存不足、磁盘不足、网络断开等）和软件错误（各种软件 bug 等），以及人工错误（操作错误、输入错误等）</p>
 <h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p>当组件性能、容量无法满足需求时，组件能够通过扩展的方式满足需求，这就是所谓的可扩展性。</p>
 <p>书中举了 Twitter 的 timeline 设计作为例子，我们知道 timeline 展示的是 follower 的发布的状态，那么不考虑任何优化的情况下，设计如下：如果用关系型来描述的话，需要一个 user 表，一个用户 follow 关系表，一个 tweets 表，对于 user id 为 1 的用户，其首页的 timeline 生成是</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> t.* <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id=t.user_id <span class="keyword">where</span> f.user_id=<span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at <span class="keyword">limit</span> <span class="number">20</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> t.* <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id=t.user_id <span class="keyword">where</span> f.user_id=<span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
 <p>显然 tweets 表会迅速膨胀成一个超大的表，这种设计不能满足性能的需求。于是这里使用了一种优化结构：将每个用户的 timeline 独立存储，用户新的 post 插入 tweets 表后，还要将这个 tweet 插入用户的 timeline 缓存中。除了这个方案以外，还有很多其他的方法，比如使用消息队列。用户 ins/del po, follow/unfollow some one 触发事件，需要对 timeline 进行重新生成。</p>
 <p>性能描述的常用指标包括：延迟、吞吐量、响应时间等。平均响应时间有时候并不能很好的描述性能，中位数响应时间更合适（一半的请求小于该时间，另一半的大于该时间）。中位数响应时间即 50%分位响应时间，如果要求的更严格，可能需要使用 95%分位响应时间等，甚至 99.9%分位。99%分位以上的又被称为尾部延迟。</p>
 <p>一般将可扩展性分为水平扩展和垂直扩展，两者可以结合起来。如果系统具有自动根据负载进行扩展的能力，这种系统是所谓的“弹性系统”。</p>
@@ -399,7 +400,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-03-19T01:03:46.489Z" itemprop="dateUpdated">2018-03-19 09:03:46</time>
+    最后更新时间：<time datetime="2018-03-19T01:03:46.489Z" itemprop="dateUpdated">2018-03-19 08:03:46</time>
 </span><br>
 
 
@@ -479,14 +480,21 @@
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/03/28/kotlin-web开发/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">kotlin web开发</h4>
+      </a>
+    </div>
   
 
   
     <div class="waves-block waves-effect next">
-      <a href="/2018/01/25/面试复习纪要-1-md/" id="post-next" class="post-nav-link">
+      <a href="/2018/01/25/面试复习/" id="post-next" class="post-nav-link">
         <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">面试复习纪要(1).md</h4>
+        <h4 class="title">面试复习纪要.md</h4>
       </a>
     </div>
   
@@ -573,7 +581,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -683,7 +691,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/13/jeesite代码解析/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。 基础知识补充常见Java注解： 四个元注解包括：  Target: 标示注解使用的位置； Retention: 标示在什么">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-06-23T02:22:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jeesite代码解析">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -125,7 +126,7 @@
         <h1 class="title">jeesite代码解析</h1>
         <h5 class="subtitle">
             
-                <time datetime="2017-06-12T16:46:00.000Z" itemprop="datePublished" class="page-time">
+                <time datetime="2017-06-12T17:46:00.000Z" itemprop="datePublished" class="page-time">
   2017-06-13
 </time>
 
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">jeesite代码解析</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-13 00:46:00" datetime="2017-06-12T16:46:00.000Z"  itemprop="datePublished">2017-06-13</time>
+            <time class="post-time" title="2017-06-13 00:46:00" datetime="2017-06-12T17:46:00.000Z"  itemprop="datePublished">2017-06-13</time>
 
             
 
@@ -182,16 +183,16 @@
 <h2 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h2><p>Java Web有一套成熟的抽象体系，自上到下分别是<code>Controller</code>(接入层) -&gt; <code>Service</code>(服务层) -&gt; <code>Entity</code>(数据实体层) -&gt; <code>DAO</code>(数据操作层)。</p>
 <h3 id="DAO"><a href="#DAO" class="headerlink" title="DAO"></a>DAO</h3><p>这里<code>DAO</code>底层是一个泛型接口<code>CrudDao&lt;T&gt;</code>，这里定义了一些常见的接口（增删改查）。</p>
 <p>对于每个具体的表，定义了接口，并使用<code>MyBatisDao</code>注解，通过查看代码可以知道，这是一个自定义注解，且是一个<code>Component</code>元注解。在<code>spring-context.xml</code>中有：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.thinkgem.jeesite"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">context:exclude-filter</span> <span class="attr">type</span>=<span class="string">"annotation"</span> <span class="attr">expression</span>=<span class="string">"org.springframework.stereotype.Controller"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.thinkgem.jeesite"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:exclude-filter</span> <span class="attr">type</span>=<span class="string">"annotation"</span> <span class="attr">expression</span>=<span class="string">"org.springframework.stereotype.Controller"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>这里表示扫描除了<code>Controller</code>层以外的其他组件。<code>MyBatis</code>的配置为：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sqlSessionFactory"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span>/&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"typeAliasesPackage"</span> <span class="attr">value</span>=<span class="string">"com.thinkgem.jeesite"</span>/&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"typeAliasesSuperType"</span> <span class="attr">value</span>=<span class="string">"com.thinkgem.jeesite.common.persistence.BaseEntity"</span>/&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapperLocations"</span> <span class="attr">value</span>=<span class="string">"classpath:/mappings/**/*.xml"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"configLocation"</span> <span class="attr">value</span>=<span class="string">"classpath:/mybatis-config.xml"</span>/&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sqlSessionFactory"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"typeAliasesPackage"</span> <span class="attr">value</span>=<span class="string">"com.thinkgem.jeesite"</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"typeAliasesSuperType"</span> <span class="attr">value</span>=<span class="string">"com.thinkgem.jeesite.common.persistence.BaseEntity"</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapperLocations"</span> <span class="attr">value</span>=<span class="string">"classpath:/mappings/**/*.xml"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"configLocation"</span> <span class="attr">value</span>=<span class="string">"classpath:/mybatis-config.xml"</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p><code>dataSource</code>是数据源，这里配置为MySQL的连接池，用的是<code>Druid</code>这个阿里的开源库（这里是单库）。<code>typeAliasesPackage</code>是映射的起始路径包，<code>typeAliasesSuperType</code>是实体类的父类，<code>mapper</code>的注释在<code>mappings</code>下面，组件自身的配置在<code>mybatis-config.xml</code>里。</p>
 <p>在<code>resources/mappings</code>下面，定义了对应路径映射的model，这里的数据可能是代码生成器生成的（手动写的话工作量有点大啊…），以及各种<code>DAO</code>中定义接口的具体实现。这里的语法本质上是拼装sql…</p>
 <p>这里有个问题，idea对MyBatis的支持不太好，需要自己找插件（但是收费），也有一些免费但是不太好用的。</p>
-<h4 id="MyBatis的SQL语法"><a href="#MyBatis的SQL语法" class="headerlink" title="MyBatis的SQL语法"></a>MyBatis的SQL语法</h4><p>官方教程<a href="http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html" target="_blank" rel="external">在此</a></p>
+<h4 id="MyBatis的SQL语法"><a href="#MyBatis的SQL语法" class="headerlink" title="MyBatis的SQL语法"></a>MyBatis的SQL语法</h4><p>官方教程<a href="http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html" target="_blank" rel="noopener">在此</a></p>
 <p>用例子说明：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//`User` is Entity</span></div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">CurdDao</span>&lt;<span class="title">User</span>&gt; </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">get</span><span class="params">(String id)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">&lt;sql id="userColumns"&gt;  # sql片段</div><div class="line">    a.id,</div><div class="line">    a.company_id AS "company.id",   # compony是`User`的一个成员</div><div class="line">    a.office_id AS "office.id",</div><div class="line">    a.login_name,</div><div class="line">    a.password,</div><div class="line">    a.create_by AS "createBy.id",</div><div class="line">    a.create_date,</div><div class="line">    a.update_by AS "updateBy.id",</div><div class="line">    a.update_date,</div><div class="line">    a.del_flag,</div><div class="line">    c.name AS "company.name",</div><div class="line">    c.parent_id AS "company.parent.id",</div><div class="line">    c.parent_ids AS "company.parentIds",</div><div class="line">&lt;/sql&gt;</div><div class="line"></div><div class="line">&lt;sql id="userJoins"&gt;  # sql片段</div><div class="line">    LEFT JOIN sys_office c ON c.id = a.company_id</div><div class="line">&lt;/sql&gt;</div><div class="line"></div><div class="line">	&lt;select id="get" resultType="User" parameterType="string"&gt;  # id对应Dao中方法的名字，resultType是</div><div class="line">		SELECT</div><div class="line">			&lt;include refid="userColumns"/&gt;</div><div class="line">		FROM sys_user a</div><div class="line">		&lt;include refid="userJoins"/&gt;</div><div class="line">		WHERE a.id = #&#123;id&#125;</div><div class="line">	&lt;/select&gt;</div><div class="line"></div><div class="line">&lt;select&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`User` is Entity</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">CurdDao</span>&lt;<span class="title">User</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">get</span><span class="params">(String id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;sql id="userColumns"&gt;  # sql片段</span><br><span class="line">    a.id,</span><br><span class="line">    a.company_id AS "company.id",   # compony是`User`的一个成员</span><br><span class="line">    a.office_id AS "office.id",</span><br><span class="line">    a.login_name,</span><br><span class="line">    a.password,</span><br><span class="line">    a.create_by AS "createBy.id",</span><br><span class="line">    a.create_date,</span><br><span class="line">    a.update_by AS "updateBy.id",</span><br><span class="line">    a.update_date,</span><br><span class="line">    a.del_flag,</span><br><span class="line">    c.name AS "company.name",</span><br><span class="line">    c.parent_id AS "company.parent.id",</span><br><span class="line">    c.parent_ids AS "company.parentIds",</span><br><span class="line">&lt;/sql&gt;</span><br><span class="line"></span><br><span class="line">&lt;sql id="userJoins"&gt;  # sql片段</span><br><span class="line">    LEFT JOIN sys_office c ON c.id = a.company_id</span><br><span class="line">&lt;/sql&gt;</span><br><span class="line"></span><br><span class="line">	&lt;select id="get" resultType="User" parameterType="string"&gt;  # id对应Dao中方法的名字，resultType是</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			&lt;<span class="keyword">include</span> refid=<span class="string">"userColumns"</span>/&gt;</span><br><span class="line">		<span class="keyword">FROM</span> sys_user a</span><br><span class="line">		&lt;<span class="keyword">include</span> refid=<span class="string">"userJoins"</span>/&gt;</span><br><span class="line">		<span class="keyword">WHERE</span> a.id = #&#123;<span class="keyword">id</span>&#125;</span><br><span class="line">	&lt;/<span class="keyword">select</span>&gt;</span><br><span class="line"></span><br><span class="line">&lt;<span class="keyword">select</span>&gt;</span><br></pre></td></tr></table></figure>
 <p>熟悉了很快就能上手，一般情况下，自动映射可以处理绝大多数问题，只有特别复杂的结果集需要自定义<code>resultMap</code>.</p>
 <h3 id="ehcache"><a href="#ehcache" class="headerlink" title="ehcache"></a>ehcache</h3><p>Java中常用的cache，支持单机也支持分布式，但是分布式配置较为复杂，一般还是使用Redis居多。</p>
 <p>这里ehcache的使用看得我一脸懵逼，好像直接缓存了POJO类，然后取出来后直接强制转换回来就可以了。理论上这不对啊，缓存肯定要序列化的…然后仔细研究了一下Java的序列化（类似Python的<code>pickle</code>）。</p>
@@ -221,7 +222,7 @@
 <p>换句话说，每个<code>Entity</code>可能对应很多个表，这里的抽象思路和Python不一样。Entity是一个POJO，而不是继承某个类而得来。当然我还是更喜欢Python的抽象思路，Model原子性和Table保持一致，可以自由组合。</p>
 <p>项目抽象了<code>BaseEntity</code>，在此基础上又总结了集中常见的数据模型。</p>
 <h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>使用Spring的事务管理，最后只要在方法上使用<code>@Transactional</code>注解就可以使用一个事务式的方法（只能在<code>public</code>方法上使用），这个注解只会在被外部调用时触发。</p>
-<p>关于事务方法和非事务方法之间的相互调用，参考<a href="https://stackoverflow.com/questions/6222600/transactional-method-calling-another-method-without-transactional-anotation" target="_blank" rel="external">stackoverflow</a></p>
+<p>关于事务方法和非事务方法之间的相互调用，参考<a href="https://stackoverflow.com/questions/6222600/transactional-method-calling-another-method-without-transactional-anotation" target="_blank" rel="noopener">stackoverflow</a></p>
 <p><code>@Transactional</code> 默认只对 unchecked exception 异常进行回滚操作，checked、unchecked 异常使用不当造成事务无效，抛出的异常应该是<code>RuntimeException</code>的子类。</p>
 <h3 id="Service层"><a href="#Service层" class="headerlink" title="Service层"></a>Service层</h3><p>Service层处理实际的业务逻辑，这里抽象了基类<code>BaseService</code>里面定义了方法用来鉴权；<br>CurdService层是简单增删改查的服务，这是一个泛型类，泛型参数是<code>Dao</code>和<code>Entity</code>；<br>对于树形数据结构，还特别定义了<code>TreeService</code>对应了<code>TreeDao</code>和<code>TreeEntity</code>；</p>
 <h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
@@ -239,7 +240,7 @@
 <h2 id="Controller与JSP的交互"><a href="#Controller与JSP的交互" class="headerlink" title="Controller与JSP的交互"></a>Controller与JSP的交互</h2><p><code>Controller</code>与<code>JSP</code>这一层的联系通过大量注释和隐含条件完成。</p>
 <p>由于JSP是很集成化的东西，所以前端表格直接和后端Entity是对应的，前端用JQuery直接修改DOM元素做渲染，用户输入——JQuery修改界面——用户提交——后端从表格中取出模型形成数据——处理完毕返回新数据构成的页面。</p>
 <p>后端使用<code>ModelAttribute</code>注入模型，前端可以直接引用模型里面的元素。前端使用的后端模型中的元素作为querystring或者post中的元素，后端也可以声明为对应方法的参数。</p>
-<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a href="http://howiefh.github.io/2015/05/12/shiro-note/" target="_blank" rel="external">这篇blog</a>。</p>
+<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a href="http://howiefh.github.io/2015/05/12/shiro-note/" target="_blank" rel="noopener">这篇blog</a>。</p>
 <p>几个概念：</p>
 <ol>
 <li><code>Authentication</code>，一般指登陆，验证用户名和密码；</li>
@@ -275,7 +276,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-23T02:22:21.000Z" itemprop="dateUpdated">2017-06-23 10:22:21</time>
+    最后更新时间：<time datetime="2017-06-23T02:22:21.000Z" itemprop="dateUpdated">2017-06-23 09:22:21</time>
 </span><br>
 
 
@@ -456,7 +457,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -566,7 +567,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

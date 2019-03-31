@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/erlang速记/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-06-12T16:25:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="erlang速记">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">erlang速记</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -178,25 +179,25 @@
 <li><code>.</code>表示模式终结，<code>,</code>用来分割参数，函数；<code>;</code>用来分割子句；</li>
 <li>函数的参数个数，称为函数的目；<code>func</code>关键字用来定义匿名函数；</li>
 </ol>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure>
 <p>可以把返回值放到括号里面。</p>
 <ol>
 <li>标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；</li>
 <li>没有<code>for</code>循环，和haskell一样，使用尾递归；</li>
 <li>使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；</li>
 <li><p>列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
-<figure class="highlight erl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</div><div class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></div><div class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</div><div class="line">    [H] ++</div><div class="line">    qsort([X || X &lt;- T, X &gt;= H]).</div></pre></td></tr></table></figure>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</span><br><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></span><br><span class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</span><br><span class="line">    [H] ++</span><br><span class="line">    qsort([X || X &lt;- T, X &gt;= H]).</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>断言，关键字<code>when</code>。使用<code>,</code>表示<code>andalso</code>语义， 使用<code>orelse</code>而不是<code>or</code>因为后者不是短路求值；</p>
 </li>
-<li>使用<code>record</code>表示字典，声明方式：<figure class="highlight erl"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></div></pre></td></tr></table></figure>
+<li>使用<code>record</code>表示字典，声明方式：<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">X=#todo&#123;&#125;.</div><div class="line">Y=#todo&#123;status=urgent, text=<span class="string">"Fix errata in book"</span>&#125;.</div><div class="line">Z=Y#todo&#123;status=done&#125;.</div><div class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></div></pre></td></tr></table></figure></p>
+<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X=#todo&#123;&#125;.</span><br><span class="line">Y=#todo&#123;status=urgent, text=<span class="string">"Fix errata in book"</span>&#125;.</span><br><span class="line">Z=Y#todo&#123;status=done&#125;.</span><br><span class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></span><br></pre></td></tr></table></figure></p>
 <p>可以使用<code>is_record</code>做模式匹配；</p>
 <ol>
 <li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></div><div class="line">    odds_and_evens_acc(L, [], []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></div><div class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</div><div class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</div><div class="line">    <span class="keyword">end</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></div><div class="line">    &#123;Odds, Evens&#125;.</div></pre></td></tr></table></figure>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></span><br><span class="line">    odds_and_evens_acc(L, [], []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></span><br><span class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</span><br><span class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    &#123;Odds, Evens&#125;.</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>异常的捕捉采用<code>try...catch..after...end</code>格式，非常类似java；</p>
 </li>
@@ -216,12 +217,12 @@
 <li>和go一样，很简单的创建进程：<code>Pid=spawn(Fun)</code>；</li>
 <li>发送消息： <code>Pid ! Message</code>，异步发送。返回值是消息本身，这意味着使用<code>Pid1 ! Pid2 ! M</code>会将M发送到所有的Pid中；</li>
 <li><p><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">receive</span></div><div class="line">    Pattern1 [When Guard1] -&gt;</div><div class="line">        Expression1;</div><div class="line">    Pattern2 [When Guard2] -&gt;</div><div class="line">        Expression2;</div><div class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></div><div class="line">    Expressions</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">receive</span></span><br><span class="line">    Pattern1 [When Guard1] -&gt;</span><br><span class="line">        Expression1;</span><br><span class="line">    Pattern2 [When Guard2] -&gt;</span><br><span class="line">        Expression2;</span><br><span class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></span><br><span class="line">    Expressions</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</p>
 </li>
 <li><p>除了Pid机制外，可以采用注册进程的方式公开进程。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></div><div class="line"><span class="title">unregister</span><span class="params">(Name)</span></div><div class="line"><span class="title">whereis</span><span class="params">(Name)</span> -&gt; Pid | undefined <span class="comment">%检测是否注册成功</span></div><div class="line">registered() <span class="comment">%已注册进程list</span></div></pre></td></tr></table></figure>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></span><br><span class="line"><span class="function"><span class="title">unregister</span><span class="params">(Name)</span></span></span><br><span class="line"><span class="function"><span class="title">whereis</span><span class="params">(Name)</span> -&gt;</span> Pid | undefined <span class="comment">%检测是否注册成功</span></span><br><span class="line">registered() <span class="comment">%已注册进程list</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</p>
 </li>
@@ -236,7 +237,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:25:21.000Z" itemprop="dateUpdated">2017-06-13 00:25:21</time>
+    最后更新时间：<time datetime="2017-06-12T16:25:21.000Z" itemprop="dateUpdated">2017-06-12 23:25:21</time>
 </span><br>
 
 
@@ -417,7 +418,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -527,7 +528,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

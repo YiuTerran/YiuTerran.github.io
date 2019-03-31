@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/07/07/报表打印-pdf-技术选型/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。 首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧(:зゝ∠) 服务端实现Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-07-10T05:32:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="报表打印(pdf)技术选型">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -125,7 +126,7 @@
         <h1 class="title">报表打印(pdf)技术选型</h1>
         <h5 class="subtitle">
             
-                <time datetime="2017-07-06T16:21:00.000Z" itemprop="datePublished" class="page-time">
+                <time datetime="2017-07-06T17:21:00.000Z" itemprop="datePublished" class="page-time">
   2017-07-07
 </time>
 
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">报表打印(pdf)技术选型</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-07-07 00:21:00" datetime="2017-07-06T16:21:00.000Z"  itemprop="datePublished">2017-07-07</time>
+            <time class="post-time" title="2017-07-07 00:21:00" datetime="2017-07-06T17:21:00.000Z"  itemprop="datePublished">2017-07-07</time>
 
             
 
@@ -182,7 +183,7 @@
 </ol>
 <h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
 <h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install libxrender1 fontconfig xvfb</div><div class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</div><div class="line"><span class="built_in">cd</span> /opt/</div><div class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</div><div class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
 <p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
 <p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
 <h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
@@ -192,7 +193,7 @@
 <li>不要对文件使用中文名称；</li>
 <li>渲染的时候有些参数需要设置，如下：</li>
 </ol>
-<figure class="highlight py"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">pdfkit.from_string(page, outfile, options=&#123;</div><div class="line">    <span class="string">'page-size'</span>: <span class="string">'A4'</span>,</div><div class="line">    <span class="string">'margin-top'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-right'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-left'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'margin-bottom'</span>: <span class="string">'0.75in'</span>,</div><div class="line">    <span class="string">'encoding'</span>: <span class="string">"UTF-8"</span>,</div><div class="line">    <span class="string">'no-outline'</span>: <span class="keyword">None</span>,</div><div class="line">    <span class="comment"># 'zoom': 1.5,  # when run on mac</span></div><div class="line">    <span class="comment"># 'dpi': 250</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">'page-size'</span>: <span class="string">'A4'</span>,</span><br><span class="line">    <span class="string">'margin-top'</span>: <span class="string">'0.75in'</span>,</span><br><span class="line">    <span class="string">'margin-right'</span>: <span class="string">'0.75in'</span>,</span><br><span class="line">    <span class="string">'margin-left'</span>: <span class="string">'0.75in'</span>,</span><br><span class="line">    <span class="string">'margin-bottom'</span>: <span class="string">'0.75in'</span>,</span><br><span class="line">    <span class="string">'encoding'</span>: <span class="string">"UTF-8"</span>,</span><br><span class="line">    <span class="string">'no-outline'</span>: <span class="keyword">None</span>,</span><br><span class="line">    <span class="comment"># 'zoom': 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># 'dpi': 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 <p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
 <p>pdfkit渲染速度超快，非常👍</p>
 
@@ -202,7 +203,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-07-10T05:32:38.000Z" itemprop="dateUpdated">2017-07-10 13:32:38</time>
+    最后更新时间：<time datetime="2017-07-10T05:32:38.000Z" itemprop="dateUpdated">2017-07-10 12:32:38</time>
 </span><br>
 
 
@@ -383,7 +384,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -493,7 +494,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

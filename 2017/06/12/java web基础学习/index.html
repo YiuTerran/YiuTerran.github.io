@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/java web基础学习/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。 Servlet结构概览java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类： 这是servlet相关的类，这是一个请求——应答模型，不涉及">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://img.my.csdn.net/uploads/201301/04/1357284746_5560.png">
 <meta property="og:image" content="http://img.my.csdn.net/uploads/201301/05/1357367807_2250.png">
 <meta property="og:updated_time" content="2017-06-12T16:27:15.000Z">
@@ -39,11 +40,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -158,7 +159,7 @@
     <div class="post-card">
         <h1 class="post-card-title">java web基础学习</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:50:02" datetime="2017-06-12T15:50:02.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:50:02" datetime="2017-06-12T15:50:02.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -207,9 +208,9 @@
 <h3 id="一般流程"><a href="#一般流程" class="headerlink" title="一般流程"></a>一般流程</h3><p>Spring是按着接口进行类的管理的，一般情况下，需要有一个接口类（假设叫<code>HelloApi</code>）。</p>
 <p>一个实现了个该接口的普通类（假设就叫<code>HelloImpl</code>）。</p>
 <p>在spring对应的xml中配置bean，大致如下：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"hello"</span> <span class="attr">class</span>=<span class="string">"cn.javass.spring.chapter2.helloworld.HelloImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"hello"</span> <span class="attr">class</span>=<span class="string">"cn.javass.spring.chapter2.helloworld.HelloImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p><code>id</code>是组件的名字，最后：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</div><div class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloTest</span> </span>&#123;</div><div class="line">       <span class="meta">@Test</span></div><div class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testHelloWorld</span><span class="params">()</span> </span>&#123;</div><div class="line">             <span class="comment">//1、读取配置文件实例化一个IoC容器</span></div><div class="line">             ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"helloworld.xml"</span>);</div><div class="line">             <span class="comment">//2、从容器中获取Bean，注意此处完全“面向接口编程，而不是面向实现”</span></div><div class="line">              HelloApi helloApi = context.getBean(<span class="string">"hello"</span>, HelloApi.class);</div><div class="line">              <span class="comment">//3、执行业务逻辑</span></div><div class="line">              helloApi.sayHello();</div><div class="line">       &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloTest</span> </span>&#123;</span><br><span class="line">       <span class="meta">@Test</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testHelloWorld</span><span class="params">()</span> </span>&#123;</span><br><span class="line">             <span class="comment">//1、读取配置文件实例化一个IoC容器</span></span><br><span class="line">             ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"helloworld.xml"</span>);</span><br><span class="line">             <span class="comment">//2、从容器中获取Bean，注意此处完全“面向接口编程，而不是面向实现”</span></span><br><span class="line">              HelloApi helloApi = context.getBean(<span class="string">"hello"</span>, HelloApi.class);</span><br><span class="line">              <span class="comment">//3、执行业务逻辑</span></span><br><span class="line">              helloApi.sayHello();</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>使用容器读取<code>xml</code>配置文件，然后通过名字查找Bean，利用反射创建对应的实例（生成的是接口的实例）。</p>
 <p>上文中的<code>ApplicationContext</code>是<code>BeanFactory</code>的子类，Spring针对不同的场景内置了大量不同的Bean工厂，以适应不同的场景。</p>
 <p>如果构造器有参数，可以在xml的<code>bean</code>的结点中放入<code>constructor</code>结点，进行参数注入。</p>
@@ -242,7 +243,7 @@
 <p>Spring通过注解/xml的方式完成装饰器的注入，就是所谓的AOP. 使用流程：</p>
 <ol>
 <li>写一个切面类；</li>
-<li>定义连接点（具体什么场景下在哪里被调用），切入点表达式形如<code>execution(* com.spring.service.*.*(..))</code>，匹配语法：<code>*</code>表示一级上的任意字符，<code>..</code>表示任意级的任意字符，<code>+</code>指定类型的子类型；这里的语法很复杂，可以参见<a href="http://blog.csdn.net/wangpeng047/article/details/8556800" target="_blank" rel="external">这里</a>；</li>
+<li>定义连接点（具体什么场景下在哪里被调用），切入点表达式形如<code>execution(* com.spring.service.*.*(..))</code>，匹配语法：<code>*</code>表示一级上的任意字符，<code>..</code>表示任意级的任意字符，<code>+</code>指定类型的子类型；这里的语法很复杂，可以参见<a href="http://blog.csdn.net/wangpeng047/article/details/8556800" target="_blank" rel="noopener">这里</a>；</li>
 <li>定义通知的回调方法</li>
 <li>通知顺序：前置通知→环绕通知连接点之前→连接点执行→环绕通知连接点之后→返回通知→后通知；如果发生异常：异常通知→后通知</li>
 </ol>
@@ -262,7 +263,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:27:15.000Z" itemprop="dateUpdated">2017-06-13 00:27:15</time>
+    最后更新时间：<time datetime="2017-06-12T16:27:15.000Z" itemprop="dateUpdated">2017-06-12 23:27:15</time>
 </span><br>
 
 
@@ -443,7 +444,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -553,7 +554,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

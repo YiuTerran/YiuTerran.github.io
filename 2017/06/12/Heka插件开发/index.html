@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/Heka插件开发/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。 概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）： 显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstas">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://skoo.me/assets/images/heka-overview-diagram.png">
 <meta property="og:updated_time" content="2017-06-12T16:26:16.000Z">
 <meta name="twitter:card" content="summary">
@@ -38,11 +39,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -157,7 +158,7 @@
     <div class="post-card">
         <h1 class="post-card-title">Heka插件开发</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:48:37" datetime="2017-06-12T15:48:37.000Z"  itemprop="datePublished">2017-06-12</time>
+            <time class="post-time" title="2017-06-12 22:48:37" datetime="2017-06-12T15:48:37.000Z"  itemprop="datePublished">2017-06-12</time>
 
             
 
@@ -177,7 +178,7 @@
 <p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
 <h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
 <li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
-<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a href="https://hekad.readthedocs.org/en/v0.10.0/installing.html" target="_blank" rel="external">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
+<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a href="https://hekad.readthedocs.org/en/v0.10.0/installing.html" target="_blank" rel="noopener">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
 <li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
 <li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
 </ol>
@@ -190,11 +191,11 @@
 <li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
 <li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
 </ol>
-<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[LogstreamerInput]</div><div class="line">log_directory = "/var/log/lucky"</div><div class="line">file_match = 'track\.json'</div><div class="line">decoder = "JsonDecoder"</div><div class="line"></div><div class="line">[JsonDecoder]</div><div class="line">type = "SandboxDecoder"</div><div class="line">filename = "lua_decoders/json.lua"</div><div class="line">    [JsonDecoder.config]</div><div class="line">    Type = "type"</div><div class="line">    payload_keep = true</div><div class="line">    Timestamp = "@timestamp"</div><div class="line">    timestamp_format = "%Y-%m-%dT%H:%M:%S.%f"</div></pre></td></tr></table></figure></p>
+<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">"/var/log/lucky"</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">'track\.json'</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">"JsonDecoder"</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">"SandboxDecoder"</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">"lua_decoders/json.lua"</span></span><br><span class="line"><span class="section">    [JsonDecoder.config]</span></span><br><span class="line">    Type = "type"</span><br><span class="line">    payload_keep = true</span><br><span class="line">    Timestamp = "@timestamp"</span><br><span class="line">    timestamp_format = "%Y-%m-%dT%H:%M:%S.%f"</span><br></pre></td></tr></table></figure></p>
 <p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
 <p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface{}</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface{}</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
-<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html" target="_blank" rel="external">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
-<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"UserId"</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">"Set"</span>: &#123;&#125;,</div><div class="line">    <span class="attr">"Inc"</span>: &#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html" target="_blank" rel="noopener">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
+<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"UserId"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"Set"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"Inc"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
 
         </div>
@@ -203,7 +204,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:26:16.000Z" itemprop="dateUpdated">2017-06-13 00:26:16</time>
+    最后更新时间：<time datetime="2017-06-12T16:26:16.000Z" itemprop="dateUpdated">2017-06-12 23:26:16</time>
 </span><br>
 
 
@@ -384,7 +385,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -494,7 +495,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 

@@ -9,7 +9,7 @@
 
 
 
-    <meta charset="utf-8">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
     
     
     
@@ -27,6 +27,7 @@
 <meta property="og:url" content="http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api最佳实践/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。 在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰器，但是却更加magic一些，它实际上利用了JVM虚拟机的机制，和Java语言自身反而关系不大，这就很让人讨厌了。有时候你不看配置只看代码根">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-07-17T06:47:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SpringMvc4 Rest Api最佳实践">
@@ -36,11 +37,11 @@
     
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body>
-    <div id="loading" class="active"></div>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
 
     <aside id="menu" class="hide" >
   <div class="inner flex-row-vertical">
@@ -125,7 +126,7 @@
         <h1 class="title">SpringMvc4 Rest Api最佳实践</h1>
         <h5 class="subtitle">
             
-                <time datetime="2017-07-16T02:33:34.000Z" itemprop="datePublished" class="page-time">
+                <time datetime="2017-07-16T03:33:34.000Z" itemprop="datePublished" class="page-time">
   2017-07-16
 </time>
 
@@ -155,7 +156,7 @@
     <div class="post-card">
         <h1 class="post-card-title">SpringMvc4 Rest Api最佳实践</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-07-16 10:33:34" datetime="2017-07-16T02:33:34.000Z"  itemprop="datePublished">2017-07-16</time>
+            <time class="post-time" title="2017-07-16 10:33:34" datetime="2017-07-16T03:33:34.000Z"  itemprop="datePublished">2017-07-16</time>
 
             
 
@@ -175,7 +176,7 @@
 <h2 id="RestController"><a href="#RestController" class="headerlink" title="RestController"></a>RestController</h2><p>这个玩意儿相当于<code>Controller</code> + <code>ResponseBody</code>，表明该类的所有方法均是返回REST的数据，而非视图</p>
 <h2 id="入参校验"><a href="#入参校验" class="headerlink" title="入参校验"></a>入参校验</h2><p>一般将入参直接转化为对应的POJO，称作VO（Value Object）。在VO上使用<code>JSR 303</code>来做校验，在对应的方法中使用<code>@Valid</code>配合<code>@RequestBody</code>将参数自动转化为对应的对象进行自动校验。</p>
 <h2 id="返回值包装"><a href="#返回值包装" class="headerlink" title="返回值包装"></a>返回值包装</h2><p>使用统一的返回值模型，包装成如下格式：</p>
-<figure class="highlight py"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="string">"status"</span>: <span class="number">0</span>,  <span class="comment"># 业务状态</span></div><div class="line">    <span class="string">"msg"</span>: <span class="string">""</span>,    <span class="comment"># 错误信息</span></div><div class="line">    <span class="string">"data"</span>: &#123;&#125;,  <span class="comment"># 真正的数据</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"status"</span>: <span class="number">0</span>,  <span class="comment"># 业务状态</span></span><br><span class="line">    <span class="string">"msg"</span>: <span class="string">""</span>,    <span class="comment"># 错误信息</span></span><br><span class="line">    <span class="string">"data"</span>: &#123;&#125;,  <span class="comment"># 真正的数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>写几个POJO即可</p>
 <h2 id="全局错误处理"><a href="#全局错误处理" class="headerlink" title="全局错误处理"></a>全局错误处理</h2><p>首先需要自定义错误的异常层次，然后使用<code>ControllerAdvice</code>建立全局异常拦截器，拦截异常后，返回的仍然是上面的标准格式。</p>
 <h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>在Spring的配置里面，MVC层扫描<code>Controller</code>, <code>RestController</code>和<code>ControllerAdvice</code>这几层，其他的交给底层的容器。</p>
@@ -186,7 +187,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-07-17T06:47:05.000Z" itemprop="dateUpdated">2017-07-17 14:47:05</time>
+    最后更新时间：<time datetime="2017-07-17T06:47:05.000Z" itemprop="dateUpdated">2017-07-17 13:47:05</time>
 </span><br>
 
 
@@ -269,9 +270,9 @@
 <nav class="post-nav flex-row flex-justify-between">
   
     <div class="waves-block waves-effect prev">
-      <a href="/2017/09/25/swift4学习/" id="post-prev" class="post-nav-link">
+      <a href="/2018/01/25/面试复习/" id="post-prev" class="post-nav-link">
         <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">swift4学习</h4>
+        <h4 class="title">面试复习纪要.md</h4>
       </a>
     </div>
   
@@ -367,7 +368,7 @@
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2018</span>
+            <span>tryao &copy; 2017 - 2019</span>
         </p>
     </div>
 </footer>
@@ -477,7 +478,7 @@ var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
         }
     });
 })();
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 
