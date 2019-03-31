@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="创建和销毁对象 用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。不过，这种方法和普通的静态方法没有任何语法形">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-06-12T16:25:02.000Z">
+<meta property="og:updated_time" content="2019-03-31T11:28:49.205Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="effective java 读书笔记">
 <meta name="twitter:description" content="创建和销毁对象 用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。不过，这种方法和普通的静态方法没有任何语法形">
@@ -146,7 +146,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建和销毁对象"><span class="post-toc-number">1.</span> <span class="post-toc-text">创建和销毁对象</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#object通用方法"><span class="post-toc-number">2.</span> <span class="post-toc-text">object通用方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类和接口"><span class="post-toc-number">3.</span> <span class="post-toc-text">类和接口</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#泛型"><span class="post-toc-number">4.</span> <span class="post-toc-text">泛型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通用程序设计"><span class="post-toc-number">5.</span> <span class="post-toc-text">通用程序设计</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">6.</span> <span class="post-toc-text">异常</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#并发"><span class="post-toc-number">7.</span> <span class="post-toc-text">并发</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#序列化"><span class="post-toc-number">8.</span> <span class="post-toc-text">序列化</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建和销毁对象"><span class="post-toc-number">1.</span> <span class="post-toc-text">创建和销毁对象</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#object通用方法"><span class="post-toc-number">2.</span> <span class="post-toc-text">object通用方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类和接口"><span class="post-toc-number">3.</span> <span class="post-toc-text">类和接口</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#泛型"><span class="post-toc-number">4.</span> <span class="post-toc-text">泛型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#枚举与注解"><span class="post-toc-number">5.</span> <span class="post-toc-text">枚举与注解</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方法"><span class="post-toc-number">6.</span> <span class="post-toc-text">方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通用程序设计"><span class="post-toc-number">7.</span> <span class="post-toc-text">通用程序设计</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异常"><span class="post-toc-number">8.</span> <span class="post-toc-text">异常</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#并发"><span class="post-toc-number">9.</span> <span class="post-toc-text">并发</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#序列化"><span class="post-toc-number">10.</span> <span class="post-toc-text">序列化</span></a></li></ol>
         </nav>
     </aside>
     
@@ -172,13 +172,15 @@
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
             <h2 id="创建和销毁对象"><a href="#创建和销毁对象" class="headerlink" title="创建和销毁对象"></a>创建和销毁对象</h2><ol>
-<li>用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。<br>不过，这种方法和普通的静态方法没有任何语法形式的区别，且静态方法不能被继承（C++中<code>virtual</code>与<code>static</code>不能共存）；</li>
+<li>用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。不过，这种方法和普通的静态方法没有任何语法形式的区别，且静态方法不能被继承（C++中<code>virtual</code>与<code>static</code>不能共存）；</li>
 <li>当构造参数非常多时，使用构建器(builder)。我们通常会使用默认构造函数，然后用<code>set</code>方法一一设置属性，如果让<code>set</code>返回<code>this</code>，就可以连续使用<code>set</code>，这就是<code>builder</code>。对于具有“具名参数”语法的语言（如python，C#）这种模式就不是很必要了，对于有<code>default value</code>（如C++）语法的语言，这种模式的使用频率也要低一些。</li>
 <li>用私有构造器或枚举强化单例属性。这里给出了一个创建单例的建议：创建一个仅包含单元素的枚举类型，由于java语言特性，枚举直接免费提供了序列化、防止多次实例化等功能，因此可以简洁的解决很多问题。</li>
 <li>如果一个类不可实例化，应该将其构造器私有化，这种类一般只是提供静态函数（类似C++中的函数）</li>
 <li>尽量少创建新对象，而应该多复用已有对象。这条尤其对immuable的对象很重要，例如String。每次使用<code>new</code>时，对应该仔细考虑是否需要创建一个新的对象，而不是复用以前的对象。当然，对于小对象，这个不需要考虑。正如C++中的传值和传址的差别，小对象使用传值反而更好一些，可以避免许多不必要的麻烦。<br>另外，由于<code>autoboxing</code>的存在，基本类型与装箱基本类型之间会相互转化。但是需要记住，要优先使用基本类型。</li>
 <li>消除过期的对象引用。这条主要针对“程序员自己管理内存/池化”的情景。在C++中，我们习惯在<code>free</code> or <code>delete</code>之后，将其置0(<code>nullptr</code>)，这样可以避免后续一些莫名其妙的Bug。java是GC机制的，因此一般不需要这么做。但是，如果自己池化了对象管理机制（例如创建某些数据结构时），就要注意这些问题了。<br>本条款给出的建议中，要注意缓存（比如建了一个全局list/map）中过期的东西记得删除。可以使用<code>WeakHashMap</code>自动管理(当内存中没有其引用对象时自动清除），或者<code>LinkedHashMap</code>的<code>removeEldestEntry</code>手动管理（每次添加新元素时）。对于更加复杂的场景，必须使用<code>java.lang.ref</code><a href="http://www.ibm.com/developerworks/cn/java/j-lo-langref/" target="_blank" rel="noopener">^1</a>.<br>此外，<strong>注册</strong>一个回调方法，但是没有显式取消它，会导致其不断被累积。因此在使用<code>addListener</code>创建函数对象时，请记得<code>removeListener</code>.</li>
-<li>避免使用终结器(<code>finalizer</code>）。java使用GC来回收内存，因此终结器的用处不大，更重要的是，终结器的优先级很低，不能保证被及时执行，很容易造成性能bug。比较妥当的是提供显示的终结方法（如<code>close</code>），然后在<code>finally</code>中执行。注意终结方法不应该再抛出异常，而是应该捕获并打印日志。<br>但是用户可能忘记调用显示的终结方法，因此终结器还是可以充当最后的安全保证，当然，这其实是程序不得已使用的方法，应该在日志中使用警告。<br>另外需要注意的是，子类终结器必须显式调用父类的，这点和C++中的自动析构并不一样，请注意。可以考虑使用<code>finalize guard</code>来确保这一点。<h2 id="object通用方法"><a href="#object通用方法" class="headerlink" title="object通用方法"></a>object通用方法</h2></li>
+<li>避免使用终结器(<code>finalizer</code>）。java使用GC来回收内存，因此终结器的用处不大，更重要的是，终结器的优先级很低，不能保证被及时执行，很容易造成性能bug。比较妥当的是提供显示的终结方法（如<code>close</code>），然后在<code>finally</code>中执行。注意终结方法不应该再抛出异常，而是应该捕获并打印日志。<br>但是用户可能忘记调用显示的终结方法，因此终结器还是可以充当最后的安全保证，当然，这其实是程序不得已使用的方法，应该在日志中使用警告。<br>另外需要注意的是，子类终结器必须显式调用父类的，这点和C++中的自动析构并不一样，请注意。可以考虑使用<code>finalize guard</code>来确保这一点。</li>
+</ol>
+<h2 id="object通用方法"><a href="#object通用方法" class="headerlink" title="object通用方法"></a>object通用方法</h2><ol>
 <li><code>equals</code>方法。C++中，重载<code>==</code>操作符限定在同类之间， 其他的要通过类型转换来进行比较，因此存在非常复杂的显式/隐式类型转换。java中，<code>equals</code>方法的参数必须是<code>Object</code>类型，这意味着所有的对象之间都可以判断是否相等。<code>equals</code>方法的设计必须非常谨慎，要严格遵守自反性、对称性、一致性和传递性这几个特征。</li>
 </ol>
 <ul>
@@ -210,7 +212,9 @@
 </li>
 <li><code>toString</code>方法。同C#一样，一般推荐覆盖这个方法，这样<code>print</code>时，会方便很多。</li>
 <li><code>clone</code>方法。很遗憾，java的<code>clone</code>不好用——很不好用，它的约定太弱。即使类implement了<code>Cloneable</code>接口，你也不能指望什么。最好的方法是别管这个东西，自己实现一个拷贝构造器，或者拷贝工厂。</li>
-<li>考虑实现<code>Comparable</code>接口。这个接口唯一声明了<code>compareTo</code>方法，这是一个泛型方法。如果你需要排序，最好事先这个方法——正如C++中的重载<code>&lt;</code>操作符一样，这是泛型容器排序的基础。显然<code>compareTo</code>需要和<code>equals</code>在判断相等时保持一致。<br>比<code>equals</code>简单的是，<code>compareTo</code>的参数只能和自身类型一样，因为在implements泛型类时，填入的具体参数显然就是这个类自身。<h2 id="类和接口"><a href="#类和接口" class="headerlink" title="类和接口"></a>类和接口</h2></li>
+<li>考虑实现<code>Comparable</code>接口。这个接口唯一声明了<code>compareTo</code>方法，这是一个泛型方法。如果你需要排序，最好事先这个方法——正如C++中的重载<code>&lt;</code>操作符一样，这是泛型容器排序的基础。显然<code>compareTo</code>需要和<code>equals</code>在判断相等时保持一致。<br>比<code>equals</code>简单的是，<code>compareTo</code>的参数只能和自身类型一样，因为在implements泛型类时，填入的具体参数显然就是这个类自身。</li>
+</ol>
+<h2 id="类和接口"><a href="#类和接口" class="headerlink" title="类和接口"></a>类和接口</h2><ol>
 <li>使类和成员的可访问性最小化。本条和语言无关，所有面向对象设计中，<strong>信息隐藏</strong>的重要性都是一致的。切记尽量少暴露实现细节，保持对外开放性最小。这可以有效减少软件工程的复杂度。<br>有个细节的技巧：数组不可能是public final的， 因为数组本身是可变的。C++中有个蛋疼的<code>const int* const p</code>的问题，指的就是指针的可变性和内容的可变性问题。<br>此外，java默认访问类型是<code>package private</code>的，这和其他语言有区别。</li>
 <li>使用<code>getter</code>,<code>setter</code>代替公有成员变量。这条其实并不是那么严格，至少C++中经常可以看到反例。因为写起来实在太麻烦，所以C#引入了属性这种语法糖。</li>
 <li><p>设计不可变类。省事起见，如果对性能没有特别大的需求尽量设计不可变类，这种类的所有方法都会返回一个<code>new</code>对象，而不是直接修改对象本身。这种类的设计遵从如下原则：</p>
@@ -240,7 +244,7 @@
 <li>使用<code>set&lt;? extends Object&gt;</code> or <code>set&lt;? super String&gt;</code>这种技巧来完成某些动作。助记符是<strong>PECS</strong>,就是说，把这个对象当生产者使用时，用<code>extends</code>，反之，用<code>super</code>。<br>在返回的时候，仍然使用普通类型，而不是通配符。<br>本条对于类库编写者比较重要。</li>
 <li>优先使用类型安全的异构容器。本条通过一些奇技淫巧完成一个容器里面同时存放多种类型(异构，通过<code>class&lt;?&gt;</code>实现)，但是又能保证类型安全(通过<code>type.cast</code>实现)这一目标。</li>
 </ol>
-<p>##枚举与注解<br>java的枚举有点难用，不如C#那么强大，也不如C/C++那么简洁。简单来说，每一个枚举值都是该类（枚举）的一个实例，相当于一种工厂方法，因此枚举对象可以直接调用枚举类的方法。</p>
+<h2 id="枚举与注解"><a href="#枚举与注解" class="headerlink" title="枚举与注解"></a>枚举与注解</h2><p>java的枚举有点难用，不如C#那么强大，也不如C/C++那么简洁。简单来说，每一个枚举值都是该类（枚举）的一个实例，相当于一种工厂方法，因此枚举对象可以直接调用枚举类的方法。</p>
 <ol>
 <li>枚举的所有域都应该是私有final的（需要的时候提供公有的访问函数）；可以通过<code>values</code>方法访问所有的枚举值（依照声明顺序）。对于每一个枚举值在后面加上<code>{}</code>，里面是<strong>特定于常量的方法实现</strong>，可以通过在枚举类中声明一个抽象方法，在常量中再进行覆盖来实现对不同枚举值的特殊操作（<code>switch(this)</code>这种方法更适用于控制外部传入的不可控的变量的方法中）。<br>如果在枚举值后面加上初始化表达式，调用该常量时会自动使用该表达式调用构造函数（但是显然我们不能直接调用构造器），比如<code>MONDAY(&quot;mon&quot;)</code>这种.<br>PS: 这里给了一个有趣的技巧：使用<code>%n</code>保证换行符的跨平台性，有些类似python中的<code>os.linesep</code>.</li>
 <li>如果不给枚举赋值，默认使用序列（0，1，2…），可以使用<code>ordinal</code>方法取得该序列的int值。当然，最好别依赖于这种自动生成的东西，而是明确赋值…</li>
@@ -257,8 +261,7 @@
 <li>坚持使用<code>Override</code>注解。这是一种良好的变成习惯，不再赘述。</li>
 <li>用标记接口定义类型。标记接口很罕见，最常见的是<code>Serializable</code>，它只是一个接口，并没有规定任意方法。换言之，这只是一个空接口。</li>
 </ol>
-<p>##方法</p>
-<ol>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><ol>
 <li>检查参数的有效性。即防御性编程，对于公有方法，应该在Javadoc中使用<code>@throws</code>标明在违反约定时会抛出什么异常；对于非导出方法，设计者自己知道会传入什么参数，因此应该使用<code>assert</code>来进行错误检测。</li>
 <li>必要时使用保护性拷贝。java的对象本质上都是c++中的指针或引用，因此如果对象本身是可变的，即使参数是不可变的，也可能因为某些意外导致对象被修改。比较简单的方法是使用深拷贝（值拷贝）摆脱这种引用的关系，这在C++中是比较明显的：传值还是传址的问题，但是java中如果不留意很容易忘掉这一点。</li>
 <li>谨慎设计方法签名。本条款说了一些设计方法的技巧和忌讳，包括：<ul>
@@ -321,7 +324,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:25:02.000Z" itemprop="dateUpdated">2017-06-12 23:25:02</time>
+    最后更新时间：<time datetime="2019-03-31T11:28:49.205Z" itemprop="dateUpdated">2019-03-31 18:28:49</time>
 </span><br>
 
 
