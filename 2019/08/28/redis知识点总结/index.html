@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>redis知识点总结 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="redis">
+    <meta name="description" content="redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。 持久化两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。 SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis知识点总结">
+<meta property="og:url" content="http://YiuTerran.github.io/2019/08/28/redis知识点总结/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。 持久化两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。 SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-28T11:57:00.844Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis知识点总结">
+<meta name="twitter:description" content="redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。 持久化两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。 SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身">
+    
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">redis知识点总结</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">redis知识点总结</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-28T05:14:37.000Z" itemprop="datePublished" class="page-time">
+  2019-08-28
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#持久化"><span class="post-toc-number">1.</span> <span class="post-toc-text">持久化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务"><span class="post-toc-number">2.</span> <span class="post-toc-text">事务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#HA"><span class="post-toc-number">3.</span> <span class="post-toc-text">HA</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#集群"><span class="post-toc-number">4.</span> <span class="post-toc-text">集群</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#底层数据结构"><span class="post-toc-number">5.</span> <span class="post-toc-text">底层数据结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#过期策略"><span class="post-toc-number">6.</span> <span class="post-toc-text">过期策略</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-redis知识点总结"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">redis知识点总结</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-28 13:14:37" datetime="2019-08-28T05:14:37.000Z"  itemprop="datePublished">2019-08-28</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
+<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
+<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
+<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
+<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
+<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
+<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
+<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
+<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
+<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
+<p>GC：自己实现的引用计数。</p>
+<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
+<p>过期删除使用惰性策略+定期删除。</p>
+<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2019-08-28T11:57:00.844Z" itemprop="dateUpdated">2019-08-28 19:57:00</time>
+</span><br>
+
+
+        
+        <a href="/2019/08/28/redis知识点总结/" target="_blank" rel="external">http://YiuTerran.github.io/2019/08/28/redis知识点总结/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&title=《redis知识点总结》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&title=《redis知识点总结》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/08/28/redis知识点总结/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis知识点总结》 — 无心呢喃&url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/03/31/flutter入门/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">flutter入门</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2019</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&title=《redis知识点总结》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&title=《redis知识点总结》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/08/28/redis知识点总结/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis知识点总结》 — 无心呢喃&url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/08/28/redis知识点总结/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3aS27DMAxF0ex/0+60QGr1PtIJIOpqFKSureMBI35eL7yuX2v9zftf3698v/7ung8vGTJkbMu4luvumvXWU1j6X39QZciQcQDjLoKR7a4D6PqV8ef+s2cZMmTIwLfmYB7oZciQIeOpwBc8EuBlyJAho5bE8nDJy20kDX44F5chQ8aGDF51//7nj/Q3ZMiQsRWjFi556Ky1BOJdyZAhYzSDB7haKW0dskmLlO9HhgwZJzDS0Yr0tFY7dAYpqwwZMoYyyBAYefyzYToeQZMhQ8ZoRlpo40GTHxBrIV6GDBlnMmqP5HdImwE8NMuQIeM0RppG1opo/AXFYxYyZMgYyugPbKWnzpSBAroMGTKGMkh5i4fd4lsMfwBQ1VCGDBmjGZ8btqglsSh9lSFDxgEMUqbnx8e0CVor5BXnNWTIkLEhg4w79BucaU2s9ZpkyJAxjtEPiOmYBVnxVIgMGTIOYPRvWmtbkieiVy9DhozRDFLMqqWaadjt31mGDBmzGTzYdZJevjly5e3MiAwZMg5jpCEYtRtBqlwc0ZAhQ8YBjNopq1OMCwpqZJhDhgwZQxlXuHh4JRvliW5wKJQhQ8Y4Ri3M8SZBOjyRfo4xMmTI2JbRaSiSolialKaBXoYMGecwOttKxzI6vwBBLi5DhoyDGf3WIwe3GgMyZMiQgRuQKYCn0K2joQwZMjZk8AGL2vfPpqwyZMg4jcFDXjpm0YelqbUMGTLGMX4AfRqodiWm6aYAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '赶紧回来啊~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临惹!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+</body>
+</html>
