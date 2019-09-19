@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-28T11:26:25.054Z">
+<meta property="og:updated_time" content="2019-09-18T11:22:43.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="读书笔记-数据密集型应用设计">
 <meta name="twitter:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
@@ -315,6 +315,7 @@
 <li>使用动态分区。数据库会根据数据量的大小动态增加或者缩减分区个数；当然初始数据量很小的时候，可能只需要一个分区，此时可以预分区；</li>
 <li>每个节点的分区数保持不变；当加入新节点时，增加对应数量的分区。这样可以更好的平衡各个节点；</li>
 </ol>
+<p>使用一致性哈希算法，可以有效减少再平衡时需要移动的数据数量。</p>
 <p>再平衡后的服务发现问题：服务器需要知道从哪个节点取数据。一般来说有3个解决方案：</p>
 <ol>
 <li>服务器自己知道：将分区依据写成配置。手动再平衡完毕后修改配置；</li>
@@ -430,7 +431,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2019-08-28T11:26:25.054Z" itemprop="dateUpdated">2019-08-28 19:26:25</time>
+    最后更新时间：<time datetime="2019-09-18T11:22:43.202Z" itemprop="dateUpdated">2019-09-18 19:22:43</time>
 </span><br>
 
 
@@ -522,9 +523,9 @@
 
   
     <div class="waves-block waves-effect next">
-      <a href="/2018/01/25/面试复习/" id="post-next" class="post-nav-link">
+      <a href="/2018/01/28/redis知识点总结/" id="post-next" class="post-nav-link">
         <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">面试复习纪要.md</h4>
+        <h4 class="title">redis知识点总结</h4>
       </a>
     </div>
   

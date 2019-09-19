@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2019-08-28T11:57:00.844Z</updated>
+  <updated>2019-02-17T14:59:14.492Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,71 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>redis知识点总结</title>
-    <link href="http://YiuTerran.github.io/2019/08/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/"/>
-    <id>http://YiuTerran.github.io/2019/08/28/redis知识点总结/</id>
-    <published>2019-08-28T05:14:37.000Z</published>
-    <updated>2019-08-28T11:57:00.844Z</updated>
-    
-    <content type="html"><![CDATA[<p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
-<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
-<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
-<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
-<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
-<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
-<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
-<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
-<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
-<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
-<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
-<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
-<p>GC：自己实现的引用计数。</p>
-<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
-<p>过期删除使用惰性策略+定期删除。</p>
-<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。&lt;/p&gt;
-&lt;h2 id=&quot;持久化&quot;&gt;&lt;a href=&quot;#持久化&quot; class=&quot;headerlink&quot; title=&quot;持久化&quot;&gt;&lt;/a&gt;持久化&lt;/h2&gt;&lt;p&gt;两个方案：DUMP和LO
-    
-    </summary>
-    
-    
-      <category term="redis" scheme="http://YiuTerran.github.io/tags/redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>flutter入门</title>
-    <link href="http://YiuTerran.github.io/2019/03/31/flutter%E5%85%A5%E9%97%A8/"/>
-    <id>http://YiuTerran.github.io/2019/03/31/flutter入门/</id>
-    <published>2019-03-31T10:13:33.000Z</published>
-    <updated>2019-03-31T11:35:45.588Z</updated>
-    
-    <content type="html"><![CDATA[<p>决定学习一下app的开发，写个app给自己用，于是决定入坑flutter了！</p>
-<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>跟着官方指南安装flutter即可，选择一个编辑器：Android studio或者vs code. 最后使用<code>flutter doctor</code>看看有没有问题</p>
-<h2 id="试用"><a href="#试用" class="headerlink" title="试用"></a>试用</h2><p>安装安卓的SDK，选一个模拟器。然后把官方的代码粘贴到<code>lib/main.dart</code>，愉快的运行吧。</p>
-<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>待续…</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;决定学习一下app的开发，写个app给自己用，于是决定入坑flutter了！&lt;/p&gt;
-&lt;h2 id=&quot;准备&quot;&gt;&lt;a href=&quot;#准备&quot; class=&quot;headerlink&quot; title=&quot;准备&quot;&gt;&lt;/a&gt;准备&lt;/h2&gt;&lt;p&gt;跟着官方指南安装flutter即可，选择一个编辑
-    
-    </summary>
-    
-    
-      <category term="flutter" scheme="http://YiuTerran.github.io/tags/flutter/"/>
-    
-      <category term="app" scheme="http://YiuTerran.github.io/tags/app/"/>
-    
-  </entry>
   
   <entry>
     <title>docker常见命令</title>
@@ -224,7 +159,7 @@
     <link href="http://YiuTerran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/"/>
     <id>http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/</id>
     <published>2018-02-16T00:49:36.000Z</published>
-    <updated>2019-08-28T11:26:25.054Z</updated>
+    <updated>2019-09-18T11:22:43.202Z</updated>
     
     <content type="html"><![CDATA[<p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
 <h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的<code>Data System</code>，包括消息队列、RDBMS, NOSQL, 以及图数据库、列式数据库等等负责存储数据的组件。</p>
@@ -370,6 +305,7 @@
 <li>使用动态分区。数据库会根据数据量的大小动态增加或者缩减分区个数；当然初始数据量很小的时候，可能只需要一个分区，此时可以预分区；</li>
 <li>每个节点的分区数保持不变；当加入新节点时，增加对应数量的分区。这样可以更好的平衡各个节点；</li>
 </ol>
+<p>使用一致性哈希算法，可以有效减少再平衡时需要移动的数据数量。</p>
 <p>再平衡后的服务发现问题：服务器需要知道从哪个节点取数据。一般来说有3个解决方案：</p>
 <ol>
 <li>服务器自己知道：将分区依据写成配置。手动再平衡完毕后修改配置；</li>
@@ -495,6 +431,44 @@
   </entry>
   
   <entry>
+    <title>redis知识点总结</title>
+    <link href="http://YiuTerran.github.io/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/"/>
+    <id>http://YiuTerran.github.io/2018/01/28/redis知识点总结/</id>
+    <published>2018-01-28T05:14:37.000Z</published>
+    <updated>2019-09-19T11:42:20.176Z</updated>
+    
+    <content type="html"><![CDATA[<p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
+<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
+<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
+<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
+<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
+<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
+<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
+<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
+<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
+<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
+<p>GC：自己实现的引用计数。</p>
+<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
+<p>过期删除使用惰性策略+定期删除。</p>
+<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。&lt;/p&gt;
+&lt;h2 id=&quot;持久化&quot;&gt;&lt;a href=&quot;#持久化&quot; class=&quot;headerlink&quot; title=&quot;持久化&quot;&gt;&lt;/a&gt;持久化&lt;/h2&gt;&lt;p&gt;两个方案：DUMP和LO
+    
+    </summary>
+    
+    
+      <category term="redis" scheme="http://YiuTerran.github.io/tags/redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>面试复习纪要.md</title>
     <link href="http://YiuTerran.github.io/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/"/>
     <id>http://YiuTerran.github.io/2018/01/25/面试复习/</id>
@@ -573,23 +547,26 @@
     <link href="http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"/>
     <id>http://YiuTerran.github.io/2017/07/16/SpringMvc4-Rest-Api最佳实践/</id>
     <published>2017-07-16T02:33:34.000Z</published>
-    <updated>2017-07-17T06:47:05.000Z</updated>
+    <updated>2019-08-29T02:25:44.118Z</updated>
     
     <content type="html"><![CDATA[<p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
-<p>在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰器，但是却更加magic一些，它实际上利用了JVM虚拟机的机制，和Java语言自身反而关系不大，这就很让人讨厌了。有时候你不看配置只看代码根本看不出来有某个功能，程序的入口千疮百孔。</p>
-<h2 id="RestController"><a href="#RestController" class="headerlink" title="RestController"></a>RestController</h2><p>这个玩意儿相当于<code>Controller</code> + <code>ResponseBody</code>，表明该类的所有方法均是返回REST的数据，而非视图</p>
-<h2 id="入参校验"><a href="#入参校验" class="headerlink" title="入参校验"></a>入参校验</h2><p>一般将入参直接转化为对应的POJO，称作VO（Value Object）。在VO上使用<code>JSR 303</code>来做校验，在对应的方法中使用<code>@Valid</code>配合<code>@RequestBody</code>将参数自动转化为对应的对象进行自动校验。</p>
-<h2 id="返回值包装"><a href="#返回值包装" class="headerlink" title="返回值包装"></a>返回值包装</h2><p>使用统一的返回值模型，包装成如下格式：</p>
-<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"status"</span>: <span class="number">0</span>,  <span class="comment"># 业务状态</span></span><br><span class="line">    <span class="string">"msg"</span>: <span class="string">""</span>,    <span class="comment"># 错误信息</span></span><br><span class="line">    <span class="string">"data"</span>: &#123;&#125;,  <span class="comment"># 真正的数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>写几个POJO即可</p>
-<h2 id="全局错误处理"><a href="#全局错误处理" class="headerlink" title="全局错误处理"></a>全局错误处理</h2><p>首先需要自定义错误的异常层次，然后使用<code>ControllerAdvice</code>建立全局异常拦截器，拦截异常后，返回的仍然是上面的标准格式。</p>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>在Spring的配置里面，MVC层扫描<code>Controller</code>, <code>RestController</code>和<code>ControllerAdvice</code>这几层，其他的交给底层的容器。</p>
+<h2 id="所谓IOC"><a href="#所谓IOC" class="headerlink" title="所谓IOC"></a>所谓IOC</h2><p>Spring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类注册成Bean（可以指定构造函数的参数和bean的id等），然后框架再把这些Bean注入到<code>@Autowired</code>(按类型注入)，<code>@Resource</code>(按名称)等注解的变量（也可以使用XML配置的方式注入）。</p>
+<p>默认情况下，注册的都是一个单例，spring每次创建新对象时都使用同一个对象。也可以在xml中配置为<code>prototype</code>，这时候就是每次new一个新的对象了。另外spring mvc另外加了两个生命周期：session和request，分别表示为单次请求和session有效期内的对象。使用<code>@Scope</code>修改生命周期（作用域）。</p>
+<p>可以使用<code>@PostConstruct</code>和<code>@PreDestroy</code>注册两个回调方法，在spring实例化Bean（并装配）后回调对象对应的方法。</p>
+<p>一般使用<code>@Component</code>注册bean，<code>@Service</code>, <code>@Controller</code>和<code>@Repository</code>都是其别名。</p>
+<p>此外，还可以使用配置类(<code>@Configuration</code>)代替xml注册bean(<code>@Bean</code>)，在其注解的方法内进行恰当的初始化，并返回一个对象注册为Bean. <code>@Configuration</code>具有<code>@Component</code>的作用，在类里面也可以直接注入。但是如果想要引用其他配置类的Bean，需要使用<code>@import</code>.</p>
+<h2 id="所谓AOP"><a href="#所谓AOP" class="headerlink" title="所谓AOP"></a>所谓AOP</h2><p>可以简单理解为python中的装饰器…由于Java语法不支持装饰器，想要完成类似装饰器的用法，只能通过反射。比如，先声明一个类，完成主要的工作，称为target. 再通过一个类实现<code>org.springframework.aop.MethodBeforeAdvice</code>，其参数中捕获target的参数完成前置工作。最后通过spring的<code>ProxyFactory</code>生成代理工厂，设置target并添加advice，最后用代理工厂生成实例。</p>
+<p>需要注意的是，Java本身的动态代理是基于接口的。对于没有实现任何接口的类，只能通过CGLIB通过继承进行代理，但是后者显然不支持final类。spring在生成对象时会优先选择JDK代理，不行再尝试CGLIB代理。</p>
+<p>当然，除了在代码中使用，也可以用xml配置（实际上Java很多代码都可以通过xml实现，这也是非常惹人生厌的地方）。</p>
+<p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
+<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
+<p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
 ]]></content>
     
     <summary type="html">
     
       &lt;p&gt;因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。&lt;/p&gt;
-&lt;p&gt;在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰
+&lt;h2 id=&quot;所谓IOC&quot;&gt;&lt;a href=&quot;#所谓IOC&quot; class=&quot;headerlin
     
     </summary>
     
@@ -1399,10 +1376,10 @@ ZERO_DIVIDE            零被整除
   
   <entry>
     <title>java CMS GC调优步骤</title>
-    <link href="http://YiuTerran.github.io/2017/06/12/java%20GC%E8%B0%83%E4%BC%98%E6%AD%A5%E9%AA%A4/"/>
-    <id>http://YiuTerran.github.io/2017/06/12/java GC调优步骤/</id>
+    <link href="http://YiuTerran.github.io/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/"/>
+    <id>http://YiuTerran.github.io/2017/06/12/jvm调优指南/</id>
     <published>2017-06-12T15:48:32.000Z</published>
-    <updated>2019-03-31T11:29:50.995Z</updated>
+    <updated>2019-08-31T01:47:01.372Z</updated>
     
     <content type="html"><![CDATA[<p>0.增加GC相关选项：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles=5</span><br><span class="line">-XX:GCLogFileSize=512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:/var/app/log/Push-server/gc.log</span><br></pre></td></tr></table></figure></p>
 <ol>
@@ -1432,6 +1409,7 @@ ZERO_DIVIDE            零被整除
 </li>
 </ol>
 <p>G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</p>
+<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
 ]]></content>
     
     <summary type="html">
@@ -1720,11 +1698,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
+      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
+      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
   </entry>
   
@@ -1815,11 +1793,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
@@ -1887,11 +1865,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   

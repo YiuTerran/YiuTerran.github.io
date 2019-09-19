@@ -140,106 +140,6 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
-            <article id="post-redis知识点总结"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2019-08-28 13:14:37" datetime="2019-08-28T05:14:37.000Z"  itemprop="datePublished">2019-08-28</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2019/08/28/redis知识点总结/">redis知识点总结</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。
-持久化两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。
-SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内...
-    
-
-        <a href="/2019/08/28/redis知识点总结/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-flutter入门"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2019-03-31 18:13:33" datetime="2019-03-31T10:13:33.000Z"  itemprop="datePublished">2019-03-31</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2019/03/31/flutter入门/">flutter入门</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        决定学习一下app的开发，写个app给自己用，于是决定入坑flutter了！
-准备跟着官方指南安装flutter即可，选择一个编辑器：Android studio或者vs code. 最后使用flutter doctor看看有没有问题
-试用安装安卓的SDK，选一个模拟器。然后把官方的代码粘贴到lib/main.dart，愉快的运行吧。
-基础知识待续…
-
-    
-
-        <a href="/2019/03/31/flutter入门/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/app/">app</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flutter/">flutter</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
             <article id="post-docker常见命令"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -435,6 +335,55 @@ SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，�
         </li>
     
         <li class="post-list-item fade">
+            <article id="post-redis知识点总结"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-01-28 13:14:37" datetime="2018-01-28T05:14:37.000Z"  itemprop="datePublished">2018-01-28</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/01/28/redis知识点总结/">redis知识点总结</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。
+持久化两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。
+SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内...
+    
+
+        <a href="/2018/01/28/redis知识点总结/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-面试复习"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -518,7 +467,7 @@ web 相关技术。对于一般以业务为主的公司，这个就是吃饭的�
 
     
         因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。
-在写这个东西的过程中，不得不怀恋Python的装饰器…Spring的AOP看起来很类似装饰器，但是却更加magic一些，它实际上利用了JVM虚拟机的机制，和Java语言自身反而关系不大，这就很让人讨厌了。有时候你不看配置只看...
+所谓IOCSpring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类...
     
 
         <a href="/2017/07/16/SpringMvc4-Rest-Api最佳实践/" class="post-more waves-effect waves-button">
@@ -627,6 +576,55 @@ web 相关技术。对于一般以业务为主的公司，这个就是吃饭的�
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-maven和gradle一些选项"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-26 09:32:23" datetime="2017-06-26T01:32:23.000Z"  itemprop="datePublished">2017-06-26</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/26/maven和gradle一些选项/">maven和gradle一些选项</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        Java的包依赖系统简单粗暴，就是直接下载jar包，经历了Ant -&gt; Maven -&gt; Gradle这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。
+如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。
+冲突Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排...
+    
+
+        <a href="/2017/06/26/maven和gradle一些选项/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gradle/">gradle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
 
     </div>
     
