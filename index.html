@@ -140,6 +140,105 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-leaf框架代码解析和改造"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2019-10-31 13:18:00" datetime="2019-10-31T05:18:00.000Z"  itemprop="datePublished">2019-10-31</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2019/10/31/leaf框架代码解析和改造/">leaf框架代码解析和改造</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：
+基本思路leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。
+它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：
+
+提供Skeleton这个脚手架，...
+    
+
+        <a href="/2019/10/31/leaf框架代码解析和改造/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/leaf/">leaf</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-微服务设计迷思-数据存储"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2019-10-31 11:14:08" datetime="2019-10-31T03:14:08.000Z"  itemprop="datePublished">2019-10-31</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2019/10/31/微服务设计迷思-数据存储/">微服务设计迷思-数据存储</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。
+这么多年，后端的设计其实没有大的改变，主要解决的就是流量...
+    
+
+        <a href="/2019/10/31/微服务设计迷思-数据存储/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/微服务/">微服务</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-刷题总结"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -538,104 +637,6 @@ web 相关技术。对于一般以业务为主的公司，这个就是吃饭的�
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/">SpringMVC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/">Web</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-报表打印-pdf-技术选型"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-07-07 00:21:00" datetime="2017-07-06T16:21:00.000Z"  itemprop="datePublished">2017-07-07</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/07/07/报表打印-pdf-技术选型/">报表打印(pdf)技术选型</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。
-首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧(:зゝ∠)
-服务端实现Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义...
-    
-
-        <a href="/2017/07/07/报表打印-pdf-技术选型/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-oracle学习笔记"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-07-03 14:21:18" datetime="2017-07-03T06:21:18.000Z"  itemprop="datePublished">2017-07-03</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/07/03/oracle学习笔记/">oracle学习笔记</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。
-安装Mac下可以使用docker安装，可以参考这篇博客.
-概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的...
-    
-
-        <a href="/2017/07/03/oracle学习笔记/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
 
     </div>
     

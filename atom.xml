@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2019-10-21T06:26:21.206Z</updated>
+  <updated>2019-11-01T04:11:22.118Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,88 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>leaf框架代码解析和改造</title>
+    <link href="http://YiuTerran.github.io/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/"/>
+    <id>http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/</id>
+    <published>2019-10-31T05:18:00.000Z</published>
+    <updated>2019-11-01T04:11:22.118Z</updated>
+    
+    <content type="html"><![CDATA[<p>在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：</p>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。</p>
+<p>它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：</p>
+<ol>
+<li>提供<code>Skeleton</code>这个脚手架，可以把它当成一个功能更加完善的协程。它提供了保证函数执行时序的一些工具，允许callback形式的代码；通过<code>chanRPCServer</code>抽象了一种类似RPC的协程间通信（通过channel），方便快速进行开发；</li>
+<li>按业务抽象了Module，进行生命周期管理；</li>
+<li>抽象了网络接口，并提供了裸TCP和websocket的实现，可以通过简单的配置同时支持多种协议；</li>
+<li>提供了protobuf和json的序列化支持；</li>
+<li>路由机制；</li>
+<li>通过telnet提供pprof接口，同时也可以自定义命令，方便进行debug；</li>
+<li>其他一些工具库；</li>
+</ol>
+<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>待填充</p>
+<h2 id="简单改进"><a href="#简单改进" class="headerlink" title="简单改进"></a>简单改进</h2><p>由于leaf常年不再更新，fork了一个版本并修正了一些问题，地址在：<a href="https://github.com/YiuTerran/leaf" target="_blank" rel="noopener">https://github.com/YiuTerran/leaf</a></p>
+<p>主要修正包括：</p>
+<ol>
+<li>移除了一些不需要的模块，如mongo的支持等，这些直接用第三方库即可；</li>
+<li>将自己实现的log模块改为zap的，性能更好并支持json格式的日志；</li>
+<li>将websocket的RemoteAddr返回值改为透过代理的（如果存在）；</li>
+<li>加上go mod支持，修改版本号为规范格式；</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：&lt;/p&gt;
+&lt;h2 id=&quot;基本思路&quot;&gt;&lt;a href=&quot;#基本思路&quot; class=&quot;headerlink&quot; title=&quot;基本思路&quot;&gt;&lt;
+    
+    </summary>
+    
+    
+      <category term="golang" scheme="http://YiuTerran.github.io/tags/golang/"/>
+    
+      <category term="leaf" scheme="http://YiuTerran.github.io/tags/leaf/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>微服务设计迷思-数据存储</title>
+    <link href="http://YiuTerran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/"/>
+    <id>http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/</id>
+    <published>2019-10-31T03:14:08.000Z</published>
+    <updated>2019-10-31T05:16:22.947Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。</p>
+<p>这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：越来越庞大的访问量，和随之产生的数据量。银行证券等金融系统，最开始使用的是db2，sysbase等硬件数据库，然后是oracle这种较为成熟的单点数据库，这两年才逐渐拥抱开源，用pgsql代替oracle或是引入分布式数据库。访问量更为庞大、同时实时性也要求更高的互联网服务（很多金融系统的实时性其实很差，比如跨国swift汇款，可能要一个星期才到账。它涉及到风控等外部因素，实时性并不是第一位的。当然也有要求高的，比如股票购买。），则更为激进，在移动互联网时代就大规模引入redis、mongodb等NoSQL组件，以提高响应速度。</p>
+<h2 id="单点时代"><a href="#单点时代" class="headerlink" title="单点时代"></a>单点时代</h2><p>即使C10K时代，单点数据库一般也足够满足需求。这时候最多考虑的是HA问题，mysql等常见db都提供了副本集的设计，也有比较成熟的集群架构（比如PXC架构）。这些技术在当今也很常见，中小规模的互联网公司仍在使用。oracle自带的分区功能也可以较少单表读写压力。</p>
+<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>稍大规模的服务，也可以根据key值进行手动的分片。虽然麻烦了一些，但是仍然够用，事务的一致性可以通过db得到保证。但是如果引入了NoSQL，如redis，不同组件之间的数据一致性和事务性无法得到保证。</p>
+<p>在代码里进行分库分表耦合太深，所以出现了mycat这一类透明代理，这样代码里仍然把数据库当作单点处理。代理反向解析sql语句，将请求送入正确的db，并进行数据汇总。当然OLAP用这个会有join问题，分页问题等。</p>
+<p>mongodb虽然支持集群，但是不支持表之间的join操作，所以其实也算是一种分片。关于分片的设计，前面的博客有分析（数据密集型应用设计）。</p>
+<h2 id="一库一服"><a href="#一库一服" class="headerlink" title="一库一服"></a>一库一服</h2><p>有人说微服务与SOA最大的区别就是一库一服，实际上这并没有解决任何问题，只是转移了问题，并且带来了新的问题。</p>
+<p>将服务拆分成更小粒度的服务，每个服务使用单独的数据库。这些单独的数据库仍然可以使用分片进行水平扩展分解压力，显然这是一种<strong>分治</strong>的思想。但是分库破坏了db的acid特性，会导致数据失去强一致性。</p>
+<p>以支付服务为例，在同一个db中，可以利用数据库的事务性保证付款和减少库存两个操作的一致性。如果通过微服务，支付服务和库存服务独立的情况下，只能拆分成支付服务扣钱-&gt;通知库存服务减少-&gt;库存减少成功/失败-&gt;回调支付服务确认，这就是所谓的TCC解决方案。</p>
+<p>显然，某些业务（比如股票/火车票购买）是不能用这种模型的，扣钱成功必须保证买到商品，否则用户肯定会投诉的。所以这时候就只能用二阶段提交等一致性搞好的方案，但是效率又得不到保证。</p>
+<h2 id="分布式数据库"><a href="#分布式数据库" class="headerlink" title="分布式数据库"></a>分布式数据库</h2><p>NewSQL的分布式数据库，从db层面上解决了数据扩展性的问题。说白了，它是将分布式事务的问题从服务层面重新转回db层面。于是一切又回到了单点时代，对于服务而言，分布式数据库就当作一个单点来使用即可。</p>
+<p>当然分布式数据库至今仍然有一些问题，不过已经可以在生产上使用。</p>
+<h2 id="未来"><a href="#未来" class="headerlink" title="未来"></a>未来</h2><p>从程序设计的角度来看，一切正在回到初始。</p>
+<p>ServiceMesh和NewSQL，这两项技术将一切外部组件的复杂性进行了屏蔽，那么很多业务就重新回到CURD的简单工作了。</p>
+<p>然而终究没有银弹，在很长一段时间内，上面的技术都会并存于世。合理的进行选型设计才是架构师应该考虑的问题。</p>
+<p>多嘴说一句，Dubbo, SpringCloud这种架构注定会过时的，它将外部组件的复杂性引入了代码，这不符合低耦合高聚集的程序设计原则，注定会被ServiceMesh替代。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(New
+    
+    </summary>
+    
+    
+      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
+    
+      <category term="微服务" scheme="http://YiuTerran.github.io/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+  </entry>
   
   <entry>
     <title>面试刷题总结</title>
