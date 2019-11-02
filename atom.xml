@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2019-11-01T04:11:22.118Z</updated>
+  <updated>2019-11-02T04:07:25.144Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -16,11 +16,69 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>并发编程模型浅谈</title>
+    <link href="http://YiuTerran.github.io/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/"/>
+    <id>http://YiuTerran.github.io/2019/11/02/并发编程模型浅谈/</id>
+    <published>2019-11-02T01:03:43.000Z</published>
+    <updated>2019-11-02T04:07:25.144Z</updated>
+    
+    <content type="html"><![CDATA[<p>当我们设计一个业务模型的代码架构时，不同语言的选择对我们的思维有很大的影响。本文根据个人经验，以设计斗地主服务器为例，试图总结一下其中的区别。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>主流设计语言中，C/C++甚至没有线程的概念，全靠调用操作系统自己的接口；Python由于GIL的原因，多线程效率十分底下，一般采用多进程模型；Java是最早采用多线程模型的语言；Erlang是内置Actor模型；Golang是内置CSP模型。值得注意的是，对操作系统而言，最底层的就是线程（不过Windows有内置的Fiber），所以协程（coroutine）在任何语言中其实都可以自己实现，多个协程共同运行在同一个线程中。</p>
+<h2 id="多进程设计"><a href="#多进程设计" class="headerlink" title="多进程设计"></a>多进程设计</h2><p>如果选用Python作为目标任务的编程语言，显然应该采用多进程模型，在进程内部可以使用协程来加快速度。比如我们用Tornado来完成这个游戏：</p>
+<ol>
+<li>首先可以设计一个路由服务（HTTP服务），完成用户身份校验后，根据负载均衡算法随机分配一个实例，将websocket监听地址返回给客户端。并将这个分配地址记录下来，供用户断线重连使用；</li>
+<li>Tornado是单进程单线程模型，这里主要完成游戏逻辑。一个新用户加入后，游戏服在内存中遍历有空闲的房间，将用户加入其中。每个房间有自己的id，游戏逻辑本身靠用户动作来驱动，即通过用户动作来修改房间上下文，直到游戏结束；同时游戏可以使用ioloop的定时器来定义超时，代替用户驱动游戏；</li>
+<li>到游戏结算时，需要入库，可以通过线程池的方法避免阻塞，或者用async-http在路由层完成入库操作。</li>
+</ol>
+<h3 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h3><p>上述过程中，可以把路由和Tornado设计到一起，使用类似prefork的方案，在路由进程中启动tornado的进程池，这种情况下可以使用python内置的多进程通信组件（multiprocessing包里面的）。不过这个设计显然不是很好，不符合现在微服务的设计理念。</p>
+<p>将路由和Tornado作为独立的服务，二者之间的进程通信可以用socket（有应答），或者mq等中间件（无应答），同时也将监听的handler加入ioloop的主循环中。</p>
+<p>注意独立进程之间可能存在数据不一致问题，单节点挂掉的话需要考虑如何处理。</p>
+<h2 id="多线程设计"><a href="#多线程设计" class="headerlink" title="多线程设计"></a>多线程设计</h2><p>以Java的Netty为例。其实和多进程差不多，不过这时候路由和游戏本身肯定是在一个进程里作为一个整体的服务了，那么假设这里通过dns进行负载均衡，用户随机连接到一台服务器上。可以通过redis的setnx这种类分布式锁的机制保证用户断线重连到同一台机器。</p>
+<ol>
+<li>一个单独的线程作为路由服务，将用户分配到不同房间；</li>
+<li>建立房间游戏逻辑线程池。这个线程池可以用netty的，也可以用jdk的。不过棋牌类游戏需要使用大量定时器，所以一般还是用netty的。netty的I/O线程和业务线程在这里是分开的，避免相互阻塞；</li>
+<li>只要保证同一个房间的游戏逻辑总是被同一个线程处理，即可达到无锁编程的目的；</li>
+</ol>
+<h3 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>线程间通信的可靠性显然比进程间强了许多，基本无需考虑数据不一致问题。</p>
+<p>一般使用语言自带的组件来完成线程间通信，比如Future/Promise（有应答），或者直接submit到对应的线程（无应答）。耗时任务一般采用线程池的方法来避免阻塞。</p>
+<h2 id="协程设计"><a href="#协程设计" class="headerlink" title="协程设计"></a>协程设计</h2><p>以Go为例。这里就简单多了：</p>
+<ol>
+<li>一个单独的协程完成路由服务；</li>
+<li>每个房间一个单独的协程完成无锁游戏逻辑计算；</li>
+<li>耗时任务单开协程处理，随用随销毁；</li>
+<li>协程间通过channel通信；</li>
+</ol>
+<h2 id="联系与区别"><a href="#联系与区别" class="headerlink" title="联系与区别"></a>联系与区别</h2><p>按着上面这些分析，其实他们的设计思路大体上是一样的。通过IO多路复用，使用尽量少的系统资源完成更多的任务，通过使同一个房间在同一个线程/协程里，尽量达到无锁编程的目的。</p>
+<p>但是由于操作系统的一个基本运行单位是进程，多进程设计其实就是分布式设计。因此多进程需要更多考虑的到数据一致性的问题，进程间通信的代价昂贵。多线程编程和协程其实差不多，但是协程的代价更低，因此可以每个房间一个协程但不能每个房间一个线程。同样，某些耗时的任务协程可以随时开一个新的，用完再销毁。但是线程不行，这么操作的代价有点大，一般需要做一个池化处理。换句话来说，线程编程要更有总体规划一些，要更加精细的设计，因为一个进程最多有几千个线程，但是却可以有上百万个协程。所以Java这边还是建议把耗时操作封装成类，内部使用池化，同时类对外提供阻塞应答和异步调用等常用通信方式。</p>
+<p>同时需要注意的是，IO操作还要关心外部资源的限制。比如MySQL读写，并发量不大的时候，可以随时开一个线程去读。但是并发量有限的情况下，就要池化以限制资源（在Go里面可以通过Channel扇入扇出来限制）。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实道理是相通的，上面的思路其实也大同小异，但是具体到代码的书写难度上，肯定是依次递减的。协程编程的时代早已到来，这也是为啥Go能这么快速流行的一个原因。但是go的channel并不能跨进程通信，所以实际上来说，Erlang这门古早的语言，才是集群设计最终的答案。</p>
+<p>注意不管是哪种方案，都有data race的情况，这取决于你对业务的设计和架构。并发编程虽然比以前简单了很多，但是没想清楚的时候，还是很容易出问题的（而且很难调试）。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;当我们设计一个业务模型的代码架构时，不同语言的选择对我们的思维有很大的影响。本文根据个人经验，以设计斗地主服务器为例，试图总结一下其中的区别。&lt;/p&gt;
+&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
+      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
+    
+      <category term="concurrent" scheme="http://YiuTerran.github.io/tags/concurrent/"/>
+    
+      <category term="python" scheme="http://YiuTerran.github.io/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
     <title>leaf框架代码解析和改造</title>
     <link href="http://YiuTerran.github.io/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/"/>
     <id>http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/</id>
     <published>2019-10-31T05:18:00.000Z</published>
-    <updated>2019-11-01T04:11:22.118Z</updated>
+    <updated>2019-11-02T10:20:36.675Z</updated>
     
     <content type="html"><![CDATA[<p>在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：</p>
 <h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。</p>
@@ -34,7 +92,30 @@
 <li>通过telnet提供pprof接口，同时也可以自定义命令，方便进行debug；</li>
 <li>其他一些工具库；</li>
 </ol>
-<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>待填充</p>
+<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>下面按着模块进行一些代码难点解析。</p>
+<h3 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h3><p>这个比较简单，规定了一个接口，里面是一些生命周期的回调函数，供leaf启动时注册运行，同时提供了一个<code>chan bool</code>作为关闭的信号。</p>
+<p>注意每个模块运行在单独的协程里。</p>
+<h3 id="Processor"><a href="#Processor" class="headerlink" title="Processor"></a>Processor</h3><p>序列化接口，支持序列化、反序列化和路由消息到对应的handler。框架给出了json和protobuf两种序列化方案。</p>
+<p>json是明文传输，直接用类的名字作为消息的标示即可。protobuf是二进制传输，需要两个字节来描述消息的id，直到id才能正确的反序列化。</p>
+<h3 id="network"><a href="#network" class="headerlink" title="network"></a>network</h3><p>对TCP和WebSocket通信的抽象，<code>Conn</code>是抽象出的接口。</p>
+<p>TCP和WebSocket最大的不同是前者是传输层协议，后者是应用层协议。所以前者需要自定义消息格式，这里采用的是头X个字节描述消息大小，后面是序列化消息的方式，另外注意这里还有大小端的问题。读的过程很简单，每次都是先读前X个字节，然后读出整个消息体；写的过程也类似。</p>
+<h3 id="Gate"><a href="#Gate" class="headerlink" title="Gate"></a>Gate</h3><p>路由主要作用是将socket封装成Agent，这里为了可以同时当作TCP和WebSocket服务器，将相关设置项直接当作Gate的成员变量了。</p>
+<p>消息的路由通过注册processor来实现，通过<code>Run</code>来启动server，显然gate应该被封装作为一个Module在leaf中运行。这里还注册了打开关闭socket的固定回调(“NewAgent”和”CloseAgent”)。</p>
+<p>下面看一下Server启动后做了啥，以TCPServer为例：</p>
+<ol>
+<li>在一个单独的协程中启动server，server本身是一个死循环；</li>
+<li>Accept请求以后，通过server的<code>NewAgent</code>回调创造agent，并在一个单独的协程中运行agent；</li>
+<li>agent的<code>Run</code>也是一个死循环，它简单的读取消息并进行路由处理；</li>
+<li>agent的写消息是在调用协程里异步完成的，它将消息写入conn的<code>writeChan</code>缓冲区后返回；每个conn有个单独的协程遍历channel并完成真正的写操作；</li>
+<li>因此3，4为一个socket的读写各创建了一个单独的协程；</li>
+</ol>
+<p>3中路由处理，在这里分为几种情况，如果对Processor调用了<code>SetHandler</code>或者<code>SetRawHandler</code>，那么就在读消息的协程里直接同步处理了消息。如果调用了<code>SetRouter</code>选择把消息路由到某个chanrpc中，则会把消息塞到队列中进行异步处理（回调的格式写死为f(args []interface{})。</p>
+<h3 id="command"><a href="#command" class="headerlink" title="command"></a>command</h3><p>一个方便调试的工具。</p>
+<p>用户可以通过telnet访问内存情况，通过自定义command指令获取内存中的数据并进行调试。</p>
+<h3 id="chanrpc"><a href="#chanrpc" class="headerlink" title="chanrpc"></a>chanrpc</h3><p>该模块通过精巧的设计，为协程间通信增加了异步回调执行、同步调用、异步通知等常见模式。我们一般不直接使用它，而是通过Skeleton来使用。</p>
+<h3 id="Skeleton"><a href="#Skeleton" class="headerlink" title="Skeleton"></a>Skeleton</h3><p>可以理解为一个胖协程，我们不再单独使用<code>go func(){}</code>运行协程，而是新建一个Skeleton，通过<code>go skeleton.Run()</code>来运行协程。</p>
+<p>这样创建的协程，就可以通过内置的chanrpc来进行通信。此外，这里还对timer进行了封装，go默认的timer是在单独的协程里运行的，这里在时间到达后，将回调函数重新塞回调用chanTimer里，最终仍然在同一个协程里执行函数。同样，内置的<code>Go</code>也是通过类似的方法保证协程的同步。</p>
+<p>所以Skeleton的<code>Run</code>函数就是一个select的死循环，使用io多路复用，依次中上述组件对应的channel中获取结果并执行对应的动作。</p>
 <h2 id="简单改进"><a href="#简单改进" class="headerlink" title="简单改进"></a>简单改进</h2><p>由于leaf常年不再更新，fork了一个版本并修正了一些问题，地址在：<a href="https://github.com/YiuTerran/leaf" target="_blank" rel="noopener">https://github.com/YiuTerran/leaf</a></p>
 <p>主要修正包括：</p>
 <ol>
@@ -42,6 +123,7 @@
 <li>将自己实现的log模块改为zap的，性能更好并支持json格式的日志；</li>
 <li>将websocket的RemoteAddr返回值改为透过代理的（如果存在）；</li>
 <li>加上go mod支持，修改版本号为规范格式；</li>
+<li>移除了conf文件夹，这个设计不太符合类库的使用规范；</li>
 </ol>
 ]]></content>
     
@@ -91,9 +173,9 @@
     </summary>
     
     
-      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
-    
       <category term="微服务" scheme="http://YiuTerran.github.io/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
     
   </entry>
   
@@ -218,7 +300,7 @@
 <h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Received request for URL: '</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">'Hello World!'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
 <p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="bash">CMD node server.js</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span> server.js .</span><br><span class="line">CMD node server.js</span><br></pre></td></tr></table></figure>
 <p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
 <p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
 <p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
@@ -241,9 +323,9 @@
     </summary>
     
     
-      <category term="docker" scheme="http://YiuTerran.github.io/tags/docker/"/>
-    
       <category term="k8s" scheme="http://YiuTerran.github.io/tags/k8s/"/>
+    
+      <category term="docker" scheme="http://YiuTerran.github.io/tags/docker/"/>
     
   </entry>
   
@@ -957,9 +1039,9 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="oracle" scheme="http://YiuTerran.github.io/tags/oracle/"/>
-    
       <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
+    
+      <category term="oracle" scheme="http://YiuTerran.github.io/tags/oracle/"/>
     
   </entry>
   
@@ -1893,11 +1975,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
+      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
+      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
   </entry>
   
@@ -1988,11 +2070,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
@@ -2060,11 +2142,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
+    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
-    
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
