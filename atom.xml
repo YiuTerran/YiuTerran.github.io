@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2019-11-02T04:07:25.144Z</updated>
+  <updated>2019-11-09T09:18:02.533Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>当代编程语言简评</title>
+    <link href="http://YiuTerran.github.io/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/"/>
+    <id>http://YiuTerran.github.io/2019/11/09/当代编程语言简评/</id>
+    <published>2019-11-09T05:48:16.000Z</published>
+    <updated>2019-11-09T09:18:02.533Z</updated>
+    
+    <content type="html"><![CDATA[<p>著名大喷子王垠最喜欢点评各种语言的优缺点（当然基本上都是缺点居多），作为技术人也写一篇东西表达一下自己的看法。</p>
+<h3 id="原初"><a href="#原初" class="headerlink" title="原初"></a>原初</h3><p>C和Lisp是流行至今的最古老的两门编程语言，从一开始就走向了不同的道路。</p>
+<p>C：高效、简洁，直接操控内存和cpu，面向机器<br>Lisp：抽象，强大，但是效率不高，gc语言，面向业务</p>
+<p>从这时候开始，语言演化就是在这两门语言的基础上取长补短</p>
+<h3 id="C-gt-ObjectC-C-gt-Rust"><a href="#C-gt-ObjectC-C-gt-Rust" class="headerlink" title="C -&gt; ObjectC/C++ -&gt; Rust"></a>C -&gt; ObjectC/C++ -&gt; Rust</h3><p>C++完全兼容C90，这是它成功的原因，也是它失败的原因。</p>
+<p>C++最开始就是C with class，随着OO的流行，C语言抽象能力不足的问题越来越明显。于是C++之父往里面塞入了类，以及随之而来的各种概念。后来，又加了模版，于是才有了STL。</p>
+<p>C++非常复杂，包含了各种流行的编程范式。抽象能力得到了巨大的补充，但是并没有引入GC，仍然坚持zero-cost abstraction。虽然后来在C++11中引入了智能指针，但是已经有一些积重难返的感觉了。</p>
+<p>OC也是C的超集，设计的更加不爽了，苹果自己也想要用Swift替代之。</p>
+<p>Rust也坚持零成本抽象，但是它另辟蹊径，从语言和编译器层面上试图解决内存问题，引入了生命周期、各类指针等各种复杂的设计。Rust有现代语言完善的包管理系统，这是比C++好的地方，但是它试图解决问题的手段有些奇怪，有时候有一些因噎废食的感觉。这也是我不太看好Rust流行的原因。真正的高手，用Modern C++就够了。</p>
+<h3 id="Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin"><a href="#Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin" class="headerlink" title="Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin"></a>Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin</h3><p>和C同时期的OO语言，最出名的是Smalltalk（lisp并不是OO语言，它可以抽象出一切，Smalltalk的诞生也是受了lisp的影响）。Java的创造者受够了C++的复杂，决定另起炉灶融合Smalltalk和C++的长处，做出一门新语言。</p>
+<p>Java是工业界长时间以来最流行的语言，虽然C#改进了Java，并引入了linq等方便至极的语法，但是.net core开源的太迟了。</p>
+<p>Java太OO了，这是它成功的地方，也是它失败的地方。Java的流行导致所谓设计模式的泛滥，Java的抽象能力过于局限于OO，导致很多本来很简单的东西写起来复杂无比，Spring这类框架的流行本质上就是在弥补Java语言的缺陷。</p>
+<p>Java7以前的Java足够简单，这为业界量产初级程序员打下了良好的基础。</p>
+<p>Scala是一门学术语言，类似C++，它过于复杂，所以不可能得到流行。Kotlin就好得多，它语言特性优越，并且积极演变。唯一的问题是，它必须运行在jvm上，那到头来你还是承受Java的历史遗留问题。</p>
+<h3 id="Python-Perl-Ruby-Javascript"><a href="#Python-Perl-Ruby-Javascript" class="headerlink" title="Python/Perl/Ruby/Javascript"></a>Python/Perl/Ruby/Javascript</h3><p>虽然动态语言当初走的是完全不同的道路，到最后也慢慢引入类型化，比如Python3也开始支持类型注解，毕竟编译器还是能帮上很多忙的。</p>
+<p>动态语言在开发速度上无与伦比，所以更适合用来搭原型，写脚本。对于I/O密集型工程，也可以选择他们快速开发。</p>
+<p>JS的流行是一个历史上的错误，别的没啥好说的了…</p>
+<h3 id="Erlang-Go-Swift"><a href="#Erlang-Go-Swift" class="headerlink" title="Erlang/Go/Swift"></a>Erlang/Go/Swift</h3><p>Erlang是一门分布式设计语言，它纯粹为了解决工程问题而生，它正确而强大。但是，它的生态不够开放，语法也略显怪异，效率上也不是很尽如人意，所以最终未能大规模流行。</p>
+<p>Go在分布式上做的没有Erlang那么激进，netchan这玩意儿最终还是没有内置到语言里。不过Go的优势是足够快，足够简单。</p>
+<p>Swift目前还是主要用作客户端开发，但是已经开源。啥时候引入async/await以后，也可以用来做服务端开发，可惜没有生态。</p>
+<h3 id="Haskell-OCaml-F"><a href="#Haskell-OCaml-F" class="headerlink" title="Haskell/OCaml/F"></a>Haskell/OCaml/F</h3><p>函数式编程语言过于学院派，有一种学之则生，用之则死的感觉，如同Lisp一般。</p>
+<p>不过，他们有一种数学美。</p>
+<h3 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h3><p>PHP没啥好说的，在HTML里面写代码决定了这玩意儿的用处太受限了。如果不是Facebook抱残守缺，早就应该被淘汰了。</p>
+<h3 id="最好的语言"><a href="#最好的语言" class="headerlink" title="最好的语言"></a>最好的语言</h3><p>后端来说，目前就是Java，但是Go2有希望超越。</p>
+<p>顺便说一句，我可不喜欢Java了，我宁愿选Go1。</p>
+<h3 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h3><p>历史并不能给人们以教训，人们总是犯同样的错误。</p>
+<p>C++引入模版，Java和.NET都是半路引入泛型，Go却还要重滔覆辙。C++开始就用异常代替了错误码，Go非要到Go2再还这些技术债，这是何苦。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;著名大喷子王垠最喜欢点评各种语言的优缺点（当然基本上都是缺点居多），作为技术人也写一篇东西表达一下自己的看法。&lt;/p&gt;
+&lt;h3 id=&quot;原初&quot;&gt;&lt;a href=&quot;#原初&quot; class=&quot;headerlink&quot; title=&quot;原初&quot;&gt;&lt;/a&gt;原初&lt;/h3&gt;&lt;p&gt;C和Lisp是
+    
+    </summary>
+    
+    
+      <category term="杂谈" scheme="http://YiuTerran.github.io/tags/%E6%9D%82%E8%B0%88/"/>
+    
+  </entry>
   
   <entry>
     <title>并发编程模型浅谈</title>
@@ -173,9 +221,9 @@
     </summary>
     
     
-      <category term="微服务" scheme="http://YiuTerran.github.io/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
       <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
+    
+      <category term="微服务" scheme="http://YiuTerran.github.io/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
   </entry>
   
@@ -300,7 +348,7 @@
 <h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Received request for URL: '</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">'Hello World!'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
 <p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span> server.js .</span><br><span class="line">CMD node server.js</span><br></pre></td></tr></table></figure>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="bash">CMD node server.js</span></span><br></pre></td></tr></table></figure>
 <p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
 <p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
 <p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
@@ -323,9 +371,9 @@
     </summary>
     
     
-      <category term="k8s" scheme="http://YiuTerran.github.io/tags/k8s/"/>
-    
       <category term="docker" scheme="http://YiuTerran.github.io/tags/docker/"/>
+    
+      <category term="k8s" scheme="http://YiuTerran.github.io/tags/k8s/"/>
     
   </entry>
   
@@ -1039,9 +1087,9 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
-    
       <category term="oracle" scheme="http://YiuTerran.github.io/tags/oracle/"/>
+    
+      <category term="db" scheme="http://YiuTerran.github.io/tags/db/"/>
     
   </entry>
   
@@ -1975,11 +2023,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
+      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
-      <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
+      <category term="push" scheme="http://YiuTerran.github.io/tags/push/"/>
     
   </entry>
   
@@ -2070,11 +2118,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
-    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
@@ -2142,11 +2190,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
-      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
-    
       <category term="cometd" scheme="http://YiuTerran.github.io/tags/cometd/"/>
     
       <category term="jetty" scheme="http://YiuTerran.github.io/tags/jetty/"/>
+    
+      <category term="java" scheme="http://YiuTerran.github.io/tags/java/"/>
     
   </entry>
   
