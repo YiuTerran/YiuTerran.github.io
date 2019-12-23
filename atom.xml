@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2019-11-09T09:18:02.533Z</updated>
+  <updated>2019-12-23T02:47:55.285Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,115 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>通用多租户自定义角色权限模型</title>
+    <link href="http://YiuTerran.github.io/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/"/>
+    <id>http://YiuTerran.github.io/2019/12/23/通用多租户自定义角色权限模型/</id>
+    <published>2019-12-23T01:25:55.000Z</published>
+    <updated>2019-12-23T02:47:55.285Z</updated>
+    
+    <content type="html"><![CDATA[<p>前段时间在忙一个saas系统的设计，这里总结一下经验。</p>
+<p>首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于定制化开发的范畴了。</p>
+<p>权限系统可以抽象为以下部分：</p>
+<ol>
+<li>功能点。功能点是一个全集，与后台的API对应。不同用户能够看到的功能点是不一样的，这取决于购买的需求；</li>
+<li>UI。功能点对应的UI可以由很多套，不同平台的客户端，不同版本的移动端，都可能有不同的UI；功能点分别关联到UI和API；</li>
+<li>角色。各租户除了内置的管理员，其他角色可以由用户自己定义；<strong>注意</strong>：并不是所有的saas系统都有这种需求，统一设计角色的话，系统设计会精简很多；</li>
+<li>权限。角色在定义的时候关联了功能点的权限。</li>
+</ol>
+<p>详细解释如下——</p>
+<h2 id="功能点"><a href="#功能点" class="headerlink" title="功能点"></a>功能点</h2><p>系统按着模块拆分功能点，功能点是最细的权限粒度。保证UI和API相对功能点都是一对多的关系，不存在多对多的关系。</p>
+<p>如果感觉用户操作功能点分配权限过于繁琐，可以对功能点做一个功能集，这样分配的粒度就会比较粗，但是也可以随时细化。</p>
+<p>功能点都有一个对应的权限描述方式，可以采用二进制位运算表示，也可以用权限字符串（参考shiro）。如果权限的判定需要根据用户请求的参数来决定，那就要动态的权限字符串（参考spel）。我这里用了spel的方式来描述权限，可以用Spring security来实现，或者自己用Spring AOP写一个权限描述。最后的形式类似于<code>#prj:device:view</code>，表示某个project的设备查看。</p>
+<p>每个API都有自己的权限需求，这与功能点的权限描述字符串对应。这里也是一对多的关系，API可以要求多个权限。用户必须拥有全部权限才能访问API。</p>
+<p>功能点理论上也是树型的，不过某些功能点可能对其他功能点有额外的依赖。</p>
+<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><p>UI分为两部分，一个是匹配规则，一个是UI树本身。</p>
+<p>这个比较简单，就是为不同版本、产品，甚至租户设置不同的UI，根据客户端的情况和用户的功能点权限返回UI树给用户渲染。</p>
+<p>UI树不一定需要在服务器存一套完整的，需要权限控制的部分才需要存入数据库。</p>
+<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>简单起见，只有租户的管理员才可以给组织建立对应的角色树。</p>
+<p>角色树关联功能点，某些功能点可能和具体的数据有关，需要额外选择。</p>
+<h2 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h2><p>指的是不同人看到的字段都不一样，或者字段的渲染不一样。</p>
+<p>这个比较麻烦，不太好做成通用的。非要做的话，每个API返回的字段都要存到表里，然后在功能点那一层，最后关联到字段。即<code>#prj:device:view:field</code>，但是这样太过繁琐，对执行效率影响很大。如果没有很通用的需求，可以在代码里对一些特殊API做单独的处理。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;前段时间在忙一个saas系统的设计，这里总结一下经验。&lt;/p&gt;
+&lt;p&gt;首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于
+    
+    </summary>
+    
+    
+      <category term="design" scheme="http://YiuTerran.github.io/tags/design/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>sass项目顶层设计</title>
+    <link href="http://YiuTerran.github.io/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/"/>
+    <id>http://YiuTerran.github.io/2019/11/19/sass项目顶层设计/</id>
+    <published>2019-11-19T07:42:52.000Z</published>
+    <updated>2019-11-19T14:36:44.469Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
+<p>几个需要讨论的问题：</p>
+<ol>
+<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
+<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
+<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
+<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
+<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
+</ol>
+<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
+<ol>
+<li>目前已有系统如何抽象、拆分服务；</li>
+<li>前端展示层如何设计；</li>
+<li>重构后要保证平台满足当前所有已接入所有业务；</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开
+    
+    </summary>
+    
+    
+      <category term="sass" scheme="http://YiuTerran.github.io/tags/sass/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>vue复习笔记</title>
+    <link href="http://YiuTerran.github.io/2019/11/15/vue%E5%A4%8D%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://YiuTerran.github.io/2019/11/15/vue复习笔记/</id>
+    <published>2019-11-15T11:49:22.000Z</published>
+    <updated>2019-11-17T13:50:56.247Z</updated>
+    
+    <content type="html"><![CDATA[<p>前端技术虽然日新月异，不过最近几年也逐渐稳定下来了，基本上是MVVM框架一统天下，或者说Angular/Vue/React三分天下。这三者各有优势，Angular对Typescript的支持最好，设计理念也更偏向于后端开发者（特别是Java），但是对前端开发者而言上手难度反而最大；Vue是国人作品，上手难度较小，生态也对国内用户更为完善（比如可以用来开发小程序）；React最大的优势在于React Native。由于国内基本不会使用React，我会分两篇博客解析Vue和Angular.当然迟早会三分归一统，而且这个一统目前看来很可能是flutter.</p>
+<h2 id="前端基本知识"><a href="#前端基本知识" class="headerlink" title="前端基本知识"></a>前端基本知识</h2><p>所谓前端基本知识，其实就是HTML/js/css这三大块，最新的标准分别对应HTML5/es10/css3。其中js的迭代速度较为激进，但是为了浏览器的兼容性考虑，一般是用babel转译成es5，而它支持的最新版本应该是es2018（即es9）。</p>
+<h3 id="HTML5"><a href="#HTML5" class="headerlink" title="HTML5"></a>HTML5</h3><p>这个没啥好说的，html作为一种标记语言，它的功能并不是逻辑性的，更像是一种约定，所以你要做的不是去理解，更多的只是去记忆。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">type</span>=<span class="string">"text/css"</span> <span class="attr">href</span>=<span class="string">"mystyle.css"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span>&gt;</span>文档标题<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">header</span>&gt;</span>页眉<span class="tag">&lt;/<span class="name">header</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span>&gt;</span>正文部分<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">ol</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"button"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">footer</span>&gt;</span>页脚 <span class="tag">&lt;/<span class="name">footer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意<code>&lt;div&gt;</code>和<code>&lt;span&gt;</code>这两个元素一般用来配合css实现各种样式。而<code>&lt;iframe&gt;</code>和<code>&lt;embeded&gt;</code>等标签已经不再推荐使用。</p>
+<h3 id="CSS3"><a href="#CSS3" class="headerlink" title="CSS3"></a>CSS3</h3><p>css是一种样式描述语言，它遵从一定的逻辑，但是大部分还是需要记忆的。</p>
+<p>css中最难的是布局部分，可以参考教程：<a href="http://zh.learnlayout.com/" target="_blank" rel="noopener">http://zh.learnlayout.com/</a></p>
+<p>css最大的问题是兼容型问题，一般而言，还是用框架吧，自己写很痛苦的。</p>
+<h3 id="js"><a href="#js" class="headerlink" title="js"></a>js</h3><p>js语法在es6之后已经像是一门真正的语言了，不过为了兼容性考虑，以前那些坑肯定还留着，需要自己留神别踩进去了。</p>
+<p>作为一门弱类型动态语言，js写起来很难调试问题。如果公司支持的话，可以考虑用typescript代替，Angular在这方面的支持最为完善。</p>
+<p>###</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;前端技术虽然日新月异，不过最近几年也逐渐稳定下来了，基本上是MVVM框架一统天下，或者说Angular/Vue/React三分天下。这三者各有优势，Angular对Typescript的支持最好，设计理念也更偏向于后端开发者（特别是Java），但是对前端开发者而言上手难度反
+    
+    </summary>
+    
+    
+      <category term="vuejs" scheme="http://YiuTerran.github.io/tags/vuejs/"/>
+    
+  </entry>
   
   <entry>
     <title>当代编程语言简评</title>
@@ -2278,11 +2387,11 @@ ZERO_DIVIDE            零被整除
     </summary>
     
     
+      <category term="redis" scheme="http://YiuTerran.github.io/tags/redis/"/>
+    
       <category term="python" scheme="http://YiuTerran.github.io/tags/python/"/>
     
       <category term="celery" scheme="http://YiuTerran.github.io/tags/celery/"/>
-    
-      <category term="redis" scheme="http://YiuTerran.github.io/tags/redis/"/>
     
   </entry>
   
