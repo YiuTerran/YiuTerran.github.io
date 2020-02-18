@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>mybatis-plus自定义枚举 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="java,mybatis,json,spring">
+    <meta name="description" content="问题概述枚举值在db中存储一般是整形或者字符串，在代码里一般是枚举。我们的需求是在model里使用一种自定义类型，能够：  校验用户提供的数据在枚举允许范围内，否则自动报错； 在输出给用户时，json序列化自动加上枚举的中文含义； 自动通过json反序列化到该类型； 存入db时自动转化为对应的整形和字符串； 从db中取出数据时自动转为该自定义类型；  其中1通过自定义validator实现，2/3">
+<meta name="keywords" content="java,mybatis,json,spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mybatis-plus自定义枚举">
+<meta property="og:url" content="http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="问题概述枚举值在db中存储一般是整形或者字符串，在代码里一般是枚举。我们的需求是在model里使用一种自定义类型，能够：  校验用户提供的数据在枚举允许范围内，否则自动报错； 在输出给用户时，json序列化自动加上枚举的中文含义； 自动通过json反序列化到该类型； 存入db时自动转化为对应的整形和字符串； 从db中取出数据时自动转为该自定义类型；  其中1通过自定义validator实现，2/3">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-02-18T04:53:58.614Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mybatis-plus自定义枚举">
+<meta name="twitter:description" content="问题概述枚举值在db中存储一般是整形或者字符串，在代码里一般是枚举。我们的需求是在model里使用一种自定义类型，能够：  校验用户提供的数据在枚举允许范围内，否则自动报错； 在输出给用户时，json序列化自动加上枚举的中文含义； 自动通过json反序列化到该类型； 存入db时自动转化为对应的整形和字符串； 从db中取出数据时自动转为该自定义类型；  其中1通过自定义validator实现，2/3">
+    
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">mybatis-plus自定义枚举</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">mybatis-plus自定义枚举</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-02-18T01:53:04.000Z" itemprop="datePublished" class="page-time">
+  2020-02-18
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#问题概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题概述</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#数据字典"><span class="post-toc-number">2.</span> <span class="post-toc-text">数据字典</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#定义自定义类型"><span class="post-toc-number">3.</span> <span class="post-toc-text">定义自定义类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用内置枚举类型"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">使用内置枚举类型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用自定义类"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">使用自定义类</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#注意事项"><span class="post-toc-number">3.2.1.</span> <span class="post-toc-text">注意事项</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#题外话"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">题外话</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-mybatis自定义枚举"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">mybatis-plus自定义枚举</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-02-18 09:53:04" datetime="2020-02-18T01:53:04.000Z"  itemprop="datePublished">2020-02-18</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="问题概述"><a href="#问题概述" class="headerlink" title="问题概述"></a>问题概述</h1><p>枚举值在db中存储一般是整形或者字符串，在代码里一般是枚举。我们的需求是在model里使用一种自定义类型，能够：</p>
+<ol>
+<li>校验用户提供的数据在枚举允许范围内，否则自动报错；</li>
+<li>在输出给用户时，json序列化自动加上枚举的中文含义；</li>
+<li>自动通过json反序列化到该类型；</li>
+<li>存入db时自动转化为对应的整形和字符串；</li>
+<li>从db中取出数据时自动转为该自定义类型；</li>
+</ol>
+<p>其中1通过自定义validator实现，2/3通过自定义序列化/反序列化实现，4/5通过自定义typeHandler实现。</p>
+<h1 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h1><p>枚举值有两种实现方式：写死在代码里，或者使用数据字典存储在db/redis里。下面只介绍数据字典存储在db里的方案，其他几种情况处理手段类似。假设数据字典<code>sys_dict</code>包括以下几列：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feat_code   varchar(64)  default ''   not null <span class="keyword">comment</span> <span class="string">'英文代码'</span>,</span><br><span class="line">value_str   <span class="built_in">varchar</span>(<span class="number">32</span>)  <span class="keyword">default</span> <span class="string">''</span>   <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'枚举值'</span>,</span><br><span class="line">value_cn    <span class="built_in">varchar</span>(<span class="number">128</span>) <span class="keyword">default</span> <span class="string">''</span>   <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'枚举值（中文）'</span>,</span><br></pre></td></tr></table></figure>
+<p>并且使用以下服务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SysDictService</span> <span class="keyword">extends</span> <span class="title">ServiceImpl</span>&lt;<span class="title">SysDictMapper</span>, <span class="title">SysDict</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Cacheable</span>(cacheNames = Constants.AUTO_CACHE_PREFIX)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">getCodeEnums</span><span class="params">(@NotNull String code)</span> </span>&#123;</span><br><span class="line">        Wrapper&lt;SysDict&gt; wrapper = <span class="keyword">new</span> QueryWrapper&lt;SysDict&gt;()</span><br><span class="line">                .eq(SysDict.COL_FEAT_CODE, code);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.list(wrapper).stream().collect(</span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        SysDict::getValueStr,</span><br><span class="line">                        SysDict::getValueCN</span><br><span class="line">                )</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidValue</span><span class="params">(String key, String value)</span> </span>&#123;</span><br><span class="line">        Wrapper&lt;SysDict&gt; wrapper = <span class="keyword">new</span> QueryWrapper&lt;SysDict&gt;()</span><br><span class="line">                .eq(SysDict.COL_FEAT_CODE, key)</span><br><span class="line">                .eq(SysDict.COL_VALUE_STR, value);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.getOne(wrapper) != <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="定义自定义类型"><a href="#定义自定义类型" class="headerlink" title="定义自定义类型"></a>定义自定义类型</h1><h2 id="使用内置枚举类型"><a href="#使用内置枚举类型" class="headerlink" title="使用内置枚举类型"></a>使用内置枚举类型</h2><p>mybatis-plus其实内置了这部分支持，不过他是直接将枚举值替换成对应的中文。我们在此基础上进行扩展：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IDictEnum</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Serializable</span>&gt; <span class="keyword">extends</span> <span class="title">IEnum</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数据库中存储的值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@JsonValue</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function">T <span class="title">getValue</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数据库保存的字典ID</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">String <span class="title">getDictCode</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用的时候，自定义枚举类型实现上述接口。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> CorpKindEnum implements IDictEnum&lt;Integer&gt; &#123;</span><br><span class="line">    CORPORATION(<span class="number">0</span>), GOVERNMENT(<span class="number">1</span>), COMMON(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer v;</span><br><span class="line"></span><br><span class="line">    CorpKindEnum(Integer v) &#123;</span><br><span class="line">        <span class="keyword">this</span>.v = v;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getDictCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"CORP_KIND_CODE"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个整形枚举，我们使用<code>CORP_KIND_CODE</code>作为<code>feat_code</code>，在数据字典里插入对应的值和中文释疑。自定义Json序列化如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictEnumSerializer</span> <span class="keyword">extends</span> <span class="title">JsonSerializer</span>&lt;<span class="title">IDictEnum</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SysDictService service;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JsonSerializer初始化比bean更早，所以不能直接字段注入</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictEnumSerializer</span><span class="params">(SysDictService service)</span> </span>&#123;</span><br><span class="line">        DictEnumSerializer.service = service;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictEnumSerializer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serialize</span><span class="params">(IDictEnum value,</span></span></span><br><span class="line"><span class="function"><span class="params">                          JsonGenerator generator, SerializerProvider provider)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">            generator.writeNull();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        generator.writeObject(value.getValue());</span><br><span class="line">        generator.writeFieldName(generator.getOutputContext().getCurrentName() + <span class="string">"CN"</span>);</span><br><span class="line">        generator.writeString(getEnumDesc(value));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Class <span class="title">handledType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> IDictEnum.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getEnumDesc</span><span class="params">(IDictEnum dictEnum)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, String&gt; map = service.getCodeEnums(dictEnum.getDictCode());</span><br><span class="line">        <span class="keyword">return</span> map.get(dictEnum.getValue().toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里在序列化的时候将字段名后面加上<code>CN</code>，同时通过数据字典查询对应的中文含义注入。</p>
+<p>由于我们这里扩展了mybatis-plus的内置类型，使用时就不需要加上typeHandler的注解了。</p>
+<p><strong>问题</strong>：<br>jackson在通过整数反序列化到枚举时，无法通过指定的值来反序列化，而是通过整数的顺序(ordinal)来进行的。如果枚举类型不是从0-N这种赋值，则反序列化结果不正确。这是一个存在历史很悠久的<a href="https://github.com/FasterXML/jackson-databind/issues/1850" target="_blank" rel="noopener">bug</a>。</p>
+<p>解决方案是在枚举里自定义<code>JsonCreator</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonCreator</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> CorpKindEnum <span class="title">fromValue</span><span class="params">(Integer v)</span> </span>&#123;</span><br><span class="line"> <span class="keyword">for</span> (CorpKindEnum element : values()) &#123;</span><br><span class="line">       <span class="keyword">if</span> (element.getValue().equals(v)) &#123;</span><br><span class="line">          <span class="keyword">return</span> element;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>; <span class="comment">//or throw exception if you like...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于Java语言的限制，我们无法扩展内置的<code>enum</code>类型，所以每个自定义枚举上都要自己加上<code>JsonCreator</code>。一个简单的解决方案是全部使用字符串枚举，当然这会比使用integer更慢，也比tinyint/smallint更占数据库空间。</p>
+<h2 id="使用自定义类"><a href="#使用自定义类" class="headerlink" title="使用自定义类"></a>使用自定义类</h2><p>上述方案可以解决大部分枚举的问题。但是有些情况下，枚举值特别多，我们又不想在代码里全部列出来，这时候使用内置枚举类型就不太合适了。我们自定义一个抽象类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseDictValue</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Setter</span></span><br><span class="line">    <span class="keyword">private</span> T value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BaseDictValue</span><span class="params">(T value)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonValue</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">getDictCode</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到实际上和刚才的接口是一致的，不再赘述。然后我们实现自定义的typeHandler：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictValueHandler</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">BaseDictValue</span>&lt;?&gt;&gt; <span class="keyword">extends</span> <span class="title">BaseTypeHandler</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;E&gt; type;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictValueHandler</span><span class="params">(Class&lt;E&gt; type)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (type == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Type argument cannot be null"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.type = type;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setNonNullParameter</span><span class="params">(PreparedStatement ps, <span class="keyword">int</span> i, E e, JdbcType jdbcType)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        ps.setObject(i, e.getValue());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> E <span class="title">convertResult</span><span class="params">(Object vs)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (vs == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (vs <span class="keyword">instanceof</span> Number) &#123; <span class="comment">//这里假设枚举只有整数和字符串两种类型，理论上够用了</span></span><br><span class="line">                <span class="keyword">return</span> type.getConstructor(Integer.class).newInstance(vs);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> type.getConstructor(String.class).newInstance(vs);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">"fail to construct dict value"</span>, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(ResultSet resultSet, String s)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(resultSet.getObject(s));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(ResultSet resultSet, <span class="keyword">int</span> i)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(resultSet.getObject(i));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(CallableStatement callableStatement, <span class="keyword">int</span> i)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(callableStatement.getObject(i));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后自定义序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictValueSerializer</span> <span class="keyword">extends</span> <span class="title">JsonSerializer</span>&lt;<span class="title">BaseDictValue</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SysDictService service;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JsonSerializer初始化比bean更早，所以不能直接字段注入</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictValueSerializer</span><span class="params">(SysDictService service)</span> </span>&#123;</span><br><span class="line">        DictValueSerializer.service = service;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictValueSerializer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serialize</span><span class="params">(BaseDictValue value, JsonGenerator generator, SerializerProvider serializerProvider)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">            generator.writeNull();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        generator.writeObject(value.getValue());</span><br><span class="line">        generator.writeFieldName(generator.getOutputContext().getCurrentName() + <span class="string">"CN"</span>);</span><br><span class="line">        generator.writeString(getEnumDesc(value));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Class <span class="title">handledType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> BaseDictValue.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getEnumDesc</span><span class="params">(BaseDictValue value)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, String&gt; map = service.getCodeEnums(value.getDictCode());</span><br><span class="line">        <span class="keyword">return</span> map.get(value.getValue().toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到和IEnum的非常类似，代码基本一致.</p>
+<p>最后将刚才的枚举类改成这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CorpKindEnum</span> <span class="keyword">extends</span> <span class="title">BaseDictValue</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Integer CORPORATION = <span class="number">0</span>; <span class="comment">//只需要用来解析的一些枚举，不必全部列出所有枚举值了…</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonCreator</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CorpKindEnum</span><span class="params">(Integer v)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(v);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getDictCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"CORP_KIND_CODE"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里必须要实现一个单参数构造函数，用来转换对应的基础类型，并将其标注为<code>@JsonCreator</code>用来反序列化。</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
+<li>如果要使用mybatis-plus自带的函数进行增删改查，需要在model的<code>@TableName</code>里标注<code>autoResultMap = true</code>；并在对应的字段的<code>@TableField</code>里标注<code>typeHandler = DictValueHandler.class</code>，这样才能正确的进行orm类型转换；</li>
+<li>同样，如果自己写resultMap想要进行类型转换，也要在xml里指定上述<code>typeHandler</code>。</li>
+</ol>
+<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><p>mybatis-plus自带了一个<code>JacksonTypeHandler</code>，可以将数据库字段转换成任意类型，它的原理和上面是一致的。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-02-18T04:53:58.614Z" itemprop="dateUpdated">2020-02-18 12:53:58</time>
+</span><br>
+
+
+        
+        <a href="/2020/02/18/mybatis自定义枚举/" target="_blank" rel="external">http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/json/">json</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&title=《mybatis-plus自定义枚举》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&title=《mybatis-plus自定义枚举》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《mybatis-plus自定义枚举》 — 无心呢喃&url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/12/27/netty学习笔记/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">netty学习笔记</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2020</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&title=《mybatis-plus自定义枚举》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&title=《mybatis-plus自定义枚举》 — 无心呢喃&source=个人技术类感悟、笔记等，非技术类见微信公众号“叶囊”" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《mybatis-plus自定义枚举》 — 无心呢喃&url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2020/02/18/mybatis自定义枚举/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJElEQVR42u3aS27DMAwFwNz/0u62QFPjPTEtYGm0CgJ/NF4QFMnXK17Xj5Vf//2f9q4PLwwMjMcyrtt1v637V97fdf+u/HoMDIxzGL9tYnJNsqH5ezEwMDDuN5SH1+T5eUKJgYGBkQfTtTQu/0AYGBgYawfL+8flYbQ9PH/sLI6BgfFARl51///ff9LfwMDAeBTjKleSJiZBc5JivnkaBgbG1ozJGMSkGJeTirEMDAyMwxhrh8x2Q+2YRZG9YmBgbMRohyHaL5SwP9BCwMDA2JoxGee6bxWsAdpBDQwMjDMZyc1rIXgtucyfg4GBsSujbQNMBina5mjxmTAwMA5gJGFuLXFMAvek5fDmLI6BgbEpY1Jiy4v7eYpZPxkDA2NrRptftcFxbSj2z9NEDAyMRzHyA2SOWSvDrZXeMDAwzmG0R82cNw/WdYaLgYGxHSMfepgjJ6MYr2RhYGBszUgOtHla2X6IyefDwMA4jZEcRNtgmjc780PsYtUQAwPj4Yx22GtekkuQeXDHwMA4h5E/eq3Q1lb1638wMDCOYeQvmwTHPN0sPgoGBsamjKtcbU1+EmrzlicGBsbejLVtJWliG7I/MGyBgYGxNSMv2SelsbYJOgm4GBgYpzHycYp2E2slvDb0Y2BgYLTBNx+YyEN2PRCGgYGBsZTeteljEe4xMDAOYOQpXd6STBoM7ZUYGBhnMiaTGsnm2gGLpPG52MjEwMB4HuMLbQR/rXij560AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '赶紧回来啊~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临惹!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+</body>
+</html>
