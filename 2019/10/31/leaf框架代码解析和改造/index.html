@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下： 基本思路leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。 它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：  提供Skeleton这个脚手架，可以把">
+<meta name="keywords" content="go,leaf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leaf框架代码解析和改造">
+<meta property="og:url" content="http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下： 基本思路leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。 它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：  提供Skeleton这个脚手架，可以把">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-19T10:44:18.721Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="leaf框架代码解析和改造">
+<meta name="twitter:description" content="在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下： 基本思路leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。 它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：  提供Skeleton这个脚手架，可以把">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>leaf框架代码解析和改造</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/11/02/并发编程模型浅谈/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/10/31/微服务设计迷思-数据存储/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&text=leaf框架代码解析和改造"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&is_video=false&description=leaf框架代码解析和改造"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=leaf框架代码解析和改造&body=Check out this article: http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&name=leaf框架代码解析和改造&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&t=leaf框架代码解析和改造"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本思路"><span class="toc-number">1.</span> <span class="toc-text">基本思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#细节分析"><span class="toc-number">2.</span> <span class="toc-text">细节分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Module"><span class="toc-number">2.1.</span> <span class="toc-text">Module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Processor"><span class="toc-number">2.2.</span> <span class="toc-text">Processor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#network"><span class="toc-number">2.3.</span> <span class="toc-text">network</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gate"><span class="toc-number">2.4.</span> <span class="toc-text">Gate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#command"><span class="toc-number">2.5.</span> <span class="toc-text">command</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#chanrpc"><span class="toc-number">2.6.</span> <span class="toc-text">chanrpc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Skeleton"><span class="toc-number">2.7.</span> <span class="toc-text">Skeleton</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单改进"><span class="toc-number">3.</span> <span class="toc-text">简单改进</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        leaf框架代码解析和改造
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-10-31T05:18:00.000Z" itemprop="datePublished">2019-10-31</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/go/">go</a>, <a class="tag-link" href="/tags/leaf/">leaf</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：</p>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。</p>
+<p>它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：</p>
+<ol>
+<li>提供<code>Skeleton</code>这个脚手架，可以把它当成一个功能更加完善的协程。它提供了保证函数执行时序的一些工具，允许callback形式的代码；通过<code>chanRPCServer</code>抽象了一种类似RPC的协程间通信（通过channel），方便快速进行开发；</li>
+<li>按业务抽象了Module，进行生命周期管理；</li>
+<li>抽象了网络接口，并提供了裸TCP和websocket的实现，可以通过简单的配置同时支持多种协议；</li>
+<li>提供了protobuf和json的序列化支持；</li>
+<li>路由机制；</li>
+<li>通过telnet提供pprof接口，同时也可以自定义命令，方便进行debug；</li>
+<li>其他一些工具库；</li>
+</ol>
+<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>下面按着模块进行一些代码难点解析。</p>
+<h3 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h3><p>这个比较简单，规定了一个接口，里面是一些生命周期的回调函数，供leaf启动时注册运行，同时提供了一个<code>chan bool</code>作为关闭的信号。</p>
+<p>注意每个模块运行在单独的协程里。</p>
+<h3 id="Processor"><a href="#Processor" class="headerlink" title="Processor"></a>Processor</h3><p>序列化接口，支持序列化、反序列化和路由消息到对应的handler。框架给出了json和protobuf两种序列化方案。</p>
+<p>json是明文传输，直接用类的名字作为消息的标示即可。protobuf是二进制传输，需要两个字节来描述消息的id，直到id才能正确的反序列化。</p>
+<h3 id="network"><a href="#network" class="headerlink" title="network"></a>network</h3><p>对TCP和WebSocket通信的抽象，<code>Conn</code>是抽象出的接口。</p>
+<p>TCP和WebSocket最大的不同是前者是传输层协议，后者是应用层协议。所以前者需要自定义消息格式，这里采用的是头X个字节描述消息大小，后面是序列化消息的方式，另外注意这里还有大小端的问题。读的过程很简单，每次都是先读前X个字节，然后读出整个消息体；写的过程也类似。</p>
+<h3 id="Gate"><a href="#Gate" class="headerlink" title="Gate"></a>Gate</h3><p>路由主要作用是将socket封装成Agent，这里为了可以同时当作TCP和WebSocket服务器，将相关设置项直接当作Gate的成员变量了。</p>
+<p>消息的路由通过注册processor来实现，通过<code>Run</code>来启动server，显然gate应该被封装作为一个Module在leaf中运行。这里还注册了打开关闭socket的固定回调(“NewAgent”和”CloseAgent”)。</p>
+<p>下面看一下Server启动后做了啥，以TCPServer为例：</p>
+<ol>
+<li>在一个单独的协程中启动server，server本身是一个死循环；</li>
+<li>Accept请求以后，通过server的<code>NewAgent</code>回调创造agent，并在一个单独的协程中运行agent；</li>
+<li>agent的<code>Run</code>也是一个死循环，它简单的读取消息并进行路由处理；</li>
+<li>agent的写消息是在调用协程里异步完成的，它将消息写入conn的<code>writeChan</code>缓冲区后返回；每个conn有个单独的协程遍历channel并完成真正的写操作；</li>
+<li>因此3，4为一个socket的读写各创建了一个单独的协程；</li>
+</ol>
+<p>3中路由处理，在这里分为几种情况，如果对Processor调用了<code>SetHandler</code>或者<code>SetRawHandler</code>，那么就在读消息的协程里直接同步处理了消息。如果调用了<code>SetRouter</code>选择把消息路由到某个chanrpc中，则会把消息塞到队列中进行异步处理（回调的格式写死为f(args []interface{})。</p>
+<h3 id="command"><a href="#command" class="headerlink" title="command"></a>command</h3><p>一个方便调试的工具。</p>
+<p>用户可以通过telnet访问内存情况，通过自定义command指令获取内存中的数据并进行调试。</p>
+<h3 id="chanrpc"><a href="#chanrpc" class="headerlink" title="chanrpc"></a>chanrpc</h3><p>该模块通过精巧的设计，为协程间通信增加了异步回调执行、同步调用、异步通知等常见模式。我们一般不直接使用它，而是通过Skeleton来使用。</p>
+<h3 id="Skeleton"><a href="#Skeleton" class="headerlink" title="Skeleton"></a>Skeleton</h3><p>可以理解为一个胖协程，我们不再单独使用<code>go func(){}</code>运行协程，而是新建一个Skeleton，通过<code>go skeleton.Run()</code>来运行协程。</p>
+<p>这样创建的协程，就可以通过内置的chanrpc来进行通信。此外，这里还对timer进行了封装，go默认的timer是在单独的协程里运行的，这里在时间到达后，将回调函数重新塞回调用chanTimer里，最终仍然在同一个协程里执行函数。同样，内置的<code>Go</code>也是通过类似的方法保证协程的同步。</p>
+<p>所以Skeleton的<code>Run</code>函数就是一个select的死循环，使用io多路复用，依次中上述组件对应的channel中获取结果并执行对应的动作。</p>
+<h2 id="简单改进"><a href="#简单改进" class="headerlink" title="简单改进"></a>简单改进</h2><p>由于leaf常年不再更新，fork了一个版本并修正了一些问题，地址在：<a href="https://github.com/YiuTerran/leaf" target="_blank" rel="noopener">https://github.com/YiuTerran/leaf</a></p>
+<p>主要修正包括：</p>
+<ol>
+<li>移除了一些不需要的模块，如mongo的支持等，这些直接用第三方库即可；</li>
+<li>将自己实现的log模块改为zap的，性能更好并支持json格式的日志；</li>
+<li>将websocket的RemoteAddr返回值改为透过代理的（如果存在）；</li>
+<li>加上go mod支持，修改版本号为规范格式；</li>
+<li>移除了conf文件夹，这个设计不太符合类库的使用规范；</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本思路"><span class="toc-number">1.</span> <span class="toc-text">基本思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#细节分析"><span class="toc-number">2.</span> <span class="toc-text">细节分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Module"><span class="toc-number">2.1.</span> <span class="toc-text">Module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Processor"><span class="toc-number">2.2.</span> <span class="toc-text">Processor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#network"><span class="toc-number">2.3.</span> <span class="toc-text">network</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gate"><span class="toc-number">2.4.</span> <span class="toc-text">Gate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#command"><span class="toc-number">2.5.</span> <span class="toc-text">command</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#chanrpc"><span class="toc-number">2.6.</span> <span class="toc-text">chanrpc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Skeleton"><span class="toc-number">2.7.</span> <span class="toc-text">Skeleton</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单改进"><span class="toc-number">3.</span> <span class="toc-text">简单改进</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&text=leaf框架代码解析和改造"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&is_video=false&description=leaf框架代码解析和改造"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=leaf框架代码解析和改造&body=Check out this article: http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&title=leaf框架代码解析和改造"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&name=leaf框架代码解析和改造&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/10/31/leaf框架代码解析和改造/&t=leaf框架代码解析和改造"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="安装sudo apt-get install lua5.1 lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。 lua是一门嵌入式语言，">
+<meta name="keywords" content="heka,lua">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua5.1要点笔记">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="安装sudo apt-get install lua5.1 lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。 lua是一门嵌入式语言，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:28:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="lua5.1要点笔记">
+<meta name="twitter:description" content="安装sudo apt-get install lua5.1 lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。 lua是一门嵌入式语言，">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>lua5.1要点笔记</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/java web基础学习/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/Go语言学习/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&text=lua5.1要点笔记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&is_video=false&description=lua5.1要点笔记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=lua5.1要点笔记&body=Check out this article: http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&name=lua5.1要点笔记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&t=lua5.1要点笔记"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法"><span class="toc-number">2.</span> <span class="toc-text">语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#库"><span class="toc-number">2.1.</span> <span class="toc-text">库</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        lua5.1要点笔记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:49:06.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/heka/">heka</a>, <a class="tag-link" href="/tags/lua/">lua</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><code>sudo apt-get install lua5.1</code></p>
+<p>lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。</p>
+<p>lua是一门嵌入式语言，也就是程序的入口点必定在别处，这是和python等脚本语言的最大区别。lua的性能很好，虽然比不上v8的js。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><ol>
+<li>作为一门动态语言，可以从lua身上看出许多动态语言的影子。lua与js，python都有一定的相似性，可以说是综合了二者之所长。但是有个坑，就是unicode问题，lua5.3解决了这个问题。不过对于heka，一般情况下我们不太需要处理utf8，毕竟日志数据track一般都是编号和数据。</li>
+<li>与python不同而与js类似，lua是动态类型语言。字符串会在适当时候自动转成数字， 当然也可以使用string.format自己进行转换；</li>
+<li>所有的变量默认是全局的（与js一致），需要使用local修饰符来创建局部变量；全局变量被存放在一个table中，被称为环境，可以通过<code>getfenv</code>和<code>setfenv</code>来对环境进行操作；</li>
+<li>只有一种数据结构：table. 赋值语句比较奇怪:<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a = &#123;x=<span class="number">3</span>, [<span class="number">2</span>]=<span class="number">2</span>&#125;</span><br><span class="line">a[<span class="number">1</span>] == <span class="number">2</span></span><br><span class="line">a[<span class="string">"x"</span>] == <span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意table里面值不能是nil，否则会有各种奇怪的问题，比如<code>#</code>返回的是<code>nil</code>值之前的长度；所以可以用<code>a[x] == nil</code>或者<code>if a[x]</code>来判断exists；将<code>a[x]=nil</code>则相当于删除了<code>x</code>元素。但是不能这样删除数组里面的元素，因为会导致<code>#</code>操作符的结果错误，需要使用<code>table.remove(x)</code>;</p>
+<ol>
+<li>连接操作符：<code>..</code>; 取长度操作符（相当于<code>len</code>)<code>#</code>，但是<code>#</code>返回的是字节数，所以更像是<code>sizeof</code></li>
+<li>函数与js中的很像，支持闭包。<code>：</code>可以用来定义方法，本质上是一种语法糖；</li>
+<li><code>metatable</code>类似与python的内置方法，各种重载操作符。</li>
+<li>lua支持<code>coroutine</code>.</li>
+</ol>
+<h3 id="库"><a href="#库" class="headerlink" title="库"></a>库</h3><ol>
+<li>由于lua中table不支持<code>nil</code>，这与json中的<code>null</code>产生了矛盾，需要使用<code>cjson.null</code>来表示</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法"><span class="toc-number">2.</span> <span class="toc-text">语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#库"><span class="toc-number">2.1.</span> <span class="toc-text">库</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&text=lua5.1要点笔记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&is_video=false&description=lua5.1要点笔记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=lua5.1要点笔记&body=Check out this article: http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&title=lua5.1要点笔记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&name=lua5.1要点笔记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/lua5.1要点笔记/&t=lua5.1要点笔记"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

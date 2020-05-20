@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。 注意：不要装centos 8，这货特别大，而且没有图形化配置工具。 概述不同发行版支持的自动安装镜像技术不太一样，红帽这一系的主要使用kickstart，debian则使用preseed。这里安装的是centos7，所以用">
+<meta name="keywords" content="linux,devops">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux无人值守安装镜像制作.md">
+<meta property="og:url" content="http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。 注意：不要装centos 8，这货特别大，而且没有图形化配置工具。 概述不同发行版支持的自动安装镜像技术不太一样，红帽这一系的主要使用kickstart，debian则使用preseed。这里安装的是centos7，所以用">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-06T09:50:48.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux无人值守安装镜像制作.md">
+<meta name="twitter:description" content="这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。 注意：不要装centos 8，这货特别大，而且没有图形化配置工具。 概述不同发行版支持的自动安装镜像技术不太一样，红帽这一系的主要使用kickstart，debian则使用preseed。这里安装的是centos7，所以用">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>linux无人值守安装镜像制作.md</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/05/19/Heka源码解析/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/02/18/mybatis自定义枚举/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&text=linux无人值守安装镜像制作.md"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&is_video=false&description=linux无人值守安装镜像制作.md"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=linux无人值守安装镜像制作.md&body=Check out this article: http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&name=linux无人值守安装镜像制作.md&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&t=linux无人值守安装镜像制作.md"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kickstart配置"><span class="toc-number">2.</span> <span class="toc-text">kickstart配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他配置"><span class="toc-number">3.</span> <span class="toc-text">其他配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#自动配置脚本"><span class="toc-number">3.1.</span> <span class="toc-text">自动配置脚本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无线网卡"><span class="toc-number">4.</span> <span class="toc-text">无线网卡</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        linux无人值守安装镜像制作.md
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-04-29T06:29:20.000Z" itemprop="datePublished">2020-04-29</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/devops/">devops</a>, <a class="tag-link" href="/tags/linux/">linux</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。</p>
+<p>注意：不要装centos 8，这货特别大，而且没有图形化配置工具。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>不同发行版支持的自动安装镜像技术不太一样，红帽这一系的主要使用kickstart，debian则使用<code>preseed</code>。这里安装的是centos7，所以用的主要是kickstart技术。</p>
+<h2 id="kickstart配置"><a href="#kickstart配置" class="headerlink" title="kickstart配置"></a>kickstart配置</h2><p>首先使用yum安装图形化工具<code>system-config-kickstart</code>，对语法熟悉的也可以不用这玩意儿直接撸。</p>
+<p>把镜像挂在到centos里，然后cp -r光盘里面的所有的内容到某个路径，比如<code>/root/iso/</code>。在<code>/root/iso</code>下建立文件夹存放kickstart配置文件，比如<code>/root/iso/kickstart/ks.cfg</code>。</p>
+<p>打开图形化配置工具kickstart，根据个人需求进行配置。具体可以参考<a href="https://pdf.us/2018/08/13/1710.html" target="_blank" rel="noopener">这里的介绍</a>。最后保存为刚才路径下的文件即可。</p>
+<p>网络和个人帐户无需配置，由于默认的网络名无法预测，建议改回传统的eth0格式。自己想装的额外的rpm包，使用<code>repotrack</code>工具下载到<code>Packages</code>文件夹里即可。</p>
+<p>最后生成的ks文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">#platform=x86, AMD64, 或 Intel EM64T</span><br><span class="line">#version=DEVEL</span><br><span class="line"># Install OS instead of upgrade</span><br><span class="line">install</span><br><span class="line"># Keyboard layouts</span><br><span class="line">keyboard &apos;us&apos;</span><br><span class="line"># Root password</span><br><span class="line">rootpw --iscrypted $1$0Rnj3JYy$.O6bjrhyiBucwxVpIg8eF1</span><br><span class="line"># System language</span><br><span class="line">lang en_US</span><br><span class="line"># System authorization information</span><br><span class="line">auth  --useshadow  --passalgo=sha512</span><br><span class="line"># Use CDROM installation media</span><br><span class="line">cdrom</span><br><span class="line"># Use text mode install</span><br><span class="line">text</span><br><span class="line"># SELinux configuration</span><br><span class="line">selinux --disabled</span><br><span class="line"># Do not configure the X Window System</span><br><span class="line">skipx</span><br><span class="line"></span><br><span class="line"># System bootloader configuration</span><br><span class="line">bootloader --location=mbr</span><br><span class="line"></span><br><span class="line"># Firewall configuration</span><br><span class="line">firewall --disabled</span><br><span class="line">services --disabled=&quot;chronyd&quot;</span><br><span class="line">services --enabled=&quot;sshd&quot;</span><br><span class="line"># System timezone</span><br><span class="line">timezone Asia/Shanghai</span><br><span class="line"># Clear the Master Boot Record</span><br><span class="line">zerombr</span><br><span class="line"># Partition clearing information</span><br><span class="line">clearpart --all --initlabel</span><br><span class="line"># Disk partitioning information</span><br><span class="line">part /boot --fstype=&quot;xfs&quot; --size=500</span><br><span class="line">part /boot/efi --fstype=&quot;xfs&quot; --size=500</span><br><span class="line">part swap --fstype=&quot;swap&quot; --size=1024</span><br><span class="line">part / --fstype=&quot;ext4&quot; --grow --size=1</span><br><span class="line">poweroff</span><br><span class="line"></span><br><span class="line">%packages --multilib --ignoremissing</span><br><span class="line">lrzsz</span><br><span class="line">net-tools</span><br><span class="line">openssl</span><br><span class="line">python3</span><br><span class="line">screen</span><br><span class="line">tcpdump</span><br><span class="line">zip</span><br><span class="line">unzip</span><br><span class="line">vim-enhanced</span><br><span class="line">wget</span><br><span class="line">yum-utils</span><br><span class="line">nano</span><br><span class="line">NetworkManager-tui</span><br><span class="line">%end</span><br><span class="line"></span><br><span class="line">%addon com_redhat_kdump --enable --reserve-mb=&apos;auto&apos;</span><br><span class="line">%end</span><br><span class="line"></span><br><span class="line">%post --nochroot</span><br><span class="line">cp -fr /mnt/install/repo/plus/* /mnt/sysimage/root/</span><br><span class="line">echo &quot;/bin/bash /root/init.sh&quot; &gt;&gt; /mnt/sysimage/etc/rc.local</span><br><span class="line">chmod a+x /mnt/sysimage/etc/rc.local</span><br><span class="line">%end</span><br></pre></td></tr></table></figure>
+<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><p><strong>每次</strong>修改packages里面的安装条目，需要重新生成repo数据库，语法是在镜像根目录执行<code>createrepo -g repodata/xxxx-c7-minimal-x86_64-comps.xml .</code>，文件的名字可能是一串随机字符，根据个人情况生成。</p>
+<p>下面是修改isolinux.cfg保证使用kickstart文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">default vesamenu.c32</span><br><span class="line">timeout 50</span><br><span class="line"></span><br><span class="line">#省略一部分</span><br><span class="line"></span><br><span class="line">label linux</span><br><span class="line">  menu label ^Auto Install CentOS 7</span><br><span class="line">  menu default</span><br><span class="line">  kernel vmlinuz</span><br><span class="line">  append initrd=initrd.img inst.stage2=hd:LABEL=CENTOS7 inst.ks=hd:LABEL=CENTOS7:/kickstart/ks.cfg quiet</span><br><span class="line"></span><br><span class="line"># 省略一部分</span><br><span class="line"></span><br><span class="line">menu end</span><br><span class="line">``</span><br><span class="line"></span><br><span class="line">注意这里通过label指定ks文件的路径，防止U盘安装的时候找不到路径。卷标名在生成iso文件的时候可以修改，尽量不要用空格。</span><br><span class="line"></span><br><span class="line">同样在`EFI/BOOT/grub.cfg`里面增加一个入口：</span><br></pre></td></tr></table></figure>
+<p>menuentry ‘Auto Install CentOS 7’ –class fedora –class gnu-linux –class gnu –class os {<br>       linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=CENTOS7 inst.ks=hd:LABEL=CENTOS7:/kickstart/ks.cfg quiet<br>       initrdefi /images/pxeboot/initrd.img<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### 生成iso文件</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">cd /root/iso &amp;&amp; mkisofs -v -cache-inodes -joliet-long -R -J -T -V CENTOS7 -o /root/centos7.iso -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e images/efiboot.img -no-emul-boot .</span><br><span class="line">isohybrid /root/centos7.iso</span><br><span class="line">implantisomd5 /root/centos7.iso</span><br></pre></td></tr></table></figure></p>
+<p>上面是一个简单的脚本用来生成iso文件，注意这里使用-V改了卷标，和上面的hd:label保持一致。最后的alt-boot是efi启动支持。</p>
+<p>最后使用dd刻盘到u盘，就可以安装了。</p>
+<h3 id="自动配置脚本"><a href="#自动配置脚本" class="headerlink" title="自动配置脚本"></a>自动配置脚本</h3><p>注意到ks文件的post段里面，创建了一个一次性自运行的服务。在镜像根目录下创建<code>plus</code>文件夹，把想要复制到系统的文件都拷贝进去。<code>cp -fr /mnt/install/repo/plus/* /mnt/sysimage/root/</code>这句会将所有的文件拷贝到<code>/root/</code>目录下。</p>
+<p>其中<code>init.sh</code>的内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># wait other service start</span></span><br><span class="line">sleep 5</span><br><span class="line"><span class="comment"># iot-device</span></span><br><span class="line">mv /root/cron /etc/cron.d/iot-device</span><br><span class="line"><span class="comment"># params</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">""</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ClientAliveInterval 30"</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ClientAliveCountMax 86400"</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"* - noproc 11000"</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"root soft nofile 1048576"</span> &gt;&gt;  /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"root hard nofile 1048576"</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"* hard nofile 1048576"</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"* soft nofile 1048576"</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"fs.file-max = 1048576"</span> &gt;&gt;  /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"net.core.somaxconn=32768"</span> &gt;&gt; /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"DefaultLimitNOFILE=1048576"</span> &gt;&gt; /etc/systemd/system.conf</span><br><span class="line">sysctl -p</span><br><span class="line">sysctl -w net.core.somaxconn=32768</span><br><span class="line">sysctl -w net.ipv4.tcp_max_syn_backlog=16384</span><br><span class="line">sysctl -w net.core.netdev_max_backlog=16384</span><br><span class="line">sysctl -w net.ipv4.ip_local_port_range=<span class="string">'1000 65535'</span></span><br><span class="line">sysctl -w net.core.rmem_default=262144</span><br><span class="line">sysctl -w net.core.wmem_default=262144</span><br><span class="line">sysctl -w net.core.rmem_max=16777216</span><br><span class="line">sysctl -w net.core.wmem_max=16777216</span><br><span class="line">sysctl -w net.core.optmem_max=16777216</span><br><span class="line"></span><br><span class="line">sysctl -w net.ipv4.tcp_rmem=<span class="string">'1024 4096 16777216'</span></span><br><span class="line">sysctl -w net.ipv4.tcp_wmem=<span class="string">'1024 4096 16777216'</span></span><br><span class="line">sysctl -w net.ipv4.tcp_max_tw_buckets=1048576</span><br><span class="line">sysctl -w net.ipv4.tcp_fin_timeout=15</span><br><span class="line">sed -i <span class="string">'/.*init.*/d'</span> /etc/rc.local</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清空在安装阶段从光盘安装的所有文件</span></span><br><span class="line">rm -fr /mnt/*</span><br><span class="line">rm /root/*.cfg</span><br><span class="line">rm /root/TRAN*</span><br><span class="line">rm <span class="variable">$0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#主动启动网卡</span></span><br><span class="line">interface=$(ls /sys/class/net| grep -v <span class="string">"lo"</span> | head -1)</span><br><span class="line">ifup <span class="variable">$interface</span></span><br><span class="line"><span class="keyword">if</span> [$? -ne 0];<span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"can't start network, please run nmtui to connect Wi-Fi"</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取当前网络信息</span></span><br><span class="line">default_route=$(ip route show)</span><br><span class="line">default_interface=$(<span class="built_in">echo</span> <span class="variable">$default_route</span> | sed -e <span class="string">'s/^.*dev \([^ ]*\).*$/\1/'</span> | head -n 1)</span><br><span class="line">address=$(ip addr show label <span class="variable">$default_interface</span> scope global | awk <span class="string">'$1 == "inet" &#123; print $2,$4&#125;'</span>)</span><br><span class="line">ip=$(<span class="built_in">echo</span> <span class="variable">$address</span> | awk <span class="string">'&#123;print $1 &#125;'</span>)</span><br><span class="line">ip=<span class="variable">$&#123;ip%%/*&#125;</span></span><br><span class="line">mask=$(route -n |grep <span class="string">'U[ \t]'</span> | head -n 1 | awk <span class="string">'&#123;print $3&#125;'</span>)</span><br><span class="line">gateway=$(route -n | grep <span class="string">'UG[ \t]'</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line">dns=$(cat /etc/resolv.conf | grep nameserver | awk <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#判断default_interface是否为空</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$default_interface</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    default_interface=<span class="variable">$interface</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#显示网络信息</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"The current net info [dynamic]"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"------------------------------------------"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">" device: <span class="variable">$default_interface</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">" ipaddr: <span class="variable">$ip</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"netmask: <span class="variable">$mask</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"gateway: <span class="variable">$gateway</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"    dns: <span class="variable">$dns</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"------------------------------------------"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">""</span></span><br><span class="line"><span class="comment"># set last ip to 200</span></span><br><span class="line">IFS=<span class="string">'.'</span> <span class="built_in">read</span> -r -a array &lt;&lt;&lt; <span class="string">"<span class="variable">$ip</span>"</span></span><br><span class="line">array[3]=200</span><br><span class="line">newip=$(IFS=. <span class="built_in">eval</span> <span class="string">'echo "$&#123;array[*]&#125;"'</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"newip is <span class="variable">$newip</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#网络配置</span></span><br><span class="line">cp /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span> /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span>.bak</span><br><span class="line">uuid=$(cat /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span> |grep UUID|sed -e <span class="string">'s/"//g'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPV6INIT=yes"</span>               &gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPV6_AUTOCONF=yes"</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"BOOTPROTO=none"</span>            &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"DEVICE=<span class="variable">$default_interface</span>"</span> &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ONBOOT=yes"</span>                &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$uuid</span>"</span>                     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"TYPE=Ethernet"</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"PROXY_METHOD=none"</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"BROWSER_ONLY=no"</span>           &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPADDR=<span class="variable">$newip</span>"</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"NETMASK=<span class="variable">$mask</span>"</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"GATEWAY=<span class="variable">$gateway</span>"</span>          &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"DNS1=114.114.114.114"</span>      &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"DEFROUTE=yes"</span>              &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPV4_FAILURE_FATAL=no"</span>     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPV6_DEFROUTE=yes"</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPV6_FAILURE_FATAL=no"</span>     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#DNS配置</span></span><br><span class="line">cp /etc/resolv.conf /etc/resolv.conf.bak</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"# Generated by NetworkManager"</span> &gt; /etc/resolv.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"nameserver 114.114.114.114"</span> &gt;&gt; /etc/resolv.conf</span><br><span class="line"></span><br><span class="line"><span class="comment">#重启一下网络 使配置生效</span></span><br><span class="line">systemctl restart network</span><br><span class="line">sleep 5</span><br><span class="line">ping -c 4 www.baidu.com</span><br><span class="line"><span class="keyword">if</span> [ $? != 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">"Error! Cant link to Internet"</span></span><br><span class="line">     <span class="comment">#break</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>简单来说，根据dhcp自动配置的ip地址，将其最后一位换成200，改成静态ip写死。如果怕ip地址冲突，直接将获得的ip写成静态ip也可以。<br>然后是一些常见服务器参数的改写，最后是禁止并删除掉一次性脚本的自启动，然后删除掉自身。</p>
+<p>如果需要做一些服务相关配置，在这里也可以初始化，比如配置cron定期检查更新。</p>
+<p>上面ks文件设置了安装完毕后自动关机，在合适的环境下插上网线开机，就会自动运行上面的初始化脚本，安装好服务。</p>
+<h2 id="无线网卡"><a href="#无线网卡" class="headerlink" title="无线网卡"></a>无线网卡</h2><p>如果不是插网线，而是用无线网卡，这里的逻辑就比较复杂，必须让用户手动设置Wi-Fi。然后再手动运行脚本设置为静态ip。</p>
+<p>在Package里面增加NetworkManager-tui这个包，init.sh里面判断如果ifup失败，就直接退出。</p>
+<p>此时需要用户运行<code>nmtui</code>设置好Wi-Fi（注意Wi-Fi的ssid应为英文，不然这里应该是乱码）。然后运行如下脚本来将Wi-Fi设置成静态ip：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#获取当前网络信息</span></span><br><span class="line">default_route=$(ip route show)</span><br><span class="line">default_interface=$(<span class="built_in">echo</span> <span class="variable">$default_route</span> | sed -e <span class="string">'s/^.*dev \([^ ]*\).*$/\1/'</span> | head -n 1)</span><br><span class="line">address=$(ip addr show label <span class="variable">$default_interface</span> scope global | awk <span class="string">'$1 == "inet" &#123; print $2,$4&#125;'</span>)</span><br><span class="line">ip=$(<span class="built_in">echo</span> <span class="variable">$address</span> | awk <span class="string">'&#123;print $1 &#125;'</span>)</span><br><span class="line">ip=<span class="variable">$&#123;ip%%/*&#125;</span></span><br><span class="line">mask=$(route -n |grep <span class="string">'U[ \t]'</span> | head -n 1 | awk <span class="string">'&#123;print $3&#125;'</span>)</span><br><span class="line">gateway=$(route -n | grep <span class="string">'UG[ \t]'</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line">dns=$(cat /etc/resolv.conf | grep nameserver | awk <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#判断default_interface是否为空</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$default_interface</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"no working network, exit! if you want to use Wi-Fi, please run nmtui to set"</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">cfg_name=$(<span class="built_in">cd</span> /etc/sysconfig/network-scripts &amp;&amp; grep -l Wireless *|grep ifcfg)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"config file is <span class="variable">$cfg_name</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#download iot-device</span></span><br><span class="line">/bin/python3 /root/cron_update.py</span><br><span class="line"></span><br><span class="line"><span class="comment">#显示网络信息</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"The current net info [dynamic]"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"------------------------------------------"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">" device: <span class="variable">$default_interface</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">" ipaddr: <span class="variable">$ip</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"netmask: <span class="variable">$mask</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"gateway: <span class="variable">$gateway</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"    dns: <span class="variable">$dns</span>"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"------------------------------------------"</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">""</span></span><br><span class="line"><span class="comment"># set last ip to 200</span></span><br><span class="line">IFS=<span class="string">'.'</span> <span class="built_in">read</span> -r -a array &lt;&lt;&lt; <span class="string">"<span class="variable">$ip</span>"</span></span><br><span class="line">array[3]=200</span><br><span class="line">newip=$(IFS=. <span class="built_in">eval</span> <span class="string">'echo "$&#123;array[*]&#125;"'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#网络配置</span></span><br><span class="line">cp /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span> /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span>.bak</span><br><span class="line"></span><br><span class="line">sed -i <span class="string">"/.*dhcp.*/d"</span> /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"IPADDR=<span class="variable">$newip</span>"</span>             &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"NETMASK=<span class="variable">$mask</span>"</span>             &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"GATEWAY=<span class="variable">$gateway</span>"</span>          &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"DNS1=114.114.114.114"</span>      &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"></span><br><span class="line">ifdown <span class="variable">$cfg_name</span> &amp;&amp; ifup <span class="variable">$cfg_name</span></span><br><span class="line">sleep 5</span><br><span class="line">ping -c 4 www.baidu.com</span><br><span class="line"><span class="keyword">if</span> [ $? != 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">"Error! Cant link to Internet"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"current ip is <span class="variable">$newip</span>"</span></span><br></pre></td></tr></table></figure>
+<p>这里仍然是直接设置成200，实际使用的时候可以根据情况编辑。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kickstart配置"><span class="toc-number">2.</span> <span class="toc-text">kickstart配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他配置"><span class="toc-number">3.</span> <span class="toc-text">其他配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#自动配置脚本"><span class="toc-number">3.1.</span> <span class="toc-text">自动配置脚本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无线网卡"><span class="toc-number">4.</span> <span class="toc-text">无线网卡</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&text=linux无人值守安装镜像制作.md"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&is_video=false&description=linux无人值守安装镜像制作.md"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=linux无人值守安装镜像制作.md&body=Check out this article: http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&title=linux无人值守安装镜像制作.md"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&name=linux无人值守安装镜像制作.md&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2020/04/29/linux无人值守安装镜像制作/&t=linux无人值守安装镜像制作.md"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

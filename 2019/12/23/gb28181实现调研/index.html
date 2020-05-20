@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。 首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的.net core实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。g">
+<meta name="keywords" content="camera,design">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gb28181实现调研">
+<meta property="og:url" content="http://YiuTerran.github.io/2019/12/23/gb28181实现调研/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。 首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的.net core实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。g">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-02-18T05:14:09.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="gb28181实现调研">
+<meta name="twitter:description" content="由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。 首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的.net core实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。g">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>gb28181实现调研</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/02/18/mybatis自定义枚举/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/12/23/通用多租户自定义角色权限模型/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&text=gb28181实现调研"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&is_video=false&description=gb28181实现调研"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=gb28181实现调研&body=Check out this article: http://YiuTerran.github.io/2019/12/23/gb28181实现调研/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&name=gb28181实现调研&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&t=gb28181实现调研"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#协议解析"><span class="toc-number">1.</span> <span class="toc-text">协议解析</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        gb28181实现调研
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-12-23T02:48:56.000Z" itemprop="datePublished">2019-12-23</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/camera/">camera</a>, <a class="tag-link" href="/tags/design/">design</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。</p>
+<p>首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的<code>.net core</code>实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。go的话，目前还没有比较稳定的开源实现，有一些不太完整的版本。</p>
+<p>视频流这块，用了RTP/RTCP协议，发送的是PS流，发送给客户端的话，需要转换成可以拿来直播的其他流。</p>
+<p>换句话说，我们需要实现<strong>一个sip网关</strong>用来进行控制，和<strong>一个媒体流网关</strong>用来传输实时媒体数据。</p>
+<p>如果想要做嵌入式网关的话，推荐用纯C版本的库(pjsip实现了sip/RTP/RTCP/RTSP等所有的功能，live555/ffmpeg和gstreamer都是C实现)，自己写上层C++代码实现。</p>
+<p>考虑开发速度可以用高等语言来写其中的一部分，那个开源的<code>.net core</code>就是用C#写的（但是没有流媒体相关的实现）。为了熟悉协议，也可以自己先造个轮子（工作量很大）。</p>
+<p>值得注意的是标准的SDP协议部分使用了扩展字段y，一般开源代码并不支持，需要拿到源码<a href="https://blog.csdn.net/comhaqs/article/details/101760176" target="_blank" rel="noopener">!进行修改</a>。</p>
+<h2 id="协议解析"><a href="#协议解析" class="headerlink" title="协议解析"></a>协议解析</h2><p>github上那个c#的repo里面有协议的pdf文件，可以先下载下来。以下部分内容直接引用自协议文本。</p>
+<pre><code>安全注册、实时视音频点播、历史视音频的回放等应用的会话控制采用IETFRFC3261规定的 Register、Invite 等请求和响应方法实现,历史视音频回放控制采用SIP扩展协议IETFRFC2976规定的INFO方法实现,前端设备控制、信息查询、报警事件通知和分发等应用的会话控制采用SIP扩展协议IETFRFC3428规定的Mesage方法实现。
+</code></pre><p>这里提到的几个方法，都是SIP协议规定的内容。SIP基于TCP/UDP，在应用层是纯文本协议，类似HTTP，也可以使用证书进行加密。</p>
+<p>类似HTTP，sip有标准的header和body。一个标准的SIP Message请求如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">To:sip:目的设备编码@目的域名</span><br><span class="line">CSeq:1 Message</span><br><span class="line">Cal-ID:a84b4c76e66710</span><br><span class="line">Via:SIP/2.0/UDP源域名或IP地址</span><br><span class="line">From:&lt;sip:源设备编码@源域名&gt;;tag=237f57dc</span><br><span class="line">Content-Type:Application/MANSCDP+xml</span><br><span class="line">Max-Forwards:69</span><br><span class="line">Content-Length:消息实体的字节长度</span><br><span class="line"></span><br><span class="line">&lt;?xmlversion=&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;Control&gt;</span><br><span class="line">&lt;CmdType&gt;DeviceControl&lt;/CmdType&gt;</span><br><span class="line">&lt;SN&gt;11&lt;/SN&gt;</span><br><span class="line">&lt;DeviceID&gt;64010000041310000345&lt;/DeviceID&gt;</span><br><span class="line">&lt;PTZCmd&gt;A50F4D1000001021&lt;/PTZCmd&gt;</span><br><span class="line">&lt;Info&gt;</span><br><span class="line">&lt;ControlPriority&gt;5&lt;/ControlPriority&gt;</span><br><span class="line">&lt;/Info&gt;</span><br><span class="line">&lt;/Control&gt;</span><br></pre></td></tr></table></figure>
+<p>注意sip是长链接协议，所以规定了标准的register流程。</p>
+<p>经过实际调研，最终决定暂时搁置这块的开发，其实SIP服务器实现起来不难，关键是流媒体转码相关的技术水比较深。目前公司还有其他优先级更高的事情，本文等待后续更新。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#协议解析"><span class="toc-number">1.</span> <span class="toc-text">协议解析</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&text=gb28181实现调研"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&is_video=false&description=gb28181实现调研"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=gb28181实现调研&body=Check out this article: http://YiuTerran.github.io/2019/12/23/gb28181实现调研/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&title=gb28181实现调研"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&name=gb28181实现调研&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/12/23/gb28181实现调研/&t=gb28181实现调研"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

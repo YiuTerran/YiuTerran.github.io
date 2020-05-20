@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Prepareinstall:1pip install celery 选择broker，安装，这里假设使用Redis：1apt-get install redis-server Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边… 然后参考阅读别人的best practices，基本就可以干活了。 几个要点 task相关的文件，最好都是用绝对">
+<meta name="keywords" content="python,celery,redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python celery组件使用">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/python celery组件使用/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="Prepareinstall:1pip install celery 选择broker，安装，这里假设使用Redis：1apt-get install redis-server Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边… 然后参考阅读别人的best practices，基本就可以干活了。 几个要点 task相关的文件，最好都是用绝对">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:28:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python celery组件使用">
+<meta name="twitter:description" content="Prepareinstall:1pip install celery 选择broker，安装，这里假设使用Redis：1apt-get install redis-server Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边… 然后参考阅读别人的best practices，基本就可以干活了。 几个要点 task相关的文件，最好都是用绝对">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>python celery组件使用</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/cmake实践/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/EffectiveJava/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&text=python celery组件使用"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&is_video=false&description=python celery组件使用"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python celery组件使用&body=Check out this article: http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&name=python celery组件使用&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&t=python celery组件使用"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prepare"><span class="toc-number">1.</span> <span class="toc-text">Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Configure"><span class="toc-number">2.</span> <span class="toc-text">Configure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几个要点"><span class="toc-number">2.1.</span> <span class="toc-text">几个要点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router"><span class="toc-number">2.2.</span> <span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Start"><span class="toc-number">3.</span> <span class="toc-text">Start</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        python celery组件使用
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:47:06.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/celery/">celery</a>, <a class="tag-link" href="/tags/python/">python</a>, <a class="tag-link" href="/tags/redis/">redis</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="Prepare"><a href="#Prepare" class="headerlink" title="Prepare"></a>Prepare</h2><p>install:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install celery</span><br></pre></td></tr></table></figure></p>
+<p>选择broker，安装，这里假设使用Redis：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install redis-server</span><br></pre></td></tr></table></figure></p>
+<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><p>首先认真阅读<a href="http://docs.celeryproject.org/en/latest/index.html" target="_blank" rel="noopener">官方celery文档</a>的get start部分，如果有时间的话，最好全部看一边…</p>
+<p>然后参考阅读别人的<a href="http://blog.csdn.net/orangleliu/article/details/37967433" target="_blank" rel="noopener">best practices</a>，基本就可以干活了。</p>
+<h3 id="几个要点"><a href="#几个要点" class="headerlink" title="几个要点"></a>几个要点</h3><ol>
+<li>task相关的文件，最好都是用绝对导入；否则，应该在task function上面指定name；</li>
+<li>如果需要root权限执行，需要在相关文件中加入<code>platforms.C_FORCE_ROOT=True</code>，但是最好别用root；</li>
+<li>可以根据需要消除<code>pickle</code>的警告，设置<code>CELERY_ACCEPT_CONTENT=[&#39;pickle&#39;,]</code>；</li>
+<li>默认不发心跳，需要加上<code>BROKER_HEARTBEAT=10</code>，来消除心跳相关警告；<br>5.<h3 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h3>router是不支持通配符的，如果需要，可以自己写一个自定义Router类。下面是一个<code>celery.py</code>的例子：<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> absolute_import</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> celery <span class="keyword">import</span> Celery, platforms</span><br><span class="line"><span class="keyword">from</span> settings <span class="keyword">import</span> CELERY_BROKER</span><br><span class="line"><span class="keyword">from</span> kombu <span class="keyword">import</span> Queue, Exchange</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyRouter</span><span class="params">(object)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="string">'''router for tasks using wildcard'''</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">route_for_task</span><span class="params">(self, task, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> task.startswith(<span class="string">'writer'</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'queue'</span>: <span class="string">'async_writer'</span>, <span class="string">'routing_key'</span>: <span class="string">'async_writer'</span>&#125;</span><br><span class="line">        <span class="keyword">elif</span> task.startswith(<span class="string">'caller'</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'queue'</span>: <span class="string">'async_caller'</span>, <span class="string">'routing_key'</span>: <span class="string">'async_caller'</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">'queue'</span>: <span class="string">'default'</span>, <span class="string">'routing_key'</span>: <span class="string">'default'</span>&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">QUEUES = (</span><br><span class="line">    Queue(<span class="string">'default'</span>, Exchange(<span class="string">'default'</span>), routing_key=<span class="string">'default'</span>),</span><br><span class="line">    Queue(<span class="string">'async_writer'</span>, Exchange(<span class="string">'async_writer'</span>),</span><br><span class="line">          routing_key=<span class="string">'async_writer'</span>),</span><br><span class="line">    Queue(<span class="string">'async_caller'</span>, Exchange(<span class="string">'async_caller'</span>),</span><br><span class="line">          routing_key=<span class="string">'async_caller'</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">platforms.C_FORCE_ROOT = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">app = Celery(<span class="string">'async'</span>,</span><br><span class="line">             broker=CELERY_BROKER,</span><br><span class="line">             include=[<span class="string">'async.writer'</span>, <span class="string">'async.caller'</span>, <span class="string">'async.checker'</span>, ])</span><br><span class="line"></span><br><span class="line">app.conf.update(CELERY_ACCEPT_CONTENT=[<span class="string">'pickle'</span>, ],</span><br><span class="line">                CELERY_IGNORE_RESULT=<span class="keyword">True</span>,</span><br><span class="line">                CELERY_DISABLE_RATE_LIMITS=<span class="keyword">True</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE=<span class="string">'default'</span>,</span><br><span class="line">                CELERY_DEFAULT_QUEUE=<span class="string">'default'</span>,</span><br><span class="line">                CELERY_DEFAULT_ROUTING_KEY=<span class="string">'default'</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE_TYPE=<span class="string">'topic'</span>,</span><br><span class="line">                CELERY_TASK_SERIALIZER=<span class="string">'pickle'</span>,</span><br><span class="line">                CELERY_RESULT_SERIALIZER=<span class="string">'pickle'</span>,</span><br><span class="line">                BROKER_HEARTBEAT=<span class="number">10</span>,</span><br><span class="line">                CELERY_QUEUES=QUEUES,</span><br><span class="line">                CELERY_ROUTES=(MyRouter(),),</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.start()</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>官方给出的init.d脚本不是很好用，下面是一个自己写的参考：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># PushserverCore uWSGI Web Server init script</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">### BEGIN INIT INFO</span></span><br><span class="line"><span class="comment"># Provides:          PushserverCore</span></span><br><span class="line"><span class="comment"># Required-Start:    $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Required-Stop:     $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Default-Start:     2 3 4 5</span></span><br><span class="line"><span class="comment"># Default-Stop:      0 1 6</span></span><br><span class="line"><span class="comment"># Short-Description: Start PushserverCore Service for generic init daemon</span></span><br><span class="line"><span class="comment"># Description:       PushserverCore Service thrift Server backend.</span></span><br><span class="line"><span class="comment">### END INIT INFO</span></span><br><span class="line"></span><br><span class="line">NAME=<span class="string">"Core Thrift Server"</span></span><br><span class="line">PROJECT=PushserverCore</span><br><span class="line">PATH=/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/sbin:/bin:/usr/sbin:/usr/bin:/var/app/enabled/<span class="variable">$PROJECT</span></span><br><span class="line">DESC=<span class="string">"PushserverCore"</span></span><br><span class="line">APP_DIR=/var/app/enabled/<span class="variable">$PROJECT</span>/Core</span><br><span class="line">APP_PATH=<span class="variable">$APP_DIR</span>/CoreServer.py</span><br><span class="line">CELERY_LOG_PATH=/var/app/<span class="built_in">log</span>/PushserverCore/celery.log</span><br><span class="line"></span><br><span class="line">print_succ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$(tput setaf 2)</span><span class="variable">$(tput bold)</span>DONE<span class="variable">$(tput sgr0)</span>"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print_fail()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$(tput setaf 1)</span><span class="variable">$(tput bold)</span>FAILED<span class="variable">$(tput sgr0)</span>"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"stoping <span class="variable">$NAME</span>..."</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        pkill -f <span class="variable">$APP_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> service is already running."</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"starting <span class="variable">$NAME</span> service..."</span></span><br><span class="line">        nohup python <span class="variable">$APP_PATH</span> &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"stoping celery worker..."</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1;<span class="keyword">then</span></span><br><span class="line">        pkill -f celery</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"celery is already running"</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"starting celery worker..."</span></span><br><span class="line">        celery -A async multi start writer <span class="built_in">caller</span> default  -Q:writer async_writer -Q:<span class="built_in">caller</span> async_caller -Q:default default -c 7 -l INFO --workdir=<span class="variable">$APP_DIR</span> --logfile=<span class="variable">$CELERY_LOG_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check_status()</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> is running"</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> is not running"</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"celery worker is running"</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"celery worker is not running"</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">. /lib/lsb/init-functions</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></span><br><span class="line">	start)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Starting <span class="variable">$DESC</span>..."</span></span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">		;;</span><br><span class="line">	stop)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Stopping <span class="variable">$DESC</span>..."</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	restart)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Restarting <span class="variable">$DESC</span>..."</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">        sleep 3</span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"Checking..."</span></span><br><span class="line">        check_status</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	status)</span><br><span class="line">        check_status</span><br><span class="line">        ;;</span><br><span class="line">	*)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Usage: <span class="variable">$NAME</span> &#123;start|stop|restart|status&#125;"</span> &gt;&amp;2</span><br><span class="line">		<span class="built_in">exit</span> 1</span><br><span class="line">		;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure></p>
+<p>重点需要关注的是celery multi start的用法，注意start后面跟的是worker的名字（取数据的worker），也可以简单的写3，然后-Q:<em>worker_name</em> <em>queue_name</em>，最后-c是实际的worker（干活的worker）的数目，-Q是给队列指定worker。例子中的语句，意思是启动3个worker，分别命名为writer, caller和default，然后启动3个队列，名字分别是async_writer, async_caller和default，每个worker分配7个进程用来干活。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prepare"><span class="toc-number">1.</span> <span class="toc-text">Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Configure"><span class="toc-number">2.</span> <span class="toc-text">Configure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几个要点"><span class="toc-number">2.1.</span> <span class="toc-text">几个要点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router"><span class="toc-number">2.2.</span> <span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Start"><span class="toc-number">3.</span> <span class="toc-text">Start</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&text=python celery组件使用"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&is_video=false&description=python celery组件使用"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python celery组件使用&body=Check out this article: http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&name=python celery组件使用&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&t=python celery组件使用"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

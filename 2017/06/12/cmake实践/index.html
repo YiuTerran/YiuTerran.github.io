@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。 初级学习材料是CMake Practice这本书. 例子12345PROJECT(HELLO)SET(SRC_LIST main.c)MESSAGE(STATUS &quot;This is BINARY dir&quot; $&amp;#">
+<meta name="keywords" content="cmake">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cmake实践">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/cmake实践/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。 初级学习材料是CMake Practice这本书. 例子12345PROJECT(HELLO)SET(SRC_LIST main.c)MESSAGE(STATUS &quot;This is BINARY dir&quot; $&amp;#">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:22:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cmake实践">
+<meta name="twitter:description" content="heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。 初级学习材料是CMake Practice这本书. 例子12345PROJECT(HELLO)SET(SRC_LIST main.c)MESSAGE(STATUS &quot;This is BINARY dir&quot; $&amp;#">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>cmake实践</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/CometD源码学习_2/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/python celery组件使用/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cmake实践/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&text=cmake实践"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&is_video=false&description=cmake实践"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=cmake实践&body=Check out this article: http://YiuTerran.github.io/2017/06/12/cmake实践/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&name=cmake实践&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/cmake实践/&t=cmake实践"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#例子"><span class="toc-number">1.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#外部构建"><span class="toc-number">2.</span> <span class="toc-text">外部构建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#进一步复杂化"><span class="toc-number">3.</span> <span class="toc-text">进一步复杂化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">4.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态库与动态库"><span class="toc-number">5.</span> <span class="toc-text">静态库与动态库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用外部共享库"><span class="toc-number">6.</span> <span class="toc-text">使用外部共享库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用变量-环境变量"><span class="toc-number">7.</span> <span class="toc-text">常用变量/环境变量</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        cmake实践
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:47:11.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/cmake/">cmake</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。</p>
+<p>初级学习材料是<a href="http://sewm.pku.edu.cn/src/paradise/reference/CMake%20Practice.pdf" target="_blank" rel="noopener">CMake Practice</a>这本书.</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">PROJECT</span>(HELLO)</span><br><span class="line"><span class="keyword">SET</span>(SRC_LIST main.c)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">"This is BINARY dir"</span> <span class="variable">$&#123;PROJECT_BINARY_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">"This is SOURCE dir"</span> <span class="variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(hello <span class="variable">$&#123;SRC_LIST&#125;</span>)</span><br></pre></td></tr></table></figure>
+<p>上面是一个最简单的CMakeLists.txt示例，也很容易理解。使用<code>SET</code>命令设置变量，使用<code>MESSAGE</code>命令显示信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MESSAGE([SEND_ERROR | STATUS | FATAL_ERROR] &quot;message to display&quot;)</span><br></pre></td></tr></table></figure></p>
+<p>使用空格键分割参数。</p>
+<p><code>ADD_EXECUTABLE</code>添加生成的可执行文件，第一个参数是可执行文件的名字（与项目没什么关系）。</p>
+<p>一般情况下，使用<code>${}</code>引用变量，但是如果在<code>IF</code>中，则默认就是一个变量名，这时候就不要再解引用了。</p>
+<p>指令是大小写无关的，参数和变量是大小写敏感的，但是一般情况下推荐使用全大写的指令。</p>
+<p>由于参数使用空格做分隔符，因此若某些参数中间含有空格（如文件名），则需要用引号包围。另外就是文件后缀可以省略，如果确定不会重复的话（推荐保留）。</p>
+<p>另外就是参数也可以用分号分割，注意前后保持一致就行。</p>
+<h3 id="外部构建"><a href="#外部构建" class="headerlink" title="外部构建"></a>外部构建</h3><p>上面的例子是内部构建，生成了一大堆中间文件，cmake官方更推荐使用外部构建。</p>
+<p>删除除了<code>CMakeLists.txt</code>和<code>main.c</code>之外的所有文件，建立一个<code>build</code>目录。然后运行<code>cmake &lt;项目路径&gt;</code>，构建的中间文件和输出的MakeFile都会出现在这个目录里，对原来的项目没有影响。唯一不同的是<code>PROJECT_BINARY_DIR</code>指向<code>build</code>目录了。</p>
+<h3 id="进一步复杂化"><a href="#进一步复杂化" class="headerlink" title="进一步复杂化"></a>进一步复杂化</h3><p>添加<code>src</code>子文件夹，将<code>main.c</code>移入。然后在其中再新建一个<code>CMakeLists.txt</code>。外部改成：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PROJECT(HELLO)</span><br><span class="line">ADD_SUBDIRECTORY(src bin)</span><br></pre></td></tr></table></figure></p>
+<p>内部的写入：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD_EXECUTABLE(hello main.c)</span><br></pre></td></tr></table></figure></p>
+<p>再在<code>build</code>文件夹下cmake，就可以<code>build/bin/</code>文件夹下生成科执行文件。</p>
+<p>可以通过修改<code>EXECUTABLE_OUTPUT_PATH</code>和<code>LIBRARY_OUTPUT_PATH</code>来修改最终输出的可执行文件或者链接库的路径。一般写在<code>ADD_EXECUTABLE</code>后面。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装使用<code>cmake -DCMAKE_INSTALL_PREFIX=&lt;dir&gt;</code>来指定安装目录。在根目录的<code>CmakeLists.txt</code>里面写入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">INSTALL(FILES COPYRIGHT README DESTINATION share/doc/cmake/t2)</span><br><span class="line">INSTALL(PROGRAMS runhello.sh DESTINATION bin)</span><br><span class="line">INSTALL(DIRECTORY doc/ DESTINATION share/doc/cmake/t2)</span><br></pre></td></tr></table></figure>
+<p>这里用了<code>INSTALL</code>指令，第一个参数表示写入文件类型，<code>DESTINATION</code>后面是写入的目标位置。</p>
+<p>INSTALL指令参数较多，使用时可以参考文档。</p>
+<h3 id="静态库与动态库"><a href="#静态库与动态库" class="headerlink" title="静态库与动态库"></a>静态库与动态库</h3><p>除了目录名外，与构建可执行文件的主要区别是lib文件夹中的CMakeLists.txt中加入了命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">SET(LIBHELLO_SRC hello.c)</span><br><span class="line">ADD_LIBRARY(hello SHARED $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">ADD_LIBRARY(hello_static STATIC $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES OUT_NAME &quot;hello&quot;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES VERSION 1.2 SOVERSION 1)</span><br><span class="line">INSTALL(TARGETS hello hello_static</span><br><span class="line">        LIBRARY DESTINATION lib</span><br><span class="line">        ARCHIVE DESTINATION lib)</span><br><span class="line">INSTALL(FILES hello.h DESTINATION include/hello)</span><br></pre></td></tr></table></figure></p>
+<p><code>ADD_LIBRARY</code>第二个参数指出了库的类型，可以用<code>STATIC</code>参数构建静态库，<code>SHARD</code>构建动态库。</p>
+<p>由于<code>ADD_LIBRARY</code>第一个参数不能重复，所以同时生成静态库需要 <code>SET_TARGET_PROPERTIES</code>. 该命令用来设置很多目标属性，包括版本信息等。这里设置了防止同名删除库，以及版本信息。</p>
+<h3 id="使用外部共享库"><a href="#使用外部共享库" class="headerlink" title="使用外部共享库"></a>使用外部共享库</h3><p>如果依赖外部库，且该库并不存在于系统搜索路径里， 需要使用<code>INCLUDE_DIRECTORIES</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)</span><br></pre></td></tr></table></figure>
+<p>仅仅是这样还不够，上面只是指出了头文件的位置。链接库的位置需要使用<code>LINK_DIRECTORIES</code>或<code>TARGET_LINK_DIRECTORIES</code>。假设上面我们已经把库安装到<code>/usr</code>文件下，在<code>CMakeLists.txt</code>中加入：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES(/usr/include/hello)</span><br><span class="line">TARGET_LINK_LIBRARIES(main libhello.so)</span><br></pre></td></tr></table></figure></p>
+<p>即可正常编译链接通过了。</p>
+<p>也可使用<code>CMAKE_INCLUDE_PATH</code>和<code>CMAKE_LIBRARY_PATH</code>这两个特殊的环境变量为编译添加额外搜索路径。比如上面我们也可以先在bash里面<code>export CMAKE_INCLUDE_PATH=/usr/include/hello</code>，然后将上面的<code>INCLUDE_DIRECTORIES</code>变为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FIND_PATH(myHeader hello.h)</span><br><span class="line">IF(myHeader)</span><br><span class="line">INCLUDE_DIRECTORIES($&#123;myHeader&#125;)</span><br><span class="line">ENDIF(myHeader)</span><br></pre></td></tr></table></figure></p>
+<h3 id="常用变量-环境变量"><a href="#常用变量-环境变量" class="headerlink" title="常用变量/环境变量"></a>常用变量/环境变量</h3><p>使用<code>SET</code>定义的是显式定义，除此之外，一些指令可以定义隐式变量。当然还有一些内置变量。</p>
+<p>使用<code>$ENV{NAME}</code>来调用环境变量，设置环境变量则是<code>SET(ENV{变量名} 值)</code></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#例子"><span class="toc-number">1.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#外部构建"><span class="toc-number">2.</span> <span class="toc-text">外部构建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#进一步复杂化"><span class="toc-number">3.</span> <span class="toc-text">进一步复杂化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">4.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态库与动态库"><span class="toc-number">5.</span> <span class="toc-text">静态库与动态库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用外部共享库"><span class="toc-number">6.</span> <span class="toc-text">使用外部共享库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用变量-环境变量"><span class="toc-number">7.</span> <span class="toc-text">常用变量/环境变量</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cmake实践/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&text=cmake实践"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&is_video=false&description=cmake实践"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=cmake实践&body=Check out this article: http://YiuTerran.github.io/2017/06/12/cmake实践/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&title=cmake实践"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/cmake实践/&name=cmake实践&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/cmake实践/&t=cmake实践"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

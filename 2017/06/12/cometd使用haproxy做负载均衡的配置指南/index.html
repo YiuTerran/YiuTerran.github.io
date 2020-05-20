@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+<meta name="keywords" content="cometd,haproxy,websocket">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cometd使用haproxy做负载均衡的配置指南">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:22:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cometd使用haproxy做负载均衡的配置指南">
+<meta name="twitter:description" content="下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5 然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-properti">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>cometd使用haproxy做负载均衡的配置指南</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/Cometd使用笔记/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/CometD源码学习_1/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&text=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&is_video=false&description=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=cometd使用haproxy做负载均衡的配置指南&body=Check out this article: http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&name=cometd使用haproxy做负载均衡的配置指南&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&t=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下载安装"><span class="toc-number">1.</span> <span class="toc-text">下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用"><span class="toc-number">2.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">2.1.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rsyslog"><span class="toc-number">3.</span> <span class="toc-text">rsyslog</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        cometd使用haproxy做负载均衡的配置指南
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:47:30.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/cometd/">cometd</a>, <a class="tag-link" href="/tags/haproxy/">haproxy</a>, <a class="tag-link" href="/tags/websocket/">websocket</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat/haproxy-1.5</span><br></pre></td></tr></table></figure></p>
+<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if [ -e /etc/default/haproxy ]; then</span><br><span class="line">	. /etc/default/haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure></p>
+<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf</code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
+<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/" target="_blank" rel="noopener">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see /etc/rsyslog.d/haproxy.conf</span><br><span class="line">  chroot /var/lib/haproxy</span><br><span class="line">  pidfile /var/run/haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&apos;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri /stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&apos;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET /cometd HTTP/1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure></p>
+<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
+<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
+<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local0.* /var/log/haproxy/haproxy.log</span><br></pre></td></tr></table></figure></p>
+<p>即可指定到具体文件。</p>
+<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux" target="_blank" rel="noopener">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -/var/log/haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure></p>
+<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html" target="_blank" rel="noopener">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
+<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/var/log/haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;/dev/null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html" target="_blank" rel="noopener">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下载安装"><span class="toc-number">1.</span> <span class="toc-text">下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用"><span class="toc-number">2.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">2.1.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rsyslog"><span class="toc-number">3.</span> <span class="toc-text">rsyslog</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&text=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&is_video=false&description=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=cometd使用haproxy做负载均衡的配置指南&body=Check out this article: http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&title=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&name=cometd使用haproxy做负载均衡的配置指南&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/cometd使用haproxy做负载均衡的配置指南/&t=cometd使用haproxy做负载均衡的配置指南"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

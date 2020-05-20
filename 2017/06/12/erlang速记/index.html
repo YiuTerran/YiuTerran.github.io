@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta name="keywords" content="erlang,FP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="erlang速记">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/erlang速记/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:25:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="erlang速记">
+<meta name="twitter:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>erlang速记</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/web开发进阶/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/java Proxy模式/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&text=erlang速记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&is_video=false&description=erlang速记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=erlang速记&body=Check out this article: http://YiuTerran.github.io/2017/06/12/erlang速记/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&name=erlang速记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/erlang速记/&t=erlang速记"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#语法结构"><span class="toc-number">1.</span> <span class="toc-text">语法结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发编程"><span class="toc-number">2.</span> <span class="toc-text">并发编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        erlang速记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:48:18.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/FP/">FP</a>, <a class="tag-link" href="/tags/erlang/">erlang</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
+<h2 id="语法结构"><a href="#语法结构" class="headerlink" title="语法结构"></a>语法结构</h2><ol>
+<li>首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。</li>
+<li>tuple用{}表示，列表用[]表示；</li>
+<li>用<code>=</code>作模式匹配，用<code>|</code>做头尾区分，用双引号表示字符串（本质是一串数字，可以用<code>$</code>取得字符对应的数字）;</li>
+<li><code>.</code>表示模式终结，<code>,</code>用来分割参数，函数；<code>;</code>用来分割子句；</li>
+<li>函数的参数个数，称为函数的目；<code>func</code>关键字用来定义匿名函数；</li>
+</ol>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure>
+<p>可以把返回值放到括号里面。</p>
+<ol>
+<li>标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；</li>
+<li>没有<code>for</code>循环，和haskell一样，使用尾递归；</li>
+<li>使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；</li>
+<li><p>列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</span><br><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></span><br><span class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</span><br><span class="line">    [H] ++</span><br><span class="line">    qsort([X || X &lt;- T, X &gt;= H]).</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>断言，关键字<code>when</code>。使用<code>,</code>表示<code>andalso</code>语义， 使用<code>orelse</code>而不是<code>or</code>因为后者不是短路求值；</p>
+</li>
+<li>使用<code>record</code>表示字典，声明方式：<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X=#todo&#123;&#125;.</span><br><span class="line">Y=#todo&#123;status=urgent, text=<span class="string">"Fix errata in book"</span>&#125;.</span><br><span class="line">Z=Y#todo&#123;status=done&#125;.</span><br><span class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></span><br></pre></td></tr></table></figure></p>
+<p>可以使用<code>is_record</code>做模式匹配；</p>
+<ol>
+<li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></span><br><span class="line">    odds_and_evens_acc(L, [], []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></span><br><span class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</span><br><span class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    &#123;Odds, Evens&#125;.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>异常的捕捉采用<code>try...catch..after...end</code>格式，非常类似java；</p>
+</li>
+<li>数字格式包括<code>2#01011</code>其中<code>#</code>前面是进制，浮点数可以用科学计数法，即<code>-2.3e+6</code>等；</li>
+<li>每个进程都有一个私有数据存储，称为进程字典，可以用<code>put</code>,<code>get</code>, <code>get_keys</code>, <code>erase</code>等函数进行操作；但是如果使用进程字典，代码就不再是没有副作用的，因此要避免使用；</li>
+<li>引用是全局唯一的Erlang值，使用<code>erlang:make_ref()</code>来创建引用；</li>
+<li>奇怪的操作符： <code>==</code>, <code>/=</code>, <code>=:=</code>全等，<code>=/=</code>不全等；数值比较会有隐式转换；<code>==</code>仅限于浮点数和整数的比较，大部分情况下，应该使用<code>=:=</code>；</li>
+<li>奇怪的排序：<code>number</code>&lt;<code>atom</code>&lt;<code>reference</code>&lt;<code>fun</code>&lt;<code>port</code>&lt;<code>pid</code>&lt;<code>tuple</code>&lt;<code>list</code>&lt;<code>binary</code>；</li>
+<li><p>下划线变量：仅用来声明不准备使用的变量（占位符）；或者用来调试；</p>
+</li>
+<li><p>对于大的程序，还是要使用makefile的，然而直到今天我还是不会写makefile，不过我决定抽个时间学习以下cmake的使用；使用<code>code:get_path()</code>查看搜索路径，<code>code:add_patha</code>, <code>code:add_pathz</code>用来增加新目录；</p>
+</li>
+<li>可以在<code>~/.erlang</code>下增加一些命令，当启动<code>erl</code>shell时，会先执行这里的初始化语句；当前目录下的<code>.erlang</code>会覆盖home下的执行优先级。可以使用<code>init:get_argument(home)</code>确定home的路径（for windows）；</li>
+<li>erlang需要在运行前编译，或者用<code>escript</code>命令执行而无需编译（解释器）。escript的语法与erlang本身略有不同。当然我想不到在什么情况下要写erlang脚本。。。因为erlang并不是一门好的脚本语言。python才是现在的最优选择：）</li>
+</ol>
+<h2 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h2><ol>
+<li>和go一样，很简单的创建进程：<code>Pid=spawn(Fun)</code>；</li>
+<li>发送消息： <code>Pid ! Message</code>，异步发送。返回值是消息本身，这意味着使用<code>Pid1 ! Pid2 ! M</code>会将M发送到所有的Pid中；</li>
+<li><p><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">receive</span></span><br><span class="line">    Pattern1 [When Guard1] -&gt;</span><br><span class="line">        Expression1;</span><br><span class="line">    Pattern2 [When Guard2] -&gt;</span><br><span class="line">        Expression2;</span><br><span class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></span><br><span class="line">    Expressions</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</p>
+</li>
+<li><p>除了Pid机制外，可以采用注册进程的方式公开进程。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></span><br><span class="line"><span class="function"><span class="title">unregister</span><span class="params">(Name)</span></span></span><br><span class="line"><span class="function"><span class="title">whereis</span><span class="params">(Name)</span> -&gt;</span> Pid | undefined <span class="comment">%检测是否注册成功</span></span><br><span class="line">registered() <span class="comment">%已注册进程list</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</p>
+</li>
+<li>使用<code>link(Pid)</code>在两个进程之间建立联系。二者之中任意一个挂掉，另一个都会收到系统通知；</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Erlang并不难，但是OTP很难。Erlang设计很用心，目标很明确，对于分布式大型系统的构建提供了很多基础支撑。缺点是生态系统略显封闭，社区不活跃，各种第三方库支持不全。相比之下，个人更看好Go的发展，虽然后者并不是为构建大规模系统而生，但是CPS模型的并发写起来也很舒服，加上简单的语法，快速的编译过程，完善的生态链，杰出的性能，是一个很不错的工具。</p>
+<p>目前来看，Skynet+Lua就是仿制了Erlang的思想。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#语法结构"><span class="toc-number">1.</span> <span class="toc-text">语法结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发编程"><span class="toc-number">2.</span> <span class="toc-text">并发编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&text=erlang速记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&is_video=false&description=erlang速记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=erlang速记&body=Check out this article: http://YiuTerran.github.io/2017/06/12/erlang速记/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=erlang速记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&name=erlang速记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/erlang速记/&t=erlang速记"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。 Servlet结构概览java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类： 这是servlet相关的类，这是一个请求——应答模型，不涉及">
+<meta name="keywords" content="java,web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java web基础学习">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/java web基础学习/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。 Servlet结构概览java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类： 这是servlet相关的类，这是一个请求——应答模型，不涉及">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.my.csdn.net/uploads/201301/04/1357284746_5560.png">
+<meta property="og:image" content="http://img.my.csdn.net/uploads/201301/05/1357367807_2250.png">
+<meta property="og:updated_time" content="2017-06-12T16:27:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java web基础学习">
+<meta name="twitter:description" content="做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。 Servlet结构概览java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类： 这是servlet相关的类，这是一个请求——应答模型，不涉及">
+<meta name="twitter:image" content="http://img.my.csdn.net/uploads/201301/04/1357284746_5560.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>java web基础学习</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/13/hello-world/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/lua5.1要点笔记/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/java web基础学习/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&text=java web基础学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&is_video=false&description=java web基础学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=java web基础学习&body=Check out this article: http://YiuTerran.github.io/2017/06/12/java web基础学习/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&name=java web基础学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/java web基础学习/&t=java web基础学习"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet"><span class="toc-number">1.</span> <span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#结构概览"><span class="toc-number">1.1.</span> <span class="toc-text">结构概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码书写"><span class="toc-number">1.2.</span> <span class="toc-text">代码书写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理流程"><span class="toc-number">1.3.</span> <span class="toc-text">处理流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSP"><span class="toc-number">1.4.</span> <span class="toc-text">JSP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring3"><span class="toc-number">2.</span> <span class="toc-text">Spring3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IoC"><span class="toc-number">2.1.</span> <span class="toc-text">IoC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一般流程"><span class="toc-number">2.2.</span> <span class="toc-text">一般流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bean-xml语法"><span class="toc-number">2.3.</span> <span class="toc-text">bean xml语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Resource接口"><span class="toc-number">2.4.</span> <span class="toc-text">Resource接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring表达式"><span class="toc-number">2.5.</span> <span class="toc-text">Spring表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP"><span class="toc-number">2.6.</span> <span class="toc-text">AOP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDBC支持"><span class="toc-number">2.7.</span> <span class="toc-text">JDBC支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#简化配置"><span class="toc-number">2.8.</span> <span class="toc-text">简化配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-MVC"><span class="toc-number">3.</span> <span class="toc-text">Spring MVC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-Shiro"><span class="toc-number">4.</span> <span class="toc-text">Apache Shiro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SiteMeth"><span class="toc-number">5.</span> <span class="toc-text">SiteMeth</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        java web基础学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:50:02.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/java/">java</a>, <a class="tag-link" href="/tags/web/">web</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。</p>
+<h2 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h2><h3 id="结构概览"><a href="#结构概览" class="headerlink" title="结构概览"></a>结构概览</h3><p>java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类：<br><img src="http://img.my.csdn.net/uploads/201301/04/1357284746_5560.png" alt="servlet class UML"></p>
+<p>这是servlet相关的类，这是一个请求——应答模型，不涉及具体协议。和http相关的主要是下面这些：<br><img src="http://img.my.csdn.net/uploads/201301/05/1357367807_2250.png" alt="servlet http class UML"><br>和<code>Servlet</code>关系很大的是web.xml文件，所有的servlet必须在web.xml中声明、配置初始化参数，做url映射。url映射采用最大前缀匹配，如果两个完全一样，用靠前声明的那个匹配。类似django中的<code>settings.py</code>.</p>
+<p>ServletFilter是Servlet的一种extension，用于在Servlet被调用之前检查Request对象，并修改Request Header和Request内容；以及在Servlet被调用之后检查Response对象，修改Response Header和Response的内容（一种中间件）。Filter也需要配置url mapping，其调用顺序是其在web.xml中声明的顺序，习惯上filter被声明在所有servlet之前。</p>
+<p>Servlet异常处理，可以配置<code>&lt;error-page&gt;</code>将status-code导向不同的html页面，或者干脆导向一个自定义类，然后在该错误处理类中使用<code>Integer status_code=(Integer)req.getAttribute(&quot;javax.servlet.error.status_code&quot;);</code>得到错误码，然后根据错误码做处理；而java程序中的异常可以通过try…catch捕获，然后forword一个专门的处理类中。</p>
+<p>session id应该只对当前servlet有效，虽然确实有方法使其跨servlet共享，但是不推荐使用。</p>
+<h3 id="代码书写"><a href="#代码书写" class="headerlink" title="代码书写"></a>代码书写</h3><p>首先实现一个servlet（继承<code>HttpServlet</code>），实现<code>init</code>和<code>service</code>方法，在后者中实现web服务的逻辑处理。然后在<code>web.xml</code>中注册该servlet的类，将之与url相关联。</p>
+<h3 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h3><p>外层web服务器（Tomcat等）在收到http请求后，根据url路径找到对应的servlet，实例化（如果不存在）。</p>
+<p>实例化的servlet对象处理请求，并返回响应（或者转发给其他servlet）.</p>
+<p>请求全部处理完毕后，Tomcat会根据需求销毁servlet（正常运行的服务不会销毁）。Java是多线程模型，并发的请求会使用新的线程来处理。</p>
+<h3 id="JSP"><a href="#JSP" class="headerlink" title="JSP"></a>JSP</h3><p>类似其他语言中的模板，不过模板一般是获得结果，然后进行渲染。JSP本质是一种特殊的Servlet，所以在接收到请求后，JSP文件会被编译为Java的字节码。</p>
+<p>语法：</p>
+<ol>
+<li><code>&lt;%...%&gt;</code>：Java代码片段，用于定义0~N条Java语句，方法中能够写什么，这里面就能放什么；</li>
+<li><code>&lt;%=  %&gt;</code>：Java 表达式，用于输出一条表达式或变量的结果。<code>response.getWriter().print()</code> 方法中能够写什么，这里面就能够写什么；</li>
+<li><code>&lt;%! … %&gt;</code> ：声明，用来创建类的成员变量和成员方法，Java类中能够写什么，这里面就能够写什么，要注意的是，里面的内容不在<code>_jspService()</code> 方法之内，直接被JSP转化后的类体包含。</li>
+</ol>
+<p>在<code>&lt;%  %&gt;</code> 和 <code>&lt;%= %&gt;</code> 脚本中定义的Java 代码都会放在JSP 的 <code>_jspService()</code> 方法中（实际上就是Servlet中的<code>service</code> 方法），而<code>&lt;%! %&gt;</code> 脚本中定义的却会放到生成类的成员位置的。</p>
+<h2 id="Spring3"><a href="#Spring3" class="headerlink" title="Spring3"></a>Spring3</h2><p>spring存在的意义是因为Java不够灵活。</p>
+<ol>
+<li>Spring通过xml来增强Java的灵活性，减少因配置更改导致的重新编译需求；</li>
+<li>Spring支持面向切面编程（也就是Python中的装饰器），方便进行拦截；</li>
+<li>同样，通过AOP，可以管理数据库连接，以及事务回滚等等；</li>
+<li>此外，Spring还提供了一系列工具包，如果JDBC连接；SpringMVC的web框架；</li>
+<li>良好的可扩展性，可以方便的与其他JavaEE框架结合使用；</li>
+</ol>
+<p>简单来说，Spring通过XML定义了一套新的语言，该语言能被无缝整合到Java程序中。</p>
+<h3 id="IoC"><a href="#IoC" class="headerlink" title="IoC"></a>IoC</h3><p>所谓的依赖反转。</p>
+<p>按着HTTP的请求应答模型，正常情况下，Tomcat等web服务器就请求直接塞给servlet，获得应答返回给客户端。但是Spring为了增强灵活性，在这里加了一层，也即是所谓的“容器”。</p>
+<p>这个容器（BeanFactory）本质上就是对象的托管工厂，根据请求容器创建对象（Bean），并进行一系列的注入等操作，并进行对象的生命周期管理。对于web而言显然Servlet被包含在这些Bean中。</p>
+<p>初始化的流程是可配置化的，默认在一系列xml配置文件中。</p>
+<h3 id="一般流程"><a href="#一般流程" class="headerlink" title="一般流程"></a>一般流程</h3><p>Spring是按着接口进行类的管理的，一般情况下，需要有一个接口类（假设叫<code>HelloApi</code>）。</p>
+<p>一个实现了个该接口的普通类（假设就叫<code>HelloImpl</code>）。</p>
+<p>在spring对应的xml中配置bean，大致如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"hello"</span> <span class="attr">class</span>=<span class="string">"cn.javass.spring.chapter2.helloworld.HelloImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>id</code>是组件的名字，最后：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloTest</span> </span>&#123;</span><br><span class="line">       <span class="meta">@Test</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testHelloWorld</span><span class="params">()</span> </span>&#123;</span><br><span class="line">             <span class="comment">//1、读取配置文件实例化一个IoC容器</span></span><br><span class="line">             ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"helloworld.xml"</span>);</span><br><span class="line">             <span class="comment">//2、从容器中获取Bean，注意此处完全“面向接口编程，而不是面向实现”</span></span><br><span class="line">              HelloApi helloApi = context.getBean(<span class="string">"hello"</span>, HelloApi.class);</span><br><span class="line">              <span class="comment">//3、执行业务逻辑</span></span><br><span class="line">              helloApi.sayHello();</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用容器读取<code>xml</code>配置文件，然后通过名字查找Bean，利用反射创建对应的实例（生成的是接口的实例）。</p>
+<p>上文中的<code>ApplicationContext</code>是<code>BeanFactory</code>的子类，Spring针对不同的场景内置了大量不同的Bean工厂，以适应不同的场景。</p>
+<p>如果构造器有参数，可以在xml的<code>bean</code>的结点中放入<code>constructor</code>结点，进行参数注入。</p>
+<p>除了普通类以外，Bean还可以作用于静态/普通工厂类。只是xml中的配置文件项略有不同而已。</p>
+<p>在初始化（生成对象）后，还可以通过<code>property</code>结点注入属性（setter）.</p>
+<p>如果想要使用<code>Bean</code>技术，必须遵从其命名规范，不然找不到对应的方法/对象。如下：</p>
+<ul>
+<li>该类必须是一个普通Java类（POJO），不受Java规范外其他规范约束；</li>
+<li>该类必须要有公共的无参构造器，如public HelloImpl4() {}；</li>
+<li>属性为private访问级别，不建议public，如private String message;</li>
+<li>属性必要时通过一组setter（修改器）和getter（访问器）方法来访问；</li>
+<li>setter方法，以“set” 开头，后跟首字母大写的属性名，如<code>setMesssage</code>,简单属性一般只有一个方法参数，方法返回值通常为<code>void</code>;</li>
+<li>getter方法，一般属性以“get”开头，对于boolean类型一般以“is”开头，后跟首字母大写的属性名，如<code>getMesssage</code>，<code>isOk</code>；</li>
+<li>还有一些其他特殊情况，比如属性有连续两个大写字母开头，如“URL”,则setter/getter方法为：<code>setURL</code>和<code>getURL</code>，其他一些特殊情况请参看“Java Bean”命名规范。</li>
+</ul>
+<p>得益于xml的强大，可以注入的数据类型，除了基本类型外， 还有<code>list</code>、<code>set</code>和<code>map</code>等集合类，甚至可以引用其他Bean.</p>
+<h3 id="bean-xml语法"><a href="#bean-xml语法" class="headerlink" title="bean xml语法"></a>bean xml语法</h3><ol>
+<li>首先使用<code>&lt;bean&gt;</code>构建一个bean，指定<code>id</code>（全局唯一）和<code>class</code>。如果该bean对应的类需要使用静态工厂方法，使用<code>factory-method=&quot;xxxx&quot;</code>属性；如果需要实例工厂方法，则必须在前面先声明工厂类的bean，然后在这里指定<code>factory-bean</code>；bean的scope分为两类：<code>prototype</code>和<code>singleton</code>。显然单例的bean全局只有一个，原型的则每次产生新的。</li>
+<li>使用<code>&lt;constructor-arg&gt;</code>调用构造器进行初始化，可以使用<code>index</code>属性指定构造器参数次序，或者直接用<code>type</code>按参数类型进行匹配（就像正常调用重载方法时那样），或者用<code>name</code>指定参数的名字。使用<code>value</code>注入需要的值。</li>
+<li>使用<code>&lt;property&gt;</code>调用对应的<code>setter</code>来注入各种属性。如果注入的是常量，直接用<code>value</code>赋值就行；如果注入的是其他bean的<strong>名字</strong>，使用<code>idref bean=&#39;xxx&#39;</code>；如果注入的是其他bean对应类的实例，需要使用<code>ref bean=&#39;xxx&#39;</code>;还可以注入<code>list</code>,<code>set</code>, <code>array</code>和<code>map</code>，甚至<code>prop</code>(<code>java.util.Properties</code>) ；如果想要注入<code>null</code>，必须使用<code>&lt;null/&gt;</code>标签，直接写当然是字符串。</li>
+<li>使用<code>lazy-init</code>可以对bean进行延迟初始化；</li>
+<li>使用<code>depends-on</code>指定依赖的bean来影响初始化/销毁的顺序；</li>
+<li>自动装配：为了减少配置文件的长度，spring支持自动装配。简单来说可以根据参数的名称自动找到对应bean的名称；</li>
+<li>此外，spring还支持method注入。这个主要是为了解决单例bean调用原型bean导致的一系列问题；</li>
+</ol>
+<h3 id="Resource接口"><a href="#Resource接口" class="headerlink" title="Resource接口"></a>Resource接口</h3><p>spring为外部资源抽象了一系列的接口</p>
+<h3 id="Spring表达式"><a href="#Spring表达式" class="headerlink" title="Spring表达式"></a>Spring表达式</h3><p>为Java语言提供了<code>eval</code>功能，类型动态语言的功能<br>在bean中可以使用SpEL，格式为<code>#{}</code>，表达式放在大括号中<br>可以在Java语言中使用<code>@Value(#{})</code>注释进行注入</p>
+<h3 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h3><p>Spring是面向接口编程的，这是装饰器模式的基础。</p>
+<p>所谓装饰器模式，指的是对于一个<code>HelloApi</code>接口，定义一个装饰器也实现<code>HelloApi</code>接口，其构造器也是需要一个<code>HelloApi</code>对象。这样，我们将需要装饰的对象传入装饰器对象，通过调用装饰器的接口方法来实现装饰。</p>
+<p>Spring通过注解/xml的方式完成装饰器的注入，就是所谓的AOP. 使用流程：</p>
+<ol>
+<li>写一个切面类；</li>
+<li>定义连接点（具体什么场景下在哪里被调用），切入点表达式形如<code>execution(* com.spring.service.*.*(..))</code>，匹配语法：<code>*</code>表示一级上的任意字符，<code>..</code>表示任意级的任意字符，<code>+</code>指定类型的子类型；这里的语法很复杂，可以参见<a href="http://blog.csdn.net/wangpeng047/article/details/8556800" target="_blank" rel="noopener">这里</a>；</li>
+<li>定义通知的回调方法</li>
+<li>通知顺序：前置通知→环绕通知连接点之前→连接点执行→环绕通知连接点之后→返回通知→后通知；如果发生异常：异常通知→后通知</li>
+</ol>
+<h3 id="JDBC支持"><a href="#JDBC支持" class="headerlink" title="JDBC支持"></a>JDBC支持</h3><p>Spring扩展了原生的jdbc支持，但是一般情况下我们在生产环境会和ORM结合使用</p>
+<h3 id="简化配置"><a href="#简化配置" class="headerlink" title="简化配置"></a>简化配置</h3><p>一般使用注释来简化配置文件，常见注释包括：</p>
+<ol>
+<li>Required：必须注入的属性，修饰setter；</li>
+<li>Autowired： 自动装配，可以后面跟上<code>(required=true)</code>，自动装配有点坑爹，谨慎使用</li>
+</ol>
+<h2 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h2><p>Spring MVC是一套常见的MVC web框架，主要涉及了几个层次……</p>
+<h2 id="Apache-Shiro"><a href="#Apache-Shiro" class="headerlink" title="Apache Shiro"></a>Apache Shiro</h2><p>一个权限认证系统</p>
+<h2 id="SiteMeth"><a href="#SiteMeth" class="headerlink" title="SiteMeth"></a>SiteMeth</h2><p>一个服务端渲染的页面装饰框架</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet"><span class="toc-number">1.</span> <span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#结构概览"><span class="toc-number">1.1.</span> <span class="toc-text">结构概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码书写"><span class="toc-number">1.2.</span> <span class="toc-text">代码书写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理流程"><span class="toc-number">1.3.</span> <span class="toc-text">处理流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSP"><span class="toc-number">1.4.</span> <span class="toc-text">JSP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring3"><span class="toc-number">2.</span> <span class="toc-text">Spring3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IoC"><span class="toc-number">2.1.</span> <span class="toc-text">IoC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一般流程"><span class="toc-number">2.2.</span> <span class="toc-text">一般流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bean-xml语法"><span class="toc-number">2.3.</span> <span class="toc-text">bean xml语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Resource接口"><span class="toc-number">2.4.</span> <span class="toc-text">Resource接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring表达式"><span class="toc-number">2.5.</span> <span class="toc-text">Spring表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP"><span class="toc-number">2.6.</span> <span class="toc-text">AOP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDBC支持"><span class="toc-number">2.7.</span> <span class="toc-text">JDBC支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#简化配置"><span class="toc-number">2.8.</span> <span class="toc-text">简化配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-MVC"><span class="toc-number">3.</span> <span class="toc-text">Spring MVC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-Shiro"><span class="toc-number">4.</span> <span class="toc-text">Apache Shiro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SiteMeth"><span class="toc-number">5.</span> <span class="toc-text">SiteMeth</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/java web基础学习/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&text=java web基础学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&is_video=false&description=java web基础学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=java web基础学习&body=Check out this article: http://YiuTerran.github.io/2017/06/12/java web基础学习/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&title=java web基础学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/java web基础学习/&name=java web基础学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/java web基础学习/&t=java web基础学习"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

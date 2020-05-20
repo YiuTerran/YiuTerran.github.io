@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中来实现">
+<meta name="keywords" content="cometd,jetty,java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CometD源码学习[0]">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中来实现">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg">
+<meta property="og:image" content="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg">
+<meta property="og:updated_time" content="2017-06-12T16:24:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CometD源码学习[0]">
+<meta name="twitter:description" content="jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中来实现">
+<meta name="twitter:image" content="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>CometD源码学习[0]</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/cometd使用haproxy做负载均衡的配置指南/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/06/12/CometD源码学习_2/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&text=CometD源码学习[0]"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&is_video=false&description=CometD源码学习[0]"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CometD源码学习[0]&body=Check out this article: http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&name=CometD源码学习[0]&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&t=CometD源码学习[0]"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jetty生命周期"><span class="toc-number">1.</span> <span class="toc-text">jetty生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Handler"><span class="toc-number">1.1.</span> <span class="toc-text">Handler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#prestart"><span class="toc-number">1.2.</span> <span class="toc-text">prestart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动"><span class="toc-number">1.3.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web服务器"><span class="toc-number">1.4.</span> <span class="toc-text">web服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#BIO"><span class="toc-number">1.4.1.</span> <span class="toc-text">BIO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NIO"><span class="toc-number">1.4.2.</span> <span class="toc-text">NIO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AIO"><span class="toc-number">1.5.</span> <span class="toc-text">AIO</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CometD源码学习[0]
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:47:25.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/cometd/">cometd</a>, <a class="tag-link" href="/tags/java/">java</a>, <a class="tag-link" href="/tags/jetty/">jetty</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
+<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
+<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
+<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
+<blockquote>
+<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
+<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
+<ol>
+<li>创建队列线程池，用于处理请求；</li>
+<li>创建ServerSocket用于准备接受请求；</li>
+<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
+<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
+</ol>
+</blockquote>
+<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
+<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
+<ol>
+<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
+<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
+<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
+<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
+<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
+<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
+<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
+</ol>
+<p>NIO的一般工作原理用代码描述如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure></p>
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
+<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
+<hr>
+<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jetty生命周期"><span class="toc-number">1.</span> <span class="toc-text">jetty生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Handler"><span class="toc-number">1.1.</span> <span class="toc-text">Handler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#prestart"><span class="toc-number">1.2.</span> <span class="toc-text">prestart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动"><span class="toc-number">1.3.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web服务器"><span class="toc-number">1.4.</span> <span class="toc-text">web服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#BIO"><span class="toc-number">1.4.1.</span> <span class="toc-text">BIO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NIO"><span class="toc-number">1.4.2.</span> <span class="toc-text">NIO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AIO"><span class="toc-number">1.5.</span> <span class="toc-text">AIO</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&text=CometD源码学习[0]"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&is_video=false&description=CometD源码学习[0]"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CometD源码学习[0]&body=Check out this article: http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&title=CometD源码学习[0]"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&name=CometD源码学习[0]&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_1/&t=CometD源码学习[0]"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="我打算学习但是最终没能完全理解的语言大概有三门：因为复杂性而放弃的Scala和Rust，因为难以理解而放弃的Haskell. 学习过C++以后，我对太过复杂的语言一项是敬而远之的，这一点暂时不会有变化，以后在工作中如果遇到必须使用Scala的时候我还是会认真学习。但是对于Haskell还是有些不甘心。虽然这是一门号称不看论文很难理解的语言，我还是想尽力学习一下。 Haskell相对于其他语言，变化">
+<meta name="keywords" content="FP,Haskell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="重拾Haskell">
+<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/重拾Haskell/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="我打算学习但是最终没能完全理解的语言大概有三门：因为复杂性而放弃的Scala和Rust，因为难以理解而放弃的Haskell. 学习过C++以后，我对太过复杂的语言一项是敬而远之的，这一点暂时不会有变化，以后在工作中如果遇到必须使用Scala的时候我还是会认真学习。但是对于Haskell还是有些不甘心。虽然这是一门号称不看论文很难理解的语言，我还是想尽力学习一下。 Haskell相对于其他语言，变化">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-06-12T16:21:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="重拾Haskell">
+<meta name="twitter:description" content="我打算学习但是最终没能完全理解的语言大概有三门：因为复杂性而放弃的Scala和Rust，因为难以理解而放弃的Haskell. 学习过C++以后，我对太过复杂的语言一项是敬而远之的，这一点暂时不会有变化，以后在工作中如果遇到必须使用Scala的时候我还是会认真学习。但是对于Haskell还是有些不甘心。虽然这是一门号称不看论文很难理解的语言，我还是想尽力学习一下。 Haskell相对于其他语言，变化">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>重拾Haskell</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">    
+      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/12/java并发编程实战读书笔记/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/重拾Haskell/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&text=重拾Haskell"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&is_video=false&description=重拾Haskell"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=重拾Haskell&body=Check out this article: http://YiuTerran.github.io/2017/06/12/重拾Haskell/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&name=重拾Haskell&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&t=重拾Haskell"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#优化显示"><span class="toc-number">1.</span> <span class="toc-text">优化显示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础"><span class="toc-number">2.</span> <span class="toc-text">基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#语法"><span class="toc-number">2.1.</span> <span class="toc-text">语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#list"><span class="toc-number">2.1.1.</span> <span class="toc-text">list</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tuple"><span class="toc-number">2.2.</span> <span class="toc-text">tuple</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#types"><span class="toc-number">2.3.</span> <span class="toc-text">types</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#function"><span class="toc-number">2.4.</span> <span class="toc-text">function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lambda"><span class="toc-number">2.5.</span> <span class="toc-text">lambda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模块"><span class="toc-number">2.6.</span> <span class="toc-text">模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义结构"><span class="toc-number">2.7.</span> <span class="toc-text">自定义结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#typeclass"><span class="toc-number">2.8.</span> <span class="toc-text">typeclass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误"><span class="toc-number">2.9.</span> <span class="toc-text">错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缩进"><span class="toc-number">2.10.</span> <span class="toc-text">缩进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节"><span class="toc-number">2.11.</span> <span class="toc-text">节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#As模式"><span class="toc-number">2.12.</span> <span class="toc-text">As模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#折叠"><span class="toc-number">2.13.</span> <span class="toc-text">折叠</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#module"><span class="toc-number">2.14.</span> <span class="toc-text">module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#build"><span class="toc-number">2.15.</span> <span class="toc-text">build</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IO"><span class="toc-number">3.</span> <span class="toc-text">IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据结构"><span class="toc-number">5.</span> <span class="toc-text">数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-number">5.1.</span> <span class="toc-text">字典</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通用序列"><span class="toc-number">6.</span> <span class="toc-text">通用序列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Functor（函子）"><span class="toc-number">7.</span> <span class="toc-text">Functor（函子）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#幺半群"><span class="toc-number">8.</span> <span class="toc-text">幺半群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Monads"><span class="toc-number">9.</span> <span class="toc-text">Monads</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Monad变换器"><span class="toc-number">10.</span> <span class="toc-text">Monad变换器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#错误处理"><span class="toc-number">11.</span> <span class="toc-text">错误处理</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        重拾Haskell
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">无心呢喃</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-06-12T15:46:39.000Z" itemprop="datePublished">2017-06-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/FP/">FP</a>, <a class="tag-link" href="/tags/Haskell/">Haskell</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>我打算学习但是最终没能完全理解的语言大概有三门：因为复杂性而放弃的Scala和Rust，因为难以理解而放弃的Haskell. 学习过C++以后，我对太过复杂的语言一项是敬而远之的，这一点暂时不会有变化，以后在工作中如果遇到必须使用Scala的时候我还是会认真学习。但是对于Haskell还是有些不甘心。虽然这是一门号称不看论文很难理解的语言，我还是想尽力学习一下。</p>
+<p>Haskell相对于其他语言，变化的速度非常快，现在最新的平台是<code>stack</code>，连<code>Haskell Platform</code>也过时了（有种web前端的感觉），不过其核心理念还是比较稳定的，以前从<code>Haskell趣学指南</code>中学习的东西，现在也大多还能用。</p>
+<p>在ubuntu中添加官方PPA, <code>sudo apt-get install stack</code>以后，使用<code>stack setup</code>安装环境，使用<code>stack ghci</code>打开交互式环境，然后就可以愉悦的学习了。目前最的版本是ghc-8.0.1；</p>
+<h2 id="优化显示"><a href="#优化显示" class="headerlink" title="优化显示"></a>优化显示</h2><p>默认的stack使用起来不是很方便，有些地方可以优化一二。<br>首先编辑<code>~/.stack/config.yaml</code>，删掉空白的<code>{}</code>，加入以下内容：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">templates:</span></span><br><span class="line"><span class="attr">    params:</span></span><br><span class="line"><span class="attr">        author-email:</span> <span class="string">yaotairan@gmail.com</span></span><br><span class="line"><span class="attr">        author-name:</span> <span class="string">tryao</span></span><br><span class="line"><span class="attr">        category:</span> <span class="string">Personal</span></span><br><span class="line"><span class="attr">        copyright:</span> <span class="string">'Copyright (c) TairanYao'</span></span><br><span class="line"><span class="attr">        github-username:</span> <span class="string">YiuTerran</span></span><br><span class="line"><span class="attr">package-indices:</span></span><br><span class="line"><span class="attr">- name:</span> <span class="string">Tsinghua</span></span><br><span class="line"><span class="attr">  download-prefix:</span> <span class="attr">http://mirrors.tuna.tsinghua.edu.cn/hackage/package/</span></span><br><span class="line"><span class="attr">  http:</span> <span class="attr">http://mirrors.tuna.tsinghua.edu.cn/hackage/00-index.tar.gz</span></span><br></pre></td></tr></table></figure></p>
+<p>上面的email和名字之类的需要换成自己的，后面加了清华的源，加快<code>cabal</code>的下载速度。</p>
+<p>编辑<code>~/.ghci</code>加入以下内容：<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="keyword">qualified</span> IPPrint</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">qualified</span> Language.Haskell.HsColour <span class="keyword">as</span> HsColour</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">qualified</span> Language.Haskell.HsColour.Colourise <span class="keyword">as</span> HsColour</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">qualified</span> Language.Haskell.HsColour.Output <span class="keyword">as</span> HsColour</span><br><span class="line"></span><br><span class="line"><span class="title">let</span> myColourPrefs = <span class="type">HsColour</span>.defaultColourPrefs &#123; <span class="type">HsColour</span>.conid = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">Yellow</span>, <span class="type">HsColour</span>.<span class="type">Bold</span>], <span class="type">HsColour</span>.conop = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">Yellow</span>], <span class="type">HsColour</span>.string = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">Green</span>], <span class="type">HsColour</span>.char = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">Cyan</span>], <span class="type">HsColour</span>.number = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">Red</span>, <span class="type">HsColour</span>.<span class="type">Bold</span>], <span class="type">HsColour</span>.layout = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">White</span>], <span class="type">HsColour</span>.keyglyph = [<span class="type">HsColour</span>.<span class="type">Foreground</span> <span class="type">HsColour</span>.<span class="type">White</span>] &#125;</span><br><span class="line"></span><br><span class="line"><span class="title">let</span> myPrint = putStrLn . <span class="type">HsColour</span>.hscolour (<span class="type">HsColour</span>.<span class="type">TTYg</span> <span class="type">HsColour</span>.<span class="type">XTerm256Compatible</span>) myColourPrefs <span class="type">False</span> <span class="type">False</span> <span class="string">""</span> <span class="type">False</span> . <span class="type">IPPrint</span>.pshow</span><br><span class="line"></span><br><span class="line">:set -interactive-print=myPrint</span><br><span class="line">:set -<span class="type">XNoMonomorphismRestriction</span></span><br><span class="line">:set prompt <span class="string">"λ "</span></span><br></pre></td></tr></table></figure></p>
+<p>然后在shell里运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libbz2-dev</span><br><span class="line">stack install ipprint hscolour</span><br></pre></td></tr></table></figure></p>
+<p>执行stack安装依赖时，可能会报错，根据提示修正即可.<br>这是给<code>ghci</code>添加语法高亮.</p>
+<p>最后，如果用zsh的话， 可以打开<code>stack</code>插件，方便自动完成. 也可以<code>alias ghci=&#39;stack ghci&#39;</code>. 另外，最好把<code>~/.local/bin</code>加到PATH里面去.</p>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><p>仍然从<a href="http://wiki.jikexueyuan.com/project/haskell-guide/introduction.html" target="_blank" rel="noopener">《Haskell趣学指南指南》</a>这本书开始是比较合适的，虽然内容有些过时，但是基础部分变动应该不大。上次看这本书的时候我还不会python呢，如今js我也驾轻就熟了，看起来应该简单很多了。完成后开始看<a href="http://cnhaskell.com/" target="_blank" rel="noopener">《Real World Haskell》</a>，后者相关习题的个人解答：<a href="https://github.com/YiuTerran/rwh-exercise" target="_blank" rel="noopener">https://github.com/YiuTerran/rwh-exercise</a></p>
+<h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3><p>基本语法大体和普通语言（C系）相似，除了：</p>
+<ul>
+<li>不等于符号是 <code>/=</code>，和数学中的$\neq$长的很像</li>
+<li><code>not</code>和python里面一样，但是<code>&amp;&amp;</code>, <code>||</code>和C语言一样</li>
+<li>函数调用使用<strong>空格</strong>，且具有最高优先级</li>
+<li>括号用来保持更高的优先级</li>
+<li><code>if..then..else</code>句式中，<code>else</code>是不可省略的，类似python中的单句<code>if..else</code></li>
+<li>函数不允许首字母大写，按规定，所有首字母大写的都是类型或者类型类</li>
+<li>由于允许操作符重载（自定义），很多符号的定义在不同的包里有不同的意思。如<code>Data.Ratio</code>里面有一堆分数相关的操作，<code>Data.Bits</code>里面则定义了很多位操作</li>
+<li>操作符重载只是一种C++的描述，其实在这里是一种函数（当然<br>在ghci中，使用<code>let</code>定义变量，在脚本中直接赋值即可，变量可以看作是没有参数的函数（名字）。</li>
+</ul>
+<h4 id="list"><a href="#list" class="headerlink" title="list"></a>list</h4><ul>
+<li><code>list</code>和python中的形式大体一致，除了一点：所有元素的类型必须相同。</li>
+<li>将两个列表合并使用<code>++</code>(效率较低）,使用<code>:</code>将元素插入队首，本质上<code>[1, 2, 3]</code>就是<code>1: 2: 3: []</code></li>
+<li>使用<code>!!</code>取下标，越界会报错</li>
+<li>list中的list也必须是同样元素类别（但是不关心长度）</li>
+<li><code>head</code>返回头部（<code>car</code>)，<code>tail</code>返回尾部(<code>cdr</code>)，<code>last</code>返回最后一个元素，<code>init</code>返回除了最后一个元素的列表</li>
+<li>对空的list，以上函数都会报错</li>
+<li>Haskell的string就是<code>[Char]</code></li>
+<li>使用<code>length</code>函数返回list的长度</li>
+<li>使用<code>null</code>函数检测是否为空</li>
+<li>使用<code>reverse</code>函数进行反转</li>
+<li>使用<code>take</code>函数取出队首任意多个元素，超过长度也不会报错，只是返回所有</li>
+<li>使用 <code>drop</code>删除队首任意多个元素</li>
+<li>使用<code>maximum</code>和<code>minimum</code>求出队列中的极值</li>
+<li>使用<code>sum</code>和<code>product</code>求出队列的和,积</li>
+<li>使用<code>elem</code>判断是否是元素，一般用中缀形式表达（类似python中的<code>in</code>）</li>
+<li>range生成使用<code>..</code>，例如[1..20]， step可以在第二个元素中指定，如[10,8..0];字母也可以用；但是不要用浮点数；由于惰性的原因，可以是无限长的range;</li>
+<li>repeat函数用于生成重复序列，类似python中的<code>*</code></li>
+<li>大名鼎鼎的list comprehesion,和python中类似，不同的是形式更加数学化。比如生成1到10的平方，在python中是<code>[k^2 for k in range(1, 10)]</code>，在hs中则是<code>[k^2 | k &lt;- [1..10]]</code>，感觉有点像高中数学吧，哈。后面的条件用逗号隔开表示<code>&amp;&amp;</code></li>
+</ul>
+<h3 id="tuple"><a href="#tuple" class="headerlink" title="tuple"></a>tuple</h3><ul>
+<li>仍然类似python中的tuple，但是：不允许有仅含有一个元素的tuple</li>
+<li>在模式匹配中被大量使用</li>
+<li>tuple的大小是不可改变的，但是类型可以不同</li>
+<li><code>fst</code>, <code>snd</code>分别返回tuple的第一项和第二项，显然仅对<code>pair</code>（二元组）有效；</li>
+<li><code>zip</code>用于使list组成tuple对，类似python</li>
+<li><code>map</code>也类似python</li>
+</ul>
+<h3 id="types"><a href="#types" class="headerlink" title="types"></a>types</h3><ul>
+<li>类型推导最强的语言，显式类型声明<code>::</code>，如<code>a :: Char</code></li>
+<li>在ghci中使用<code>:t</code>判断类型，使用<code>:info</code>查看具体相关</li>
+<li>类型的首字母必须大写</li>
+<li><code>Int</code>是有限的，<code>Integer</code>是无限的</li>
+<li>类型无关的时候，使用小写字母代替，比如<code>[a]</code>表示任意元素组成的list</li>
+<li>typeclass是预定义的类型接口，比如可以相等的类型，必定是<code>Eq</code>的一个实现</li>
+<li>类型约束<code>=&gt;</code>，类似于接口中的<code>where</code>，可以是任意类型，但必须满足。例如 <code>(Eq a)=&gt; a -&gt; a</code></li>
+</ul>
+<h3 id="function"><a href="#function" class="headerlink" title="function"></a>function</h3><p>对于Haskell的纯函数而言，其主要书写格式就是大名鼎鼎的模式匹配，<code>Rust</code>也学习了这套语法。模式匹配其实是将数学按照构造函数进行拆分，能够这么干的主要原因是Haskell是纯函数式语言，没有副作用，变量被赋值后不能够再次修改。</p>
+<ul>
+<li>最好自己写上函数的签名，方便在编译期查错</li>
+<li>对于函数来说，从上到下匹配，允许递归</li>
+<li>对于<code>switch...case</code>类型的句子，使用<code>Guard</code>(<code>|</code>)，如果条件需要计算，在后面使用<code>where</code>（允许多个变量，但是要垂直隔开）</li>
+<li>也可以使用<code>let..in</code>表示中某个作用域中的变量声明</li>
+<li><code>let</code>是一个表达式，而<code>where</code>是一个语法结构，表达式（类似<code>if..then..else</code>）可以放在各种位置</li>
+<li>除了这些以外，<code>case</code>表达式本身也存在，其语法结构是<code>case xx of x -&gt; ...</code>，模式匹配本质上都是这个表达式的语法糖</li>
+<li>使用<code>_</code>可以匹配任意情况</li>
+<li>除了纯函数外，Haskell也有有副作用的函数比如IO，这种函数的书写格式更类似普通命令式语言。</li>
+<li>函数的基本形式是<code>a-&gt;b-&gt;c</code>，箭头连接各个参数，由于函数是柯里化的，所以也可以看做<code>a-&gt;(b-&gt;c)</code>，每个部分是一个<strong>偏函数</strong>，整个被称为<strong>全函数</strong>。如果函数不返回任何东西（在某些语言中被称为过程），这个函数肯定是非纯函数，一般返回<code>()</code>【读作<code>unit</code>】，如<code>IO ()</code></li>
+</ul>
+<h3 id="lambda"><a href="#lambda" class="headerlink" title="lambda"></a>lambda</h3><p>lambda表达式本来就源自FP(lisp)，所以很自然的：<code>\xs -&gt; length xs</code>，不过haskell中用lambda比其他语言应该少很多。</p>
+<p>常用的一些函数：<br><code>fold</code>, <code>fold1</code>, <code>foldr</code>, scan家族类似<br><code>$</code> 符号同样也可以调用函数，但是与空格不同，他具有最低优先级，主要用来减少括号的数量；<br><code>.</code>符号表示右结合的函数，即先算最右边的，然后依次应用左边的函数，右边函数的返回值是左边函数的参数；<br>上面两个符号主要用来做函数组合，简化书写。。</p>
+<h3 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h3><p>熟悉的import语句，不过和python的语法不太像，倒是有点像java.</p>
+<ul>
+<li><code>import Data.List</code> 会导入该模块下的所有函数；</li>
+<li><code>import Data.List (nub, sort)</code>仅导入两个函数</li>
+<li><code>import Data.list hiding (nub)</code> 导入除了nub之外的所有函数</li>
+<li><code>import qualified Data.Map</code> 导入所有函数，但是如果和已加载模块冲突的话，必须使用全引用</li>
+<li>可以在后面加上<code>as x</code>做别名</li>
+</ul>
+<h3 id="自定义结构"><a href="#自定义结构" class="headerlink" title="自定义结构"></a>自定义结构</h3><p>关键字： <code>data</code><br>和其他语言不一样，标准格式很奇怪<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">data</span> <span class="type">BookInfo</span> = <span class="type">Book</span> <span class="type">Int</span> <span class="type">String</span> [<span class="type">String</span>]</span></span><br><span class="line">                                <span class="keyword">deriving</span> (<span class="type">Show</span>)</span><br></pre></td></tr></table></figure></p>
+<p>BookInfo就是类型的名字（类型构造器），Book是值构造器的名字，后面是成员；两者名字可以一致；</p>
+<p>这样访问属性还要写专门的函数（模式匹配），很蛋疼，所以有个惯用法（标准称呼是<strong>记录</strong>）：<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">data</span> <span class="type">BookInfo</span> = <span class="type">BookInfo</span> &#123;</span></span><br><span class="line"><span class="class">    <span class="title">price</span>   :: <span class="type">Int</span>,</span></span><br><span class="line"><span class="class">    <span class="title">author</span>  :: <span class="type">String</span>,</span></span><br><span class="line"><span class="class">    <span class="title">buyer</span>   :: [<span class="type">String</span>]</span></span><br><span class="line"><span class="class">&#125; <span class="keyword">deriving</span> (<span class="title">show</span>)</span></span><br></pre></td></tr></table></figure></p>
+<p>这些成员当然也可以是函数。</p>
+<p>递归定义也是很常见的，比如一个二叉树：<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">data</span> <span class="type">Tree</span> a = <span class="type">Node</span> a (<span class="type">Node</span> <span class="title">a</span>) (<span class="type">Node</span> <span class="title">a</span>)</span></span><br></pre></td></tr></table></figure></p>
+<p>这里a是类型参数。</p>
+<p>关键字<code>type</code>类似C++中的<code>typedef</code>，用于定义类型的别名。</p>
+<p>此外<code>newtype</code>也可以自定结构，不过有很多约束。<code>newtype</code>关键字给现有类型一个不同的身份，因此只能有一个值构造器，并且这个构造器只能有一个字段。</p>
+<p>由<code>data</code>关键字创建的类型在运行时有一个记录开销，如记录某个值是用哪个构造器创建的。而<code>newtype</code>只有一个构造器，所以不需要这个额外开销。这使得它在运行时更省时间和空间。由<code>newtype</code>的构造器只在编译时使用，运行时甚至不存在。</p>
+<h3 id="typeclass"><a href="#typeclass" class="headerlink" title="typeclass"></a>typeclass</h3><p>就是其他语言中的类型类/接口/模板，语法是<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">BasicEq</span> a <span class="keyword">where</span></span></span><br><span class="line">    isEqual:: a -&gt; a -&gt; <span class="type">Bool</span></span><br></pre></td></tr></table></figure></p>
+<p>实例是<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">instance</span> <span class="type">BasicEq</span> bool <span class="keyword">where</span></span></span><br><span class="line">    isEqual <span class="type">True</span> <span class="type">True</span> = <span class="type">True</span></span><br><span class="line">    isEqual <span class="type">False</span> <span class="type">False</span> = <span class="type">True</span></span><br><span class="line">    isEqual _ _ = <span class="type">False</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>常见的Typeclass包括<code>Eq</code>, <code>Ord</code>(可比较), <code>Show</code>(可以转换为字符串), <code>Read</code>可以被<code>String</code>转换(可以用<code>::</code>显式指定类型)，<code>Enum</code>（可以被迭代)，<code>Bounded</code>(有上下限），<code>Num</code>(有数字特征，必须实现<code>Eq</code>和<code>Show</code>)，<code>Integral</code>, <code>Floating</code></li>
+<li><code>fromIntegral</code>可以将整数转换成浮点数（根据后续操作转换）</li>
+<li>默认情况下，Haskell不支持模板特化（重载）。可以通过语言扩展<code>FlexibleInstances</code>取消这个限制。</li>
+<li>扩展<code>OverlappingInstances</code>可以允许重叠实例。</li>
+<li>在文件最前面加上<code>{-# LANGUAGE TypeSynonymInstances, OverlappingInstances #-}</code>即可打开编译器扩展；</li>
+<li>在<code>RWH</code>上面提到了单一同态错误问题，经过我的测试，在最新的(8.0.1)的GHC中这个问题已经不存在了；</li>
+<li>同C++的模板一样，允许多参数类型类（MultiParamTypeClasses），多参数之间可以定义条件约束表明多个参数之间的关系</li>
+<li>多参数类型类比较复杂，谨慎使用</li>
+</ul>
+<h3 id="错误"><a href="#错误" class="headerlink" title="错误"></a>错误</h3><p>使用 error 函数输出错误<br>避免抛出错误，使用<code>Maybe</code>, <code>Just</code>和<code>Nothing</code></p>
+<h3 id="缩进"><a href="#缩进" class="headerlink" title="缩进"></a>缩进</h3><blockquote>
+<p>Haskell 依据缩进来解析代码块。这种用排版来表达逻辑结构的方式通常被称作缩进规则。在源码文件开始的那一行，首个顶级声明或者定义可以从该行的任意一列开始，Haskell 编译器或解释器将记住这个缩进级别，并且随后出现的所有顶级声明也必须使用相同的缩进。<br>let 表达式和 where 从句的规则与此类似。一旦 Haskell 编译器或解释器遇到一个 let 或 where 关键字，就会记住接下来第一个标记（token）的缩进位置。然后如果紧跟着的行是空白行或向右缩进更深，则被视作是前一行的延续。而如果其缩进和前一行相同，则被视作是同一区块内的新的一行。</p>
+</blockquote>
+<p>也可以使用显式语法结构（使用花括弧代替缩进），不过一般不这么做</p>
+<h3 id="节"><a href="#节" class="headerlink" title="节"></a>节</h3><p>节其实是高阶函数的一种形式（语法糖），如<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">test</span> = (+<span class="number">2</span>)</span><br><span class="line">// test <span class="number">3</span> = <span class="number">5</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="As模式"><a href="#As模式" class="headerlink" title="As模式"></a>As模式</h3><blockquote>
+<p>模式 <code>xs@(_:xs&#39;)</code> 被称为 as-模式，它的意思是：如果输入值能匹配 @ 符号右边的模式（这里是 <code>(_:xs&#39;)</code> ），那么就将这个值绑定到 @ 符号左边的变量中（这里是 xs ）。</p>
+</blockquote>
+<p>除了增强可读性外，可以简化代码，减少内存分配</p>
+<h3 id="折叠"><a href="#折叠" class="headerlink" title="折叠"></a>折叠</h3><ul>
+<li><code>foldl</code>，接受一个初始值，一个步进函数，对一个列表进行迭代求职，显然<code>sum = foldl (+) 0</code></li>
+<li><code>foldr</code>，格式同上，从右侧开始折叠。</li>
+</ul>
+<blockquote>
+<p>一种思考 foldr 的方式是，将它看成是对输入列表的一种转换（transform）：它的第一个参数决定了该怎么处理列表的 head 和 tail 部分；而它的第二个参数则决定了，当遇到空列表时，该用什么值来代替这个空列表。</p>
+</blockquote>
+<ul>
+<li>千万不要把 foldl 用在实际使用中，这是因为会发生内存泄露（因为惰性求值的关系</li>
+<li>真正的情况使用的是<code>foldl&#39;</code>，<code>foldr&#39;</code> (Data.List)</li>
+<li><code>foldl</code>的步进函数格式是 <code>step acc x</code>, <code>foldr</code>的则是<code>step x acc</code>，对于list <code>(x:xs)</code>而言，从左折叠第一个元素是<code>x</code>，从右折叠第一个元素是<code>[]</code>；</li>
+</ul>
+<h3 id="module"><a href="#module" class="headerlink" title="module"></a>module</h3><p>module的规定类似java，名字必须和文件名一致，首字母必须大写；<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> SimpleJSON(</span><br><span class="line">    <span class="type">Xxxx</span>,   //导出部分，如果省略则全部导出</span><br><span class="line">) <span class="keyword">where</span></span><br></pre></td></tr></table></figure></p>
+<p>显然入口模块应该是<code>Main.hs</code></p>
+<h3 id="build"><a href="#build" class="headerlink" title="build"></a>build</h3><p>单文件可以用<code>runghc</code>命令运行，相当于脚本；也可以在ghci里面<code>:l</code>外部文件进行测试；<br>编译则需要使用<code>stack ghc</code>命令；</p>
+<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><ul>
+<li>IO是有副作用的（非幂等的），因此Haskell中的IO和非IO函数一般严格分开。</li>
+<li>IO动作可以被创建，赋值和传递到任何地方，但是仅能在另一个IO动作里被执行</li>
+<li><code>&lt;-</code>运算符从I/O中抽出结果并保存到一个变量中</li>
+<li>当有多个动作时，使用<code>do</code>引入代码块</li>
+<li>在<code>do</code>中，使用命令式语言的语法完成一系列操作（赋值用<code>let</code>）</li>
+<li><code>do</code> 代码块中的每一个声明，除了 <code>let</code> ，都要产生一个I/O操作，这个操作在将来被执行（惰性）</li>
+<li>IO相关函数被定义在<code>System.IO</code>中</li>
+<li><code>return</code>的作用和<code>&lt;-</code>相反，将一个纯值包装进IO，可以把IO想象成一个流。<code>return</code>入流后，将来可以通过<code>-&gt;</code>取出来赋值；</li>
+<li>除了普通IO以外，haskell还有自己特色的惰性IO，<code>hGetContents</code>就是惰性的</li>
+<li>除了<code>openFile</code>和<code>hClose</code>外，使用<code>readFile</code>也可以，同时可以避免忘记关掉<code>hClose</code>的问题</li>
+<li>对于指定的模式，比如打开文件流，做一些变化，再输出到流，可以用<code>interact</code></li>
+<li>IO与普通函数的联系通过<code>Monad</code>实现，或者说IO是一种Monad</li>
+<li>命名习惯： <code>mapM</code>返回一个IO动作，<code>mapM_</code>完成IO，但是不返回任何值，<code>M</code>的后缀表示<code>Monad</code></li>
+<li><code>map</code>不能执行操作（纯函数），这就是<code>mapM</code>存在的意义</li>
+<li><code>forM</code>意思与<code>mapM</code>相反，第一个参数是列表，第二个是动作，存在的意义是更干净的代码</li>
+<li><code>do</code>代码块实际上是把操作连接在一起的快捷记号，可以用<code>&gt;&gt;</code>和<code>&gt;&gt;=</code>代替</li>
+<li><code>&gt;&gt;</code> 运算符把两个操作串联在一起：第一个操作先运行，然后是第二个，整个计算的结果是最后运算的结果</li>
+<li><code>&gt;&gt;=</code> 运算符运行一个操作，然后把它的结果传递给一个返回操作的函数。类似linux 管道操作</li>
+<li>类似地，还有<code>=&lt;&lt;</code>运算符，将右边的动作传递给左边</li>
+<li>换句话说，<code>do</code>块的最后一个操作的值就是整个<code>do</code>的值。如果以<code>return</code>结尾，返回一个<code>Monad</code>，比如整个函数的返回值是<code>IO()</code>，最后多半就是以<code>return</code>结尾。这种函数的返回值只能在另一个Monad函数中重新读出，不能直接用于任何操作。</li>
+<li>Haskell中的纯代码不能运行那些能触发副作用的命令。纯函数不能修改全局变量，请求I/O，或者运行一条关闭系统的命令</li>
+</ul>
+<h2 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h2><ul>
+<li>默认的String类型速度堪忧，可以用<code>bytestring</code>库代替。<code>Data.ByteString</code>和<code>Data.ByteString.Lazy</code>分别代表了惰性和普通模式的情况；</li>
+<li>不要在类型定义上加类型约束，在需要它们的函数上加；</li>
+</ul>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>除了<code>List</code>和<code>Tuple</code>, Haskell自带了其他的一些常见的数据结构；</p>
+<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><ul>
+<li>关联列表也可以当作字典用，但是效率比较低。使用<code>lookup</code>可以在关联列表中查询数据；</li>
+<li><code>Data.Map</code>，不同于大部分语言，这个<code>Map</code>是用平衡二叉树实现的，而不是哈希表。这和haskell的不可变性有关；</li>
+<li>常用函数：<code>fromList</code>(通过关联列表转换)，<code>insert</code>（插入新值返回新的<code>Map</code>）</li>
+<li>虽然是二叉树实现的，这个<code>Map</code>仍然是无序的（有点奇怪）</li>
+</ul>
+<h2 id="通用序列"><a href="#通用序列" class="headerlink" title="通用序列"></a>通用序列</h2><p><code>Data.Sequence</code>提供了比默认<code>list</code>更好的效率</p>
+<ul>
+<li>使用<code>fromList</code>创建，或者用<code>empty</code>和<code>singleton</code>函数创建</li>
+<li>使用<code>|&gt;</code>, <code>&lt;|</code>和<code>&gt;&lt;</code> 添加元素，箭头指向被添加的元素</li>
+<li>使用<code>Foldable.toList</code>将<code>Sequence</code>转回list</li>
+</ul>
+<h2 id="Functor（函子）"><a href="#Functor（函子）" class="headerlink" title="Functor（函子）"></a>Functor（函子）</h2><p>对于一个递归的数据结构，对于应用于其上的函数也很可能是同构递归的。书中的例子是将一棵字符串树转变为包含字符串长度的树，也就是说，树的结构不变，但是元素变成长度：</p>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">treeLengths</span>:: <span class="type">Tree</span> -&gt; <span class="type">Tree</span></span><br><span class="line"><span class="title">treeLengths</span> (<span class="type">Leaf</span> s) = <span class="type">Leaf</span> (treeLengths s)</span><br><span class="line"><span class="title">treeLengths</span> (<span class="type">Node</span> l r) = <span class="type">Node</span> (treeLengths l) (treeLengths r)</span><br></pre></td></tr></table></figure>
+<p>这种能够同构映射的，满足类型类<code>Functor</code>，映射函数即<code>fmap</code>：</p>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">Functor</span> f <span class="keyword">where</span></span></span><br><span class="line">    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</span><br></pre></td></tr></table></figure>
+<p><code>Functor</code>是非常重要的一类class，有几个基本原则进行约束。首先，<code>fmap id</code>必须返回相同的值，其次，<code>Functor</code>必须是可组合的，换句话说，<code>fmap a . fmap b</code> == <code>fmap (a . b)</code>应该成立。</p>
+<p>编译器不会检查这些规则，程序员需要自己保证这些规则成立。这些规则是函子在范畴论中的数学约束。</p>
+<h2 id="幺半群"><a href="#幺半群" class="headerlink" title="幺半群"></a>幺半群</h2><p>在范畴论中，有一类简单的抽象结构被称为幺半群。许多数学结构都是幺半群，因为成为幺半群的要求非常低。 一个结构只要满足两个性质便可称为幺半群：</p>
+<ul>
+<li>一个满足结合律的二元操作符。我们称之为 <code>(*)</code>：表达式 <code>a * (b * c)</code> 和 <code>(a * b) * c</code> 结果必须相同。</li>
+<li>一个单位元素。我们称之为 <code>e</code>，它必须遵守两条法则：<code>a * e == a</code> 和 <code>e * a == a</code>。</li>
+</ul>
+<p>即：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class Monoid a where</span><br><span class="line">    mempty  :: a                -- the identity</span><br><span class="line">    mappend :: a -&gt; a -&gt; a      -- associative binary operator</span><br></pre></td></tr></table></figure></p>
+<p>如果我们真的需要在同一个类型上实现多个 Monoid 实例，我们可以用 newtype 创建不同的类型来达到目的。</p>
+<h2 id="Monads"><a href="#Monads" class="headerlink" title="Monads"></a>Monads</h2><p><code>Monad</code>（单子）是Haskell最难理解的东西之一，这个概念和上文中的幺半群有关，<a href="http://jiyinyiyong.github.io/monads-in-pictures/" target="_blank" rel="noopener">这里</a>有一些辅助理解的漫画。</p>
+<p>一个Monad由以下几个构造元素：</p>
+<ul>
+<li>一个类型构造器 m</li>
+<li>一个用于把某个函数的输出串联到另外一个函数输入上的函数，它的类型是 <code>m a -&gt; (a -&gt; m b) -&gt; m b</code></li>
+<li>一个类型为 <code>a -&gt; m a</code> 的函数，它把普通值注入到调用链里面，也就是说，它把类型 a 用类型构造器 m 包装起来。</li>
+</ul>
+<p>标准的monad定义为：<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">Monad</span> m <span class="keyword">where</span></span></span><br><span class="line">    <span class="comment">-- chain</span></span><br><span class="line">    (&gt;&gt;=)  :: m a -&gt; (a -&gt; m b) -&gt; m b</span><br><span class="line">    <span class="comment">-- inject</span></span><br><span class="line">    return :: a -&gt; m a</span><br></pre></td></tr></table></figure></p>
+<p>显然<code>&gt;&gt;=</code>就是串联函数，<code>return</code>是注入函数（IO monad就是把普通值放入IO），类型构造器就是<code>m</code>本身。除此之外，还有<code>&gt;&gt;</code>函数用户忽略返回值的过程（即按步骤一步步来），以及<code>fail</code>函数接受一个错误消息让整个调用链失败（默认使用<code>error</code>函数）。</p>
+<p>下面是具体的解析：</p>
+<ul>
+<li>如漫画里所述，单子、函子、态射都是对普通值一种包装(context)，由于haskell里值是不可变的，所以都可以重新用构造器进行匹配解析。</li>
+<li>对于函子，是这样一种类型类（接口），存在<code>fmap</code>函数，可以让让普通函数与该类型类的实例进行运算，最简单的来讲<code>fmap (+3) (Just 5)</code>应该是<code>Just 8</code>；函子的中缀形式是<code>&lt;$&gt;</code>；</li>
+<li>对于普通的函子，<code>fmap</code>仅能将函数应用于被包装的数据。对于<code>Applicative</code>这种，则可以将函数应用于被包装的函数。<code>import Control.Applicative</code>以后，可以使用<code>(Just (+3)) &lt;*&gt; (Just (+5))</code>，这将会生成一个<code>Just (+8)</code>的函数；这是因为函数也可以是函子的实例。因为函子的约束只有<code>可以应用fmap</code>这一个而已.</li>
+<li>单子与上面的两个函子很类似，单子主要定义了<code>&gt;&gt;=</code>（bind）和<code>return</code>这两个函数，前者用于连接包装值和接受普通值作为参数的函数，该函数返回一个包装值。换句话说，Monad定义了一种行为，如何将包装值分解为普通值行为，最后再返回包装值。也就是<code>M a -&gt; (a -&gt; M b) -&gt; M b</code>.</li>
+<li>单子的<code>return</code>其实就是将任意普通值包装起来；</li>
+<li>有了上面两个性质，Monad就可以类似管道一样将普通函数串接起来使用了；</li>
+</ul>
+<hr>
+<ul>
+<li><p><code>Monad</code> class里面没有提供任何函数可以使一个<code>monadic</code>的值还原成一个普通值，这需要写代码的人自己定义。</p>
+</li>
+<li><p>我们经常需要将数据从<code>Monad</code>中取出来，然后使用纯函数进行计算，最后再用原来的类型构造器重新包围这个计算的结果,这种需求被称为<code>lifting</code>.对于<code>Monad</code>而言，已经定义了<code>&gt;&gt;=</code>和<code>return</code>，所以很容易得出：</p>
+</li>
+</ul>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">liftM</span> :: (<span class="type">Monad</span> m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b</span><br><span class="line"><span class="title">liftM</span> f m = m &gt;&gt;= \i -&gt;</span><br><span class="line">    return (f i)</span><br></pre></td></tr></table></figure>
+<p>该函数被定义在<code>Control.Monad</code>中。比如我们要计算<code>Just (1 + 3)</code>，就可以用<br><figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Just 4</span></span><br><span class="line">( <span class="number">1</span> + ) `liftM` (<span class="type">Just</span> <span class="number">3</span>)</span><br></pre></td></tr></table></figure></p>
+<p>这与 <code>Just 3 &gt;&gt;= \x -&gt; Just (x+1)</code>等价。</p>
+<p>另外，从函子的角度，这个也可以写作<code>(1+) &lt;$&gt; (Just 3)</code></p>
+<p>如果函数<code>f</code>有多余一个参数，<code>Control.Monad</code>中也有对应的<code>liftM2</code>~<code>liftM5</code></p>
+<ul>
+<li>在<code>Control.Monad</code>中定义<code>ap</code>函数，其签名为：<br><code>ap :: Monad m =&gt; m (a -&gt; b) -&gt; m a -&gt; m b</code><br>解读一下：第一个参数是一个被Monad包装的函数，第二个参数是一个普通的Monad值，这个值的类型与第一个参数中被包装的函数的参数相同（很拗口）。我们知道标准库总只定义了几个常见的<code>liftM</code>，如果我们需要大量链式调用，除了<code>&lt;*&gt;</code>外，还可以组合<code>liftM</code>和<code>ap</code>. 举个例子，定义</li>
+</ul>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">fee</span> :: <span class="type">Int</span> -&gt; <span class="type">Int</span> -&gt; <span class="type">Int</span></span><br><span class="line"><span class="title">fee</span> a b = a + b</span><br></pre></td></tr></table></figure>
+<p>那么 <code>liftM fee</code>的类型为：</p>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Monad</span> m =&gt; m <span class="type">Int</span> -&gt; m (<span class="type">Int</span> -&gt; <span class="type">Int</span>)</span><br></pre></td></tr></table></figure>
+<p>显然这个函数的返回值满足<code>ap</code>的参数需求， 所以以下两个表达式相等：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fee `liftM` (Just 1) `ap` (Just 1)</span><br><span class="line">fee `liftM` (Just 1) &lt;*&gt; (Just 1)</span><br><span class="line">liftM2 fee (Just 1) (Just 1)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>join</code>函数也很常用：</li>
+</ul>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">join</span> :: <span class="type">Monad</span> m =&gt; m (m a) -&gt; m a</span><br><span class="line"><span class="title">join</span> x = x &gt;&gt;= id</span><br></pre></td></tr></table></figure>
+<p>用来移除一层Monad，<code>join (Just (Just a))</code>就是<code>Just a</code></p>
+<ul>
+<li>Monad的三个约束（数学意义上），类似Functor，Monad也有一些潜在的约束：<ul>
+<li><code>return x &gt;&gt;= f</code> == <code>f x</code></li>
+<li><code>m &gt;&gt;= return</code> == <code>m</code></li>
+<li><code>m &gt;&gt;= (\x -&gt; f x &gt;&gt;= g)</code> === <code>(m &gt;&gt;= f) &gt;&gt;= g</code></li>
+</ul>
+</li>
+</ul>
+<p>第三条是结合律，如果我们把一个大的action分解成一系列的子action，只要我们保证子action的顺序，把哪些子action提取出来组合成一个新action对求值结果是没有影响的。</p>
+<ul>
+<li><code>Control.Monad</code>里面定义了<code>MonadPlus</code>，这其实是短路求值。</li>
+</ul>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">Monad</span> m =&gt; <span class="type">MonadPlus</span> m <span class="keyword">where</span></span></span><br><span class="line">    mzero :: m a</span><br><span class="line">    mplus :: m a -&gt; m a -&gt; m a</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">instance</span> <span class="type">MonadPlus</span> [] <span class="keyword">where</span></span></span><br><span class="line">    mzero = []</span><br><span class="line">    mplus = (++)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">instance</span> <span class="type">MonadPlus</span> <span class="type">Maybe</span> <span class="keyword">where</span></span></span><br><span class="line">    mzero = <span class="type">Nothing</span></span><br><span class="line">    <span class="type">Nothing</span> `mplus` ys = ys</span><br><span class="line">    xs `mplus` _ = xs</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>在<code>Control.Monad</code>中定义了标准函数<code>guard</code>：</p>
+<figure class="highlight hs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">guard</span> :: (<span class="type">MonadPlus</span> m) =&gt; <span class="type">Bool</span> -&gt; m()</span><br><span class="line"><span class="title">guard</span> <span class="type">True</span>  = return ()</span><br><span class="line"><span class="title">guard</span> <span class="type">False</span> = mzero</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>Control.Arrow</code>中定义了函数<code>first</code>和<code>second</code>用于将普通函数应用到<code>Pair</code>中去</p>
+</li>
+</ul>
+<h2 id="Monad变换器"><a href="#Monad变换器" class="headerlink" title="Monad变换器"></a>Monad变换器</h2><p>Monad变换器主要用来修改已经存在的Monad，以<code>T</code>结尾。大量Monad变换器进行叠加，就可以得到拥有多种功能的Monad.</p>
+<h2 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h2><p>讨论一些常用的haskell处理方式：<code>Maybe</code>, <code>Either</code>和<code>Exception</code>，一般都使用Monad配合。</p>
+<p>再往后就是一些实际使用的例子了。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#优化显示"><span class="toc-number">1.</span> <span class="toc-text">优化显示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础"><span class="toc-number">2.</span> <span class="toc-text">基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#语法"><span class="toc-number">2.1.</span> <span class="toc-text">语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#list"><span class="toc-number">2.1.1.</span> <span class="toc-text">list</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tuple"><span class="toc-number">2.2.</span> <span class="toc-text">tuple</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#types"><span class="toc-number">2.3.</span> <span class="toc-text">types</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#function"><span class="toc-number">2.4.</span> <span class="toc-text">function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lambda"><span class="toc-number">2.5.</span> <span class="toc-text">lambda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模块"><span class="toc-number">2.6.</span> <span class="toc-text">模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义结构"><span class="toc-number">2.7.</span> <span class="toc-text">自定义结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#typeclass"><span class="toc-number">2.8.</span> <span class="toc-text">typeclass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误"><span class="toc-number">2.9.</span> <span class="toc-text">错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缩进"><span class="toc-number">2.10.</span> <span class="toc-text">缩进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节"><span class="toc-number">2.11.</span> <span class="toc-text">节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#As模式"><span class="toc-number">2.12.</span> <span class="toc-text">As模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#折叠"><span class="toc-number">2.13.</span> <span class="toc-text">折叠</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#module"><span class="toc-number">2.14.</span> <span class="toc-text">module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#build"><span class="toc-number">2.15.</span> <span class="toc-text">build</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IO"><span class="toc-number">3.</span> <span class="toc-text">IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据结构"><span class="toc-number">5.</span> <span class="toc-text">数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-number">5.1.</span> <span class="toc-text">字典</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通用序列"><span class="toc-number">6.</span> <span class="toc-text">通用序列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Functor（函子）"><span class="toc-number">7.</span> <span class="toc-text">Functor（函子）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#幺半群"><span class="toc-number">8.</span> <span class="toc-text">幺半群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Monads"><span class="toc-number">9.</span> <span class="toc-text">Monads</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Monad变换器"><span class="toc-number">10.</span> <span class="toc-text">Monad变换器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#错误处理"><span class="toc-number">11.</span> <span class="toc-text">错误处理</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/重拾Haskell/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&text=重拾Haskell"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&is_video=false&description=重拾Haskell"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=重拾Haskell&body=Check out this article: http://YiuTerran.github.io/2017/06/12/重拾Haskell/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&title=重拾Haskell"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&name=重拾Haskell&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/重拾Haskell/&t=重拾Haskell"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2013-2020
+    tryao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'yiuterran';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+</html>
