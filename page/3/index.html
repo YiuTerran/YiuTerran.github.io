@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang=zh>
+<html>
 <head>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="blog python java js 前端 后端 全栈">
     <meta name="keywords" content="blog python java js 前端 后端 全栈">
 <meta property="og:type" content="website">
 <meta property="og:title" content="无心呢喃">
@@ -15,286 +29,737 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="无心呢喃">
     
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
     
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>无心呢喃</title>
-    <!-- styles -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- persian styles -->
-    
-      <link rel="stylesheet" href="/css/rtl.css">
-    
-    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-    
-    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body class="max-width mx-auto px3 ltr">    
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="content index py4">
-        
-          <header id="header">
-  <a href="/">
-  
-    
-      <div id="logo" style="background-image: url(/images/logo.png);"></div>
-    
-  
-    <div id="title">
-      <h1>无心呢喃</h1>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu"  >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
     </div>
-  </a>
-  <div id="nav">
-    <ul>
-      <li class="icon">
-        <a href="#"><i class="fas fa-bars fa-2x"></i></a>
-      </li>
-       
-        <li><a href="/">首页</a></li>
-       
-        <li><a href="/about/">关于</a></li>
-       
-        <li><a href="/archives/">归档</a></li>
-       
-        <li><a href="/projects_url">项目</a></li>
-       
-        <li><a href="/search/">搜索</a></li>
-      
-    </ul>
-  </div>
-</header>
-
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
         
-        <section id="about">
-  
-  
-    <p>
-      在这里找到我：
-      
-      
-      
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
         
-          <a class="icon" target="_blank" rel="noopener" href="https://github.com/YiuTerran">
-            <i class="fab fa-github"></i><!--
-      ---></a><!--
-    ---><!--
-    --->  
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
         
-      
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
         
-          <a class="icon" target="_blank" rel="noopener" href="https://twitter.com/xxxmonic">
-            <i class="fab fa-twitter"></i><!--
-      ---></a><!--
-    ---><!--
-    --->   
-        
-      
-        
-          <a class="icon" target="_blank" rel="noopener" href="mailto:yaotairan@gmail.com">
-            <i class="fas fa-envelope"></i><!--
-      ---></a><!--
-      ---><!--
-    --->.
-        
-      
-    </p>
-  
-</section>
-
-<section id="writing">
-  <span class="h1"><a href="/archives">文章</a></span>
-  
-  <span class="h2">标签</span>
-  <span class="widget tagcloud">
-    <a href="/tags/FP/" style="font-size: 12px;">FP</a> <a href="/tags/Haskell/" style="font-size: 10px;">Haskell</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/SpringMVC/" style="font-size: 10px;">SpringMVC</a> <a href="/tags/Web/" style="font-size: 10px;">Web</a> <a href="/tags/base/" style="font-size: 12px;">base</a> <a href="/tags/camera/" style="font-size: 10px;">camera</a> <a href="/tags/celery/" style="font-size: 10px;">celery</a> <a href="/tags/cmake/" style="font-size: 10px;">cmake</a> <a href="/tags/cometd/" style="font-size: 16px;">cometd</a> <a href="/tags/concurrent/" style="font-size: 12px;">concurrent</a> <a href="/tags/database/" style="font-size: 10px;">database</a> <a href="/tags/db/" style="font-size: 12px;">db</a> <a href="/tags/design/" style="font-size: 12px;">design</a> <a href="/tags/design-pattern/" style="font-size: 10px;">design_pattern</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/erlang/" style="font-size: 10px;">erlang</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/gc/" style="font-size: 10px;">gc</a> <a href="/tags/go/" style="font-size: 18px;">go</a> <a href="/tags/gradle/" style="font-size: 10px;">gradle</a> <a href="/tags/haproxy/" style="font-size: 10px;">haproxy</a> <a href="/tags/heka/" style="font-size: 14px;">heka</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/jeesite/" style="font-size: 10px;">jeesite</a> <a href="/tags/jetty/" style="font-size: 12px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/jvm/" style="font-size: 10px;">jvm</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/leaf/" style="font-size: 10px;">leaf</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/lua/" style="font-size: 10px;">lua</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/note/" style="font-size: 10px;">note</a> <a href="/tags/oracle/" style="font-size: 10px;">oracle</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/push/" style="font-size: 10px;">push</a> <a href="/tags/python/" style="font-size: 14px;">python</a> <a href="/tags/redis/" style="font-size: 12px;">redis</a> <a href="/tags/reflect/" style="font-size: 10px;">reflect</a> <a href="/tags/sass/" style="font-size: 10px;">sass</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/web/" style="font-size: 14px;">web</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a> <a href="/tags/微服务/" style="font-size: 10px;">微服务</a> <a href="/tags/摄影/" style="font-size: 10px;">摄影</a> <a href="/tags/数学/" style="font-size: 10px;">数学</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/算法/" style="font-size: 10px;">算法</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
-  </span>
-  <span class="h2">最新的文章</span>
-  
-  <ul class="post-list">
-    
-    
-      
-    
-    
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2020-05-19T10:44:31.152Z" itemprop="datePublished">2020-05-19</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class="" href="/2020/05/19/Heka源码解析/">Heka源码解析</a>
-    
-
-
-</span>
-      </li>
-    
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2020-04-29T06:29:20.000Z" itemprop="datePublished">2020-04-29</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class="" href="/2020/04/29/linux无人值守安装镜像制作/">linux无人值守安装镜像制作.md</a>
-    
-
-
-</span>
-      </li>
-    
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2020-02-18T01:53:04.000Z" itemprop="datePublished">2020-02-18</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class="" href="/2020/02/18/mybatis自定义枚举/">mybatis-plus自定义枚举</a>
-    
-
-
-</span>
-      </li>
-    
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2019-12-23T02:48:56.000Z" itemprop="datePublished">2019-12-23</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class="" href="/2019/12/23/gb28181实现调研/">gb28181实现调研</a>
-    
-
-
-</span>
-      </li>
-    
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2019-12-23T01:25:55.000Z" itemprop="datePublished">2019-12-23</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class="" href="/2019/12/23/通用多租户自定义角色权限模型/">通用多租户自定义角色权限模型</a>
-    
-
-
-</span>
-      </li>
-    
-  </ul>
-  
-</section>
-
-
-
-        
-        <footer id="footer">
-  <div class="footer-left">
-    Copyright &copy;
-    
-    
-    2013-2020
-    tryao
-  </div>
-  <div class="footer-right">
-    <nav>
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
         
       </ul>
-    </nav>
+    </div>
   </div>
-</footer>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">无心呢喃</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header index-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">无心呢喃</h1>
+        <h5 class="subtitle">
+            
+                个人技术类文章博客
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+<div class="container body-wrap">
+
+    <ul class="post-list">
+    
+        <li class="post-list-item fade">
+            <article id="post-maven和gradle一些选项"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-26 09:32:23" datetime="2017-06-26T01:32:23.000Z"  itemprop="datePublished">2017-06-26</time>
+
+        
+
+
+        
 
     </div>
-    <!-- styles -->
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
 
-    <!-- jquery -->
-<script src="/lib/jquery/jquery.min.js"></script>
-<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
-<!-- clipboard -->
+    
 
-<script src="/js/main.js"></script>
-<!-- search -->
 
-<!-- Google Analytics -->
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/26/maven和gradle一些选项/">maven和gradle一些选项</a>
+    </h3>
+  
 
-<!-- Baidu Analytics -->
 
-<!-- Disqus Comments -->
 
-    <script type="text/javascript">
-        var disqus_shortname = 'yiuterran';
 
-        (function(){
-            var dsq = document.createElement('script');
-            dsq.type = 'text/javascript';
-            dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        }());
-    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        Java的包依赖系统简单粗暴，就是直接下载jar包，经历了Ant -&gt; Maven -&gt; Gradle这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。
+如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。
+冲突Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排...
+    
+
+        <a href="/2017/06/26/maven和gradle一些选项/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gradle/">gradle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-Bash-on-Ubuntu-on-Windows下载过慢问题的简单解决"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-14 22:54:10" datetime="2017-06-14T14:54:10.000Z"  itemprop="datePublished">2017-06-14</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/14/Bash-on-Ubuntu-on-Windows下载过慢问题的简单解决/">Bash on Ubuntu on Windows下载过慢问题的简单解决</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        经验证，最有效的方法是修改系统DNS为4.2.2.1，其他什么不用做…
+
+    
+
+        <a href="/2017/06/14/Bash-on-Ubuntu-on-Windows下载过慢问题的简单解决/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-jeesite代码解析"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-13 00:46:00" datetime="2017-06-12T16:46:00.000Z"  itemprop="datePublished">2017-06-13</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/13/jeesite代码解析/">jeesite代码解析</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。
+基础知识补充常见Java注解：
+四个元注解包括：
+
+Target: 标示注解使用的位置；
+Retention: 标示...
+    
+
+        <a href="/2017/06/13/jeesite代码解析/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jeesite/">jeesite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-hello-world"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-13 00:43:56" datetime="2017-06-12T16:43:56.000Z"  itemprop="datePublished">2017-06-13</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/13/hello-world/">hello-world</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        最后再折腾一次，把所有的blog迁移到GitHub Pages，以后再也不折腾了ORZ
+
+    
+
+        <a href="/2017/06/13/hello-world/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-java web基础学习"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:50:02" datetime="2017-06-12T15:50:02.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/java web基础学习/">java web基础学习</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。
+Servlet结构概览java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类：
+这是servlet相关的类，这是一个请求——应答模型，...
+    
+
+        <a href="/2017/06/12/java web基础学习/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-lua5.1要点笔记"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:49:06" datetime="2017-06-12T15:49:06.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/lua5.1要点笔记/">lua5.1要点笔记</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        安装sudo apt-get install lua5.1
+lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。
+lua是一门嵌入式...
+    
+
+        <a href="/2017/06/12/lua5.1要点笔记/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heka/">heka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/">lua</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-Go语言学习"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:48:42" datetime="2017-06-12T15:48:42.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/Go语言学习/">Go语言学习</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        update(2019/03/31): 移除了一些过时信息。
+准备工作
+安装 GoLang，直接用官网的安装指南就行；
+设置环境变量GOPATH，这个是用默认包的存放位置，用go get安装的包会存放在这个位置。在~/.zshrc或~/.bashrc里面加入export GOPATH=~/.go，然后在PATH里面加入GOPATH/bin即可；go1.10之后，已经不用手动设置GOPATH；...
+    
+
+        <a href="/2017/06/12/Go语言学习/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-Heka插件开发"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:48:37" datetime="2017-06-12T15:48:37.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/Heka插件开发/">Heka插件开发</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。
+概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：
+显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logs...
+    
+
+        <a href="/2017/06/12/Heka插件开发/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heka/">heka</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-jvm调优指南"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:48:32" datetime="2017-06-12T15:48:32.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/jvm调优指南/">java CMS GC调优步骤</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution...
+    
+
+        <a href="/2017/06/12/jvm调优指南/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-web开发进阶"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-12 23:48:23" datetime="2017-06-12T15:48:23.000Z"  itemprop="datePublished">2017-06-12</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/12/web开发进阶/">web前端开发进阶</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        目前的项目还是用backbone写控制台，说实话，快写吐了…前段时间看了一下ES6，ES7的变化，发现javascript正在变得越来越好，加上V8的给力性能，在web开发这块，js取代python指日可待。当然python丰富的第三方库决定了它在运维/科学计算/爬虫等方面的可靠性，仍然是值得推荐的第一入门语言（当然，学院派最好从lisp入手）。
+要我说，现在创业公司就应该从js全栈起步，后...
+    
+
+        <a href="/2017/06/12/web开发进阶/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/es6/">es6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+    </ul>
+
+    
+<nav id="page-nav">
+    <div class="inner">
+    <a class="extend prev" rel="prev" href="/page/2/">上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/">下一页</a>
+    </div>
+</nav>
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2020</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/page/3/&title=无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/page/3/&title=无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/page/3/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=无心呢喃&url=http://YiuTerran.github.io/page/3/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/page/3/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aQY7DIBAEwPz/015pzzbuGQxxpOIUxWtS7GEEPXw+8Tj+x9X3M08/KwYuLu409xiOhDsm5vOP/wYXF3c/d0y5erlKGc8fFTtcXNyXcXuLSebExcX9XW6yNUkWM7OFwsXF3cntHU7ykjR/QMLFxd3JrQamKz4vzHdxcXGL3KM4etFJr3id/DouLu4WbhJejCtJtTzloerlPLi4uIu5SZDR/B9MPI1KGC4u7mJuHlxWL1s8FYWc7MhwcXGXcZP6MLOk3nHo5l1cXNyN3Jmm6UxjNSlhN/syXFzcBdxqDJosL198TsfFxd3D7TVO8hKWxyKFgoWLi7uR27t4kUSr1Zp6WfhwcXG3c/N9ULXFkhfHmy0RLi7uRm4Sg85vUKpByWXnBxcXdzG3F15Ur1kUKMlbuLi4i7nVw88DWezEIQoXF3cndxx/PFXIegMXF/db3Hz0WjJ5qFqw4+LiLuP2NiWF5kewVeo9xcXFXc0tNDOKlF4huymjuLi4G7nrmiX5DIVChouL+xpuzkoOSEmr9WQ2XFzcF3OruB4UFxf3u9zqQSU58FSvdzwci+Di4k5we4Fpb2HVIoiLi7ud+wffCGzDJ5dIhgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: false };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '后会有期~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 </body>

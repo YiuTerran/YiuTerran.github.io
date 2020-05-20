@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang=zh>
+<html>
 <head>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>读书笔记-数据密集型应用设计 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="database,note">
     <meta name="description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
 <meta name="keywords" content="database,note">
 <meta property="og:type" content="article">
@@ -19,137 +33,145 @@
 <meta name="twitter:title" content="读书笔记-数据密集型应用设计">
 <meta name="twitter:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
     
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
     
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>读书笔记-数据密集型应用设计</title>
-    <!-- styles -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- persian styles -->
-    
-      <link rel="stylesheet" href="/css/rtl.css">
-    
-    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-    
-    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body class="max-width mx-auto px3 ltr">    
-      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
-  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
-  <span id="menu">
-    <span id="nav">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
         
       </ul>
-    </span>
-    <br/>
-    <span id="actions">
-      <ul>
-        
-        <li><a class="icon" href="/2018/10/07/摄影笔记/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
-        
-        
-        <li><a class="icon" href="/2018/01/28/redis知识点总结/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
-        
-        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
-        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
-      </ul>
-      <span id="i-prev" class="info" style="display:none;">上一篇</span>
-      <span id="i-next" class="info" style="display:none;">下一篇</span>
-      <span id="i-top" class="info" style="display:none;">返回顶部</span>
-      <span id="i-share" class="info" style="display:none;">分享文章</span>
-    </span>
-    <br/>
-    <div id="share" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&text=读书笔记-数据密集型应用设计"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&is_video=false&description=读书笔记-数据密集型应用设计"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=读书笔记-数据密集型应用设计&body=Check out this article: http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&name=读书笔记-数据密集型应用设计&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&t=读书笔记-数据密集型应用设计"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
-</ul>
+    </div>
+  </div>
+</aside>
 
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">读书笔记-数据密集型应用设计</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
     </div>
-    <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本原则"><span class="toc-number">1.</span> <span class="toc-text">基本原则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#可靠性"><span class="toc-number">1.1.</span> <span class="toc-text">可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可扩展性"><span class="toc-number">1.2.</span> <span class="toc-text">可扩展性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可维护性"><span class="toc-number">1.3.</span> <span class="toc-text">可维护性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据模型和查询语言"><span class="toc-number">2.</span> <span class="toc-text">数据模型和查询语言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#关系型数据模型"><span class="toc-number">2.1.</span> <span class="toc-text">关系型数据模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储和取回"><span class="toc-number">3.</span> <span class="toc-text">存储和取回</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSTABLE-和-LSM-TREE"><span class="toc-number">3.1.</span> <span class="toc-text">SSTABLE 和 LSM-TREE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B-TREE"><span class="toc-number">3.2.</span> <span class="toc-text">B-TREE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#聚簇索引与非聚簇索引"><span class="toc-number">3.3.</span> <span class="toc-text">聚簇索引与非聚簇索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多列索引"><span class="toc-number">3.4.</span> <span class="toc-text">多列索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全文索引"><span class="toc-number">3.5.</span> <span class="toc-text">全文索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存数据库"><span class="toc-number">3.6.</span> <span class="toc-text">内存数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OLTP-与-OLAP"><span class="toc-number">3.7.</span> <span class="toc-text">OLTP 与 OLAP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编码与迭代"><span class="toc-number">4.</span> <span class="toc-text">编码与迭代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#二进制序列化"><span class="toc-number">4.1.</span> <span class="toc-text">二进制序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSON-XML-和二进制编码"><span class="toc-number">4.2.</span> <span class="toc-text">JSON, XML 和二进制编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP-RPC-MQ"><span class="toc-number">4.3.</span> <span class="toc-text">HTTP, RPC, MQ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#副本集"><span class="toc-number">5.</span> <span class="toc-text">副本集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从模式"><span class="toc-number">5.1.</span> <span class="toc-text">主从模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#副本-log-的实现原理"><span class="toc-number">5.1.1.</span> <span class="toc-text">副本 log 的实现原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#副本-log-的问题"><span class="toc-number">5.1.2.</span> <span class="toc-text">副本 log 的问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多-leader-模式"><span class="toc-number">5.2.</span> <span class="toc-text">多 leader 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#leaderless-模式"><span class="toc-number">5.3.</span> <span class="toc-text">leaderless 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#版本向量"><span class="toc-number">5.3.1.</span> <span class="toc-text">版本向量</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分片"><span class="toc-number">6.</span> <span class="toc-text">分片</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#次级索引"><span class="toc-number">6.1.</span> <span class="toc-text">次级索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#再平衡"><span class="toc-number">6.2.</span> <span class="toc-text">再平衡</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务"><span class="toc-number">7.</span> <span class="toc-text">事务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原子性"><span class="toc-number">7.1.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性"><span class="toc-number">7.2.</span> <span class="toc-text">隔离性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#写丢失"><span class="toc-number">7.2.1.</span> <span class="toc-text">写丢失</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#幻读问题"><span class="toc-number">7.2.2.</span> <span class="toc-text">幻读问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#序列化算法"><span class="toc-number">7.2.3.</span> <span class="toc-text">序列化算法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式系统的问题"><span class="toc-number">8.</span> <span class="toc-text">分布式系统的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#局部失败"><span class="toc-number">8.1.</span> <span class="toc-text">局部失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#时序问题"><span class="toc-number">8.2.</span> <span class="toc-text">时序问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#系统阻塞"><span class="toc-number">8.3.</span> <span class="toc-text">系统阻塞</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一致性"><span class="toc-number">9.</span> <span class="toc-text">一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线性一致性-Linearizability"><span class="toc-number">9.1.</span> <span class="toc-text">线性一致性(Linearizability)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因果一致性-causal-consistency"><span class="toc-number">9.2.</span> <span class="toc-text">因果一致性(causal consistency)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#弱一致性-weak-consistency"><span class="toc-number">9.3.</span> <span class="toc-text">弱一致性(weak consistency)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAP-理论"><span class="toc-number">9.4.</span> <span class="toc-text">CAP 理论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全序广播"><span class="toc-number">9.5.</span> <span class="toc-text">全序广播</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#共识"><span class="toc-number">10.</span> <span class="toc-text">共识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#二阶段提交"><span class="toc-number">10.1.</span> <span class="toc-text">二阶段提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三阶段提交"><span class="toc-number">10.2.</span> <span class="toc-text">三阶段提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异构系统的分布式事务方案：XA事务"><span class="toc-number">10.3.</span> <span class="toc-text">异构系统的分布式事务方案：XA事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#paxos-算法"><span class="toc-number">10.4.</span> <span class="toc-text">paxos 算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#批处理"><span class="toc-number">11.</span> <span class="toc-text">批处理</span></a></li></ol>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">读书笔记-数据密集型应用设计</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-02-16T00:49:36.000Z" itemprop="datePublished" class="page-time">
+  2018-02-16
+</time>
+
+
+            
+        </h5>
     </div>
-  </span>
-</div>
 
     
-    <div class="content index py4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-  <header>
+
+
+</header>
+
+
+<div class="container body-wrap">
     
-    <h1 class="posttitle" itemprop="name headline">
-        读书笔记-数据密集型应用设计
-    </h1>
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本原则"><span class="post-toc-number">1.</span> <span class="post-toc-text">基本原则</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可靠性"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">可靠性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可扩展性"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">可扩展性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可维护性"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">可维护性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据模型和查询语言"><span class="post-toc-number">2.</span> <span class="post-toc-text">数据模型和查询语言</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关系型数据模型"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">关系型数据模型</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#存储和取回"><span class="post-toc-number">3.</span> <span class="post-toc-text">存储和取回</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#SSTABLE-和-LSM-TREE"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">SSTABLE 和 LSM-TREE</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#B-TREE"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">B-TREE</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#聚簇索引与非聚簇索引"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">聚簇索引与非聚簇索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多列索引"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">多列索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#全文索引"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">全文索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内存数据库"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">内存数据库</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OLTP-与-OLAP"><span class="post-toc-number">3.7.</span> <span class="post-toc-text">OLTP 与 OLAP</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#编码与迭代"><span class="post-toc-number">4.</span> <span class="post-toc-text">编码与迭代</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二进制序列化"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">二进制序列化</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JSON-XML-和二进制编码"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">JSON, XML 和二进制编码</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-RPC-MQ"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">HTTP, RPC, MQ</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#副本集"><span class="post-toc-number">5.</span> <span class="post-toc-text">副本集</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主从模式"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">主从模式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#副本-log-的实现原理"><span class="post-toc-number">5.1.1.</span> <span class="post-toc-text">副本 log 的实现原理</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#副本-log-的问题"><span class="post-toc-number">5.1.2.</span> <span class="post-toc-text">副本 log 的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多-leader-模式"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">多 leader 模式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#leaderless-模式"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">leaderless 模式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#版本向量"><span class="post-toc-number">5.3.1.</span> <span class="post-toc-text">版本向量</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分片"><span class="post-toc-number">6.</span> <span class="post-toc-text">分片</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#次级索引"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">次级索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#再平衡"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">再平衡</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务"><span class="post-toc-number">7.</span> <span class="post-toc-text">事务</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原子性"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">原子性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#隔离性"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">隔离性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#写丢失"><span class="post-toc-number">7.2.1.</span> <span class="post-toc-text">写丢失</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#幻读问题"><span class="post-toc-number">7.2.2.</span> <span class="post-toc-text">幻读问题</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#序列化算法"><span class="post-toc-number">7.2.3.</span> <span class="post-toc-text">序列化算法</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分布式系统的问题"><span class="post-toc-number">8.</span> <span class="post-toc-text">分布式系统的问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#局部失败"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">局部失败</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#时序问题"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">时序问题</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#系统阻塞"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">系统阻塞</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一致性"><span class="post-toc-number">9.</span> <span class="post-toc-text">一致性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#线性一致性-Linearizability"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">线性一致性(Linearizability)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#因果一致性-causal-consistency"><span class="post-toc-number">9.2.</span> <span class="post-toc-text">因果一致性(causal consistency)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#弱一致性-weak-consistency"><span class="post-toc-number">9.3.</span> <span class="post-toc-text">弱一致性(weak consistency)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CAP-理论"><span class="post-toc-number">9.4.</span> <span class="post-toc-text">CAP 理论</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#全序广播"><span class="post-toc-number">9.5.</span> <span class="post-toc-text">全序广播</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#共识"><span class="post-toc-number">10.</span> <span class="post-toc-text">共识</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二阶段提交"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">二阶段提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#三阶段提交"><span class="post-toc-number">10.2.</span> <span class="post-toc-text">三阶段提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异构系统的分布式事务方案：XA事务"><span class="post-toc-number">10.3.</span> <span class="post-toc-text">异构系统的分布式事务方案：XA事务</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#paxos-算法"><span class="post-toc-number">10.4.</span> <span class="post-toc-text">paxos 算法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#批处理"><span class="post-toc-number">11.</span> <span class="post-toc-text">批处理</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-读书笔记-数据密集型应用设计"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">读书笔记-数据密集型应用设计</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-02-16 08:49:36" datetime="2018-02-16T00:49:36.000Z"  itemprop="datePublished">2018-02-16</time>
+
+            
 
 
-
-    <div class="meta">
-      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name">无心呢喃</span>
-      </span>
-      
-    <div class="postdate">
-      
-        <time datetime="2018-02-16T00:49:36.000Z" itemprop="datePublished">2018-02-16</time>
-        
-      
-    </div>
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
 
 
-      
+            
 
-      
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/database/">database</a>, <a class="tag-link" href="/tags/note/">note</a>
-    </div>
-
-
-    </div>
-  </header>
-  
-
-  <div class="content" itemprop="articleBody">
-    <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
 <h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的<code>Data System</code>，包括消息队列、RDBMS, NOSQL, 以及图数据库、列式数据库等等负责存储数据的组件。</p>
 <h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>考量以下几点：</p>
 <ol>
@@ -403,164 +425,305 @@
 (b) 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要该Acceptor没有对编号大于N的Prepare请求做出过响应，它就接受该提案。
 </code></pre><h2 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h2><p>这一章介绍了一些常用的处理工具，包括unix上常见的sed、awk等小工具和map-reduce. 后续还介绍了流式数据处理需要注意的问题。</p>
 
-  </div>
-</article>
+        </div>
 
-    <div class="blog-post-comments">
-        <div id="disqus_thread">
-            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2019-09-18T11:22:43.202Z" itemprop="dateUpdated">2019-09-18 19:22:43</time>
+</span><br>
+
+
+        
+        <a href="/2018/02/16/读书笔记-数据密集型应用设计/" target="_blank" rel="external">http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/database/">database</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/note/">note</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《读书笔记-数据密集型应用设计》 — 无心呢喃&url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
         </div>
     </div>
 
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/10/07/摄影笔记/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">摄影笔记</h4>
+      </a>
+    </div>
+  
 
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/01/28/redis知识点总结/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">redis知识点总结</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
 
         
-          <div id="footer-post-container">
-  <div id="footer-post">
-
-    <div id="nav-footer" style="display: none">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
         
-      </ul>
-    </div>
-
-    <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本原则"><span class="toc-number">1.</span> <span class="toc-text">基本原则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#可靠性"><span class="toc-number">1.1.</span> <span class="toc-text">可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可扩展性"><span class="toc-number">1.2.</span> <span class="toc-text">可扩展性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可维护性"><span class="toc-number">1.3.</span> <span class="toc-text">可维护性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据模型和查询语言"><span class="toc-number">2.</span> <span class="toc-text">数据模型和查询语言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#关系型数据模型"><span class="toc-number">2.1.</span> <span class="toc-text">关系型数据模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储和取回"><span class="toc-number">3.</span> <span class="toc-text">存储和取回</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSTABLE-和-LSM-TREE"><span class="toc-number">3.1.</span> <span class="toc-text">SSTABLE 和 LSM-TREE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B-TREE"><span class="toc-number">3.2.</span> <span class="toc-text">B-TREE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#聚簇索引与非聚簇索引"><span class="toc-number">3.3.</span> <span class="toc-text">聚簇索引与非聚簇索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多列索引"><span class="toc-number">3.4.</span> <span class="toc-text">多列索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全文索引"><span class="toc-number">3.5.</span> <span class="toc-text">全文索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存数据库"><span class="toc-number">3.6.</span> <span class="toc-text">内存数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OLTP-与-OLAP"><span class="toc-number">3.7.</span> <span class="toc-text">OLTP 与 OLAP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编码与迭代"><span class="toc-number">4.</span> <span class="toc-text">编码与迭代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#二进制序列化"><span class="toc-number">4.1.</span> <span class="toc-text">二进制序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSON-XML-和二进制编码"><span class="toc-number">4.2.</span> <span class="toc-text">JSON, XML 和二进制编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP-RPC-MQ"><span class="toc-number">4.3.</span> <span class="toc-text">HTTP, RPC, MQ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#副本集"><span class="toc-number">5.</span> <span class="toc-text">副本集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从模式"><span class="toc-number">5.1.</span> <span class="toc-text">主从模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#副本-log-的实现原理"><span class="toc-number">5.1.1.</span> <span class="toc-text">副本 log 的实现原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#副本-log-的问题"><span class="toc-number">5.1.2.</span> <span class="toc-text">副本 log 的问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多-leader-模式"><span class="toc-number">5.2.</span> <span class="toc-text">多 leader 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#leaderless-模式"><span class="toc-number">5.3.</span> <span class="toc-text">leaderless 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#版本向量"><span class="toc-number">5.3.1.</span> <span class="toc-text">版本向量</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分片"><span class="toc-number">6.</span> <span class="toc-text">分片</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#次级索引"><span class="toc-number">6.1.</span> <span class="toc-text">次级索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#再平衡"><span class="toc-number">6.2.</span> <span class="toc-text">再平衡</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务"><span class="toc-number">7.</span> <span class="toc-text">事务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原子性"><span class="toc-number">7.1.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性"><span class="toc-number">7.2.</span> <span class="toc-text">隔离性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#写丢失"><span class="toc-number">7.2.1.</span> <span class="toc-text">写丢失</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#幻读问题"><span class="toc-number">7.2.2.</span> <span class="toc-text">幻读问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#序列化算法"><span class="toc-number">7.2.3.</span> <span class="toc-text">序列化算法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式系统的问题"><span class="toc-number">8.</span> <span class="toc-text">分布式系统的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#局部失败"><span class="toc-number">8.1.</span> <span class="toc-text">局部失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#时序问题"><span class="toc-number">8.2.</span> <span class="toc-text">时序问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#系统阻塞"><span class="toc-number">8.3.</span> <span class="toc-text">系统阻塞</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一致性"><span class="toc-number">9.</span> <span class="toc-text">一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线性一致性-Linearizability"><span class="toc-number">9.1.</span> <span class="toc-text">线性一致性(Linearizability)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因果一致性-causal-consistency"><span class="toc-number">9.2.</span> <span class="toc-text">因果一致性(causal consistency)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#弱一致性-weak-consistency"><span class="toc-number">9.3.</span> <span class="toc-text">弱一致性(weak consistency)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAP-理论"><span class="toc-number">9.4.</span> <span class="toc-text">CAP 理论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全序广播"><span class="toc-number">9.5.</span> <span class="toc-text">全序广播</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#共识"><span class="toc-number">10.</span> <span class="toc-text">共识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#二阶段提交"><span class="toc-number">10.1.</span> <span class="toc-text">二阶段提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三阶段提交"><span class="toc-number">10.2.</span> <span class="toc-text">三阶段提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异构系统的分布式事务方案：XA事务"><span class="toc-number">10.3.</span> <span class="toc-text">异构系统的分布式事务方案：XA事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#paxos-算法"><span class="toc-number">10.4.</span> <span class="toc-text">paxos 算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#批处理"><span class="toc-number">11.</span> <span class="toc-text">批处理</span></a></li></ol>
-    </div>
-
-    <div id="share-footer" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&text=读书笔记-数据密集型应用设计"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&is_video=false&description=读书笔记-数据密集型应用设计"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=读书笔记-数据密集型应用设计&body=Check out this article: http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=读书笔记-数据密集型应用设计"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&name=读书笔记-数据密集型应用设计&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&t=读书笔记-数据密集型应用设计"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
-</ul>
-
-    </div>
-
-    <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
-        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
-    </div>
-
-  </div>
+    </ul>
 </div>
 
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
         
-        <footer id="footer">
-  <div class="footer-left">
-    Copyright &copy;
-    
-    
-    2013-2020
-    tryao
-  </div>
-  <div class="footer-right">
-    <nav>
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
-        
-      </ul>
-    </nav>
-  </div>
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2020</span>
+        </p>
+    </div>
 </footer>
 
-    </div>
-    <!-- styles -->
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
-    <!-- jquery -->
-<script src="/lib/jquery/jquery.min.js"></script>
-<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
-<!-- clipboard -->
 
-  <script src="/lib/clipboard/clipboard.min.js"></script>
-  <script type="text/javascript">
-  $(function() {
-    // copy-btn HTML
-    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
-    btn += '<i class="far fa-clone"></i>';
-    btn += '</span>'; 
-    // mount it!
-    $(".highlight table").before(btn);
-    var clip = new ClipboardJS('.btn-copy', {
-      text: function(trigger) {
-        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
-      }
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《读书笔记-数据密集型应用设计》 — 无心呢喃&url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtElEQVR42u3aMXLjQAwEQP3/077kgkvEmwF2ZQXNyKWiSPaqigsP8HrFx88/x/Mn7777fLXnOybnrw48PDy8xaO/u1x+mxb8fP7zmdES4OHh4V3jzR7ieTmez2+3gdkmhIeHh/cNvLYsnm0hp8p3PDw8vG/g5a/15ysn20n+DHh4eHif5yVhxOZbP8GR5LEXsxY8PDy8+XVes03ik39f6e/h4eHhrbvqbXGctMra7Wf2nH+vg4eHh3eBl79w88dtx63yc4bPiYeHh3eB17adTkUAs6bXbMnw8PDwTvHygYCW1Da32rC43gbw8PDwjvI2pLMFcfJUxWaDh4eHd43XUtuCexgclFtIPWuAh4eHd5SXDw0kC5SU17NoOOrv4eHh4V3gtbnvbCGS4YA88I3ugoeHh3eNtwlS65d1XFLnY1XRvoeHh4d3lLeKShfxazTLELfBhmkHHh4eXsnbl62bELZ+0Y8CCzw8PLyzvDwCmIUF+XjBZhOqfzE8PDy8C7ykQbVpiW2GCYqRAjw8PLwLvFNx7as82sGsNqR4u0ng4eHhHeVtXvSz4YP27vn5eHh4eL/Fa2OCdgg1j27bIhsPDw/vM7x8yGkfSTyfczbwxcPDwzvLmxWseXPr1HjrMCLBw8PDu8Db99nbK+SfbCISPDw8vNu8trRNCuIkxp0V3/UC4eHh4V3j7cvcJITdBLjDjQcPDw/vMq8NTHNGHhy/1gceHh7ePd5PebQNsPxVno8jFMNYeHh4eBd47as2Z+fDAUkjrS2v8fDw8G7z2kBhswHky9RuDP/p7OHh4eFd4LWhQz4aNSvWTwUTeHh4eN/ASwruPBQ4NTrw9nM8PDy8L+O1S5B8az+ggIeHh/cZ3mzE6rkIzgvuPG6o62c8PDy8C7zZf/Sb8YJZEHwsnsDDw8Ob8/4ABGV9gmVk/tEAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '后会有期~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
     });
-    clip.on('success', function(e) {
-      e.trigger.setAttribute('aria-label', "复制成功!");
-      e.clearSelection();
-    })
-  })
-  </script>
+})();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
-<script src="/js/main.js"></script>
-<!-- search -->
-
-<!-- Google Analytics -->
-
-<!-- Baidu Analytics -->
-
-<!-- Disqus Comments -->
-
-    <script type="text/javascript">
-        var disqus_shortname = 'yiuterran';
-
-        (function(){
-            var dsq = document.createElement('script');
-            dsq.type = 'text/javascript';
-            dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        }());
-    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-  });
-</script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
 
 
 </body>

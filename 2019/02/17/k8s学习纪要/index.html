@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang=zh>
+<html>
 <head>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>k8s学习纪要 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="docker,k8s">
     <meta name="description" content="近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、">
 <meta name="keywords" content="docker,k8s">
 <meta property="og:type" content="article">
@@ -19,137 +33,145 @@
 <meta name="twitter:title" content="k8s学习纪要">
 <meta name="twitter:description" content="近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、">
     
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
     
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>k8s学习纪要</title>
-    <!-- styles -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- persian styles -->
-    
-      <link rel="stylesheet" href="/css/rtl.css">
-    
-    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-    
-    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body class="max-width mx-auto px3 ltr">    
-      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
-  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
-  <span id="menu">
-    <span id="nav">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
         
       </ul>
-    </span>
-    <br/>
-    <span id="actions">
-      <ul>
-        
-        <li><a class="icon" href="/2019/02/17/docker常见命令/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
-        
-        
-        <li><a class="icon" href="/2018/10/07/摄影笔记/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
-        
-        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
-        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
-      </ul>
-      <span id="i-prev" class="info" style="display:none;">上一篇</span>
-      <span id="i-next" class="info" style="display:none;">下一篇</span>
-      <span id="i-top" class="info" style="display:none;">返回顶部</span>
-      <span id="i-share" class="info" style="display:none;">分享文章</span>
-    </span>
-    <br/>
-    <div id="share" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&text=k8s学习纪要"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&is_video=false&description=k8s学习纪要"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=k8s学习纪要&body=Check out this article: http://YiuTerran.github.io/2019/02/17/k8s学习纪要/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&name=k8s学习纪要&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&t=k8s学习纪要"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
-</ul>
+    </div>
+  </div>
+</aside>
 
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">k8s学习纪要</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
     </div>
-    <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#k8s及其概念"><span class="toc-number">1.</span> <span class="toc-text">k8s及其概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pod"><span class="toc-number">1.1.</span> <span class="toc-text">pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Node"><span class="toc-number">1.2.</span> <span class="toc-text">Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RS"><span class="toc-number">1.3.</span> <span class="toc-text">RS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deployment"><span class="toc-number">1.4.</span> <span class="toc-text">Deployment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Service"><span class="toc-number">1.5.</span> <span class="toc-text">Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Job"><span class="toc-number">1.6.</span> <span class="toc-text">Job</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DaemonSet"><span class="toc-number">1.7.</span> <span class="toc-text">DaemonSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PetSet"><span class="toc-number">1.8.</span> <span class="toc-text">PetSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Federation"><span class="toc-number">1.9.</span> <span class="toc-text">Federation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Volume"><span class="toc-number">1.10.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PV和PVC"><span class="toc-number">1.11.</span> <span class="toc-text">PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Secret"><span class="toc-number">1.12.</span> <span class="toc-text">Secret</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Namespace"><span class="toc-number">1.13.</span> <span class="toc-text">Namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RBAC访问授权"><span class="toc-number">1.14.</span> <span class="toc-text">RBAC访问授权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单机搭建k8s环境"><span class="toc-number">2.</span> <span class="toc-text">单机搭建k8s环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建副本集"><span class="toc-number">3.</span> <span class="toc-text">搭建副本集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#滚动升级"><span class="toc-number">4.</span> <span class="toc-text">滚动升级</span></a></li></ol>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">k8s学习纪要</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-02-17T12:18:59.000Z" itemprop="datePublished" class="page-time">
+  2019-02-17
+</time>
+
+
+            
+        </h5>
     </div>
-  </span>
-</div>
 
     
-    <div class="content index py4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-  <header>
+
+
+</header>
+
+
+<div class="container body-wrap">
     
-    <h1 class="posttitle" itemprop="name headline">
-        k8s学习纪要
-    </h1>
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#k8s及其概念"><span class="post-toc-number">1.</span> <span class="post-toc-text">k8s及其概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#pod"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">pod</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Node"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">Node</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#RS"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">RS</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Deployment"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">Deployment</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Service"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">Service</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Job"><span class="post-toc-number">1.6.</span> <span class="post-toc-text">Job</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DaemonSet"><span class="post-toc-number">1.7.</span> <span class="post-toc-text">DaemonSet</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#PetSet"><span class="post-toc-number">1.8.</span> <span class="post-toc-text">PetSet</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Federation"><span class="post-toc-number">1.9.</span> <span class="post-toc-text">Federation</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Volume"><span class="post-toc-number">1.10.</span> <span class="post-toc-text">Volume</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#PV和PVC"><span class="post-toc-number">1.11.</span> <span class="post-toc-text">PV和PVC</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Secret"><span class="post-toc-number">1.12.</span> <span class="post-toc-text">Secret</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Namespace"><span class="post-toc-number">1.13.</span> <span class="post-toc-text">Namespace</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#RBAC访问授权"><span class="post-toc-number">1.14.</span> <span class="post-toc-text">RBAC访问授权</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单机搭建k8s环境"><span class="post-toc-number">2.</span> <span class="post-toc-text">单机搭建k8s环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#搭建副本集"><span class="post-toc-number">3.</span> <span class="post-toc-text">搭建副本集</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#滚动升级"><span class="post-toc-number">4.</span> <span class="post-toc-text">滚动升级</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-k8s学习纪要"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">k8s学习纪要</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-02-17 20:18:59" datetime="2019-02-17T12:18:59.000Z"  itemprop="datePublished">2019-02-17</time>
+
+            
 
 
-
-    <div class="meta">
-      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name">无心呢喃</span>
-      </span>
-      
-    <div class="postdate">
-      
-        <time datetime="2019-02-17T12:18:59.000Z" itemprop="datePublished">2019-02-17</time>
-        
-      
-    </div>
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
 
 
-      
+            
 
-      
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/docker/">docker</a>, <a class="tag-link" href="/tags/k8s/">k8s</a>
-    </div>
-
-
-    </div>
-  </header>
-  
-
-  <div class="content" itemprop="articleBody">
-    <p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
 <h2 id="k8s及其概念"><a href="#k8s及其概念" class="headerlink" title="k8s及其概念"></a>k8s及其概念</h2><p>k8s的架构有一点类似linux的分层技术，比较复杂，所以最好边学变实践，不然根本记不住。<strong>API对象</strong>是K8s集群中的管理操作单元。K8s集群系统每支持一项新功能，引入一项新技术，一定会新引入对应的API对象，支持对该功能的管理操作。例如副本集Replica Set对应的API对象是RS。下面是各种API对象：</p>
 <h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><p>Pod是在K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。</p>
 <h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><p>节点是所有Pod运行所在的工作主机，可以是物理机也可以是虚拟机。工作主机的统一特征是上面要运行kubelet管理节点上运行的容器。</p>
@@ -183,164 +205,305 @@
 <h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
 <h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
 
-  </div>
-</article>
+        </div>
 
-    <div class="blog-post-comments">
-        <div id="disqus_thread">
-            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2019-02-24T11:28:31.721Z" itemprop="dateUpdated">2019-02-24 19:28:31</time>
+</span><br>
+
+
+        
+        <a href="/2019/02/17/k8s学习纪要/" target="_blank" rel="external">http://YiuTerran.github.io/2019/02/17/k8s学习纪要/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/">k8s</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=《k8s学习纪要》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=《k8s学习纪要》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《k8s学习纪要》 — 无心呢喃&url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
         </div>
     </div>
 
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/02/17/docker常见命令/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">docker常见命令</h4>
+      </a>
+    </div>
+  
 
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/10/07/摄影笔记/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">摄影笔记</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
 
         
-          <div id="footer-post-container">
-  <div id="footer-post">
-
-    <div id="nav-footer" style="display: none">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
         
-      </ul>
-    </div>
-
-    <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#k8s及其概念"><span class="toc-number">1.</span> <span class="toc-text">k8s及其概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pod"><span class="toc-number">1.1.</span> <span class="toc-text">pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Node"><span class="toc-number">1.2.</span> <span class="toc-text">Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RS"><span class="toc-number">1.3.</span> <span class="toc-text">RS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deployment"><span class="toc-number">1.4.</span> <span class="toc-text">Deployment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Service"><span class="toc-number">1.5.</span> <span class="toc-text">Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Job"><span class="toc-number">1.6.</span> <span class="toc-text">Job</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DaemonSet"><span class="toc-number">1.7.</span> <span class="toc-text">DaemonSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PetSet"><span class="toc-number">1.8.</span> <span class="toc-text">PetSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Federation"><span class="toc-number">1.9.</span> <span class="toc-text">Federation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Volume"><span class="toc-number">1.10.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PV和PVC"><span class="toc-number">1.11.</span> <span class="toc-text">PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Secret"><span class="toc-number">1.12.</span> <span class="toc-text">Secret</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Namespace"><span class="toc-number">1.13.</span> <span class="toc-text">Namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RBAC访问授权"><span class="toc-number">1.14.</span> <span class="toc-text">RBAC访问授权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单机搭建k8s环境"><span class="toc-number">2.</span> <span class="toc-text">单机搭建k8s环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建副本集"><span class="toc-number">3.</span> <span class="toc-text">搭建副本集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#滚动升级"><span class="toc-number">4.</span> <span class="toc-text">滚动升级</span></a></li></ol>
-    </div>
-
-    <div id="share-footer" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&text=k8s学习纪要"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&is_video=false&description=k8s学习纪要"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=k8s学习纪要&body=Check out this article: http://YiuTerran.github.io/2019/02/17/k8s学习纪要/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=k8s学习纪要"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&name=k8s学习纪要&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&t=k8s学习纪要"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
-</ul>
-
-    </div>
-
-    <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
-        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
-    </div>
-
-  </div>
+    </ul>
 </div>
 
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
         
-        <footer id="footer">
-  <div class="footer-left">
-    Copyright &copy;
-    
-    
-    2013-2020
-    tryao
-  </div>
-  <div class="footer-right">
-    <nav>
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
-        
-      </ul>
-    </nav>
-  </div>
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2020</span>
+        </p>
+    </div>
 </footer>
 
-    </div>
-    <!-- styles -->
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
-    <!-- jquery -->
-<script src="/lib/jquery/jquery.min.js"></script>
-<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
-<!-- clipboard -->
 
-  <script src="/lib/clipboard/clipboard.min.js"></script>
-  <script type="text/javascript">
-  $(function() {
-    // copy-btn HTML
-    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
-    btn += '<i class="far fa-clone"></i>';
-    btn += '</span>'; 
-    // mount it!
-    $(".highlight table").before(btn);
-    var clip = new ClipboardJS('.btn-copy', {
-      text: function(trigger) {
-        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
-      }
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=《k8s学习纪要》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&title=《k8s学习纪要》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《k8s学习纪要》 — 无心呢喃&url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/02/17/k8s学习纪要/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKklEQVR42u3avZKDMAxF4bz/S7PNFpsCc64EO4N8XGUCifkoNPrx54PX8WedXT27f/1bvssNS4YMGa9lHMtF7lnzzv7n7EXwfWXIkLEbYx1GeRBM8Zx08cwyZMiQgRO7ThYnQ4YMGfcy1oE1TQ3X98uQIUMGL2LTXxFM+oJuqMVlyJDxQkatNP2fz4/MN2TIkPEqxhGuNI3jw4Pa8/z+VoYMGaMZaSutlkTyFlvrWIYMGTJGM2pHLmqHKnjILpasMmTIGMcgaRkJynwYyQ+ckUL3K8OVIUPGaEYtLPJvUiQfr8qQIWMHxhNb3sXjxbAMGTJ2Y6RVId+4djQ2LmVlyJAxjsGttdEmH1umL/TrqgwZMkYzOgdG10HzubQSTWJlyJAxlPFE2OWHYnlCGRyzkCFDxggGb3vxLdOzHp3xgAwZMnZg9Bv6vH2WJoVxiilDhowNGJ2xAU/7jtL6kCVDhoyhDJ4Opu+Gh2/SsLv4XoYMGaMZtSYXL1nTUN4pdGXIkDGbwcNrbZzZH2SivWTIkLEB47k0jjxKp8EnQ4aM3Ri1NC4NxJ3uIAq4MmTIGMSoNejTEeNdx79QbitDhoxxDL7SQpeH3c7nGCNDhozXMmpBNr1aK32D4lmGDBkbMHjV+0QTLS1ig3abDBkytmR0WnI8P02PbsiQIUMGHwmQYNoZBlwUsTJkyBjNIEVsLdXjRS/By5AhY0/GbSEvHEDGyV9/kClDhoz3MX4AFZw39TTyOvcAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '后会有期~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
     });
-    clip.on('success', function(e) {
-      e.trigger.setAttribute('aria-label', "复制成功!");
-      e.clearSelection();
-    })
-  })
-  </script>
+})();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
-<script src="/js/main.js"></script>
-<!-- search -->
-
-<!-- Google Analytics -->
-
-<!-- Baidu Analytics -->
-
-<!-- Disqus Comments -->
-
-    <script type="text/javascript">
-        var disqus_shortname = 'yiuterran';
-
-        (function(){
-            var dsq = document.createElement('script');
-            dsq.type = 'text/javascript';
-            dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        }());
-    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-  });
-</script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
 
 
 </body>

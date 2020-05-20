@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang=zh>
+<html>
 <head>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    
+
+    
+
+    
+
+
+
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    
+    
+    
+    <title>python celery组件使用 | 无心呢喃 | 个人技术类文章博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="python,celery,redis">
     <meta name="description" content="Prepareinstall:1pip install celery 选择broker，安装，这里假设使用Redis：1apt-get install redis-server Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边… 然后参考阅读别人的best practices，基本就可以干活了。 几个要点 task相关的文件，最好都是用绝对">
 <meta name="keywords" content="python,celery,redis">
 <meta property="og:type" content="article">
@@ -19,137 +33,145 @@
 <meta name="twitter:title" content="python celery组件使用">
 <meta name="twitter:description" content="Prepareinstall:1pip install celery 选择broker，安装，这里假设使用Redis：1apt-get install redis-server Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边… 然后参考阅读别人的best practices，基本就可以干活了。 几个要点 task相关的文件，最好都是用绝对">
     
+        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
     
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>python celery组件使用</title>
-    <!-- styles -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- persian styles -->
-    
-      <link rel="stylesheet" href="/css/rtl.css">
-    
-    <!-- rss --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-    
-    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body class="max-width mx-auto px3 ltr">    
-      <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="header-post">
-  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
-  <span id="menu">
-    <span id="nav">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.png">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">tryao</h5>
+          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/YiuTerran" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
         
       </ul>
-    </span>
-    <br/>
-    <span id="actions">
-      <ul>
-        
-        <li><a class="icon" href="/2017/06/12/cmake实践/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
-        
-        
-        <li><a class="icon" href="/2017/06/12/EffectiveJava/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
-        
-        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
-        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
-      </ul>
-      <span id="i-prev" class="info" style="display:none;">上一篇</span>
-      <span id="i-next" class="info" style="display:none;">下一篇</span>
-      <span id="i-top" class="info" style="display:none;">返回顶部</span>
-      <span id="i-share" class="info" style="display:none;">分享文章</span>
-    </span>
-    <br/>
-    <div id="share" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&text=python celery组件使用"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&is_video=false&description=python celery组件使用"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=python celery组件使用&body=Check out this article: http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&name=python celery组件使用&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&t=python celery组件使用"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
-</ul>
+    </div>
+  </div>
+</aside>
 
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">python celery组件使用</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
     </div>
-    <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prepare"><span class="toc-number">1.</span> <span class="toc-text">Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Configure"><span class="toc-number">2.</span> <span class="toc-text">Configure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几个要点"><span class="toc-number">2.1.</span> <span class="toc-text">几个要点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router"><span class="toc-number">2.2.</span> <span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Start"><span class="toc-number">3.</span> <span class="toc-text">Start</span></a></li></ol>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">python celery组件使用</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-12T15:47:06.000Z" itemprop="datePublished" class="page-time">
+  2017-06-12
+</time>
+
+
+            
+        </h5>
     </div>
-  </span>
-</div>
 
     
-    <div class="content index py4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-  <header>
+
+
+</header>
+
+
+<div class="container body-wrap">
     
-    <h1 class="posttitle" itemprop="name headline">
-        python celery组件使用
-    </h1>
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Prepare"><span class="post-toc-number">1.</span> <span class="post-toc-text">Prepare</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Configure"><span class="post-toc-number">2.</span> <span class="post-toc-text">Configure</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#几个要点"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">几个要点</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Router"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">Router</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Start"><span class="post-toc-number">3.</span> <span class="post-toc-text">Start</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-python celery组件使用"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">python celery组件使用</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-12 23:47:06" datetime="2017-06-12T15:47:06.000Z"  itemprop="datePublished">2017-06-12</time>
+
+            
 
 
-
-    <div class="meta">
-      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name">无心呢喃</span>
-      </span>
-      
-    <div class="postdate">
-      
-        <time datetime="2017-06-12T15:47:06.000Z" itemprop="datePublished">2017-06-12</time>
-        
-      
-    </div>
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
 
 
-      
+            
 
-      
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/celery/">celery</a>, <a class="tag-link" href="/tags/python/">python</a>, <a class="tag-link" href="/tags/redis/">redis</a>
-    </div>
-
-
-    </div>
-  </header>
-  
-
-  <div class="content" itemprop="articleBody">
-    <h2 id="Prepare"><a href="#Prepare" class="headerlink" title="Prepare"></a>Prepare</h2><p>install:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install celery</span><br></pre></td></tr></table></figure></p>
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="Prepare"><a href="#Prepare" class="headerlink" title="Prepare"></a>Prepare</h2><p>install:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install celery</span><br></pre></td></tr></table></figure></p>
 <p>选择broker，安装，这里假设使用Redis：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install redis-server</span><br></pre></td></tr></table></figure></p>
 <h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><p>首先认真阅读<a href="http://docs.celeryproject.org/en/latest/index.html" target="_blank" rel="noopener">官方celery文档</a>的get start部分，如果有时间的话，最好全部看一边…</p>
 <p>然后参考阅读别人的<a href="http://blog.csdn.net/orangleliu/article/details/37967433" target="_blank" rel="noopener">best practices</a>，基本就可以干活了。</p>
@@ -163,147 +185,304 @@
 <h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>官方给出的init.d脚本不是很好用，下面是一个自己写的参考：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># PushserverCore uWSGI Web Server init script</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">### BEGIN INIT INFO</span></span><br><span class="line"><span class="comment"># Provides:          PushserverCore</span></span><br><span class="line"><span class="comment"># Required-Start:    $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Required-Stop:     $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Default-Start:     2 3 4 5</span></span><br><span class="line"><span class="comment"># Default-Stop:      0 1 6</span></span><br><span class="line"><span class="comment"># Short-Description: Start PushserverCore Service for generic init daemon</span></span><br><span class="line"><span class="comment"># Description:       PushserverCore Service thrift Server backend.</span></span><br><span class="line"><span class="comment">### END INIT INFO</span></span><br><span class="line"></span><br><span class="line">NAME=<span class="string">"Core Thrift Server"</span></span><br><span class="line">PROJECT=PushserverCore</span><br><span class="line">PATH=/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/sbin:/bin:/usr/sbin:/usr/bin:/var/app/enabled/<span class="variable">$PROJECT</span></span><br><span class="line">DESC=<span class="string">"PushserverCore"</span></span><br><span class="line">APP_DIR=/var/app/enabled/<span class="variable">$PROJECT</span>/Core</span><br><span class="line">APP_PATH=<span class="variable">$APP_DIR</span>/CoreServer.py</span><br><span class="line">CELERY_LOG_PATH=/var/app/<span class="built_in">log</span>/PushserverCore/celery.log</span><br><span class="line"></span><br><span class="line">print_succ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$(tput setaf 2)</span><span class="variable">$(tput bold)</span>DONE<span class="variable">$(tput sgr0)</span>"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print_fail()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$(tput setaf 1)</span><span class="variable">$(tput bold)</span>FAILED<span class="variable">$(tput sgr0)</span>"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"stoping <span class="variable">$NAME</span>..."</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        pkill -f <span class="variable">$APP_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> service is already running."</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"starting <span class="variable">$NAME</span> service..."</span></span><br><span class="line">        nohup python <span class="variable">$APP_PATH</span> &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"stoping celery worker..."</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1;<span class="keyword">then</span></span><br><span class="line">        pkill -f celery</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"celery is already running"</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"starting celery worker..."</span></span><br><span class="line">        celery -A async multi start writer <span class="built_in">caller</span> default  -Q:writer async_writer -Q:<span class="built_in">caller</span> async_caller -Q:default default -c 7 -l INFO --workdir=<span class="variable">$APP_DIR</span> --logfile=<span class="variable">$CELERY_LOG_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check_status()</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> is running"</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"<span class="variable">$NAME</span> is not running"</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"celery worker is running"</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">"celery worker is not running"</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">. /lib/lsb/init-functions</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></span><br><span class="line">	start)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Starting <span class="variable">$DESC</span>..."</span></span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">		;;</span><br><span class="line">	stop)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Stopping <span class="variable">$DESC</span>..."</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	restart)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Restarting <span class="variable">$DESC</span>..."</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">        sleep 3</span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"Checking..."</span></span><br><span class="line">        check_status</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	status)</span><br><span class="line">        check_status</span><br><span class="line">        ;;</span><br><span class="line">	*)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Usage: <span class="variable">$NAME</span> &#123;start|stop|restart|status&#125;"</span> &gt;&amp;2</span><br><span class="line">		<span class="built_in">exit</span> 1</span><br><span class="line">		;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure></p>
 <p>重点需要关注的是celery multi start的用法，注意start后面跟的是worker的名字（取数据的worker），也可以简单的写3，然后-Q:<em>worker_name</em> <em>queue_name</em>，最后-c是实际的worker（干活的worker）的数目，-Q是给队列指定worker。例子中的语句，意思是启动3个worker，分别命名为writer, caller和default，然后启动3个队列，名字分别是async_writer, async_caller和default，每个worker分配7个进程用来干活。</p>
 
-  </div>
-</article>
+        </div>
 
-    <div class="blog-post-comments">
-        <div id="disqus_thread">
-            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-12T16:28:14.000Z" itemprop="dateUpdated">2017-06-13 00:28:14</time>
+</span><br>
+
+
+        
+        <a href="/2017/06/12/python celery组件使用/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/python celery组件使用/</a>
+        
+    </div>
+    <footer>
+        <a href="http://YiuTerran.github.io">
+            <img src="/img/avatar.png" alt="tryao">
+            tryao
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/celery/">celery</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=《python celery组件使用》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=《python celery组件使用》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《python celery组件使用》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
         </div>
     </div>
 
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/06/12/cmake实践/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">cmake实践</h4>
+      </a>
+    </div>
+  
 
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/12/EffectiveJava/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">effective java 读书笔记</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'yiuterran';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
 
         
-          <div id="footer-post-container">
-  <div id="footer-post">
-
-    <div id="nav-footer" style="display: none">
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
         
-      </ul>
-    </div>
-
-    <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prepare"><span class="toc-number">1.</span> <span class="toc-text">Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Configure"><span class="toc-number">2.</span> <span class="toc-text">Configure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几个要点"><span class="toc-number">2.1.</span> <span class="toc-text">几个要点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router"><span class="toc-number">2.2.</span> <span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Start"><span class="toc-number">3.</span> <span class="toc-text">Start</span></a></li></ol>
-    </div>
-
-    <div id="share-footer" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&text=python celery组件使用"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&is_video=false&description=python celery组件使用"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=python celery组件使用&body=Check out this article: http://YiuTerran.github.io/2017/06/12/python celery组件使用/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=python celery组件使用"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&name=python celery组件使用&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&t=python celery组件使用"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
-</ul>
-
-    </div>
-
-    <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
-        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
-    </div>
-
-  </div>
+    </ul>
 </div>
 
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
         
-        <footer id="footer">
-  <div class="footer-left">
-    Copyright &copy;
-    
-    
-    2013-2020
-    tryao
-  </div>
-  <div class="footer-right">
-    <nav>
-      <ul>
-         
-          <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
-         
-          <li><a href="/archives/">归档</a></li>
-         
-          <li><a href="/projects_url">项目</a></li>
-         
-          <li><a href="/search/">搜索</a></li>
-        
-      </ul>
-    </nav>
-  </div>
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>tryao &copy; 2017 - 2020</span>
+        </p>
+    </div>
 </footer>
 
-    </div>
-    <!-- styles -->
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
-    <!-- jquery -->
-<script src="/lib/jquery/jquery.min.js"></script>
-<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
-<!-- clipboard -->
 
-  <script src="/lib/clipboard/clipboard.min.js"></script>
-  <script type="text/javascript">
-  $(function() {
-    // copy-btn HTML
-    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
-    btn += '<i class="far fa-clone"></i>';
-    btn += '</span>'; 
-    // mount it!
-    $(".highlight table").before(btn);
-    var clip = new ClipboardJS('.btn-copy', {
-      text: function(trigger) {
-        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
-      }
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=《python celery组件使用》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&title=《python celery组件使用》 — 无心呢喃&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/python celery组件使用/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《python celery组件使用》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/&via=http://YiuTerran.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/python celery组件使用/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACp0lEQVR42u3aUWrDMBAE0Nz/0u0BSt2Z1Sqk8PxVktjWU0ESs/t6xddXcM3uen5O8paFCw8PD2916D9/89sTkk+SXya8YqLx8PDwrvGeB32yZLfTlExEPtF4eHh4n8DLF/12yvJJwcPDw/tfvOcFvT2CP/+dTzEeHh7e+3lJGDE7cOexQjvdy1kLHh4eXleriqpIn/P3lfoeHh4e3lJDQFLUPy+DJVtCPVo8PDy8C7x8wT0/IieH9TyYyMeJh4eHd483a2/Ki/2z4/J5NIyHh4d3g5cceZOotH19MvTZptLsG3h4eHgdry1cnTRL7d4V/R4PDw/vAq8NI9pv81at9vlFMQwPDw9vlZcHELN72wg4P9wnQQkeHh7ePV4bRpw0CsySkmHIi4eHh3eBt7wQH09Z27KQRL14eHh4N3j5QNvWqLZZ6qQ49+sneHh4eNd4+R5ysjGcXPmhHA8PD+/9vPMIYKsLrN2cXu0+hoeHh1fyZk1Xs4h2VvRqN6eFnjI8PDy8pQB3a7HOqbPC2B8xLh4eHt4qbxbF5p/fxke7Hx4eHt4SL0e2BbC2gSBn1yU0PDw8vCVeHrYmJa5ZUHsSefwxBjw8PLwLvGExvjwK59+21GHTFR4eHt4xLy9BzZqi2mU9P0wXZTA8PDy8VV4+6N1WqvaahRR4eHh493iz6CHJS2dFrLZRYKH0hYeHhzfita1O+aE5P76/Di48PDy827zZoTaPdJMFPb+3PWTj4eHh3eC1C25btj9p3tpqSsDDw8O7wTsva23FtW0pLvoH4OHh4V3jtcv9e6KKhQ0MDw8P7yN5eVtVG1U8bwPR2/Hw8PA+hpe8Mr8rj27rcBkPDw/vGi9vV50do/Mnt0WsqOkKDw8Pb5V3Hg3M2gWSAV2s6eHh4eFNeN9txQ0BJBhs+gAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '后会有期~';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '欢迎光临!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
     });
-    clip.on('success', function(e) {
-      e.trigger.setAttribute('aria-label', "复制成功!");
-      e.clearSelection();
-    })
-  })
-  </script>
-
-<script src="/js/main.js"></script>
-<!-- search -->
-
-<!-- Google Analytics -->
-
-<!-- Baidu Analytics -->
-
-<!-- Disqus Comments -->
-
-    <script type="text/javascript">
-        var disqus_shortname = 'yiuterran';
-
-        (function(){
-            var dsq = document.createElement('script');
-            dsq.type = 'text/javascript';
-            dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        }());
-    </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+})();
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
 <script type="text/x-mathjax-config">
   MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
 </script>
@@ -321,6 +500,7 @@
 </script>
 <!-- End: Injected MathJax -->
 <!-- hexo-inject:end -->
+
 
 
 </body>
