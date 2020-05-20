@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2020-05-19T10:44:31.153Z</updated>
+  <updated>2020-05-06T09:50:48.588Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,50 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>Heka源码解析</title>
-    <link href="http://YiuTerran.github.io/2020/05/19/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    <id>http://YiuTerran.github.io/2020/05/19/Heka源码解析/</id>
-    <published>2020-05-19T10:44:31.152Z</published>
-    <updated>2020-05-19T10:44:31.153Z</updated>
-    
-    <content type="html"><![CDATA[<p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
-<p>先看最外层的文件目录结构(0.11.0dev):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source `build.sh`生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure></p>
-<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
-<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/" target="_blank" rel="noopener">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
-<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
-<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
-<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
-<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
-<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
-<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
-<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
-<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
-<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
-<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
-<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
-<p>最后，调用<code>Run</code>方法，开始运行。</p>
-<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
-<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
-<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
-<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
-<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。&lt;/p&gt;
-&lt;p&gt;先看最外层的文件目录结构(0.11.0dev):&lt;br&gt;&lt;figure class=&quot;highligh
-    
-    </summary>
-    
-    
-      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
-    
-      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
-    
-  </entry>
   
   <entry>
     <title>linux无人值守安装镜像制作.md</title>
@@ -3017,6 +2973,50 @@ ZERO_DIVIDE            零被整除
       <category term="FP" scheme="http://YiuTerran.github.io/tags/FP/"/>
     
       <category term="Haskell" scheme="http://YiuTerran.github.io/tags/Haskell/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Heka源码解析</title>
+    <link href="http://YiuTerran.github.io/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+    <id>http://YiuTerran.github.io/2016/05/29/Heka源码解析/</id>
+    <published>2016-05-29T06:29:20.000Z</published>
+    <updated>2020-05-20T01:42:30.782Z</updated>
+    
+    <content type="html"><![CDATA[<p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
+<p>先看最外层的文件目录结构(0.11.0dev):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source `build.sh`生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure></p>
+<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
+<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/" target="_blank" rel="noopener">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
+<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
+<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
+<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
+<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
+<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
+<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
+<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
+<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
+<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
+<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
+<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
+<p>最后，调用<code>Run</code>方法，开始运行。</p>
+<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
+<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
+<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
+<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
+<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。&lt;/p&gt;
+&lt;p&gt;先看最外层的文件目录结构(0.11.0dev):&lt;br&gt;&lt;figure class=&quot;highligh
+    
+    </summary>
+    
+    
+      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
+    
+      <category term="heka" scheme="http://YiuTerran.github.io/tags/heka/"/>
     
   </entry>
   
