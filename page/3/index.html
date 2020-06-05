@@ -137,6 +137,153 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-报表打印-pdf-技术选型"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-07-07 00:21:00" datetime="2017-07-06T16:21:00.000Z"  itemprop="datePublished">2017-07-07</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/07/07/报表打印-pdf-技术选型/">报表打印(pdf)技术选型</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。
+首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧(:зゝ∠)
+服务端实现Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义...
+    
+
+        <a href="/2017/07/07/报表打印-pdf-技术选型/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-oracle学习笔记"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-07-03 14:21:18" datetime="2017-07-03T06:21:18.000Z"  itemprop="datePublished">2017-07-03</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/07/03/oracle学习笔记/">oracle学习笔记</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。
+安装Mac下可以使用docker安装，可以参考这篇博客.
+概念OLTP：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的...
+    
+
+        <a href="/2017/07/03/oracle学习笔记/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-maven和gradle一些选项"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-26 09:32:23" datetime="2017-06-26T01:32:23.000Z"  itemprop="datePublished">2017-06-26</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/26/maven和gradle一些选项/">maven和gradle一些选项</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        Java的包依赖系统简单粗暴，就是直接下载jar包，经历了Ant -&gt; Maven -&gt; Gradle这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。
+如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。
+冲突Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排...
+    
+
+        <a href="/2017/06/26/maven和gradle一些选项/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gradle/">gradle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-Bash-on-Ubuntu-on-Windows下载过慢问题的简单解决"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -462,154 +609,6 @@ lua是一门嵌入式...
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heka/">heka</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-jvm调优指南"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:32" datetime="2017-06-12T15:48:32.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/jvm调优指南/">java CMS GC调优步骤</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution...
-    
-
-        <a href="/2017/06/12/jvm调优指南/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-web开发进阶"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:23" datetime="2017-06-12T15:48:23.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/web开发进阶/">web前端开发进阶</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        目前的项目还是用backbone写控制台，说实话，快写吐了…前段时间看了一下ES6，ES7的变化，发现javascript正在变得越来越好，加上V8的给力性能，在web开发这块，js取代python指日可待。当然python丰富的第三方库决定了它在运维/科学计算/爬虫等方面的可靠性，仍然是值得推荐的第一入门语言（当然，学院派最好从lisp入手）。
-要我说，现在创业公司就应该从js全栈起步，后...
-    
-
-        <a href="/2017/06/12/web开发进阶/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/es6/">es6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-erlang速记"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/erlang速记/">erlang速记</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        对于学习过Haskell的人来说，学习Erlang并没有太大的难度。
-语法结构
-首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。
-tuple用{}表示，列表用[]表示；
-用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）;
-.表示模式终结，,用来分割参数，函数；;用来分割子句；
-函数的参数个数，称为函数的目；func...
-    
-
-        <a href="/2017/06/12/erlang速记/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FP/">FP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/erlang/">erlang</a></li></ul>
 
     </div>
     

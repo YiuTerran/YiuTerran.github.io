@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://YiuTerran.github.io/"/>
-  <updated>2020-05-20T02:05:30.358Z</updated>
+  <updated>2020-06-05T05:54:13.058Z</updated>
   <id>http://YiuTerran.github.io/</id>
   
   <author>
@@ -14,6 +14,95 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>golang文件操作的一个坑</title>
+    <link href="http://YiuTerran.github.io/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/"/>
+    <id>http://YiuTerran.github.io/2020/06/05/golang文件操作的一个坑/</id>
+    <published>2020-06-05T05:52:07.000Z</published>
+    <updated>2020-06-05T05:54:13.058Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
+<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
+<p>哎，浪费了一上午=_=</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天遇到一个蛋疼的问题，定位了很久，发现在windows上&lt;code&gt;path.Dir&lt;/code&gt;获取的结果总是&lt;code&gt;.&lt;/code&gt;，后来发现：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;在windows上永远只用&lt;code&gt;filepath&lt;/code&gt;这个库里面的函数&lt;/
+    
+    </summary>
+    
+    
+      <category term="go" scheme="http://YiuTerran.github.io/tags/go/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SpringCloud架构解析</title>
+    <link href="http://YiuTerran.github.io/2020/05/21/SpringCloud%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90/"/>
+    <id>http://YiuTerran.github.io/2020/05/21/SpringCloud架构解析/</id>
+    <published>2020-05-21T08:11:34.000Z</published>
+    <updated>2020-05-21T08:11:34.422Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Workflow入门.md</title>
+    <link href="http://YiuTerran.github.io/2020/05/21/Workflow%E5%85%A5%E9%97%A8/"/>
+    <id>http://YiuTerran.github.io/2020/05/21/Workflow入门/</id>
+    <published>2020-05-21T03:31:49.000Z</published>
+    <updated>2020-05-22T07:29:29.299Z</updated>
+    
+    <content type="html"><![CDATA[<p>目前业务需要引入工作流引擎，现在开始调研相关技术和概念。目前开源的工作流引擎基本都是base在BPMN这套概念上的，所以对其深入了解是必须的（其实也很简单）。</p>
+<p>入门文档最好的材料是<a href="https://docs.awspaas.com/reference-guide/aws-paas-process-reference-guide/index.html" target="_blank" rel="noopener">国产的某个paas官方中文文档</a>，比较翔实。</p>
+<h2 id="选型"><a href="#选型" class="headerlink" title="选型"></a>选型</h2><p>这块其实可选的很少，最知名的是Activiti，目前最新版本是7，亮点是支持k8s集成等云原生组件；然后就是Activiti早期版本fork出来的camunda；最后是Activiti后期版本fork出来的flowable.</p>
+<p>这里我选择flowable，因为资料比较丰富，而且自带的前端界面有中文，方便内部使用。目前我们遇到的问题是不太清楚客户的具体需求，所以要使用工作流引擎保证可扩展性，但是不需要用户自己配置工作流（而是我们替他们配置好），所以自带的中文界面就比较重要了。这样是最简单快速的集成方案，后续可以自己实现一套前后端增删改查的接口，集成到自己的平台上。</p>
+<p>那么这里主要描述如何将flowable集成到我们目前的系统里（一个SpringBoot项目，单db，暂时还没拆分成微服务）。</p>
+<p>目标是：</p>
+<ol>
+<li>搞清楚如何通过自带的界面创建表单、流程；</li>
+<li>如何把flowable整合到现有的业务中；</li>
+<li>理清楚flowable创建表格/数据的意义，自己开发对应的API；</li>
+</ol>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>因为是测试，所以先切换到一个新分支进行开发。然后根据<a href="https://flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot/" target="_blank" rel="noopener">官方指南</a>，先把maven依赖集成到项目中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.flowable&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;flowable-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;flowable.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>我这里用的是最新的6.5.0版本，倒入依赖，重新编译项目。发现Jar包比原来大了13M左右，这个引擎的依赖还是挺多的…</p>
+<p>在配置文件里加入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flowable.async-executor-activate=false</span><br><span class="line">flowable.database-schema-update=true</span><br><span class="line"># 必要的字体设置</span><br></pre></td></tr></table></figure>
+<p>注意后面那个必须设置为true，即使要手动建表。不过默认就是true，所以可以不设置。</p>
+<h2 id="第一次运行"><a href="#第一次运行" class="headerlink" title="第一次运行"></a>第一次运行</h2><p><code>mvn clean install</code>之后，<code>mvn -o spring-boot:run -Drun.profiles=dev</code>试图跑起来，结果发现缺失某个依赖，加上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.fasterxml.jackson.module&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;jackson-module-jaxb-annotations&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>然后再跑，报bean<code>taskExecutor</code>报冲突。</p>
+<p>这里可以自己配置一下异步线程，避免和自己定义的默认线程池冲突。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlowableConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Process</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">processTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">3</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">10</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">"flowable-task-"</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cmmn</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">cmmnTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">1</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">5</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">"flowable-cmmn-"</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再跑，会报表不存在的错误。在datasource后面加上<code>&amp;nullCatalogMeansCurrent=true</code>，让程序自己建表。</p>
+<p>不过建议还是手动建表，因为默认的编码有点问题。mysql的原始sql在<a href="https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql，下下来改一下编码到utf8mb4，然后手动建表。" target="_blank" rel="noopener">https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql，下下来改一下编码到utf8mb4，然后手动建表。</a></p>
+<p>现在再跑，应该一切正常了。可以看到flowable的表都是大写的，不管是字段还是表名。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><a href="http://www.shareniu.com/flowable6.5_zh_document/bpm/index.html" target="_blank" rel="noopener">官方中文指南在此</a></p>
+<p>首先BPMN图形本质上是一段xml代码，然后我们又知道xml可以与bean映射，所以这就完美融合了，即BPMN就是“代码生成器”。</p>
+<h3 id="基本步骤"><a href="#基本步骤" class="headerlink" title="基本步骤"></a>基本步骤</h3><p>首先通过手动或者springboot的自动注册生成<code>ProcessEngine</code>对象，即规则引擎的工厂（线程安全）。然后手动编写流程bpmn对应的xml，或者通过界面生成也行。</p>
+<p>然后利用服务部署这个流程。</p>
+<p>每个流程有一个唯一id，调用流程就是通过id启动流程。把参数传进去，开始状态机的转换。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;目前业务需要引入工作流引擎，现在开始调研相关技术和概念。目前开源的工作流引擎基本都是base在BPMN这套概念上的，所以对其深入了解是必须的（其实也很简单）。&lt;/p&gt;
+&lt;p&gt;入门文档最好的材料是&lt;a href=&quot;https://docs.awspaas.com/refere
+    
+    </summary>
+    
+    
+      <category term="flowable" scheme="http://YiuTerran.github.io/tags/flowable/"/>
+    
+  </entry>
   
   <entry>
     <title>linux无人值守安装镜像制作.md</title>
