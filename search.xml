@@ -7,6 +7,49 @@
 ]]></content>
   </entry>
   <entry>
+    <title>CometD源码学习[0]</title>
+    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
+    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
+<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
+<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
+<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
+<blockquote>
+<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
+</blockquote>
+<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
+<ol>
+<li>创建队列线程池，用于处理请求；</li>
+<li>创建ServerSocket用于准备接受请求；</li>
+<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
+<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
+</ol>
+<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
+<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
+<ol>
+<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
+<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
+<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
+<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
+<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
+<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
+<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
+</ol>
+<p>NIO的一般工作原理用代码描述如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
+<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
+<hr>
+<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>jetty</tag>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CometD源码学习[1]</title>
     <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/</url>
     <content><![CDATA[<p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
@@ -137,49 +180,6 @@
         <tag>cometd</tag>
         <tag>java</tag>
         <tag>push</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CometD源码学习[0]</title>
-    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
-    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
-<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
-<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
-<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
-<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
-<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
-<blockquote>
-<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
-</blockquote>
-<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
-<ol>
-<li>创建队列线程池，用于处理请求；</li>
-<li>创建ServerSocket用于准备接受请求；</li>
-<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
-<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
-</ol>
-<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
-<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
-<ol>
-<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
-<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
-<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
-<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
-<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
-<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
-<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
-</ol>
-<p>NIO的一般工作原理用代码描述如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
-<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
-<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
-<hr>
-<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
-]]></content>
-      <tags>
-        <tag>cometd</tag>
-        <tag>jetty</tag>
-        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -574,28 +574,6 @@
       </tags>
   </entry>
   <entry>
-    <title>SpringMvc4 Rest Api最佳实践</title>
-    <url>/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
-<h2 id="所谓IOC"><a href="#所谓IOC" class="headerlink" title="所谓IOC"></a>所谓IOC</h2><p>Spring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类注册成Bean（可以指定构造函数的参数和bean的id等），然后框架再把这些Bean注入到<code>@Autowired</code>(按类型注入)，<code>@Resource</code>(按名称)等注解的变量（也可以使用XML配置的方式注入）。</p>
-<p>默认情况下，注册的都是一个单例，spring每次创建新对象时都使用同一个对象。也可以在xml中配置为<code>prototype</code>，这时候就是每次new一个新的对象了。另外spring mvc另外加了两个生命周期：session和request，分别表示为单次请求和session有效期内的对象。使用<code>@Scope</code>修改生命周期（作用域）。</p>
-<p>可以使用<code>@PostConstruct</code>和<code>@PreDestroy</code>注册两个回调方法，在spring实例化Bean（并装配）后回调对象对应的方法。</p>
-<p>一般使用<code>@Component</code>注册bean，<code>@Service</code>, <code>@Controller</code>和<code>@Repository</code>都是其别名。</p>
-<p>此外，还可以使用配置类(<code>@Configuration</code>)代替xml注册bean(<code>@Bean</code>)，在其注解的方法内进行恰当的初始化，并返回一个对象注册为Bean. <code>@Configuration</code>具有<code>@Component</code>的作用，在类里面也可以直接注入。但是如果想要引用其他配置类的Bean，需要使用<code>@import</code>.</p>
-<h2 id="所谓AOP"><a href="#所谓AOP" class="headerlink" title="所谓AOP"></a>所谓AOP</h2><p>可以简单理解为python中的装饰器…由于Java语法不支持装饰器，想要完成类似装饰器的用法，只能通过反射。比如，先声明一个类，完成主要的工作，称为target. 再通过一个类实现<code>org.springframework.aop.MethodBeforeAdvice</code>，其参数中捕获target的参数完成前置工作。最后通过spring的<code>ProxyFactory</code>生成代理工厂，设置target并添加advice，最后用代理工厂生成实例。</p>
-<p>需要注意的是，Java本身的动态代理是基于接口的。对于没有实现任何接口的类，只能通过CGLIB通过继承进行代理，但是后者显然不支持final类。spring在生成对象时会优先选择JDK代理，不行再尝试CGLIB代理。</p>
-<p>当然，除了在代码中使用，也可以用xml配置（实际上Java很多代码都可以通过xml实现，这也是非常惹人生厌的地方）。</p>
-<p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
-<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
-<p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
-]]></content>
-      <tags>
-        <tag>Java</tag>
-        <tag>SpringMVC</tag>
-        <tag>Web</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Workflow入门.md</title>
     <url>/2020/05/21/Workflow%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<p>目前业务需要引入工作流引擎，现在开始调研相关技术和概念。目前开源的工作流引擎基本都是base在BPMN这套概念上的，所以对其深入了解是必须的（其实也很简单）。</p>
@@ -638,36 +616,25 @@
       </tags>
   </entry>
   <entry>
-    <title>cometd使用haproxy做负载均衡的配置指南</title>
-    <url>/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</url>
-    <content><![CDATA[<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat&#x2F;haproxy-1.5</span><br></pre></td></tr></table></figure>
-<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if [ -e &#x2F;etc&#x2F;default&#x2F;haproxy ]; then</span><br><span class="line">	. &#x2F;etc&#x2F;default&#x2F;haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf </code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
-<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see &#x2F;etc&#x2F;rsyslog.d&#x2F;haproxy.conf</span><br><span class="line">  chroot &#x2F;var&#x2F;lib&#x2F;haproxy</span><br><span class="line">  pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&#39;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri &#x2F;stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&#39;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET &#x2F;cometd HTTP&#x2F;1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure>
-<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
-<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
-<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
-<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">local0.* &#x2F;var&#x2F;log&#x2F;haproxy&#x2F;haproxy.log</span><br></pre></td></tr></table></figure>
-<p>即可指定到具体文件。</p>
-<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -&#x2F;var&#x2F;log&#x2F;haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
-
-<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
-<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+    <title>SpringMvc4 Rest Api最佳实践</title>
+    <url>/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
+<h2 id="所谓IOC"><a href="#所谓IOC" class="headerlink" title="所谓IOC"></a>所谓IOC</h2><p>Spring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类注册成Bean（可以指定构造函数的参数和bean的id等），然后框架再把这些Bean注入到<code>@Autowired</code>(按类型注入)，<code>@Resource</code>(按名称)等注解的变量（也可以使用XML配置的方式注入）。</p>
+<p>默认情况下，注册的都是一个单例，spring每次创建新对象时都使用同一个对象。也可以在xml中配置为<code>prototype</code>，这时候就是每次new一个新的对象了。另外spring mvc另外加了两个生命周期：session和request，分别表示为单次请求和session有效期内的对象。使用<code>@Scope</code>修改生命周期（作用域）。</p>
+<p>可以使用<code>@PostConstruct</code>和<code>@PreDestroy</code>注册两个回调方法，在spring实例化Bean（并装配）后回调对象对应的方法。</p>
+<p>一般使用<code>@Component</code>注册bean，<code>@Service</code>, <code>@Controller</code>和<code>@Repository</code>都是其别名。</p>
+<p>此外，还可以使用配置类(<code>@Configuration</code>)代替xml注册bean(<code>@Bean</code>)，在其注解的方法内进行恰当的初始化，并返回一个对象注册为Bean. <code>@Configuration</code>具有<code>@Component</code>的作用，在类里面也可以直接注入。但是如果想要引用其他配置类的Bean，需要使用<code>@import</code>.</p>
+<h2 id="所谓AOP"><a href="#所谓AOP" class="headerlink" title="所谓AOP"></a>所谓AOP</h2><p>可以简单理解为python中的装饰器…由于Java语法不支持装饰器，想要完成类似装饰器的用法，只能通过反射。比如，先声明一个类，完成主要的工作，称为target. 再通过一个类实现<code>org.springframework.aop.MethodBeforeAdvice</code>，其参数中捕获target的参数完成前置工作。最后通过spring的<code>ProxyFactory</code>生成代理工厂，设置target并添加advice，最后用代理工厂生成实例。</p>
+<p>需要注意的是，Java本身的动态代理是基于接口的。对于没有实现任何接口的类，只能通过CGLIB通过继承进行代理，但是后者显然不支持final类。spring在生成对象时会优先选择JDK代理，不行再尝试CGLIB代理。</p>
+<p>当然，除了在代码中使用，也可以用xml配置（实际上Java很多代码都可以通过xml实现，这也是非常惹人生厌的地方）。</p>
+<p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
+<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
+<p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
 ]]></content>
       <tags>
-        <tag>cometd</tag>
-        <tag>haproxy</tag>
-        <tag>websocket</tag>
+        <tag>Java</tag>
+        <tag>SpringMVC</tag>
+        <tag>Web</tag>
       </tags>
   </entry>
   <entry>
@@ -715,6 +682,39 @@
 ]]></content>
       <tags>
         <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cometd使用haproxy做负载均衡的配置指南</title>
+    <url>/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat&#x2F;haproxy-1.5</span><br></pre></td></tr></table></figure>
+<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if [ -e &#x2F;etc&#x2F;default&#x2F;haproxy ]; then</span><br><span class="line">	. &#x2F;etc&#x2F;default&#x2F;haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf </code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
+<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see &#x2F;etc&#x2F;rsyslog.d&#x2F;haproxy.conf</span><br><span class="line">  chroot &#x2F;var&#x2F;lib&#x2F;haproxy</span><br><span class="line">  pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&#39;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri &#x2F;stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&#39;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET &#x2F;cometd HTTP&#x2F;1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure>
+<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
+<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
+<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">local0.* &#x2F;var&#x2F;log&#x2F;haproxy&#x2F;haproxy.log</span><br></pre></td></tr></table></figure>
+<p>即可指定到具体文件。</p>
+<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -&#x2F;var&#x2F;log&#x2F;haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
+
+<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
+<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>haproxy</tag>
+        <tag>websocket</tag>
       </tags>
   </entry>
   <entry>
@@ -1848,54 +1848,6 @@ ZERO_DIVIDE            零被整除
       </tags>
   </entry>
   <entry>
-    <title>摄影笔记</title>
-    <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
-<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
-<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
-<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
-<li>曝光补偿：用以修正曝光值；</li>
-<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
-<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
-</ol>
-<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
-<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
-<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
-</ol>
-<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
-<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
-<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
-</ol>
-<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
-<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
-<li>与光圈成反比</li>
-<li>与焦距成反比</li>
-<li>与对焦距离成正比</li>
-</ol>
-<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
-<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
-<ol>
-<li>快门速度</li>
-<li>光圈大小</li>
-<li>感光度</li>
-<li>曝光补偿</li>
-</ol>
-<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
-<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
-<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
-<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
-<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
-<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
-<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
-</ol>
-<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
-<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
-]]></content>
-      <tags>
-        <tag>摄影</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>读书笔记-数据密集型应用设计</title>
     <url>/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/</url>
     <content><![CDATA[<p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
@@ -2157,6 +2109,54 @@ ZERO_DIVIDE            零被整除
       <tags>
         <tag>database</tag>
         <tag>note</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>摄影笔记</title>
+    <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
+<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
+<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
+<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
+<li>曝光补偿：用以修正曝光值；</li>
+<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
+<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
+</ol>
+<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
+<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
+<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
+</ol>
+<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
+<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
+<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
+</ol>
+<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
+<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
+<li>与光圈成反比</li>
+<li>与焦距成反比</li>
+<li>与对焦距离成正比</li>
+</ol>
+<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
+<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
+<ol>
+<li>快门速度</li>
+<li>光圈大小</li>
+<li>感光度</li>
+<li>曝光补偿</li>
+</ol>
+<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
+<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
+<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
+<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
+<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
+<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
+<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
+</ol>
+<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
+<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
+]]></content>
+      <tags>
+        <tag>摄影</tag>
       </tags>
   </entry>
   <entry>
