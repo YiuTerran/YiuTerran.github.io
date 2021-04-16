@@ -50,63 +50,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>CometD源码学习[1]</title>
-    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/</url>
-    <content><![CDATA[<p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
-<h2 id="org-cometd-server-CometDServlet"><a href="#org-cometd-server-CometDServlet" class="headerlink" title="org.cometd.server.CometDServlet"></a>org.cometd.server.CometDServlet</h2><p>在web.xml中，服务的配置顺序一般是<code>CometDServlet</code>，<code>oort</code>，<code>seti</code>和用户自定义应用的<code>Servlet</code>，我们也按这个顺序来看。显然，这个类主要用于Long-Polling模式。<br><code>init</code>中主要就是新建（如果未导出）并启动一个bayeuxServer;<br><code>service</code>中，”OPTION”请求，用于允许CORS访问，直接返回200；否则转发给transport；<br><code>destroy</code>用于生命周期中stop过程调用，依次cancelSchedule, stop bayeuxServer, remove导出的bayeuxServer.</p>
-<h2 id="org-cometd-server-BayeuxServer"><a href="#org-cometd-server-BayeuxServer" class="headerlink" title="org.cometd.server.BayeuxServer"></a>org.cometd.server.BayeuxServer</h2><p>这个接口规定了bayeux服务器需要实现的接口。值得关注的地方：</p>
-<ol>
-<li>可监听事件：<br> a. ChannelListener用于监听add/remove Channel的事件；<br> b. SessionListener用于监听add/remove Session的事件，这个比较重要。可以通过Session建立事件来给client push 欢迎消息，通过Session removed事件来确认client断开连接。<br> c. SubscriptionListener用于监听订阅事件；</li>
-<li>extension接口:<br> extension本质是一个消息钩子，可以在rcv之初/send之末对消息做一些修改（主要是操作bayeux协议的<code>ext</code>字段），所以参数中ServerMessage都是Mutable的.这里normal message和meta message被区分开来。</li>
-</ol>
-<h2 id="org-cometd-server-BayeuxServerImpl"><a href="#org-cometd-server-BayeuxServerImpl" class="headerlink" title="org.cometd.server.BayeuxServerImpl"></a>org.cometd.server.BayeuxServerImpl</h2><p>顾名思义，bayeuxServer的实现类。<br><code>VALID</code>用了一个技巧，即字符本质上是一个short的ASCII码；<br><code>System.identityHashCode</code>用于获取对象的原始hashcode码；<br><code>SecureRandom</code>是一个强加密的随机数类；<br><code>listeners</code>, <code>extension</code>都被存放在线程安全的<code>CopyOnWriteArrayList</code>里面；<br>client_id与<code>ServerSessionImpl</code>、channel_name与<code>ServerChannelImpl</code>的映射也被存放在线程安全的<code>ConcurrentHashMap</code>里面；<br>Server支持的transport被存入<code>LinkedHashMap</code>里面，因为transport的顺序很重要，优先使用迭代中最前的，不可行时才使用后续者；<br><code>currentTransport</code>是一个<code>ThreadLocal</code>变量，因为每个线程（连接）当前的Transport肯定不一样。</p>
-<p>_scheduler是一个周期性定时器，此外是一个policy、一个JSON的server，这三个变量。</p>
-<h3 id="dostart"><a href="#dostart" class="headerlink" title="dostart"></a>dostart</h3><ol>
-<li>首先初始化Meta Channel：创建Channel并增加相关的Listener；</li>
-<li>初始化JSON服务器，这里有一个缺省的实现（<code>JettyJSONContextServer</code>），但是用户也可以通过option自定义一个实现类（通过反射，使用<code>isAssignableFrom</code>判断是否是<code>JSONContext.Server</code>的子类）；</li>
-<li>初始化transport.如果没有设置，初始化为websocket接口，否则依序初始化配置文件中指定的端口并添加到容器中；如果<code>allowedTransports</code>没有设置，默认允许所有transport，否则依序初始化配置文件中允许的且存在于transport列表中的transport；上述所有数据都被添加到公用的容器中了。</li>
-<li>启动_scheduler，执行周期性扫除(sweep)任务（每次计时任务结束后需要手动再启动定时任务），该任务会扫描所有Channel和端口以及session，扫描周期默认是997ms，可以自己设置。<br>session扫描即服务端超时机制，如果now&gt;一定时间间隔，则从服务端移除session；Channel扫描就是检测Channel的订阅数量，如果没有活动的（即已握手的session的）订阅，那么就从BayeuxServer中清除（除非设置为<code>persistent</code>）；</li>
-<li>最后是2.9新增的<code>validateMessageFields</code>用于校验消息格式。</li>
-</ol>
-<h3 id="createChannelIfAbsent"><a href="#createChannelIfAbsent" class="headerlink" title="createChannelIfAbsent"></a>createChannelIfAbsent</h3><p>创建通道，传入channel名和初始化器。<br>如果Channel name尚不存在：</p>
-<ol>
-<li>根据channel name创建<code>ChannelId</code>，然后创建一个新的<code>ServerChannelImpl</code>，后者是一个<code>ServerChannel</code>接口的实现类。注意在<code>ServerChannelImpl</code>的构造函数中，如果非broadcast channel，会被设置为persistent的；</li>
-<li>存放channel，会再次检测channel是不是已经存在（多线程检测），确认无误后，开始配置channel；使用传入的<code>initializers</code>和已注册的<code>listener</code>配置channel；</li>
-<li>初始化完毕，触发ChannelListener的Channel added事件；<br>如果Channel name已存在：<br>什么都不做，简单的给将channel的存活评估值（_sweeperPasses)重置。会再次check channel（<code>putIfAbsent</code>）是不是已存在于容器中。</li>
-</ol>
-<h2 id="PushServlet"><a href="#PushServlet" class="headerlink" title="PushServlet"></a>PushServlet</h2><p>先跳过Oort和Seti，直接看PushServlet（我们的应用程序）。<br>由于在CometDServlet里面已经导出了<code>bayeuxServer</code>，这里可以通过<code>getServletContext()</code>直接拿到Server了.<br>现在可以创建<code>SecurityPolicy</code>和<code>PushService</code>了。</p>
-<h2 id="AbstractService"><a href="#AbstractService" class="headerlink" title="AbstractService"></a>AbstractService</h2><p>顾名思义，这个类是<code>abstract</code>的，注意构造函数里面会先create一个<code>LocalSession</code>，然后自己和自己握手。这个LocalSession本子上是用于服务端主动publish消息的.<br><strong>初始化的时候可以指定线程池的大小，否则使用同步访问。</strong>显然，如果不使用线程池，那么在处理消息时如果有费时间的操作，必须新建线程。<br>这里用了一个技术，使用反射技术查看自己所处的类的<code>Modifier</code>是不是<code>public</code>的。</p>
-<h3 id="addService"><a href="#addService" class="headerlink" title="addService"></a>addService</h3><p>创建Channel后，正常流程走到这里。传入channel name和callback func name，利用反射技术进行映射。<br><code>getClass</code>拿到类，然后从当前开始逐层向上遍历直到<code>AbstractService</code>，执行以下操作：<br><code>getDeclaredMethods</code>拿到方法集合，遍历方法集合，判定名称相等且有<code>public</code>描述符，那么找到候选<code>Method</code>。<br>候选<code>Method</code>的参数必须符合固定的签名类型，这里用<code>isAssignableFrom</code>配合<code>getParameterTypes()</code>来进行判断；<br><strong>注意</strong>：这里会主动调用<code>createChannelIfAbsent</code>创建服务（这里就没机会做配置了）；</p>
-<p>创建一个<code>Invoker</code>，在并行队列里放入<code>messageName</code>和<code>Invoker</code>的映射。<br>该<code>Invoker</code>被增加为Channel的Listener.</p>
-<h3 id="handle"><a href="#handle" class="headerlink" title="handle"></a>handle</h3><p>所有消息首先经过该函数进行分发。<br>首先验证消息，创建回复并关联。调用接受的extension对消息进行扩展；从消息中取出channel，对消息进行认证(<code>Authorizer</code>)；然后依据是否是Meta消息进行不同的分发，无论是接受消息还是发送消息，最终都是调用了<code>doPublish</code>方法。</p>
-<h2 id="AbstractService-Invoker"><a href="#AbstractService-Invoker" class="headerlink" title="AbstractService.Invoker"></a>AbstractService.Invoker</h2><p><code>ServerChannel.MessageListener</code>接口的实现类。</p>
-<h3 id="OnMessage"><a href="#OnMessage" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>消息的观察者。<br>Server可以通过<code>isSeeOwnPublish</code>相关参数的配置控制是否接收自己publish的消息，然后调用(<code>invoke</code>）回到函数。如果初始化的时候传递了最大线程数，那么这里就从线程池里面拿线程然后处理消息；<strong>否则直接在当前线程里面处理消息</strong>(<code>doInvoke</code>)；<br>如果回调函数的签名中有返回值，这个值会被立刻返回(send)给client端。</p>
-<p>现在再次回到<code>BayeuxServerImpl</code>类中，<code>doStart</code>会给所有的<code>Meta</code> Channel增加Listener，这是预置的Meta handler；按着Bayeux协议约定的过程，client会首先handshake。</p>
-<h2 id="BayeuxServerImpl-HandshakeHandler"><a href="#BayeuxServerImpl-HandshakeHandler" class="headerlink" title="BayeuxServerImpl.HandshakeHandler"></a>BayeuxServerImpl.HandshakeHandler</h2><p>先看父类，<code>HandlerListener</code>是<code>ServerChannel.ServerChannelListener</code>的实现类。<br><code>isSessionUnknown</code>没啥好说的；<code>toChannelList</code>有个有趣的地方，可以用<code>Collections.singletonList</code>生成单元素列表），对某些需要传一个集合，但是实际上只要传一个元素的API很有用；</p>
-<h3 id="OnMessage-1"><a href="#OnMessage-1" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>handshake的时候session理论上还不存在，于是新建一个<code>ServerSession</code>，并且将HTTP的相关报头转移过来（UA），然后得到关联(<code>getAssociated</code>)的消息实体（消息可能是捎带回去的）。<br>这时候先判断<code>SecurityPolicy</code>有没有设置，如果设置了，就先判断<code>canHandshake</code>是不是成立，如果不成立，就要<code>reply.setSuccessful(false)</code>，并设置错误原因。</p>
-<p>这里有个问题，reply并没有传给<code>canHandshake</code>，但是<code>message</code>被传进去了。根据<code>ServerMessageImpl</code>的实现，<code>canHandshake</code>也可以用<code>message.getAssociated</code>里面拿到reply，然后增加想要的字段（ext）。代码显示，这里并没有往advice里面添加重连间隔（<code>interval</code>)字段。<br>【这里显示了nest class如何得到outer class的实例，直接用<code>BayeuxServerImpl.this</code>.】</p>
-<p>一切正常，<code>ServerSession</code>首先和自己握手，增加<code>ServerSession</code>（在此处<strong>通知回调</strong>，即应用程序注册的监听Session添加的方法），定义reply中的某些字段；如果<code>canHandshake</code>返回false，则返回403（handshake denied）错误；注意：如果应用程序的监听器没有设置<code>advice</code>中的<code>reconnect</code>字段，这里默认会填入<code>none</code>。</p>
-<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a href="http://docs.cometd.org/reference/bayeux_message_fields.html">^1</a></p>
-<h2 id="BayeuxServerImpl-ConnectHandler"><a href="#BayeuxServerImpl-ConnectHandler" class="headerlink" title="BayeuxServerImpl.ConnectHandler"></a>BayeuxServerImpl.ConnectHandler</h2><p>心跳信息处理。</p>
-<h3 id="OnMessage-2"><a href="#OnMessage-2" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>如果session未知，那就需要重新握手，返回402错误。否则对session进行续期，并返回advice，内容包括<code>timeout</code>和<code>interval</code>字段（如果没有设置，默认是不过期的）</p>
-<h2 id="BayeuxServerImpl-SubscribeHandler"><a href="#BayeuxServerImpl-SubscribeHandler" class="headerlink" title="BayeuxServerImpl.SubscribeHandler"></a>BayeuxServerImpl.SubscribeHandler</h2><p>订阅Channel处理。</p>
-<h3 id="OnMessage-3"><a href="#OnMessage-3" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>402同上。如果没有<code>subscription</code>字段或者字段不符合格式，403；如果Channel不存在，尝试创建Channel(policy的<code>canCreate</code>，以及内部Channel格式约束)，失败则403。</p>
-<h2 id="BayeuxServerImpl-UnsubscribeHandler"><a href="#BayeuxServerImpl-UnsubscribeHandler" class="headerlink" title="BayeuxServerImpl.UnsubscribeHandler"></a>BayeuxServerImpl.UnsubscribeHandler</h2><p>退订处理。</p>
-<h3 id="OnMessage-4"><a href="#OnMessage-4" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>退订只要session存在，消息格式正确，没有理由不让你退XD</p>
-<h2 id="BayeuxServerImpl-DisconnectHandler"><a href="#BayeuxServerImpl-DisconnectHandler" class="headerlink" title="BayeuxServerImpl.DisconnectHandler"></a>BayeuxServerImpl.DisconnectHandler</h2><p>断开连接处理。</p>
-<h3 id="OnMessage-5"><a href="#OnMessage-5" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>session存在即可断开。<br>会激活移除session的回调（timeout=false）<br>刷新session=&gt;</p>
-<h2 id="ServerSessionImpl"><a href="#ServerSessionImpl" class="headerlink" title="ServerSessionImpl"></a>ServerSessionImpl</h2><h3 id="flush"><a href="#flush" class="headerlink" title="flush"></a>flush</h3><p>刷新session会取消上一次的lazyTask；</p>
-<h3 id="LazyTask"><a href="#LazyTask" class="headerlink" title="LazyTask"></a>LazyTask</h3><p><code>Runnable</code>子类，其<code>scheduler</code>方法最终调用<code>BayeuxServerImpl</code>中的同名方法，作为一个计划任务执行（<code>Scheduler</code>是jetty的基础工具类）。</p>
-<h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
-<h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
-]]></content>
-      <tags>
-        <tag>cometd</tag>
-        <tag>jetty</tag>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>cometd 学习文档</title>
     <url>/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<ol>
@@ -180,6 +123,63 @@
         <tag>cometd</tag>
         <tag>java</tag>
         <tag>push</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CometD源码学习[1]</title>
+    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/</url>
+    <content><![CDATA[<p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
+<h2 id="org-cometd-server-CometDServlet"><a href="#org-cometd-server-CometDServlet" class="headerlink" title="org.cometd.server.CometDServlet"></a>org.cometd.server.CometDServlet</h2><p>在web.xml中，服务的配置顺序一般是<code>CometDServlet</code>，<code>oort</code>，<code>seti</code>和用户自定义应用的<code>Servlet</code>，我们也按这个顺序来看。显然，这个类主要用于Long-Polling模式。<br><code>init</code>中主要就是新建（如果未导出）并启动一个bayeuxServer;<br><code>service</code>中，”OPTION”请求，用于允许CORS访问，直接返回200；否则转发给transport；<br><code>destroy</code>用于生命周期中stop过程调用，依次cancelSchedule, stop bayeuxServer, remove导出的bayeuxServer.</p>
+<h2 id="org-cometd-server-BayeuxServer"><a href="#org-cometd-server-BayeuxServer" class="headerlink" title="org.cometd.server.BayeuxServer"></a>org.cometd.server.BayeuxServer</h2><p>这个接口规定了bayeux服务器需要实现的接口。值得关注的地方：</p>
+<ol>
+<li>可监听事件：<br> a. ChannelListener用于监听add/remove Channel的事件；<br> b. SessionListener用于监听add/remove Session的事件，这个比较重要。可以通过Session建立事件来给client push 欢迎消息，通过Session removed事件来确认client断开连接。<br> c. SubscriptionListener用于监听订阅事件；</li>
+<li>extension接口:<br> extension本质是一个消息钩子，可以在rcv之初/send之末对消息做一些修改（主要是操作bayeux协议的<code>ext</code>字段），所以参数中ServerMessage都是Mutable的.这里normal message和meta message被区分开来。</li>
+</ol>
+<h2 id="org-cometd-server-BayeuxServerImpl"><a href="#org-cometd-server-BayeuxServerImpl" class="headerlink" title="org.cometd.server.BayeuxServerImpl"></a>org.cometd.server.BayeuxServerImpl</h2><p>顾名思义，bayeuxServer的实现类。<br><code>VALID</code>用了一个技巧，即字符本质上是一个short的ASCII码；<br><code>System.identityHashCode</code>用于获取对象的原始hashcode码；<br><code>SecureRandom</code>是一个强加密的随机数类；<br><code>listeners</code>, <code>extension</code>都被存放在线程安全的<code>CopyOnWriteArrayList</code>里面；<br>client_id与<code>ServerSessionImpl</code>、channel_name与<code>ServerChannelImpl</code>的映射也被存放在线程安全的<code>ConcurrentHashMap</code>里面；<br>Server支持的transport被存入<code>LinkedHashMap</code>里面，因为transport的顺序很重要，优先使用迭代中最前的，不可行时才使用后续者；<br><code>currentTransport</code>是一个<code>ThreadLocal</code>变量，因为每个线程（连接）当前的Transport肯定不一样。</p>
+<p>_scheduler是一个周期性定时器，此外是一个policy、一个JSON的server，这三个变量。</p>
+<h3 id="dostart"><a href="#dostart" class="headerlink" title="dostart"></a>dostart</h3><ol>
+<li>首先初始化Meta Channel：创建Channel并增加相关的Listener；</li>
+<li>初始化JSON服务器，这里有一个缺省的实现（<code>JettyJSONContextServer</code>），但是用户也可以通过option自定义一个实现类（通过反射，使用<code>isAssignableFrom</code>判断是否是<code>JSONContext.Server</code>的子类）；</li>
+<li>初始化transport.如果没有设置，初始化为websocket接口，否则依序初始化配置文件中指定的端口并添加到容器中；如果<code>allowedTransports</code>没有设置，默认允许所有transport，否则依序初始化配置文件中允许的且存在于transport列表中的transport；上述所有数据都被添加到公用的容器中了。</li>
+<li>启动_scheduler，执行周期性扫除(sweep)任务（每次计时任务结束后需要手动再启动定时任务），该任务会扫描所有Channel和端口以及session，扫描周期默认是997ms，可以自己设置。<br>session扫描即服务端超时机制，如果now&gt;一定时间间隔，则从服务端移除session；Channel扫描就是检测Channel的订阅数量，如果没有活动的（即已握手的session的）订阅，那么就从BayeuxServer中清除（除非设置为<code>persistent</code>）；</li>
+<li>最后是2.9新增的<code>validateMessageFields</code>用于校验消息格式。</li>
+</ol>
+<h3 id="createChannelIfAbsent"><a href="#createChannelIfAbsent" class="headerlink" title="createChannelIfAbsent"></a>createChannelIfAbsent</h3><p>创建通道，传入channel名和初始化器。<br>如果Channel name尚不存在：</p>
+<ol>
+<li>根据channel name创建<code>ChannelId</code>，然后创建一个新的<code>ServerChannelImpl</code>，后者是一个<code>ServerChannel</code>接口的实现类。注意在<code>ServerChannelImpl</code>的构造函数中，如果非broadcast channel，会被设置为persistent的；</li>
+<li>存放channel，会再次检测channel是不是已经存在（多线程检测），确认无误后，开始配置channel；使用传入的<code>initializers</code>和已注册的<code>listener</code>配置channel；</li>
+<li>初始化完毕，触发ChannelListener的Channel added事件；<br>如果Channel name已存在：<br>什么都不做，简单的给将channel的存活评估值（_sweeperPasses)重置。会再次check channel（<code>putIfAbsent</code>）是不是已存在于容器中。</li>
+</ol>
+<h2 id="PushServlet"><a href="#PushServlet" class="headerlink" title="PushServlet"></a>PushServlet</h2><p>先跳过Oort和Seti，直接看PushServlet（我们的应用程序）。<br>由于在CometDServlet里面已经导出了<code>bayeuxServer</code>，这里可以通过<code>getServletContext()</code>直接拿到Server了.<br>现在可以创建<code>SecurityPolicy</code>和<code>PushService</code>了。</p>
+<h2 id="AbstractService"><a href="#AbstractService" class="headerlink" title="AbstractService"></a>AbstractService</h2><p>顾名思义，这个类是<code>abstract</code>的，注意构造函数里面会先create一个<code>LocalSession</code>，然后自己和自己握手。这个LocalSession本子上是用于服务端主动publish消息的.<br><strong>初始化的时候可以指定线程池的大小，否则使用同步访问。</strong>显然，如果不使用线程池，那么在处理消息时如果有费时间的操作，必须新建线程。<br>这里用了一个技术，使用反射技术查看自己所处的类的<code>Modifier</code>是不是<code>public</code>的。</p>
+<h3 id="addService"><a href="#addService" class="headerlink" title="addService"></a>addService</h3><p>创建Channel后，正常流程走到这里。传入channel name和callback func name，利用反射技术进行映射。<br><code>getClass</code>拿到类，然后从当前开始逐层向上遍历直到<code>AbstractService</code>，执行以下操作：<br><code>getDeclaredMethods</code>拿到方法集合，遍历方法集合，判定名称相等且有<code>public</code>描述符，那么找到候选<code>Method</code>。<br>候选<code>Method</code>的参数必须符合固定的签名类型，这里用<code>isAssignableFrom</code>配合<code>getParameterTypes()</code>来进行判断；<br><strong>注意</strong>：这里会主动调用<code>createChannelIfAbsent</code>创建服务（这里就没机会做配置了）；</p>
+<p>创建一个<code>Invoker</code>，在并行队列里放入<code>messageName</code>和<code>Invoker</code>的映射。<br>该<code>Invoker</code>被增加为Channel的Listener.</p>
+<h3 id="handle"><a href="#handle" class="headerlink" title="handle"></a>handle</h3><p>所有消息首先经过该函数进行分发。<br>首先验证消息，创建回复并关联。调用接受的extension对消息进行扩展；从消息中取出channel，对消息进行认证(<code>Authorizer</code>)；然后依据是否是Meta消息进行不同的分发，无论是接受消息还是发送消息，最终都是调用了<code>doPublish</code>方法。</p>
+<h2 id="AbstractService-Invoker"><a href="#AbstractService-Invoker" class="headerlink" title="AbstractService.Invoker"></a>AbstractService.Invoker</h2><p><code>ServerChannel.MessageListener</code>接口的实现类。</p>
+<h3 id="OnMessage"><a href="#OnMessage" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>消息的观察者。<br>Server可以通过<code>isSeeOwnPublish</code>相关参数的配置控制是否接收自己publish的消息，然后调用(<code>invoke</code>）回到函数。如果初始化的时候传递了最大线程数，那么这里就从线程池里面拿线程然后处理消息；<strong>否则直接在当前线程里面处理消息</strong>(<code>doInvoke</code>)；<br>如果回调函数的签名中有返回值，这个值会被立刻返回(send)给client端。</p>
+<p>现在再次回到<code>BayeuxServerImpl</code>类中，<code>doStart</code>会给所有的<code>Meta</code> Channel增加Listener，这是预置的Meta handler；按着Bayeux协议约定的过程，client会首先handshake。</p>
+<h2 id="BayeuxServerImpl-HandshakeHandler"><a href="#BayeuxServerImpl-HandshakeHandler" class="headerlink" title="BayeuxServerImpl.HandshakeHandler"></a>BayeuxServerImpl.HandshakeHandler</h2><p>先看父类，<code>HandlerListener</code>是<code>ServerChannel.ServerChannelListener</code>的实现类。<br><code>isSessionUnknown</code>没啥好说的；<code>toChannelList</code>有个有趣的地方，可以用<code>Collections.singletonList</code>生成单元素列表），对某些需要传一个集合，但是实际上只要传一个元素的API很有用；</p>
+<h3 id="OnMessage-1"><a href="#OnMessage-1" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>handshake的时候session理论上还不存在，于是新建一个<code>ServerSession</code>，并且将HTTP的相关报头转移过来（UA），然后得到关联(<code>getAssociated</code>)的消息实体（消息可能是捎带回去的）。<br>这时候先判断<code>SecurityPolicy</code>有没有设置，如果设置了，就先判断<code>canHandshake</code>是不是成立，如果不成立，就要<code>reply.setSuccessful(false)</code>，并设置错误原因。</p>
+<p>这里有个问题，reply并没有传给<code>canHandshake</code>，但是<code>message</code>被传进去了。根据<code>ServerMessageImpl</code>的实现，<code>canHandshake</code>也可以用<code>message.getAssociated</code>里面拿到reply，然后增加想要的字段（ext）。代码显示，这里并没有往advice里面添加重连间隔（<code>interval</code>)字段。<br>【这里显示了nest class如何得到outer class的实例，直接用<code>BayeuxServerImpl.this</code>.】</p>
+<p>一切正常，<code>ServerSession</code>首先和自己握手，增加<code>ServerSession</code>（在此处<strong>通知回调</strong>，即应用程序注册的监听Session添加的方法），定义reply中的某些字段；如果<code>canHandshake</code>返回false，则返回403（handshake denied）错误；注意：如果应用程序的监听器没有设置<code>advice</code>中的<code>reconnect</code>字段，这里默认会填入<code>none</code>。</p>
+<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a href="http://docs.cometd.org/reference/bayeux_message_fields.html">^1</a></p>
+<h2 id="BayeuxServerImpl-ConnectHandler"><a href="#BayeuxServerImpl-ConnectHandler" class="headerlink" title="BayeuxServerImpl.ConnectHandler"></a>BayeuxServerImpl.ConnectHandler</h2><p>心跳信息处理。</p>
+<h3 id="OnMessage-2"><a href="#OnMessage-2" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>如果session未知，那就需要重新握手，返回402错误。否则对session进行续期，并返回advice，内容包括<code>timeout</code>和<code>interval</code>字段（如果没有设置，默认是不过期的）</p>
+<h2 id="BayeuxServerImpl-SubscribeHandler"><a href="#BayeuxServerImpl-SubscribeHandler" class="headerlink" title="BayeuxServerImpl.SubscribeHandler"></a>BayeuxServerImpl.SubscribeHandler</h2><p>订阅Channel处理。</p>
+<h3 id="OnMessage-3"><a href="#OnMessage-3" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>402同上。如果没有<code>subscription</code>字段或者字段不符合格式，403；如果Channel不存在，尝试创建Channel(policy的<code>canCreate</code>，以及内部Channel格式约束)，失败则403。</p>
+<h2 id="BayeuxServerImpl-UnsubscribeHandler"><a href="#BayeuxServerImpl-UnsubscribeHandler" class="headerlink" title="BayeuxServerImpl.UnsubscribeHandler"></a>BayeuxServerImpl.UnsubscribeHandler</h2><p>退订处理。</p>
+<h3 id="OnMessage-4"><a href="#OnMessage-4" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>退订只要session存在，消息格式正确，没有理由不让你退XD</p>
+<h2 id="BayeuxServerImpl-DisconnectHandler"><a href="#BayeuxServerImpl-DisconnectHandler" class="headerlink" title="BayeuxServerImpl.DisconnectHandler"></a>BayeuxServerImpl.DisconnectHandler</h2><p>断开连接处理。</p>
+<h3 id="OnMessage-5"><a href="#OnMessage-5" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>session存在即可断开。<br>会激活移除session的回调（timeout=false）<br>刷新session=&gt;</p>
+<h2 id="ServerSessionImpl"><a href="#ServerSessionImpl" class="headerlink" title="ServerSessionImpl"></a>ServerSessionImpl</h2><h3 id="flush"><a href="#flush" class="headerlink" title="flush"></a>flush</h3><p>刷新session会取消上一次的lazyTask；</p>
+<h3 id="LazyTask"><a href="#LazyTask" class="headerlink" title="LazyTask"></a>LazyTask</h3><p><code>Runnable</code>子类，其<code>scheduler</code>方法最终调用<code>BayeuxServerImpl</code>中的同名方法，作为一个计划任务执行（<code>Scheduler</code>是jetty的基础工具类）。</p>
+<h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
+<h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>jetty</tag>
+        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -793,17 +793,6 @@
       </tags>
   </entry>
   <entry>
-    <title>golang文件操作的一个坑</title>
-    <url>/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/</url>
-    <content><![CDATA[<p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
-<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
-<p>哎，浪费了一上午=_=</p>
-]]></content>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>gb28181实现调研</title>
     <url>/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/</url>
     <content><![CDATA[<p>由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。</p>
@@ -826,6 +815,17 @@
       <tags>
         <tag>camera</tag>
         <tag>design</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>golang文件操作的一个坑</title>
+    <url>/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/</url>
+    <content><![CDATA[<p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
+<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
+<p>哎，浪费了一上午=_=</p>
+]]></content>
+      <tags>
+        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -854,47 +854,6 @@
         <tag>design_pattern</tag>
         <tag>proxy</tag>
         <tag>reflect</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>java并发编程实战读书笔记</title>
-    <url>/2017/06/12/java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>并发编程实际上极其复杂，有很多绝对值得去看的建议。</p>
-<ol>
-<li>不要在构造器里面调用可变函数（虚函数），这是所谓的安全构造需求；</li>
-<li>最简单的线程安全类是不可变类，不可变类有如下硬性要求：<ul>
-<li>对象创建以后就不能修改</li>
-<li>对象所有域都是<code>final</code>的</li>
-<li>对象是安全构造的</li>
-</ul>
-</li>
-<li>所谓可见性指的是a线程修改了变量，b线程可以知道这种修改；所谓原子性指的是a线程在修改变量时，b线程不会干扰这种修改；</li>
-<li>所谓安全发布，必须满足以下条件之一：<ul>
-<li>在静态初始化函数中初始化一个对象引用</li>
-<li>将对象的引用保存到<code>volatile</code>类型或者<code>AtomicReferance</code>对象之中</li>
-<li>将对象的应用保存到某个正确构造对象的<code>final</code>域中</li>
-<li>将对象引用保存到一个由锁保护的域中</li>
-</ul>
-</li>
-<li><code>volatile</code>变量只能保证可见性，无法保证原子性；加锁则都可以保证（但是会繁琐一些）。</li>
-<li>不要在构造器中调用新的线程，这会导致不安全发布；正确的做法是使用静态工厂函数，构造完毕后再启动线程（或者做其他发布）；</li>
-<li>最简单维持线程安全的方法是使用局部变量（栈封闭），其次是使用原子类，包括现场本地存储类<code>ThreadLocal&lt;&gt;</code></li>
-<li>大多数情况下，我们无须直接使用<code>Thread</code>这种基础类，java提供了很多适用范围广泛的组件，包括：</li>
-<li>并发容器类，使用<code>java.util.concurrent</code>中定义的包括<code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>，<code>ConcurrentLinkedQueue</code>和<code>BlockingQueue</code>（<code>BlockingDeque</code>),以及<code>ConcurrentSkipListMap</code>和<code>ConcurrentSkipListSet</code>（作为<code>SortedMap</code>和<code>SortedSet</code>的替代品）.<code>BlockingQueue</code>在<code>take</code>和<code>put</code>时，如果没有元素/空间就会阻塞；</li>
-<li>如果线程被中断，会抛出<code>InterruptedException</code>如果是<code>Runnable</code>的对象，是不可以直接抛出这个异常的，必须捕获并使用<code>Thread.currentThread().interrupt()</code>恢复中断；其他类型的对象倒是无所谓，可以直接抛出或者捕获清理后重新抛出；</li>
-<li>闭锁。<code>CountDownLatch</code>可以用来等待计数，<code>FutureTask</code>是一种<code>Callable</code>，可以通过<code>get</code>来获得结果（或者阻塞），<code>Semaphore</code>用来对资源进行限制计数，可以用来实现资源池，使用<code>acquire</code>获得一个资源，使用<code>release</code>释放一个资源，<code>Barrier</code>用来实现分段任务，当所有任务都到达Barrier时，任务继续，否则抛出<code>BrokenBarrierException</code>异常。本章给出了一个缓存的例子。</li>
-<li>Executor框架。<code>Executor</code>是一个接口，只规定了<code>execute</code>一个接口（其参数是一个<code>Runnable</code> class）；<code>Executors</code>包含生产线程池的几个静态方法，如<code>newFixedThreadPool</code>（固定大小），<code>newCachedThreadPool</code>（无限增长）和<code>newSingleThreadExecutor</code>（单线程串行）,和<code>newScheduledThreadPool</code>（定时执行）。如果这些都不能满足需求，可以直接使用<code>ThreadPoolExecutor</code>自己灵活构造线程池</li>
-<li><code>ExecutorService</code>接口在<code>Executor</code>接口的基础上增加了生命周期，可以使用<code>shutdown</code>，<code>shutdownNow</code>，<code>awaitTermination</code>等方法进行生命周期（运行、关闭和已终止）控制和感知。</li>
-<li><code>ExecutorService</code>的<code>submit</code>方法用于提交一个任务并返回一个<code>Future</code>，使用这个结果可以控制任务的生命周期；</li>
-<li>线程的超时：一般可以用重载的<code>get</code>，<code>await</code>等方法指定超时时间；</li>
-<li>线程的取消：习惯上使用一个<code>volatile</code>变量作为取消标志，但是如果线程阻塞了，这个方法就不好用了。最佳方式是使用中断(<code>Future.cancel</code>)，注意需要处理好相关的异常；</li>
-<li>可以通过继承<code>Thread</code>重载<code>interrupt</code>方法来将中断处理封闭在异常类中；可以通过使用<code>ThreadPoolExecutor</code>中的<code>newTaskFor</code>静态方法由<code>Callable</code>生产<code>RunnableFuture</code></li>
-</ol>
-]]></content>
-      <tags>
-        <tag>java</tag>
-        <tag>base</tag>
-        <tag>concurrent</tag>
       </tags>
   </entry>
   <entry>
@@ -991,6 +950,47 @@
       </tags>
   </entry>
   <entry>
+    <title>java并发编程实战读书笔记</title>
+    <url>/2017/06/12/java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>并发编程实际上极其复杂，有很多绝对值得去看的建议。</p>
+<ol>
+<li>不要在构造器里面调用可变函数（虚函数），这是所谓的安全构造需求；</li>
+<li>最简单的线程安全类是不可变类，不可变类有如下硬性要求：<ul>
+<li>对象创建以后就不能修改</li>
+<li>对象所有域都是<code>final</code>的</li>
+<li>对象是安全构造的</li>
+</ul>
+</li>
+<li>所谓可见性指的是a线程修改了变量，b线程可以知道这种修改；所谓原子性指的是a线程在修改变量时，b线程不会干扰这种修改；</li>
+<li>所谓安全发布，必须满足以下条件之一：<ul>
+<li>在静态初始化函数中初始化一个对象引用</li>
+<li>将对象的引用保存到<code>volatile</code>类型或者<code>AtomicReferance</code>对象之中</li>
+<li>将对象的应用保存到某个正确构造对象的<code>final</code>域中</li>
+<li>将对象引用保存到一个由锁保护的域中</li>
+</ul>
+</li>
+<li><code>volatile</code>变量只能保证可见性，无法保证原子性；加锁则都可以保证（但是会繁琐一些）。</li>
+<li>不要在构造器中调用新的线程，这会导致不安全发布；正确的做法是使用静态工厂函数，构造完毕后再启动线程（或者做其他发布）；</li>
+<li>最简单维持线程安全的方法是使用局部变量（栈封闭），其次是使用原子类，包括现场本地存储类<code>ThreadLocal&lt;&gt;</code></li>
+<li>大多数情况下，我们无须直接使用<code>Thread</code>这种基础类，java提供了很多适用范围广泛的组件，包括：</li>
+<li>并发容器类，使用<code>java.util.concurrent</code>中定义的包括<code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>，<code>ConcurrentLinkedQueue</code>和<code>BlockingQueue</code>（<code>BlockingDeque</code>),以及<code>ConcurrentSkipListMap</code>和<code>ConcurrentSkipListSet</code>（作为<code>SortedMap</code>和<code>SortedSet</code>的替代品）.<code>BlockingQueue</code>在<code>take</code>和<code>put</code>时，如果没有元素/空间就会阻塞；</li>
+<li>如果线程被中断，会抛出<code>InterruptedException</code>如果是<code>Runnable</code>的对象，是不可以直接抛出这个异常的，必须捕获并使用<code>Thread.currentThread().interrupt()</code>恢复中断；其他类型的对象倒是无所谓，可以直接抛出或者捕获清理后重新抛出；</li>
+<li>闭锁。<code>CountDownLatch</code>可以用来等待计数，<code>FutureTask</code>是一种<code>Callable</code>，可以通过<code>get</code>来获得结果（或者阻塞），<code>Semaphore</code>用来对资源进行限制计数，可以用来实现资源池，使用<code>acquire</code>获得一个资源，使用<code>release</code>释放一个资源，<code>Barrier</code>用来实现分段任务，当所有任务都到达Barrier时，任务继续，否则抛出<code>BrokenBarrierException</code>异常。本章给出了一个缓存的例子。</li>
+<li>Executor框架。<code>Executor</code>是一个接口，只规定了<code>execute</code>一个接口（其参数是一个<code>Runnable</code> class）；<code>Executors</code>包含生产线程池的几个静态方法，如<code>newFixedThreadPool</code>（固定大小），<code>newCachedThreadPool</code>（无限增长）和<code>newSingleThreadExecutor</code>（单线程串行）,和<code>newScheduledThreadPool</code>（定时执行）。如果这些都不能满足需求，可以直接使用<code>ThreadPoolExecutor</code>自己灵活构造线程池</li>
+<li><code>ExecutorService</code>接口在<code>Executor</code>接口的基础上增加了生命周期，可以使用<code>shutdown</code>，<code>shutdownNow</code>，<code>awaitTermination</code>等方法进行生命周期（运行、关闭和已终止）控制和感知。</li>
+<li><code>ExecutorService</code>的<code>submit</code>方法用于提交一个任务并返回一个<code>Future</code>，使用这个结果可以控制任务的生命周期；</li>
+<li>线程的超时：一般可以用重载的<code>get</code>，<code>await</code>等方法指定超时时间；</li>
+<li>线程的取消：习惯上使用一个<code>volatile</code>变量作为取消标志，但是如果线程阻塞了，这个方法就不好用了。最佳方式是使用中断(<code>Future.cancel</code>)，注意需要处理好相关的异常；</li>
+<li>可以通过继承<code>Thread</code>重载<code>interrupt</code>方法来将中断处理封闭在异常类中；可以通过使用<code>ThreadPoolExecutor</code>中的<code>newTaskFor</code>静态方法由<code>Callable</code>生产<code>RunnableFuture</code></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>java</tag>
+        <tag>base</tag>
+        <tag>concurrent</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java CMS GC调优步骤</title>
     <url>/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</url>
     <content><![CDATA[<p>0.增加GC相关选项：</p>
@@ -1027,50 +1027,6 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
         <tag>java</tag>
         <tag>gc</tag>
         <tag>jvm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>k8s学习纪要</title>
-    <url>/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/</url>
-    <content><![CDATA[<p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
-<h2 id="k8s及其概念"><a href="#k8s及其概念" class="headerlink" title="k8s及其概念"></a>k8s及其概念</h2><p>k8s的架构有一点类似linux的分层技术，比较复杂，所以最好边学变实践，不然根本记不住。<strong>API对象</strong>是K8s集群中的管理操作单元。K8s集群系统每支持一项新功能，引入一项新技术，一定会新引入对应的API对象，支持对该功能的管理操作。例如副本集Replica Set对应的API对象是RS。下面是各种API对象：</p>
-<h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><p>Pod是在K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。</p>
-<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><p>节点是所有Pod运行所在的工作主机，可以是物理机也可以是虚拟机。工作主机的统一特征是上面要运行kubelet管理节点上运行的容器。</p>
-<h3 id="RS"><a href="#RS" class="headerlink" title="RS"></a>RS</h3><p>副本集，在MongoDB中有此概念，这里其实差不多。提供服务的高可用性。</p>
-<h3 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h3><p>即部署，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。部署通过创建新的RS，将流量转移到新的RS，然后逐渐关闭旧的RS来实现。</p>
-<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>客户端直接访问的服务对象，长期伺服型。每个Service会对应一个集群内部有效的虚拟IP，集群内部通过虚拟IP访问一个服务。在K8s集群中微服务的负载均衡是由Kube-proxy实现的。Kube-proxy是K8s集群内部的负载均衡器。它是一个分布式代理服务器，在K8s的每个节点上都有一个。</p>
-<h3 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h3><p>Job是K8s用来控制批处理型任务的API对象，有点类似Oracle数据库中的Job，例如定时任务等。</p>
-<h3 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h3><p>后台支撑服务集，运行存储，日志和监控等在每个节点上支持K8s集群运行的服务。</p>
-<h3 id="PetSet"><a href="#PetSet" class="headerlink" title="PetSet"></a>PetSet</h3><p>有状态服务集，显然RS是无状态的，这样才能迅速deployment。但是对于db对象，更新的时候显然不能把数据扔了，这时候就需要用PetSet新建一个同名的pod，然后挂载存储继续服务。</p>
-<h3 id="Federation"><a href="#Federation" class="headerlink" title="Federation"></a>Federation</h3><p>集群联邦，为提供跨Region跨服务商K8s集群服务而设计，适用于超大规模集群。</p>
-<h3 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h3><p>类似docker的存储卷，但是更加抽象，pod支持多种存储卷，包括各种云服务的存储（如s3等）</p>
-<h3 id="PV和PVC"><a href="#PV和PVC" class="headerlink" title="PV和PVC"></a>PV和PVC</h3><p>持久存储卷（声明），用以抽象具体的存储逻辑。</p>
-<h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><p>Secret是用来保存和传递密码、密钥、认证凭证这些敏感信息的对象。</p>
-<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>为集群提供隔离功能的命名空间。</p>
-<h3 id="RBAC访问授权"><a href="#RBAC访问授权" class="headerlink" title="RBAC访问授权"></a>RBAC访问授权</h3><p>集群的管理需要一定的授权控制，引入常见的RBAC API对象</p>
-<h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;Received request for URL: &#x27;</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">&#x27;Hello World!&#x27;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
-
-<p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> node server.js</span></span><br></pre></td></tr></table></figure>
-
-<p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
-<p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
-<p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
-<p>最后，使用<code>minikube addons enable/disable xxx</code>即可打开/关闭附加服务。使用<code>kubectl delete service hello-node</code></p>
-<p>kubectl最常用的命令格式：</p>
-<ul>
-<li>kubectl get - list resources</li>
-<li>kubectl describe - show detailed information about a resource</li>
-<li>kubectl logs - print the logs from a container in a pod</li>
-<li>kubectl exec - execute a command on a container in a pod</li>
-</ul>
-<h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
-<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
-]]></content>
-      <tags>
-        <tag>docker</tag>
-        <tag>k8s</tag>
       </tags>
   </entry>
   <entry>
@@ -1183,6 +1139,50 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
         <tag>java</tag>
         <tag>web</tag>
         <tag>jeesite</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>k8s学习纪要</title>
+    <url>/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/</url>
+    <content><![CDATA[<p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
+<h2 id="k8s及其概念"><a href="#k8s及其概念" class="headerlink" title="k8s及其概念"></a>k8s及其概念</h2><p>k8s的架构有一点类似linux的分层技术，比较复杂，所以最好边学变实践，不然根本记不住。<strong>API对象</strong>是K8s集群中的管理操作单元。K8s集群系统每支持一项新功能，引入一项新技术，一定会新引入对应的API对象，支持对该功能的管理操作。例如副本集Replica Set对应的API对象是RS。下面是各种API对象：</p>
+<h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><p>Pod是在K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。</p>
+<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><p>节点是所有Pod运行所在的工作主机，可以是物理机也可以是虚拟机。工作主机的统一特征是上面要运行kubelet管理节点上运行的容器。</p>
+<h3 id="RS"><a href="#RS" class="headerlink" title="RS"></a>RS</h3><p>副本集，在MongoDB中有此概念，这里其实差不多。提供服务的高可用性。</p>
+<h3 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h3><p>即部署，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。部署通过创建新的RS，将流量转移到新的RS，然后逐渐关闭旧的RS来实现。</p>
+<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>客户端直接访问的服务对象，长期伺服型。每个Service会对应一个集群内部有效的虚拟IP，集群内部通过虚拟IP访问一个服务。在K8s集群中微服务的负载均衡是由Kube-proxy实现的。Kube-proxy是K8s集群内部的负载均衡器。它是一个分布式代理服务器，在K8s的每个节点上都有一个。</p>
+<h3 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h3><p>Job是K8s用来控制批处理型任务的API对象，有点类似Oracle数据库中的Job，例如定时任务等。</p>
+<h3 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h3><p>后台支撑服务集，运行存储，日志和监控等在每个节点上支持K8s集群运行的服务。</p>
+<h3 id="PetSet"><a href="#PetSet" class="headerlink" title="PetSet"></a>PetSet</h3><p>有状态服务集，显然RS是无状态的，这样才能迅速deployment。但是对于db对象，更新的时候显然不能把数据扔了，这时候就需要用PetSet新建一个同名的pod，然后挂载存储继续服务。</p>
+<h3 id="Federation"><a href="#Federation" class="headerlink" title="Federation"></a>Federation</h3><p>集群联邦，为提供跨Region跨服务商K8s集群服务而设计，适用于超大规模集群。</p>
+<h3 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h3><p>类似docker的存储卷，但是更加抽象，pod支持多种存储卷，包括各种云服务的存储（如s3等）</p>
+<h3 id="PV和PVC"><a href="#PV和PVC" class="headerlink" title="PV和PVC"></a>PV和PVC</h3><p>持久存储卷（声明），用以抽象具体的存储逻辑。</p>
+<h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><p>Secret是用来保存和传递密码、密钥、认证凭证这些敏感信息的对象。</p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>为集群提供隔离功能的命名空间。</p>
+<h3 id="RBAC访问授权"><a href="#RBAC访问授权" class="headerlink" title="RBAC访问授权"></a>RBAC访问授权</h3><p>集群的管理需要一定的授权控制，引入常见的RBAC API对象</p>
+<h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;Received request for URL: &#x27;</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">&#x27;Hello World!&#x27;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
+
+<p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> node server.js</span></span><br></pre></td></tr></table></figure>
+
+<p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
+<p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
+<p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
+<p>最后，使用<code>minikube addons enable/disable xxx</code>即可打开/关闭附加服务。使用<code>kubectl delete service hello-node</code></p>
+<p>kubectl最常用的命令格式：</p>
+<ul>
+<li>kubectl get - list resources</li>
+<li>kubectl describe - show detailed information about a resource</li>
+<li>kubectl logs - print the logs from a container in a pod</li>
+<li>kubectl exec - execute a command on a container in a pod</li>
+</ul>
+<h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
+<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
+]]></content>
+      <tags>
+        <tag>docker</tag>
+        <tag>k8s</tag>
       </tags>
   </entry>
   <entry>
@@ -1587,6 +1587,29 @@ ZERO_DIVIDE            零被整除
       </tags>
   </entry>
   <entry>
+    <title>sass项目顶层设计</title>
+    <url>/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
+<p>几个需要讨论的问题：</p>
+<ol>
+<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
+<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
+<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
+<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
+<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
+</ol>
+<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
+<ol>
+<li>目前已有系统如何抽象、拆分服务；</li>
+<li>前端展示层如何设计；</li>
+<li>重构后要保证平台满足当前所有已接入所有业务；</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>sass</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>redis知识点总结</title>
     <url>/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
@@ -1609,29 +1632,6 @@ ZERO_DIVIDE            零被整除
 ]]></content>
       <tags>
         <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>sass项目顶层设计</title>
-    <url>/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
-<p>几个需要讨论的问题：</p>
-<ol>
-<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
-<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
-<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
-<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
-<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
-</ol>
-<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
-<ol>
-<li>目前已有系统如何抽象、拆分服务；</li>
-<li>前端展示层如何设计；</li>
-<li>重构后要保证平台满足当前所有已接入所有业务；</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>sass</tag>
       </tags>
   </entry>
   <entry>
@@ -1812,42 +1812,6 @@ ZERO_DIVIDE            零被整除
       </tags>
   </entry>
   <entry>
-    <title>报表打印(pdf)技术选型</title>
-    <url>/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/</url>
-    <content><![CDATA[<p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
-<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
-<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
-<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
-<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
-<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
-<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
-<li>使用<code>jsPDF</code>，不支持中文。</li>
-<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
-</ol>
-<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
-<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
-
-<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
-<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
-<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
-<ol>
-<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
-<li>HTML需要声明为utf8编码；</li>
-<li>不要对文件使用中文名称；</li>
-<li>渲染的时候有些参数需要设置，如下：</li>
-</ol>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
-<p>pdfkit渲染速度超快，非常👍</p>
-]]></content>
-      <tags>
-        <tag>python</tag>
-        <tag>js</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>摄影笔记</title>
     <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
@@ -1893,6 +1857,42 @@ ZERO_DIVIDE            零被整除
 ]]></content>
       <tags>
         <tag>摄影</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>报表打印(pdf)技术选型</title>
+    <url>/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/</url>
+    <content><![CDATA[<p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
+]]></content>
+      <tags>
+        <tag>python</tag>
+        <tag>js</tag>
       </tags>
   </entry>
   <entry>
@@ -2157,6 +2157,36 @@ ZERO_DIVIDE            零被整除
       <tags>
         <tag>database</tag>
         <tag>note</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通用多租户自定义角色权限模型</title>
+    <url>/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<p>前段时间在忙一个saas系统的设计，这里总结一下经验。</p>
+<p>首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于定制化开发的范畴了。</p>
+<p>权限系统可以抽象为以下部分：</p>
+<ol>
+<li>功能点。功能点是一个全集，与后台的API对应。不同用户能够看到的功能点是不一样的，这取决于购买的需求；</li>
+<li>UI。功能点对应的UI可以由很多套，不同平台的客户端，不同版本的移动端，都可能有不同的UI；功能点分别关联到UI和API；</li>
+<li>角色。各租户除了内置的管理员，其他角色可以由用户自己定义；<strong>注意</strong>：并不是所有的saas系统都有这种需求，统一设计角色的话，系统设计会精简很多；</li>
+<li>权限。角色在定义的时候关联了功能点的权限。</li>
+</ol>
+<p>详细解释如下——</p>
+<h2 id="功能点"><a href="#功能点" class="headerlink" title="功能点"></a>功能点</h2><p>系统按着模块拆分功能点，功能点是最细的权限粒度。保证UI和API相对功能点都是一对多的关系，不存在多对多的关系。</p>
+<p>如果感觉用户操作功能点分配权限过于繁琐，可以对功能点做一个功能集，这样分配的粒度就会比较粗，但是也可以随时细化。</p>
+<p>功能点都有一个对应的权限描述方式，可以采用二进制位运算表示，也可以用权限字符串（参考shiro）。如果权限的判定需要根据用户请求的参数来决定，那就要动态的权限字符串（参考spel）。我这里用了spel的方式来描述权限，可以用Spring security来实现，或者自己用Spring AOP写一个权限描述。最后的形式类似于<code>#prj:device:view</code>，表示某个project的设备查看。</p>
+<p>每个API都有自己的权限需求，这与功能点的权限描述字符串对应。这里也是一对多的关系，API可以要求多个权限。用户必须拥有全部权限才能访问API。</p>
+<p>功能点理论上也是树型的，不过某些功能点可能对其他功能点有额外的依赖。</p>
+<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><p>UI分为两部分，一个是匹配规则，一个是UI树本身。</p>
+<p>这个比较简单，就是为不同版本、产品，甚至租户设置不同的UI，根据客户端的情况和用户的功能点权限返回UI树给用户渲染。</p>
+<p>UI树不一定需要在服务器存一套完整的，需要权限控制的部分才需要存入数据库。</p>
+<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>简单起见，只有租户的管理员才可以给组织建立对应的角色树。</p>
+<p>角色树关联功能点，某些功能点可能和具体的数据有关，需要额外选择。</p>
+<h2 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h2><p>指的是不同人看到的字段都不一样，或者字段的渲染不一样。</p>
+<p>这个比较麻烦，不太好做成通用的。非要做的话，每个API返回的字段都要存到表里，然后在功能点那一层，最后关联到字段。即<code>#prj:device:view:field</code>，但是这样太过繁琐，对执行效率影响很大。如果没有很通用的需求，可以在代码里对一些特殊API做单独的处理。</p>
+]]></content>
+      <tags>
+        <tag>design</tag>
       </tags>
   </entry>
   <entry>
@@ -2428,36 +2458,6 @@ ZERO_DIVIDE            零被整除
       <tags>
         <tag>FP</tag>
         <tag>Haskell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>通用多租户自定义角色权限模型</title>
-    <url>/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[<p>前段时间在忙一个saas系统的设计，这里总结一下经验。</p>
-<p>首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于定制化开发的范畴了。</p>
-<p>权限系统可以抽象为以下部分：</p>
-<ol>
-<li>功能点。功能点是一个全集，与后台的API对应。不同用户能够看到的功能点是不一样的，这取决于购买的需求；</li>
-<li>UI。功能点对应的UI可以由很多套，不同平台的客户端，不同版本的移动端，都可能有不同的UI；功能点分别关联到UI和API；</li>
-<li>角色。各租户除了内置的管理员，其他角色可以由用户自己定义；<strong>注意</strong>：并不是所有的saas系统都有这种需求，统一设计角色的话，系统设计会精简很多；</li>
-<li>权限。角色在定义的时候关联了功能点的权限。</li>
-</ol>
-<p>详细解释如下——</p>
-<h2 id="功能点"><a href="#功能点" class="headerlink" title="功能点"></a>功能点</h2><p>系统按着模块拆分功能点，功能点是最细的权限粒度。保证UI和API相对功能点都是一对多的关系，不存在多对多的关系。</p>
-<p>如果感觉用户操作功能点分配权限过于繁琐，可以对功能点做一个功能集，这样分配的粒度就会比较粗，但是也可以随时细化。</p>
-<p>功能点都有一个对应的权限描述方式，可以采用二进制位运算表示，也可以用权限字符串（参考shiro）。如果权限的判定需要根据用户请求的参数来决定，那就要动态的权限字符串（参考spel）。我这里用了spel的方式来描述权限，可以用Spring security来实现，或者自己用Spring AOP写一个权限描述。最后的形式类似于<code>#prj:device:view</code>，表示某个project的设备查看。</p>
-<p>每个API都有自己的权限需求，这与功能点的权限描述字符串对应。这里也是一对多的关系，API可以要求多个权限。用户必须拥有全部权限才能访问API。</p>
-<p>功能点理论上也是树型的，不过某些功能点可能对其他功能点有额外的依赖。</p>
-<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><p>UI分为两部分，一个是匹配规则，一个是UI树本身。</p>
-<p>这个比较简单，就是为不同版本、产品，甚至租户设置不同的UI，根据客户端的情况和用户的功能点权限返回UI树给用户渲染。</p>
-<p>UI树不一定需要在服务器存一套完整的，需要权限控制的部分才需要存入数据库。</p>
-<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>简单起见，只有租户的管理员才可以给组织建立对应的角色树。</p>
-<p>角色树关联功能点，某些功能点可能和具体的数据有关，需要额外选择。</p>
-<h2 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h2><p>指的是不同人看到的字段都不一样，或者字段的渲染不一样。</p>
-<p>这个比较麻烦，不太好做成通用的。非要做的话，每个API返回的字段都要存到表里，然后在功能点那一层，最后关联到字段。即<code>#prj:device:view:field</code>，但是这样太过繁琐，对执行效率影响很大。如果没有很通用的需求，可以在代码里对一些特殊API做单独的处理。</p>
-]]></content>
-      <tags>
-        <tag>design</tag>
       </tags>
   </entry>
   <entry>

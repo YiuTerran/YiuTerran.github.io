@@ -494,14 +494,14 @@
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/concurrent/</loc>
+    <loc>http://yiuterran.github.io/tags/web/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/web/</loc>
+    <loc>http://yiuterran.github.io/tags/concurrent/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -522,14 +522,14 @@
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/k8s/</loc>
+    <loc>http://yiuterran.github.io/tags/jeesite/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/jeesite/</loc>
+    <loc>http://yiuterran.github.io/tags/k8s/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -690,14 +690,14 @@
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/js/</loc>
+    <loc>http://yiuterran.github.io/tags/%E6%91%84%E5%BD%B1/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://yiuterran.github.io/tags/%E6%91%84%E5%BD%B1/</loc>
+    <loc>http://yiuterran.github.io/tags/js/</loc>
     <lastmod>2021-04-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
