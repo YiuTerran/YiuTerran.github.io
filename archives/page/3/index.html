@@ -40,12 +40,12 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : false,
+    isHome : true,
     isPost : false,
     lang   : 'zh-CN'
   };
 </script>
-<title>归档 | 无心呢喃</title>
+<title>无心呢喃</title>
   
 
 
@@ -169,12 +169,6 @@
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">44</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
@@ -215,230 +209,1386 @@
 </noscript>
 
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner index posts-expand">
+
+    
 
 
+<div class="post-block">
   
   
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/" class="post-title-link" itemprop="url">报表打印(pdf)技术选型</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-07-07 00:21:00" itemprop="dateCreated datePublished" datetime="2017-07-07T00:21:00+08:00">2017-07-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-07-10 13:32:38" itemprop="dateModified" datetime="2017-07-10T13:32:38+08:00">2017-07-10</time>
+      </span>
+
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        
-        <span class="collection-header">还行! 目前共计 44 篇日志。 继续努力。</span>
-      </div>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/07/报表打印-pdf-技术选型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
 
       
-    <div class="collection-year">
-      <span class="collection-header">2017</span>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-07-07T00:21:00+08:00"
-              content="2017-07-07">
-          07-07
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/" itemprop="url">
-            <span itemprop="name">报表打印(pdf)技术选型</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">oracle学习笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-07-03 14:21:18" itemprop="dateCreated datePublished" datetime="2017-07-03T14:21:18+08:00">2017-07-03</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2018-01-04 11:20:40" itemprop="dateModified" datetime="2018-01-04T11:20:40+08:00">2018-01-04</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/03/oracle学习笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a target="_blank" rel="noopener" href="http://blog.csdn.net/xp541130126/article/details/70138904">这篇博客</a>.</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><code>OLTP</code>：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响应。<br><code>OLAP</code>：在线分析系统，强调数据分析，强调SQL 执行时长，强调磁盘I/O，强调分区等。主要用户数据分析，对于性能要求没那么高。</p>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>oracle的索引分为B-tree, Bitmap，Hash等，其中位图索引不能被声明为唯一索引，适合候选值很少，且不频繁改动的列。对于高并发系统，不要使用位图索引。</p>
+<p>函数索引：如果查询的时候总是使用某个函数，使用函数索引较多。例如，对于搜索大小写不敏感的字段，查询的时候总会使用<code>Upper</code>函数将其转为大写，但是存放的时候还是用户的原始数据，就可以建立一个函数索引。</p>
+<h3 id="分区表"><a href="#分区表" class="headerlink" title="分区表"></a>分区表</h3><p>类似MySQL中的shard，不同的是Oracle自带了这个功能。现在基于MySQL的TiDB，以及各类开源的Proxy功能也可以实现透明分区。注意：含有LONG、LONGRAW数据类型的表不能进行分区。</p>
+<p>分区方法：<br>    1. 范围分区：以某个字段的range为标准进行分区，适合以日期分割的历史数据，如交易记录<br>    1. 哈希分区：以某个字段的hash为标准进行分区，分区<br>    1. 列表分区：以某个字段的值为标准进行分区，适合列为有限枚举值的情况<br>    1. 组合分区：以Range分区作为根分区方法，其他分区作为子分区</p>
+<p>Oracle可以自动根据时间建立分区表。</p>
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>整体和MySQL类似。使用<code>LOCK TABLE tablename</code>的格式加表锁。</p>
+<p>使用<code>SELECT..FOR UPDATE</code>方式加行级锁。</p>
+<p>当<code>COMMIT</code>或者<code>ROLLBACK</code>后，释放锁。但是<code>ROLLBACK</code>不能释放行级锁。其他的锁主要是供系统使用，是DBA需要掌握的内容，包括如何解决死锁等。</p>
+<h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><p>MySQL的体系结构非常简单：<code>database</code> ——&gt; <code>table</code>，可以随意创建用户，然后我们通过<code>grant</code>命令赋予用户对库、表的访问权利。</p>
+<p>Oracle的体系稍微麻烦一些，<code>database</code>（数据库实例，又称为SID）还存在，但是下一级不是<code>table</code>，而是<code>tablespace</code>（表空间，一个实例可以有N个表空间。表空间创建时可以指定大小），再下一层是具体的数据文件。如果想要建表，必须创建用户(<code>user</code>)，并为用户指定表空间。这个是物理存储角度下oracle的结构。</p>
+<p>在逻辑概念上，SID下面一层是用户，存储过程、函数、表、序列等等，则是隶属于这个用户的对象(<code>object</code>)。用户创建任意object后，会默认生成一个方案(<code>schema</code>，与用户对应)，在逻辑上，这个用户创建的所有object属于这个schema，即使这些object属于不同的<code>tablespace</code>.</p>
+<p>在权限管理上，user默认有自己schema的所有权限，如果用户想要访问其他schema的object，必须赋权。</p>
+<p>一般流程：创建<code>database</code> -&gt; 创建<code>tablespace</code> -&gt; 创建<code>user</code>（指定默认的<code>tablespace</code>） -&gt; 用户建表。</p>
+<p>有关表的元数据被存放在数据字典中。</p>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>默认情况下，oracle会自动创建若干个用户，如<code>sys</code>, <code>system</code>和<code>scott(Tiger)</code>，并提示输入默认密码. 使用<code>sqlplus</code>登入后，使用命令<code>select username,account_status from dba_users;</code>获取所有账户状态，有需要的话可以使用<code>password</code>命令修改密码。</p>
+<p>创建用户：类似MySQL，使用<code>create user root identified by &#39;123456&#39;;</code>，然后使用<code>alter user root account unlock</code>解锁用户。</p>
+<p>权限：分为系统权限（如建表、建库等）和具体的数据权限（增删改查等）。用户可以将自己<code>schema</code>下的object授权给其他用户，或者使用管理员账户进行授权。语句格式大致为<code>grant select on emp to root with grant option</code>.</p>
+<p>收回权限：<code>revoke select on emp from root</code>.</p>
+<p>删除用户： <code>drop user root cascade</code>，删除用户会导致用户名下所有的数据都被删除，谨慎使用。</p>
+<p>可以使用<code>profile</code>进行安全策略的限制（输错密码次数、密码过期时间、密码强度限制等等）。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们先通过<code>sys</code>等系统dba账户登入，创建项目需要的管理员账户，然后赋予<code>connect</code>, <code>resource</code>和<code>dba</code>的权利。然后使用这个账户登入，创建项目需要的表。</p>
+<p>注意：oracle命令默认是<strong>区分</strong>大小写的，但是如果不加双引号的话，所有的字段、命令都会被转化为大写。一般情况下，使用单引号来引用字符串，如果字符串里面有单引号，需要使用两个单引号转义。如果用了系统关键字（或者空格等符号），则使用双引号包围字符串。</p>
+<p>使用上和MySQL有很多细节的不同，主要包括：</p>
+<ol>
+<li>自增。需要先<code>create sequence myseq increment by 1 start with 1000</code>创建一个自增序列，然后在插入的时候使用<code>myseq.nextval</code>来取得自增的值（有点类似mongo）；</li>
+<li>外部脚本。使用<code>@ xxx.sql</code>导入；</li>
+<li>表达式。使用<code>select 3 * 2 from dual</code>;</li>
+<li>系统时间。使用<code>select sysdate from dual</code>，具体格式可以使用<code>select to_char(sysdate,&#39;yyyy-mm-dd&#39;) from dual;</code>;</li>
+<li>修改表名。 <code>rename xx to yy</code>;</li>
+<li>分页。Oracle的分页做的很挫…最好使用id分页，如果要用数据库自身的分页，需要使用嵌套子查询。oracle对每一列有<code>rownum</code>和<code>rowid</code>两个虚列，前者是结果集的序列（从1开始），后者是物理上每一行的id。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> A.<span class="operator">*</span>, ROWNUM RN</span><br><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> TABLE_NAME <span class="keyword">ORDER</span> <span class="keyword">BY</span> x) A</span><br><span class="line"><span class="keyword">WHERE</span> ROWNUM <span class="operator">&lt;=</span> <span class="number">40</span></span><br><span class="line">) T</span><br><span class="line"><span class="keyword">WHERE</span> RN <span class="operator">&gt;=</span> <span class="number">21</span></span><br></pre></td></tr></table></figure>
+
+<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.<br>需要注意：</p>
+<ol>
+<li><code>rownum</code>是自动生成的，所以内层的<code>rownum</code>只能用<code>&lt;=</code>，而绝对不能用<code>&gt;=10</code>这种，因为生成的列永远从1开始；</li>
+<li>如果有<code>order by</code>字段，必须有三层查询，最内层做排序，次外层选择前N条，最外层做偏移量</li>
+</ol>
+<h3 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h3><p>oracle建表有很多可选参数，其中：</p>
+<pre><code>pctfree：用于指定BLOCK中必需保留的最小空间的比例。
+pctused：为一个百分比数值，当BLOCK中已经使用的空间降低到该数值以下时，该BLOCK才是可用的，达到或是超过这个数值的BLOCK是不可用的。
+一般在控制具有独立segment结构的对象时，使用这两个参数来控制BLOCK的存储管理。
+initrans：指定可以并发操作该表的事务的数目。
+</code></pre>
+<p>如果你预计只有很少的更新操作会增加行的大小，则可将PCTFREE设置为较低的值（如5或者10），使得ORACLE填满每个块的更多的空间。但是，如果你预计更新操作将会经常增加行的大小，则将PCTFREE设置为较高的值（如20或30），使得ORACLE为已有行的更新操作保留更多的块空间；否则，将出现行链。</p>
+<p>如果你预计很少有删除操作，则可设置PCTUSED为较高的值（如60），当偶然的删除操作发生时，使数据块弹出可用清单。但是，如果你预计将PCTUSED 设置为较低的值（如40），使ORACLE不常产生块在表的可用空间中移进或移出的开销。</p>
+<h2 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h2><p>PL/SQL是针对Oracle特有的SQL语句，不可移植。</p>
+<p>基本单位：块(block).</p>
+<p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
+<p>运算符：注意<code>||</code>是字符串连接，其他和MySQL差不多</p>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
+<pre><code>至多有30个字符
+不能是保留字
+必须以字母开头
+不允许和数据库中表的列名相同
+不可包括$,_和数字以外的字符
+</code></pre>
+<p>变量定义（类似go语言）： <code>v_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
+<p>基本数据类型就是JDBC中的那些，常用的是Number和varchar2, boolean, date这几个。数组类型使用<code>VARRAY(size) OF element_type [NOT NULL]</code>的形式，使用<code>(n)</code>进行下标访问</p>
+<p>复合数据类型:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TYPE type_name <span class="keyword">IS</span> RECORD(</span><br><span class="line">    fieldname fieldtype,</span><br><span class="line">    fieldname fieldtype</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">declare</span></span><br><span class="line">            type ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename<span class="operator">%</span>type</span><br><span class="line">            index <span class="keyword">by</span> binary_integer;</span><br><span class="line">ename_table ename_table_type;</span><br></pre></td></tr></table></figure>
+
+<p>可以使用<code>ename_table(-1)</code>进行下标访问，使用<code>.FIRST</code>和<code>.LAST</code>访问第一行和最后一行。</p>
+<p>除了普通变量外，还有替换变量。主要用于人机交互，<code>&amp;</code>前缀表示提示用户输入，且仅此次有效，<code>&amp;&amp;</code>前缀则表示永久有效，仅需要输入一次。</p>
+<p>变量的可见范围，在<code>DECLARE</code>中声明的变量，在后面的<code>BEGIN</code>块中可见。</p>
+<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><p>游标是查询结果集的指针。<br>显式使用语法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CURSOR</span> cursor_name[(<span class="keyword">parameter</span>[, <span class="keyword">parameter</span>]…)]</span><br><span class="line">       [<span class="keyword">RETURN</span> datatype]</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">    select_statement;</span><br></pre></td></tr></table></figure>
+
+<p>游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
+<p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
+<p>游标属性包括：</p>
+<pre><code>Cursor_name%FOUND     布尔型属性，当最近一次提取游标操作FETCH成功则为 TRUE,否则为FALSE；
+Cursor_name%NOTFOUND   布尔型属性，与%FOUND相反；
+Cursor_name%ISOPEN     布尔型属性，当游标已打开时返回 TRUE；
+Cursor_name%ROWCOUNT   数字型属性，返回已从游标中读取的记录数。
+</code></pre>
+<p>可以直接使用<code>FOR var IN CURSOR LOOP</code>进行循环取值。</p>
+<p>除了显式使用以外，普通的update、insert和delete语句也会自动生成隐式游标，可以用<code>SQL</code>查询上面的属性。</p>
+<p>使用<code>SELECT FOR UPDATE [NOWAIT]</code>加悲观锁，如果使用 FOR UPDATE 声明游标，则可在DELETE和UPDATE 语句中使用<code>WHERE CURRENT OF cursor_name</code>子句，修改或删除游标结果集合当前行对应的数据库表中的数据行。</p>
+<p>除了静态游标外，还可以使用游标变量，形式是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TYPE ref_type_name <span class="keyword">IS</span> <span class="keyword">REF</span> <span class="keyword">CURSOR</span></span><br><span class="line"> [ <span class="keyword">RETURN</span> return_type];</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h3><p>条件语句：<code>IF..THEN..ELSIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
+<p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
+<p>范围循环使用<code>..</code>连接上下限.</p>
+<p>使用<code>GOTO</code>跳转到label, label使用<code>&lt;&lt;&gt;&gt;</code>标示起来</p>
+<h3 id="包（package）"><a href="#包（package）" class="headerlink" title="包（package）"></a>包（package）</h3><p>有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
+<p>包是pl/sql实现抽象的主要途径。创建包的语法为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> [<span class="keyword">OR</span> REPLACE] PACKAGE package_name</span><br><span class="line">  &#123;IS | AS&#125;</span><br><span class="line">  [公有游标定义[公有游标定义]…]</span><br><span class="line">  [公有函数定义[公有函数定义]…]</span><br><span class="line">  [公有过程定义[公有过程定义]…]</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  执行部分(初始化部分)</span><br><span class="line"><span class="keyword">END</span> package_name;</span><br></pre></td></tr></table></figure>
+
+<p>上面类似C/C++中的头文件，导出了可供外部调用的函数和过程、游标。</p>
+<p>包体则对应具体的实现，其语法为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> REPLACE PACKAGE BODY pkg_name</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">[私有内容定义]</span><br><span class="line">[公有内容定义]</span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+
+<p>这样，就可以在其他函数/存储过程里面通过<code>package_name.function_name</code>来调用包内的函数/过程了。</p>
+<h3 id="函数-function-amp-存储过程-Proceduce"><a href="#函数-function-amp-存储过程-Proceduce" class="headerlink" title="函数(function) &amp; 存储过程(Proceduce)"></a>函数(function) &amp; 存储过程(Proceduce)</h3><p>调用函数可以用命名传递方式，即<code>func_name(1, param2 =&gt; 1)</code>，同时声明的函数参数可以用<code>DEFAULT</code>关键字指定默认值。</p>
+<p>类似函数，除了无返回值，定义语法：</p>
+<pre><code> CREATE ［OR REPLACE］PROCEDURE procedure_name
+ [(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
+ AS | IS
+ BEGIN
+     procedure_body;
+ END [procedure_name];
+</code></pre>
+<p>其中:</p>
+<pre><code>IN：表示是一个输入参数，可以指定缺省值。如省略参数类型，则缺省为in类型
+OUT：表示是一个输出参数
+IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
+</code></pre>
+<p>调用语法：</p>
+<pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
+</code></pre>
+<h3 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h3><p>使用<code>dbms_job.submit</code>可以异步调用存储过程</p>
+<h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><p>预定义了以下异常：</p>
+<pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
+DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
+CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
+TOO_MANY_ROWS          SELECT ... INTO ... 时，查询的结果是多值
+ZERO_DIVIDE            零被整除
+</code></pre>
+<p>当然也可以自己声明<code>EXCEPTION</code>, 在程序中<code>RAISE</code>出来。处理语法是<code>BEGIN..EXCEPTION..WHEN..THEN..WHEN OTHERS THEN...END</code></p>
+<p>使用<code>SQLCODE</code>和<code>SQLERRM</code>分别取得错误码和错误信息，还可以使用<code>RAISE_APPLICATION_ERROR(error_number,error_message,[keep_errors] );</code>将异常传递到客户端</p>
 
       
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-07-03T14:21:18+08:00"
-              content="2017-07-03">
-          07-03
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url">
-            <span itemprop="name">oracle学习笔记</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-26T09:32:23+08:00"
-              content="2017-06-26">
-          06-26
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/" itemprop="url">
-            <span itemprop="name">maven和gradle一些选项</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-14T22:54:10+08:00"
-              content="2017-06-14">
-          06-14
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/14/Bash-on-Ubuntu-on-Windows%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E9%97%AE%E9%A2%98%E7%9A%84%E7%AE%80%E5%8D%95%E8%A7%A3%E5%86%B3/" itemprop="url">
-            <span itemprop="name">Bash on Ubuntu on Windows下载过慢问题的简单解决</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-13T00:46:00+08:00"
-              content="2017-06-13">
-          06-13
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" itemprop="url">
-            <span itemprop="name">jeesite代码解析</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-13T00:43:56+08:00"
-              content="2017-06-13">
-          06-13
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/13/hello-world/" itemprop="url">
-            <span itemprop="name">hello-world</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-12T23:50:02+08:00"
-              content="2017-06-12">
-          06-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/12/java%20web%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">java web基础学习</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-12T23:49:06+08:00"
-              content="2017-06-12">
-          06-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/" itemprop="url">
-            <span itemprop="name">lua5.1要点笔记</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-12T23:48:42+08:00"
-              content="2017-06-12">
-          06-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">Go语言学习</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-06-12T23:48:37+08:00"
-              content="2017-06-12">
-          06-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" itemprop="url">
-            <span itemprop="name">Heka插件开发</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-
     </div>
-  </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
   
   
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">maven和gradle一些选项</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2017-06-26 09:32:23 / 修改时间：11:21:49" itemprop="dateCreated datePublished" datetime="2017-06-26T09:32:23+08:00">2017-06-26</time>
+    </span>
+
   
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/26/maven和gradle一些选项/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Java的包依赖系统简单粗暴，就是直接下载jar包，经历了<code>Ant</code> -&gt; <code>Maven</code> -&gt; <code>Gradle</code>这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。</p>
+<p>如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。</p>
+<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），而Gradle会尝试自动解决该问题（使用公共依赖的最新版本）。</p>
+<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p>类似<code>npm</code>中的概念：这个包是啥时候被需要。显然有些包只是编译的时候需求，运行的时候不再被需要，因为Maven中的<code>scope</code>分为以下几种：</p>
+<ul>
+<li>compile. 默认范围，会被打包。</li>
+<li>provided. 这个概念比较模糊，意思是这东西由外部容器提供，不需要自己打包进去。</li>
+<li>runtime. 只有运行和测试系统的时候需要，编译的时候不需要。一个典型的例子就是<code>jdbc</code>的接口API在编译时必须要可用，但是具体实现可以只在运行时插入。</li>
+<li>test. 只被测试依赖。Maven有标准的测试流程。</li>
+<li>system. 系统范围，jar包被放在本地，无须从仓库中寻找。当然一般不推荐使用。</li>
+</ul>
+<h2 id="Idea的使用"><a href="#Idea的使用" class="headerlink" title="Idea的使用"></a>Idea的使用</h2><p>Idea中可以在<code>Project Structure</code>里面直接修改配置，会自动生成/修改对应的Pom文件，主要在<code>modules/dependencies</code>里面改。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/14/Bash-on-Ubuntu-on-Windows%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E9%97%AE%E9%A2%98%E7%9A%84%E7%AE%80%E5%8D%95%E8%A7%A3%E5%86%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/14/Bash-on-Ubuntu-on-Windows%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E9%97%AE%E9%A2%98%E7%9A%84%E7%AE%80%E5%8D%95%E8%A7%A3%E5%86%B3/" class="post-title-link" itemprop="url">Bash on Ubuntu on Windows下载过慢问题的简单解决</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2017-06-14 22:54:10 / 修改时间：22:55:26" itemprop="dateCreated datePublished" datetime="2017-06-14T22:54:10+08:00">2017-06-14</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/14/Bash-on-Ubuntu-on-Windows%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E9%97%AE%E9%A2%98%E7%9A%84%E7%AE%80%E5%8D%95%E8%A7%A3%E5%86%B3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/14/Bash-on-Ubuntu-on-Windows下载过慢问题的简单解决/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>经验证，最有效的方法是修改系统DNS为<code>4.2.2.1</code>，其他什么不用做…</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">jeesite代码解析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-13 00:46:00" itemprop="dateCreated datePublished" datetime="2017-06-13T00:46:00+08:00">2017-06-13</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-23 10:22:21" itemprop="dateModified" datetime="2017-06-23T10:22:21+08:00">2017-06-23</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/13/jeesite代码解析/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
+<h2 id="基础知识补充"><a href="#基础知识补充" class="headerlink" title="基础知识补充"></a>基础知识补充</h2><p>常见Java注解：</p>
+<p>四个元注解包括：</p>
+<ul>
+<li><code>Target</code>: 标示注解使用的位置；</li>
+<li><code>Retention</code>: 标示在什么级别保留注解信息；</li>
+<li><code>Documented</code>: 标示要讲注解记录在JavaDoc中；</li>
+<li><code>Inherited</code>: 允许子类继承父类的注解；</li>
+</ul>
+<h2 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h2><p>Java Web有一套成熟的抽象体系，自上到下分别是<code>Controller</code>(接入层) -&gt; <code>Service</code>(服务层) -&gt; <code>Entity</code>(数据实体层) -&gt; <code>DAO</code>(数据操作层)。</p>
+<h3 id="DAO"><a href="#DAO" class="headerlink" title="DAO"></a>DAO</h3><p>这里<code>DAO</code>底层是一个泛型接口<code>CrudDao&lt;T&gt;</code>，这里定义了一些常见的接口（增删改查）。</p>
+<p>对于每个具体的表，定义了接口，并使用<code>MyBatisDao</code>注解，通过查看代码可以知道，这是一个自定义注解，且是一个<code>Component</code>元注解。在<code>spring-context.xml</code>中有：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.thinkgem.jeesite&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:exclude-filter</span> <span class="attr">type</span>=<span class="string">&quot;annotation&quot;</span> <span class="attr">expression</span>=<span class="string">&quot;org.springframework.stereotype.Controller&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里表示扫描除了<code>Controller</code>层以外的其他组件。<code>MyBatis</code>的配置为：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;sqlSessionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.thinkgem.jeesite&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesSuperType&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.thinkgem.jeesite.common.persistence.BaseEntity&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;mapperLocations&quot;</span> <span class="attr">value</span>=<span class="string">&quot;classpath:/mappings/**/*.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;configLocation&quot;</span> <span class="attr">value</span>=<span class="string">&quot;classpath:/mybatis-config.xml&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>dataSource</code>是数据源，这里配置为MySQL的连接池，用的是<code>Druid</code>这个阿里的开源库（这里是单库）。<code>typeAliasesPackage</code>是映射的起始路径包，<code>typeAliasesSuperType</code>是实体类的父类，<code>mapper</code>的注释在<code>mappings</code>下面，组件自身的配置在<code>mybatis-config.xml</code>里。</p>
+<p>在<code>resources/mappings</code>下面，定义了对应路径映射的model，这里的数据可能是代码生成器生成的（手动写的话工作量有点大啊…），以及各种<code>DAO</code>中定义接口的具体实现。这里的语法本质上是拼装sql…</p>
+<p>这里有个问题，idea对MyBatis的支持不太好，需要自己找插件（但是收费），也有一些免费但是不太好用的。</p>
+<h4 id="MyBatis的SQL语法"><a href="#MyBatis的SQL语法" class="headerlink" title="MyBatis的SQL语法"></a>MyBatis的SQL语法</h4><p>官方教程<a target="_blank" rel="noopener" href="http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html">在此</a></p>
+<p>用例子说明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`User` is Entity</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">CurdDao</span>&lt;<span class="title">User</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">get</span><span class="params">(String id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&lt;</span><span class="keyword">sql</span> id<span class="operator">=</span>&quot;userColumns&quot;<span class="operator">&gt;</span>  # <span class="keyword">sql</span>片段</span><br><span class="line">    a.id,</span><br><span class="line">    a.company_id <span class="keyword">AS</span> &quot;company.id&quot;,   # compony是`<span class="keyword">User</span>`的一个成员</span><br><span class="line">    a.office_id <span class="keyword">AS</span> &quot;office.id&quot;,</span><br><span class="line">    a.login_name,</span><br><span class="line">    a.password,</span><br><span class="line">    a.create_by <span class="keyword">AS</span> &quot;createBy.id&quot;,</span><br><span class="line">    a.create_date,</span><br><span class="line">    a.update_by <span class="keyword">AS</span> &quot;updateBy.id&quot;,</span><br><span class="line">    a.update_date,</span><br><span class="line">    a.del_flag,</span><br><span class="line">    c.name <span class="keyword">AS</span> &quot;company.name&quot;,</span><br><span class="line">    c.parent_id <span class="keyword">AS</span> &quot;company.parent.id&quot;,</span><br><span class="line">    c.parent_ids <span class="keyword">AS</span> &quot;company.parentIds&quot;,</span><br><span class="line"><span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">sql</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span><span class="keyword">sql</span> id<span class="operator">=</span>&quot;userJoins&quot;<span class="operator">&gt;</span>  # <span class="keyword">sql</span>片段</span><br><span class="line">    <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> sys_office c <span class="keyword">ON</span> c.id <span class="operator">=</span> a.company_id</span><br><span class="line"><span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">sql</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="operator">&lt;</span><span class="keyword">select</span> id<span class="operator">=</span>&quot;get&quot; resultType<span class="operator">=</span>&quot;User&quot; parameterType<span class="operator">=</span>&quot;string&quot;<span class="operator">&gt;</span>  # id对应Dao中方法的名字，resultType是</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			<span class="operator">&lt;</span>include refid<span class="operator">=</span>&quot;userColumns&quot;<span class="operator">/</span><span class="operator">&gt;</span></span><br><span class="line">		<span class="keyword">FROM</span> sys_user a</span><br><span class="line">		<span class="operator">&lt;</span>include refid<span class="operator">=</span>&quot;userJoins&quot;<span class="operator">/</span><span class="operator">&gt;</span></span><br><span class="line">		WHERE a.id = #&#123;id&#125;</span><br><span class="line">	<span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">select</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span><span class="keyword">select</span><span class="operator">&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>熟悉了很快就能上手，一般情况下，自动映射可以处理绝大多数问题，只有特别复杂的结果集需要自定义<code>resultMap</code>.</p>
+<h3 id="ehcache"><a href="#ehcache" class="headerlink" title="ehcache"></a>ehcache</h3><p>Java中常用的cache，支持单机也支持分布式，但是分布式配置较为复杂，一般还是使用Redis居多。</p>
+<p>这里ehcache的使用看得我一脸懵逼，好像直接缓存了POJO类，然后取出来后直接强制转换回来就可以了。理论上这不对啊，缓存肯定要序列化的…然后仔细研究了一下Java的序列化（类似Python的<code>pickle</code>）。</p>
+<p>结果发现只要标记了<code>Serializable</code>的类都可以被序列化，但是如果类被修改了，就要注意是不是修改<code>serialVersionUID</code>了。必须要修改（一般是递增）该ID的情况有（来自Java官方网站）：</p>
+<ul>
+<li>删除了成员</li>
+<li>修改了类的继承层次</li>
+<li>将一个非静态成员改成静态，或者将一个非忽略成员改成忽略(transient)</li>
+<li>修了了原始类型成员的类型声明</li>
+<li>修改了<code>writeObject</code>或者<code>readObject</code>方法</li>
+<li>将类从<code>Serializable</code>改为<code>Externalizable</code>，或者移除了标记</li>
+<li>将类改为枚举类型</li>
+</ul>
+<p>但是以下情况无须修改：</p>
+<ul>
+<li>增加成员：新增成员会使用默认值</li>
+<li>增加类：也是使用默认值</li>
+<li>移除类</li>
+<li>增加<code>writeObject/readObject</code>方法</li>
+<li>移除<code>writeObject/readObject</code>方法</li>
+<li>增加<code>java.io.Serializable</code></li>
+<li>修改成员的修饰符</li>
+<li>将成员由静态改为非静态，或者忽略改成非忽略</li>
+</ul>
+<p>其实这些并不是很好记忆…所以更好的使用经验是，不要试图序列化整个类存在缓存中，而是只缓存一些必须的变量，然后用这些变量构造对象，变量使用Java标准库内置的数据结构，这些数据结构默认都是可序列化的。</p>
+<h3 id="Entity"><a href="#Entity" class="headerlink" title="Entity"></a>Entity</h3><p>这一层本质上是db上对应表的model，但是和Python不一样，这里和表不是一一对应的，而是一个整合的数据集。</p>
+<p>换句话说，每个<code>Entity</code>可能对应很多个表，这里的抽象思路和Python不一样。Entity是一个POJO，而不是继承某个类而得来。当然我还是更喜欢Python的抽象思路，Model原子性和Table保持一致，可以自由组合。</p>
+<p>项目抽象了<code>BaseEntity</code>，在此基础上又总结了集中常见的数据模型。</p>
+<h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>使用Spring的事务管理，最后只要在方法上使用<code>@Transactional</code>注解就可以使用一个事务式的方法（只能在<code>public</code>方法上使用），这个注解只会在被外部调用时触发。</p>
+<p>关于事务方法和非事务方法之间的相互调用，参考<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/6222600/transactional-method-calling-another-method-without-transactional-anotation">stackoverflow</a></p>
+<p><code>@Transactional</code> 默认只对 unchecked exception 异常进行回滚操作，checked、unchecked 异常使用不当造成事务无效，抛出的异常应该是<code>RuntimeException</code>的子类。</p>
+<h3 id="Service层"><a href="#Service层" class="headerlink" title="Service层"></a>Service层</h3><p>Service层处理实际的业务逻辑，这里抽象了基类<code>BaseService</code>里面定义了方法用来鉴权；<br>CurdService层是简单增删改查的服务，这是一个泛型类，泛型参数是<code>Dao</code>和<code>Entity</code>；<br>对于树形数据结构，还特别定义了<code>TreeService</code>对应了<code>TreeDao</code>和<code>TreeEntity</code>；</p>
+<h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
+<li>直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明；</li>
+<li>首页会匹配到<code>modules/sys/web/LoginController</code>里面的<code>index</code>方法；</li>
+<li>该类继承自<code>BaseController</code>，这里定义了<code>logger</code>, <code>adminPath</code>, <code>frontPath</code>和<code>urlSuffix</code>，这些变量是从bean里面注入的. 同时定义了一些通用的方法；</li>
+<li>所以index方法中的<code>RequestMapping</code>, <code>$&#123;adminPath&#125;</code>会被渲染为<code>a</code>，另外这个注释来自SpringMVC；</li>
+<li><code>RequiresPermissions</code>是使用<code>Apache shiro</code>进行鉴权，详见鉴权流程；</li>
+<li>如果用户没有登陆，会跳转到<code>a/login</code>，后者最终跳转到<code>modules/sys/sysLogin</code>；</li>
+<li>如果用户已经登陆，会跳转到<code>modules/sys/sysIndex</code>，即网站的首页；</li>
+<li>如果是mobile登陆，这里不再使用服务端渲染，还是返回了一个Json串；</li>
+</ol>
+<p>其他的模块也类似，入口都在模块下的<code>web</code>包里面。<code>Controller</code>层调用<code>Service</code>层（一般是Autowired注入的），<code>Controller</code>有个共同基类<code>BaseController</code>，这是一个POJO，里面定义了一些公用的方法，如参数鉴定、view渲染和异常处理。</p>
+<p>参数鉴定用的是<code>JSR303</code>里面规定的的一些注解，这些约束被写在<code>Entity</code>中。</p>
+<h2 id="Controller与JSP的交互"><a href="#Controller与JSP的交互" class="headerlink" title="Controller与JSP的交互"></a>Controller与JSP的交互</h2><p><code>Controller</code>与<code>JSP</code>这一层的联系通过大量注释和隐含条件完成。</p>
+<p>由于JSP是很集成化的东西，所以前端表格直接和后端Entity是对应的，前端用JQuery直接修改DOM元素做渲染，用户输入——JQuery修改界面——用户提交——后端从表格中取出模型形成数据——处理完毕返回新数据构成的页面。</p>
+<p>后端使用<code>ModelAttribute</code>注入模型，前端可以直接引用模型里面的元素。前端使用的后端模型中的元素作为querystring或者post中的元素，后端也可以声明为对应方法的参数。</p>
+<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a target="_blank" rel="noopener" href="http://howiefh.github.io/2015/05/12/shiro-note/">这篇blog</a>。</p>
+<p>几个概念：</p>
+<ol>
+<li><code>Authentication</code>，一般指登陆，验证用户名和密码；</li>
+<li><code>Authorization</code>，授权，验证权限；</li>
+<li><code>Subject</code>，被管理的主体，一般指的是用户；</li>
+<li><code>SecurityManager</code>，实际鉴权者，<code>Subject</code>被绑定到<code>SecurityManager</code>；</li>
+<li><code>Realm</code>，领域，类似于DAO，最终落地的鉴权者。<code>Realm</code>是Plugable的，开发者主要负责实现这一块；</li>
+<li><code>Authenticator</code>，认证器。包含一些常见的、默认的鉴权实现（如密码、SSO等）；</li>
+<li><code>Authrizer</code>，授权器。包含一些常见的权限、角色设计（一个用户多个角色，权限是以<code>:</code>分割的字符串）；</li>
+<li><code>SessionManager</code>，可配置的Session管理器，可以通过简单的配置放在Redis中；</li>
+<li><code>CacheManager</code>，系统缓存管理器，也可以简单的配置到Redis中；</li>
+<li><code>Principal</code>，身份，一般是用户名、邮箱；</li>
+<li><code>Credential</code>，凭证，一般是密码；</li>
+</ol>
+<p>使用流程如下：</p>
+<ol>
+<li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>；</li>
+<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>SystemAuthorizingRealm</code>；</li>
+<li>该类继承自<code>AuthorizingRealm</code>。<code>doGetAuthenticationInfo</code>是登陆验证，验证账号密码；<code>doGetAuthorizationInfo</code>是权限验证，这里也是用了自带的<code>SimpleAuthorizationInfo</code>；</li>
+<li>权限这里，根据用户角色，获取其前端菜单列表，每个菜单元素对应着一个权限字符串（如<code>sys:role:view</code>对应查看角色列表，<code>sys:role:create</code>对应创建新角色等）；</li>
+<li>由于用户角色、权限等信息需要在所有页面使用，所以这里注册了一个单例<code>SystemService</code>，来随时获取这些信息；</li>
+<li>在需要验证权限的地方，调用<code>hasRole</code>或者<code>isPermitted</code>等函数来验证权利（或者使用注解）.JSP里面也有相关的语法。</li>
+</ol>
+<h2 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h2><p>这里采用了一个设计，所有常量被存放在数据库中，而不是在代码中使用枚举。<code>sys_dict</code>表中根据<code>type</code>存放了所有枚举值，所以枚举的<code>value</code>类型被统一为<code>String</code>。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>分页。这里分页有明显的性能问题，直接查找了所有数据，然后在内存中分页（以及排序），在数据集非常大的时候这是不可取的。应该在<code>BaseEntity</code>里面存入<code>limit</code>, <code>offset</code>和<code>orderBy</code>，然后在sql里面根据这些参数来写sql；</li>
+<li>id. ID应该用自增主键，主要是出于性能考虑。MySQL的uuid主键性能很差，这是由innoDB底层实现决定的。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/13/hello-world/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/13/hello-world/" class="post-title-link" itemprop="url">hello-world</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2017-06-13 00:43:56 / 修改时间：00:44:47" itemprop="dateCreated datePublished" datetime="2017-06-13T00:43:56+08:00">2017-06-13</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/13/hello-world/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/13/hello-world/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最后再折腾一次，把所有的blog迁移到GitHub Pages，以后再也不折腾了ORZ</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/java%20web%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/java%20web%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">java web基础学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:50:02" itemprop="dateCreated datePublished" datetime="2017-06-12T23:50:02+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:27:15" itemprop="dateModified" datetime="2017-06-13T00:27:15+08:00">2017-06-13</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/java%20web%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/java web基础学习/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。</p>
+<h2 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h2><h3 id="结构概览"><a href="#结构概览" class="headerlink" title="结构概览"></a>结构概览</h3><p>java的web底层主要是指servlet和filter，前者替代了普通的CGI（for C/C++，perl），相当于python中的wsgi。这一块主要的类：<br><img src="http://img.my.csdn.net/uploads/201301/04/1357284746_5560.png" alt="servlet class UML"></p>
+<p>这是servlet相关的类，这是一个请求——应答模型，不涉及具体协议。和http相关的主要是下面这些：<br><img src="http://img.my.csdn.net/uploads/201301/05/1357367807_2250.png" alt="servlet http class UML"><br>和<code>Servlet</code>关系很大的是web.xml文件，所有的servlet必须在web.xml中声明、配置初始化参数，做url映射。url映射采用最大前缀匹配，如果两个完全一样，用靠前声明的那个匹配。类似django中的<code>settings.py</code>.</p>
+<p>ServletFilter是Servlet的一种extension，用于在Servlet被调用之前检查Request对象，并修改Request Header和Request内容；以及在Servlet被调用之后检查Response对象，修改Response Header和Response的内容（一种中间件）。Filter也需要配置url mapping，其调用顺序是其在web.xml中声明的顺序，习惯上filter被声明在所有servlet之前。</p>
+<p>Servlet异常处理，可以配置<code>&lt;error-page&gt;</code>将status-code导向不同的html页面，或者干脆导向一个自定义类，然后在该错误处理类中使用<code>Integer status_code=(Integer)req.getAttribute(&quot;javax.servlet.error.status_code&quot;);</code>得到错误码，然后根据错误码做处理；而java程序中的异常可以通过try…catch捕获，然后forword一个专门的处理类中。</p>
+<p>session id应该只对当前servlet有效，虽然确实有方法使其跨servlet共享，但是不推荐使用。</p>
+<h3 id="代码书写"><a href="#代码书写" class="headerlink" title="代码书写"></a>代码书写</h3><p>首先实现一个servlet（继承<code>HttpServlet</code>），实现<code>init</code>和<code>service</code>方法，在后者中实现web服务的逻辑处理。然后在<code>web.xml</code>中注册该servlet的类，将之与url相关联。</p>
+<h3 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h3><p>外层web服务器（Tomcat等）在收到http请求后，根据url路径找到对应的servlet，实例化（如果不存在）。</p>
+<p>实例化的servlet对象处理请求，并返回响应（或者转发给其他servlet）.</p>
+<p>请求全部处理完毕后，Tomcat会根据需求销毁servlet（正常运行的服务不会销毁）。Java是多线程模型，并发的请求会使用新的线程来处理。</p>
+<h3 id="JSP"><a href="#JSP" class="headerlink" title="JSP"></a>JSP</h3><p>类似其他语言中的模板，不过模板一般是获得结果，然后进行渲染。JSP本质是一种特殊的Servlet，所以在接收到请求后，JSP文件会被编译为Java的字节码。</p>
+<p>语法：</p>
+<ol>
+<li><code>&lt;%...%&gt;</code>：Java代码片段，用于定义0~N条Java语句，方法中能够写什么，这里面就能放什么；</li>
+<li><code>&lt;%=  %&gt;</code>：Java 表达式，用于输出一条表达式或变量的结果。<code>response.getWriter().print()</code> 方法中能够写什么，这里面就能够写什么；</li>
+<li><code>&lt;%! … %&gt;</code> ：声明，用来创建类的成员变量和成员方法，Java类中能够写什么，这里面就能够写什么，要注意的是，里面的内容不在<code>_jspService()</code> 方法之内，直接被JSP转化后的类体包含。</li>
+</ol>
+<p>在<code>&lt;%  %&gt;</code> 和 <code>&lt;%= %&gt;</code> 脚本中定义的Java 代码都会放在JSP 的 <code>_jspService()</code> 方法中（实际上就是Servlet中的<code>service</code> 方法），而<code>&lt;%! %&gt;</code> 脚本中定义的却会放到生成类的成员位置的。</p>
+<h2 id="Spring3"><a href="#Spring3" class="headerlink" title="Spring3"></a>Spring3</h2><p>spring存在的意义是因为Java不够灵活。</p>
+<ol>
+<li>Spring通过xml来增强Java的灵活性，减少因配置更改导致的重新编译需求；</li>
+<li>Spring支持面向切面编程（也就是Python中的装饰器），方便进行拦截；</li>
+<li>同样，通过AOP，可以管理数据库连接，以及事务回滚等等；</li>
+<li>此外，Spring还提供了一系列工具包，如果JDBC连接；SpringMVC的web框架；</li>
+<li>良好的可扩展性，可以方便的与其他JavaEE框架结合使用；</li>
+</ol>
+<p>简单来说，Spring通过XML定义了一套新的语言，该语言能被无缝整合到Java程序中。</p>
+<h3 id="IoC"><a href="#IoC" class="headerlink" title="IoC"></a>IoC</h3><p>所谓的依赖反转。</p>
+<p>按着HTTP的请求应答模型，正常情况下，Tomcat等web服务器就请求直接塞给servlet，获得应答返回给客户端。但是Spring为了增强灵活性，在这里加了一层，也即是所谓的“容器”。</p>
+<p>这个容器（BeanFactory）本质上就是对象的托管工厂，根据请求容器创建对象（Bean），并进行一系列的注入等操作，并进行对象的生命周期管理。对于web而言显然Servlet被包含在这些Bean中。</p>
+<p>初始化的流程是可配置化的，默认在一系列xml配置文件中。</p>
+<h3 id="一般流程"><a href="#一般流程" class="headerlink" title="一般流程"></a>一般流程</h3><p>Spring是按着接口进行类的管理的，一般情况下，需要有一个接口类（假设叫<code>HelloApi</code>）。</p>
+<p>一个实现了个该接口的普通类（假设就叫<code>HelloImpl</code>）。</p>
+<p>在spring对应的xml中配置bean，大致如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;hello&quot;</span> <span class="attr">class</span>=<span class="string">&quot;cn.javass.spring.chapter2.helloworld.HelloImpl&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>id</code>是组件的名字，最后：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloTest</span> </span>&#123;</span><br><span class="line">       <span class="meta">@Test</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testHelloWorld</span><span class="params">()</span> </span>&#123;</span><br><span class="line">             <span class="comment">//1、读取配置文件实例化一个IoC容器</span></span><br><span class="line">             ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;helloworld.xml&quot;</span>);</span><br><span class="line">             <span class="comment">//2、从容器中获取Bean，注意此处完全“面向接口编程，而不是面向实现”</span></span><br><span class="line">              HelloApi helloApi = context.getBean(<span class="string">&quot;hello&quot;</span>, HelloApi.class);</span><br><span class="line">              <span class="comment">//3、执行业务逻辑</span></span><br><span class="line">              helloApi.sayHello();</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用容器读取<code>xml</code>配置文件，然后通过名字查找Bean，利用反射创建对应的实例（生成的是接口的实例）。</p>
+<p>上文中的<code>ApplicationContext</code>是<code>BeanFactory</code>的子类，Spring针对不同的场景内置了大量不同的Bean工厂，以适应不同的场景。</p>
+<p>如果构造器有参数，可以在xml的<code>bean</code>的结点中放入<code>constructor</code>结点，进行参数注入。</p>
+<p>除了普通类以外，Bean还可以作用于静态/普通工厂类。只是xml中的配置文件项略有不同而已。</p>
+<p>在初始化（生成对象）后，还可以通过<code>property</code>结点注入属性（setter）.</p>
+<p>如果想要使用<code>Bean</code>技术，必须遵从其命名规范，不然找不到对应的方法/对象。如下：</p>
+<ul>
+<li>该类必须是一个普通Java类（POJO），不受Java规范外其他规范约束；</li>
+<li>该类必须要有公共的无参构造器，如public HelloImpl4() {}；</li>
+<li>属性为private访问级别，不建议public，如private String message;</li>
+<li>属性必要时通过一组setter（修改器）和getter（访问器）方法来访问；</li>
+<li>setter方法，以“set” 开头，后跟首字母大写的属性名，如<code>setMesssage</code>,简单属性一般只有一个方法参数，方法返回值通常为<code>void</code>;</li>
+<li>getter方法，一般属性以“get”开头，对于boolean类型一般以“is”开头，后跟首字母大写的属性名，如<code>getMesssage</code>，<code>isOk</code>；</li>
+<li>还有一些其他特殊情况，比如属性有连续两个大写字母开头，如“URL”,则setter/getter方法为：<code>setURL</code>和<code>getURL</code>，其他一些特殊情况请参看“Java Bean”命名规范。</li>
+</ul>
+<p>得益于xml的强大，可以注入的数据类型，除了基本类型外， 还有<code>list</code>、<code>set</code>和<code>map</code>等集合类，甚至可以引用其他Bean.</p>
+<h3 id="bean-xml语法"><a href="#bean-xml语法" class="headerlink" title="bean xml语法"></a>bean xml语法</h3><ol>
+<li>首先使用<code>&lt;bean&gt;</code>构建一个bean，指定<code>id</code>（全局唯一）和<code>class</code>。如果该bean对应的类需要使用静态工厂方法，使用<code>factory-method=&quot;xxxx&quot;</code>属性；如果需要实例工厂方法，则必须在前面先声明工厂类的bean，然后在这里指定<code>factory-bean</code>；bean的scope分为两类：<code>prototype</code>和<code>singleton</code>。显然单例的bean全局只有一个，原型的则每次产生新的。</li>
+<li>使用<code>&lt;constructor-arg&gt;</code>调用构造器进行初始化，可以使用<code>index</code>属性指定构造器参数次序，或者直接用<code>type</code>按参数类型进行匹配（就像正常调用重载方法时那样），或者用<code>name</code>指定参数的名字。使用<code>value</code>注入需要的值。</li>
+<li>使用<code>&lt;property&gt;</code>调用对应的<code>setter</code>来注入各种属性。如果注入的是常量，直接用<code>value</code>赋值就行；如果注入的是其他bean的<strong>名字</strong>，使用<code>idref bean=&#39;xxx&#39;</code>；如果注入的是其他bean对应类的实例，需要使用<code>ref bean=&#39;xxx&#39;</code>;还可以注入<code>list</code>,<code>set</code>, <code>array</code>和<code>map</code>，甚至<code>prop</code>(<code>java.util.Properties</code>) ；如果想要注入<code>null</code>，必须使用<code>&lt;null/&gt;</code>标签，直接写当然是字符串。</li>
+<li>使用<code>lazy-init</code>可以对bean进行延迟初始化；</li>
+<li>使用<code>depends-on</code>指定依赖的bean来影响初始化/销毁的顺序；</li>
+<li>自动装配：为了减少配置文件的长度，spring支持自动装配。简单来说可以根据参数的名称自动找到对应bean的名称；</li>
+<li>此外，spring还支持method注入。这个主要是为了解决单例bean调用原型bean导致的一系列问题；</li>
+</ol>
+<h3 id="Resource接口"><a href="#Resource接口" class="headerlink" title="Resource接口"></a>Resource接口</h3><p>spring为外部资源抽象了一系列的接口</p>
+<h3 id="Spring表达式"><a href="#Spring表达式" class="headerlink" title="Spring表达式"></a>Spring表达式</h3><p>为Java语言提供了<code>eval</code>功能，类型动态语言的功能<br>在bean中可以使用SpEL，格式为<code>#&#123;&#125;</code>，表达式放在大括号中<br>可以在Java语言中使用<code>@Value(#&#123;&#125;)</code>注释进行注入</p>
+<h3 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h3><p>Spring是面向接口编程的，这是装饰器模式的基础。</p>
+<p>所谓装饰器模式，指的是对于一个<code>HelloApi</code>接口，定义一个装饰器也实现<code>HelloApi</code>接口，其构造器也是需要一个<code>HelloApi</code>对象。这样，我们将需要装饰的对象传入装饰器对象，通过调用装饰器的接口方法来实现装饰。</p>
+<p>Spring通过注解/xml的方式完成装饰器的注入，就是所谓的AOP. 使用流程：</p>
+<ol>
+<li>写一个切面类；</li>
+<li>定义连接点（具体什么场景下在哪里被调用），切入点表达式形如<code>execution(* com.spring.service.*.*(..))</code>，匹配语法：<code>*</code>表示一级上的任意字符，<code>..</code>表示任意级的任意字符，<code>+</code>指定类型的子类型；这里的语法很复杂，可以参见<a target="_blank" rel="noopener" href="http://blog.csdn.net/wangpeng047/article/details/8556800">这里</a>；</li>
+<li>定义通知的回调方法</li>
+<li>通知顺序：前置通知→环绕通知连接点之前→连接点执行→环绕通知连接点之后→返回通知→后通知；如果发生异常：异常通知→后通知</li>
+</ol>
+<h3 id="JDBC支持"><a href="#JDBC支持" class="headerlink" title="JDBC支持"></a>JDBC支持</h3><p>Spring扩展了原生的jdbc支持，但是一般情况下我们在生产环境会和ORM结合使用</p>
+<h3 id="简化配置"><a href="#简化配置" class="headerlink" title="简化配置"></a>简化配置</h3><p>一般使用注释来简化配置文件，常见注释包括：</p>
+<ol>
+<li>Required：必须注入的属性，修饰setter；</li>
+<li>Autowired： 自动装配，可以后面跟上<code>(required=true)</code>，自动装配有点坑爹，谨慎使用</li>
+</ol>
+<h2 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h2><p>Spring MVC是一套常见的MVC web框架，主要涉及了几个层次……</p>
+<h2 id="Apache-Shiro"><a href="#Apache-Shiro" class="headerlink" title="Apache Shiro"></a>Apache Shiro</h2><p>一个权限认证系统</p>
+<h2 id="SiteMeth"><a href="#SiteMeth" class="headerlink" title="SiteMeth"></a>SiteMeth</h2><p>一个服务端渲染的页面装饰框架</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">lua5.1要点笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:49:06" itemprop="dateCreated datePublished" datetime="2017-06-12T23:49:06+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:28:01" itemprop="dateModified" datetime="2017-06-13T00:28:01+08:00">2017-06-13</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/lua5.1要点笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><code>sudo apt-get install lua5.1</code></p>
+<p>lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。</p>
+<p>lua是一门嵌入式语言，也就是程序的入口点必定在别处，这是和python等脚本语言的最大区别。lua的性能很好，虽然比不上v8的js。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><ol>
+<li>作为一门动态语言，可以从lua身上看出许多动态语言的影子。lua与js，python都有一定的相似性，可以说是综合了二者之所长。但是有个坑，就是unicode问题，lua5.3解决了这个问题。不过对于heka，一般情况下我们不太需要处理utf8，毕竟日志数据track一般都是编号和数据。</li>
+<li>与python不同而与js类似，lua是动态类型语言。字符串会在适当时候自动转成数字， 当然也可以使用string.format自己进行转换；</li>
+<li>所有的变量默认是全局的（与js一致），需要使用local修饰符来创建局部变量；全局变量被存放在一个table中，被称为环境，可以通过<code>getfenv</code>和<code>setfenv</code>来对环境进行操作；</li>
+<li>只有一种数据结构：table. 赋值语句比较奇怪:<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a = &#123;x=<span class="number">3</span>, [<span class="number">2</span>]=<span class="number">2</span>&#125;</span><br><span class="line">a[<span class="number">1</span>] == <span class="number">2</span></span><br><span class="line">a[<span class="string">&quot;x&quot;</span>] == <span class="number">3</span></span><br></pre></td></tr></table></figure>
+注意table里面值不能是nil，否则会有各种奇怪的问题，比如<code>#</code>返回的是<code>nil</code>值之前的长度；所以可以用<code>a[x] == nil</code>或者<code>if a[x]</code>来判断exists；将<code>a[x]=nil</code>则相当于删除了<code>x</code>元素。但是不能这样删除数组里面的元素，因为会导致<code>#</code>操作符的结果错误，需要使用<code>table.remove(x)</code>;</li>
+<li>连接操作符：<code>..</code>; 取长度操作符（相当于<code>len</code>)<code>#</code>，但是<code>#</code>返回的是字节数，所以更像是<code>sizeof</code></li>
+<li>函数与js中的很像，支持闭包。<code>：</code>可以用来定义方法，本质上是一种语法糖；</li>
+<li><code>metatable</code>类似与python的内置方法，各种重载操作符。</li>
+<li>lua支持<code>coroutine</code>.</li>
+</ol>
+<h3 id="库"><a href="#库" class="headerlink" title="库"></a>库</h3><ol>
+<li>由于lua中table不支持<code>nil</code>，这与json中的<code>null</code>产生了矛盾，需要使用<code>cjson.null</code>来表示</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">Go语言学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:42" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:42+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 19:10:34" itemprop="dateModified" datetime="2019-03-31T19:10:34+08:00">2019-03-31</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/Go语言学习/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>update(2019/03/31): 移除了一些过时信息。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ol>
+<li>安装 GoLang，直接用官网的安装指南就行；</li>
+<li><s>设置环境变量<code>GOPATH</code>，这个是用默认包的存放位置，用<code>go get</code>安装的包会存放在这个位置。在<code>~/.zshrc</code>或<code>~/.bashrc</code>里面加入<code>export GOPATH=~/.go</code>，然后在<code>PATH</code>里面加入<code>GOPATH/bin</code>即可</s>；go1.10之后，已经不用手动设置<code>GOPATH</code>；</li>
+<li>如果是项目的依赖，最好不要放入全局系统。使用1.11后加入的<code>go mod</code>；</li>
+<li>设置代理。<code>go get</code>命令下载必定被墙，使用<code>git config --global http.proxy &quot;xxxx:oooo&quot;</code>设置代理方可使用，也可以使用<code>http_proxy=xxxx:oooo go get</code>这个格式，或者在 bashrc 里面加个<code>alias</code>；在项目里的<code>go.mod</code>中使用<code>replace</code>也可以；</li>
+<li>IDE：推荐vscode+go，或者 gogland，后者付费；</li>
+<li>官方教程，建议下载到本地运行，速度更快；</li>
+<li>交互式命令行：<code>gore</code>(<code>go get -u github.com/motemen/gore</code>)；</li>
+<li>可以使用<code>https://play.golang.org/</code>跑一些短小的程序测试；</li>
+</ol>
+<h2 id="基础部分"><a href="#基础部分" class="headerlink" title="基础部分"></a>基础部分</h2><h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><h4 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h4><ol>
+<li>打头的<code>package xxx</code>，类似 java，<code>import</code>可以用括号打包；</li>
+<li>类型在变量名后，这种奇特的声明方式虽然有篇 blog 来解释，但总而言之是扯淡的；</li>
+<li>连续多个变量同类型可省略前面的只保留最后一个；</li>
+<li>类似 python 的多值返回（但是 python 本质是一个 tuple)，如果给返回值命名了，就不必在函数体中声明这些变量；</li>
+<li><code>var name int</code>是典型的声明变量格式，自动推导类型的语法是<code>name := 0</code>（但是这个语法只能在函数体里面用，外面必须用<code>var</code>声明）。可以在一行给多个变量赋值（类似 python 的解包）；</li>
+<li>基本类型，和 c++类似，包括<code>bool</code>, <code>int</code>, <code>uint</code>, <code>byte</code>(<code>uint8</code>),<code>rune</code>(<code>int32</code>), <code>float32</code>, <code>float64</code>, <code>uintptr</code>, <code>complex64</code>, <code>complex128</code>, <code>string</code>，注意么有<code>double</code>，类似其他 GC 语言，所有类型会被自动化初始化；</li>
+<li>Go 没有隐式类型转换，所有类型之间必须显式转换。注意<code>int</code>和<code>string</code>之间不能互转，可以用<code>strconv</code>中的<code>Itoa</code>和<code>Atoi</code>来完成（非常烦躁的设定）；</li>
+<li>常量使用<code>const</code>关键字声明，常量只能是基础类型，且不能用<code>:=</code>声明。常量的实际类型由上下文决定，数值常量本身是高精度的；</li>
+<li> 和 C 语言一样，单引号表示字符(byte)，双引号表示字符串。<code>string</code>可以转换成一个<code>rune</code>数组，或者<code>byte</code>数组，取决于你对字符串的解释（字节流还是文本）。</li>
+</ol>
+<hr>
+<h4 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h4><ol>
+<li>循环只有<code>for</code>语句，且不需要括号（其他语句也都不需要），基本格式还是类似 c 的<code>for i := 0; i &lt; 10; ++i</code>，这种，后面必须跟大括号，且大括号必须和<code>for</code>在同一行…</li>
+<li>如果省略前后前后的分号，<code>for</code>就成了<code>while</code>；如果全部省略，裸的<code>for</code>代表死循环；</li>
+<li>if 类似，不要括号，花括号必须；而且 if 也可以在分号前声明一个变量，作用域仅限于花括号以及后面跟着的<code>else</code>里面；</li>
+<li><code>switch</code>语句，好吧，和上面也类似。有个有趣的地方是，默认自动终止，除非使用<code>fallthrough</code>，和 C 中的默认自动向下，除非手动<code>break</code>相反；<code>switch</code>也可以直接用空语句，条件比较复杂时使用可以让代码看起来更加整洁；</li>
+<li><code>defer</code>语句，这是 Go 的特色语句了。<code>defer</code>是在函数返回后再执行，其本质是压栈，所以弹出顺序与<code>defer</code>的顺序相反；</li>
+</ol>
+<hr>
+<h4 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h4><ol>
+<li>虽然 Go 是一门 GC 语言，但是仍然拥有指针。<code>*T</code>表示指向类型<code>T</code>的指针，取地址仍然使用<code>&amp;</code>。不过与 C 不一样的是，不允许指针运算；</li>
+<li>和 C 一样，拥有<code>struct</code>，而且蛋疼的是，也只能拥有字段（和 C 一样，POD）。结构体通过指针访问字段也是使用<code>.</code>符号（没有了<code>-&gt;</code>符号）；</li>
+<li>使用<code>&#123;&#125;</code>进行结构体初始化，如</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Point <span class="keyword">struct</span> &#123;</span><br><span class="line">    X, Y <span class="keyword">float32</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    a = Point&#123;X: <span class="number">10</span>&#125;</span><br><span class="line">    b = Point&#123;<span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    c = Point&#123;&#125;</span><br><span class="line">    p = &amp;Point&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">)</span><br><span class="line">fmt.Println(p.X)</span><br></pre></td></tr></table></figure>
+
+<p>虽然感觉有点奇怪，不过和 C++11 后的初始化列表其实挺像的。</p>
+<hr>
+<h4 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h4><ol>
+<li>声明方式： <code>var a [10]int</code>，这语法也是醉了。和 C 一样，数组不能动态扩张；</li>
+<li>使用<code>slice</code>代替数组，声明方式： <code>a = make([]int, 0, 5)</code>，第二个参数表示长度(len)，第三个参数表示容量(cap)。类似 python 中的<code>list</code>，可以切片；注意，如果仅仅声明<code>var []a</code>那么<code>a==nil</code>是成立的；</li>
+<li><code>make</code>关键字只能用来生成系统内置的一些对象，如 slice, map, chan；由于go不支持泛型，只有内置的这几个结构可以用泛型（很奇葩）。</li>
+<li>go 的切片有一些匪夷所思的问题，因为切片得到的并不是新的对象，而是原来对象的指针；</li>
+<li>可以通过<code>append</code>往 slice 中添加元素，类似 C++中的<code>vector</code>可以自动扩展长度。注意append会返回slice的指针，这个值和原来的不一定一致；</li>
+<li><code>range</code>关键字（注意这货不是函数。。）用来对<code>slice</code>进行循环，格式是<code>for i, v := range a</code>;</li>
+</ol>
+<hr>
+<h4 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h4><ol>
+<li><code>map</code>现在也是新兴语言的标配了，<code>map</code>和<code>slice</code>一样，必须通过<code>make</code>创建，语法是<code>m := make(map[string]int)</code>,<code>[]</code>中的是键的类型，后面跟着的是值的类型。初始化语法神马的和 struct 类似；</li>
+<li>删除元素使用<code>delete</code>关键字；检测存在使用双赋值：<code>a, ok = m[&#39;test&#39;]</code>，如果存在则 ok 为<code>true</code>，否则为<code>false</code>；</li>
+</ol>
+<hr>
+<h4 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h4><ol>
+<li>函数被提到第一公民的位置，和 javascript 里面的语法很像，当然，除了强类型声明很麻烦以外；</li>
+<li>函数的闭包与 js 类似，内嵌函数引用的是各自的闭包（其实有点像 C 中的<code>static</code>局部变量）；</li>
+</ol>
+<hr>
+<h4 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h4><ol>
+<li>虽然 Go 里面没有类，但是可以声明 struct 关联的方法，虽然语法非常别扭…例如（接着上面的<code>Point</code>）</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p1 *Point)</span> <span class="title">distance</span><span class="params">(p2 *Point)</span> <span class="title">int</span></span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法接受者位置在<code>func</code>关键字和函数名之间，呃，其实和 C++的外置方法声明还是有点像的…</p>
+<ol start="2">
+<li>值得注意的是，不仅仅是 struct，可以通过这种声明向本包内任意非内置类型注入方法，甚至可以通过<code>type</code>声明别称后向别称的内置类型进行注入；</li>
+<li>方法接受者可以是指针，也可以不是，当然只有指针才能改变元素的实际值；</li>
+</ol>
+<hr>
+<h4 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h4><ol>
+<li><code>struct</code>从语法上来讲和 C 基本是一样的；</li>
+<li>可以在字段后面添加字符串，表示<code>tag</code>，在反射的时候用；</li>
+<li>可以在结构体内塞入另一个结构体（或其指针），组合优先于继承；</li>
+</ol>
+<hr>
+<h4 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h4><ol>
+<li>虽然没有类，但是由接口。关键字<code>interface</code>声明一种接口：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Flyable <span class="keyword">interface</span>&#123;</span><br><span class="line">    Fly();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面<code>Flyable</code>声明了一个接口，拥有<code>Fly</code>方法. 这样后面假设我给<code>pig</code>加上<code>fly</code>方法，那么变量<code>var item Flyable</code>就可以被赋值为<code>item = &amp;pig&#123;&#125;</code><br>这里值得注意的是，这里的接口实现本质是隐式的（非侵入式的），或者可以说是<code>duckable</code>的，pythoner 对此应该深有理解：）</p>
+<ol start="2">
+<li><code>Stringers</code>是一个常见的接口，类似 python 中的<code>__str__</code>或者 java 中的<code>toString</code>，它只需要实现<code>String</code>方法；</li>
+<li>Go 里面没有异常，仍然使用错误。<code>error</code>是一个接口，只有一个方法<code>Error() string</code>，通常函数会返回一个<code>error</code>，放在第二个位置，如果其不为<code>nil</code>则说明出了错误；</li>
+<li>其他常见接口包括<code>io.Reader</code>，表示从数据流结尾读取；<code>http.Handler</code>表示处理 HTTP 请求的服务器；<code>image.Image</code>表明一个图像的接口；</li>
+<li>接口可以通过接口来组合</li>
+</ol>
+<hr>
+<h4 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h4><ol>
+<li><code>goroutine</code>是 Go 运行时的轻量级线程（协程），在方法名前加<code>go</code>就在另一个线程中同步执行了；</li>
+<li><code>channel</code>是有类型的管道，可以使用<code>&lt;-</code>操作符对其发送或接受值，使用<code>make(chan int， 100)</code>创建一个<code>int</code>的<code>channel</code>，第二个参数表示缓冲区长度，也可以不带，表示完全无缓冲；</li>
+<li><code>&lt;-chan</code>和<code>chan&lt;-</code>分别表示只读和只写的 chan，后面跟着管道中的数据类型，如<code>a &lt;-chan *int</code>表示只读的整数指针通道；</li>
+<li><code>close</code>一个<code>channel</code>表示不再发送数据（只有发送者可以关闭），向已经<code>close</code>的<code>channel</code>发送数据会引起<code>panic</code>。使用<code>range</code>则表示从<code>channel</code>中源源不断的接受数据直到被关闭；</li>
+<li><code>select</code>语句使得一个 goroutine 在多个通讯操作上等待，阻塞直到某个分支可行，例如：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// var a, b chan int</span></span><br><span class="line"><span class="keyword">select</span>&#123;</span><br><span class="line">    <span class="keyword">case</span> x &lt;- a:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">case</span> &lt;- b:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当所有分支都不可行时，执行<code>default</code>语句；</p>
+<ol start="5">
+<li><code>sync.Mutex</code>提供了互斥锁，包括<code>Lock</code>和<code>Unlock</code>两个方法，可以使用<code>defer</code>语句保证锁一定会被释放；</li>
+<li>Go 与 Erlang 的并发模型分别是 CPS 和 Actor，但是 Go 的 channel 里面可以传递指针，这和 Erlang 的变量不可更改有着根本性质的区别。</li>
+</ol>
+<hr>
+<p>至此，基础部分结束。</p>
+<hr>
+<h2 id="进阶部分"><a href="#进阶部分" class="headerlink" title="进阶部分"></a>进阶部分</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ol>
+<li><s>前面导出了<code>GOPATH</code>环境变量，这个路径就是实际的工作空间。从结论来看，Go 提倡将所有 Go 语言项目放入同一个工作路径，这是很不好的；</li>
+<li>如果使用过<code>go get</code>命令，那么<code>GOPATH</code>下会自动创建<code>bin</code>, <code>pkg</code>和<code>src</code>三个文件夹，源码存放在<code>src</code>之下，<code>import</code>本地包时，就是从这一层开始的。<code>go get</code>无法控制依赖的版本（垃圾）；</s></li>
+<li><code>go install</code>会生成输出文件（可执行或者库），<code>go build</code>则仅编译；</li>
+</ol>
+<h3 id="使用技巧"><a href="#使用技巧" class="headerlink" title="使用技巧"></a>使用技巧</h3><ol>
+<li>Go 自带了一个工具<code>go fmt</code>用来对代码进行格式化；</li>
+<li>注释的格式和 C++一致。使用<code>godoc</code>生成文档，类似 python 的 docstring，但是约定更加简单：对类型、变量、常量、函数或者包的注释，在其定义前编写普通的注释即可，不要插入空行。Godoc 将会把这些注释识别为对其后的内容的文档。</li>
+<li>与顶级定义不相邻的注释，会被 godoc 的输出忽略，但有一个意外。以“BUG(who)”开头的顶级注释会被识别为已知的 bug，会被包含在包文档的“Bugs”部分。</li>
+<li><code>getter</code>没有必要用<code>Get</code>开头，直接大写首字母就行，<code>setter</code>还可以留着<code>Set</code>；</li>
+<li>Go 习惯使用驼峰式写法，而不是下划线；</li>
+<li>Go 其实是需要分号的，但是分号是自动插入的。这造成了一些非常奇怪的约定。例如左大括号必须放在一行末尾…</li>
+<li><code>new</code>用来分配内存，并且填 0，返回指向对象的指针，程序可以利用这些指针进行手动初始化；<code>make</code>则只能用来创建内置类型(slice, map 和 channel)，返回的是对象本身，而不是指针；</li>
+<li><code>array</code>是一种对象，和它的大小相关；array 名并不是指针（和 C 不同）；</li>
+<li><code>print</code>语系和 C 中基本一致, <code>%v</code>可以拿到值，<code>%T</code>可以拿到类型；</li>
+<li><code>interface &#123;&#125;</code>相当于 C 中的<code>void *</code>可以被转化为任意类型，一种常见的反射方式是使用<code>v.(type)</code>，这被称作<code>type assertion</code>. 比如<code>str, ok = v.(string)</code>，返回的就是 string 类型；另外可以在<code>switch</code>语句里面用<code>x.(type)</code>，然后再<code>case</code>里面判断类型；</li>
+<li><code>import</code>后必须使用，否则会报错（傻逼设定。。），可以用<code>import _ &quot;fmt&quot;</code>的方法导入但不使用，或者用<code>_</code>赋值；另外就是可以直接导入包内全部方法，使用<code>import * &quot;fmt&quot;</code>；</li>
+<li>可以通过往<code>struct</code>里面塞匿名字段（另一个 struct，或其指针）来达到继承的目的，虽然看起来很奇怪就是了。注意的是，这本质上只是一种语法糖。外围的同名元素会覆盖继承（内嵌）的；同样，也可以往<code>interface</code>里面塞一个别的<code>interface</code>达到继承接口的目的；</li>
+<li><code>panic</code>和<code>recover</code>是最后手段；</li>
+</ol>
+<h3 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h3><ol>
+<li>使用<code>reflect</code>包来进行反射；</li>
+<li>golang 里面每个值都有<code>Type</code>和<code>Value</code>，这是因为所有值都是<code>interface&#123;&#125;</code>的实现者，而后者实际上是一个空类型，所以需要<code>Type</code>和<code>Value</code>用于反射。这也就对应着<code>reflect.Type</code>和<code>reflect.Value</code>，也对应着<code>%T</code>和<code>%v</code>，也对应着<code>reflect.TypeOf()</code>和<code>reflect.ValueOf</code>；</li>
+<li><code>reflect.Type</code>和<code>reflect.Value</code>并不是并列的（并不能顾名思义）；而是一种包含关系，<code>reflect.Value</code>是一个&lt;Type, Value&gt;的二元组，<code>reflect.ValueOf(x).Type</code>与<code>reflect.TypeOf(x)</code>是一致的，返回的是静态类型；<code>reflect.ValueOf(x).Kind</code>可以返回一个常量定义的类型（如<code>reflect.Float64</code>)，这是一个底层类型。</li>
+<li>可以从<code>reflect.ValueOf(x).Interface()</code>还原接口值，后续跟随类型断言等；输出<code>reflect.Value</code>的正确方法是将其先转为<code>interface&#123;&#125;</code>；</li>
+<li><code>reflect.ValueOf(x).SetXXX</code>的前提是 x 是可修改的(<code>CanSet</code>)，借助指针来修改的方法是：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> x <span class="keyword">float64</span> = <span class="number">1.1</span></span><br><span class="line">p := reflect.ValueOf(&amp;x)</span><br><span class="line">v := p.Elem()</span><br><span class="line">v.CanSet() == <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="陷阱"><a href="#陷阱" class="headerlink" title="陷阱"></a>陷阱</h3><ol>
+<li>在循环中创建goroutine需要注意变量的传递。如:</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">    &#125;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实际上可能输出了10个9，这是由于<code>go</code>创建的协程不会马上运行，当启动的时候i已经迭代到9了。正确的做法是不要直接使用闭包外的变量，而要进行传值。即：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(x)</span></span>&#123;</span><br><span class="line">        fmt.Println(x)</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;(i)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>nil与interface</li>
+</ol>
+<p>如果一个函数如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> IAdder <span class="keyword">interface</span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">Add</span><span class="params">(x <span class="keyword">int</span>)</span><span class="title">int</span></span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> Ex <span class="keyword">struct</span>&#123;</span><br><span class="line">    X <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e Ex)</span> <span class="title">Add</span> <span class="params">(x <span class="keyword">int</span>)</span><span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.X + x</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span><span class="params">(x <span class="keyword">int</span>)</span><span class="title">Ex</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> y Ex</span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">10</span>&#123;</span><br><span class="line">        y = <span class="literal">nil</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        y = &amp;Ex&#123;x&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> y</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> IAdder ia</span><br><span class="line">    ia = test(<span class="number">100</span>)</span><br><span class="line">    fmt.Printf(ia == <span class="literal">nil</span>)  <span class="comment">//这里输出是false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的原因是<code>interface</code>本质上是一个值，他有两个部分Type和Value，只有两者都是nil的时候，这个值才是nil。所以interface不能直接与nil做比较。一个方法是直接在<code>test</code>中返回<code>IAdder</code>，还有个方法是先拿到值，判断nil后再复制给接口。或者，在test中加入<code>error</code>返回值，通过那个做判断也行。每当拿interface和nil值作比较的时候，心里都要警惕。</p>
+<ol start="3">
+<li>深浅拷贝</li>
+</ol>
+<p>这个其实是和C语言中一样的，如果我们令<code>A := B</code>，B是一个指针，那么A只是做了浅拷贝，但是如果B是一个struct，那么A就做了深拷贝（但是B中的指针仍然还是指针）。</p>
+<p>另外需要注意的是，go中内置的slice, map和chan本质上都是指针。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" class="post-title-link" itemprop="url">Heka插件开发</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:37" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:37+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:26:16" itemprop="dateModified" datetime="2017-06-13T00:26:16+08:00">2017-06-13</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/Heka插件开发/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：<br><img src="http://skoo.me/assets/images/heka-overview-diagram.png" alt="Heka结构图"></p>
+<p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
+<h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
+<li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
+<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/installing.html">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
+<li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
+<li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
+</ol>
+<blockquote>
+<p>使用Go1.5编译v0.10.0自带的example <code>host_filter.go</code>会提示<code>enough arguments in call to pack.Recycle</code>。查看提示的79行代码，发现<code>pack.Recycle()</code>少了个参数，传入<code>nil</code>重新编译即可。重新编译前在<code>build</code>文件夹中运行<code>make clean-heka</code>进行一次清理。</p>
+</blockquote>
+<h3 id="项目应用"><a href="#项目应用" class="headerlink" title="项目应用"></a>项目应用</h3><p>手头的项目需求如下：</p>
+<ol>
+<li>输出json形式的按行分割的log；</li>
+<li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
+<li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
+</ol>
+<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">&quot;/var/log/lucky&quot;</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">&#x27;track\.json&#x27;</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">&quot;JsonDecoder&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">&quot;SandboxDecoder&quot;</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">&quot;lua_decoders/json.lua&quot;</span></span><br><span class="line">    <span class="section">[JsonDecoder.config]</span></span><br><span class="line">    <span class="attr">Type</span> = <span class="string">&quot;type&quot;</span></span><br><span class="line">    <span class="attr">payload_keep</span> = <span class="literal">true</span></span><br><span class="line">    <span class="attr">Timestamp</span> = <span class="string">&quot;@timestamp&quot;</span></span><br><span class="line">    <span class="attr">timestamp_format</span> = <span class="string">&quot;%Y-%m-%dT%H:%M:%S.%f&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
+<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface&#123;&#125;</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface&#123;&#125;</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
+<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
+<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
   <nav class="pagination">
     <a class="extend prev" rel="prev" href="/archives/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/archives/page/4/">4</a><a class="page-number" href="/archives/page/5/">5</a><a class="extend next" rel="next" href="/archives/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>

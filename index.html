@@ -40,12 +40,12 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
+    isHome : false,
     isPost : false,
     lang   : 'zh-CN'
   };
 </script>
-<title>无心呢喃</title>
+<title>归档 | 无心呢喃</title>
   
 
 
@@ -169,12 +169,6 @@
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">44</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
@@ -215,1064 +209,236 @@
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
-
-    
+    <div class="main-inner archive posts-collapse">
 
 
-<div class="post-block">
   
   
+  
+  <div class="post-block">
+    <div class="post-content">
+      <div class="collection-title">
+        
+        <span class="collection-header">还行! 目前共计 44 篇日志。 继续努力。</span>
+      </div>
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" class="post-title-link" itemprop="url">netty的一些基础概念</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
       
-
-      <time title="创建时间：2021-02-24 09:54:00 / 修改时间：14:25:50" itemprop="dateCreated datePublished" datetime="2021-02-24T09:54:00+08:00">2021-02-24</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/02/24/netty的一些基础概念/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Java框架的问题就是概念很多，Netty作为“用Java必会的网络编程框架”，其实并不复杂，就是其他语言中的事件驱动。如果写过原生epoll的话，对这玩意儿不难理解。问题在于Java的框架抽象了一堆概念，所以重点就是把这些概念和其他语言中的东西做映射。</p>
-<p>有一点要清楚：epoll其实是一个同步非阻塞模型，并不是异步的，只有AIO才是异步模型（但是AIO目前是通过线程池实现的，内核和用户态的上下文切换导致效率并不高）。同样，netty也是同步模型。</p>
-<h2 id="调用方式"><a href="#调用方式" class="headerlink" title="调用方式"></a>调用方式</h2><p>EpollEventLoop底层使用epoll实现多路复用。</p>
-<p>EpollEventLoop中会初始化epollFd、eventFd、timerFd。</p>
-<pre><code>epollFd是调用系统方法生成的epoll对象，后续会使用其管理所有需要监听的fd
-
-eventFd是用于线程通讯，程序会把eventFd添加到epollFd中，监听eventFd，一旦eventFd有操作，则会唤醒调用epoll_wait的线程。
-
-timerFd是用于计时，同样的监听timerFd，一旦时间到达，则会唤醒调用epoll_wait的线程。
-</code></pre>
-<p>每当连接接入或者断连，都会调用epoll_ctl_add/epoll_ctl_del方法来操作epoll对象。</p>
-<p>在EpollEventLoop的run方法中，会调用epoll_wait来监听所有fd，一旦有fd就绪，会拷贝至EpollEventArray中，应用程序遍历EpollEventArray处理所有就绪事件。</p>
-<h2 id="概念解释"><a href="#概念解释" class="headerlink" title="概念解释"></a>概念解释</h2>
-      
+    <div class="collection-year">
+      <span class="collection-header">2021</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2021-02-24T09:54:00+08:00"
+              content="2021-02-24">
+          02-24
+        </time>
+      </div>
 
-    <footer class="post-footer">
-        <div class="post-eof"></div>
+      <div class="post-title">
+          <a class="post-title-link" href="/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" itemprop="url">
+            <span itemprop="name">netty的一些基础概念</span>
+          </a>
+      </div>
+
       
-    </footer>
+    </header>
   </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/" class="post-title-link" itemprop="url">golang文件操作的一个坑</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2020-06-05 13:52:07 / 修改时间：13:54:13" itemprop="dateCreated datePublished" datetime="2020-06-05T13:52:07+08:00">2020-06-05</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/06/05/golang文件操作的一个坑/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
-<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
-<p>哎，浪费了一上午=_=</p>
-
-      
+    <div class="collection-year">
+      <span class="collection-header">2020</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2020-06-05T13:52:07+08:00"
+              content="2020-06-05">
+          06-05
+        </time>
+      </div>
 
-    <footer class="post-footer">
-        <div class="post-eof"></div>
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/" itemprop="url">
+            <span itemprop="name">golang文件操作的一个坑</span>
+          </a>
+      </div>
+
       
-    </footer>
+    </header>
   </article>
-</div>
 
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2020-05-21T11:31:49+08:00"
+              content="2020-05-21">
+          05-21
+        </time>
+      </div>
 
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/05/21/Workflow%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/05/21/Workflow%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Workflow入门.md</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-05-21 11:31:49" itemprop="dateCreated datePublished" datetime="2020-05-21T11:31:49+08:00">2020-05-21</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-06-07 21:30:40" itemprop="dateModified" datetime="2020-06-07T21:30:40+08:00">2020-06-07</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/05/21/Workflow%E5%85%A5%E9%97%A8/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/21/Workflow入门/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>目前业务需要引入工作流引擎，现在开始调研相关技术和概念。目前开源的工作流引擎基本都是base在BPMN这套概念上的，所以对其深入了解是必须的（其实也很简单）。</p>
-<p>入门文档最好的材料是<a target="_blank" rel="noopener" href="https://docs.awspaas.com/reference-guide/aws-paas-process-reference-guide/index.html">国产的某个paas官方中文文档</a>，比较翔实。</p>
-<h2 id="选型"><a href="#选型" class="headerlink" title="选型"></a>选型</h2><p>这块其实可选的很少，最知名的是Activiti，目前最新版本是7，亮点是支持k8s集成等云原生组件；然后就是Activiti早期版本fork出来的camunda；最后是Activiti后期版本fork出来的flowable.</p>
-<p>这里我选择flowable，因为资料比较丰富，而且自带的前端界面有中文，方便内部使用。目前我们遇到的问题是不太清楚客户的具体需求，所以要使用工作流引擎保证可扩展性，但是不需要用户自己配置工作流（而是我们替他们配置好），所以自带的中文界面就比较重要了。这样是最简单快速的集成方案，后续可以自己实现一套前后端增删改查的接口，集成到自己的平台上。</p>
-<p>那么这里主要描述如何将flowable集成到我们目前的系统里（一个SpringBoot项目，单db，暂时还没拆分成微服务）。</p>
-<p>目标是：</p>
-<ol>
-<li>搞清楚如何通过自带的界面创建表单、流程；</li>
-<li>如何把flowable整合到现有的业务中；</li>
-<li>理清楚flowable创建表格/数据的意义，自己开发对应的API；</li>
-</ol>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>因为是测试，所以先切换到一个新分支进行开发。然后根据<a target="_blank" rel="noopener" href="https://flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot/">官方指南</a>，先把maven依赖集成到项目中：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.flowable&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;flowable-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;flowable.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>我这里用的是最新的6.5.0版本，倒入依赖，重新编译项目。发现Jar包比原来大了13M左右，这个引擎的依赖还是挺多的…</p>
-<p>在配置文件里加入</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flowable.async-executor-activate&#x3D;false</span><br><span class="line">flowable.database-schema-update&#x3D;true</span><br><span class="line"># 必要的字体设置</span><br></pre></td></tr></table></figure>
-<p>注意后面那个必须设置为true，即使要手动建表。不过默认就是true，所以可以不设置。</p>
-<h2 id="第一次运行"><a href="#第一次运行" class="headerlink" title="第一次运行"></a>第一次运行</h2><p><code>mvn clean install</code>之后，<code>mvn -o spring-boot:run -Drun.profiles=dev</code>试图跑起来，结果发现缺失某个依赖，加上：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.fasterxml.jackson.module&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;jackson-module-jaxb-annotations&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>然后再跑，报bean<code>taskExecutor</code>报冲突。</p>
-<p>这里可以自己配置一下异步线程，避免和自己定义的默认线程池冲突。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlowableConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Process</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">processTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">3</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">10</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">&quot;flowable-task-&quot;</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cmmn</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">cmmnTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">1</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">5</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">&quot;flowable-cmmn-&quot;</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再跑，会报表不存在的错误。在datasource后面加上<code>&amp;nullCatalogMeansCurrent=true</code>，让程序自己建表。</p>
-<p>不过建议还是手动建表，因为默认的编码有点问题。mysql的原始sql在<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql%EF%BC%8C%E4%B8%8B%E4%B8%8B%E6%9D%A5%E6%94%B9%E4%B8%80%E4%B8%8B%E7%BC%96%E7%A0%81%E5%88%B0utf8mb4%EF%BC%8C%E7%84%B6%E5%90%8E%E6%89%8B%E5%8A%A8%E5%BB%BA%E8%A1%A8%E3%80%82">https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql，下下来改一下编码到utf8mb4，然后手动建表。</a></p>
-<p>现在再跑，应该一切正常了。可以看到flowable的表都是大写的，不管是字段还是表名。</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><a target="_blank" rel="noopener" href="http://www.shareniu.com/flowable6.5_zh_document/bpm/index.html">官方中文指南在此</a></p>
-<p>首先BPMN图形本质上是一段xml代码，然后我们又知道xml可以与bean映射，所以这就完美融合了，即BPMN就是“代码生成器”。</p>
-<h3 id="基本步骤"><a href="#基本步骤" class="headerlink" title="基本步骤"></a>基本步骤</h3><p>首先通过手动或者springboot的自动注册生成<code>ProcessEngine</code>对象，即规则引擎的工厂（线程安全）。然后手动编写流程bpmn对应的xml，或者通过界面生成也行。</p>
-<p>然后利用服务部署这个流程。</p>
-<p>每个流程有一个唯一id，调用流程就是通过id启动流程。把参数传进去，开始状态机的转换。</p>
-<p>未完待续</p>
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/05/21/Workflow%E5%85%A5%E9%97%A8/" itemprop="url">
+            <span itemprop="name">Workflow入门.md</span>
+          </a>
+      </div>
 
       
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2020-04-29T14:29:20+08:00"
+              content="2020-04-29">
+          04-29
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/04/29/linux%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/" itemprop="url">
+            <span itemprop="name">linux无人值守安装镜像制作.md</span>
+          </a>
+      </div>
+
+      
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2020-02-18T09:53:04+08:00"
+              content="2020-02-18">
+          02-18
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/02/18/mybatis%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9E%9A%E4%B8%BE/" itemprop="url">
+            <span itemprop="name">mybatis-plus自定义枚举</span>
+          </a>
+      </div>
+
+      
+    </header>
+  </article>
+    <div class="collection-year">
+      <span class="collection-header">2019</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2019-12-23T10:48:56+08:00"
+              content="2019-12-23">
+          12-23
+        </time>
+      </div>
 
-    <footer class="post-footer">
-        <div class="post-eof"></div>
+      <div class="post-title">
+          <a class="post-title-link" href="/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/" itemprop="url">
+            <span itemprop="name">gb28181实现调研</span>
+          </a>
+      </div>
+
       
-    </footer>
+    </header>
   </article>
-</div>
 
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2019-12-23T09:25:55+08:00"
+              content="2019-12-23">
+          12-23
+        </time>
+      </div>
 
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/04/29/linux%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/04/29/linux%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/" class="post-title-link" itemprop="url">linux无人值守安装镜像制作.md</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-04-29 14:29:20" itemprop="dateCreated datePublished" datetime="2020-04-29T14:29:20+08:00">2020-04-29</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-05-20 10:05:30" itemprop="dateModified" datetime="2020-05-20T10:05:30+08:00">2020-05-20</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/04/29/linux%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/04/29/linux无人值守安装镜像制作/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。</p>
-<p>注意：不要装centos 8，这货特别大，而且没有图形化配置工具。</p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>不同发行版支持的自动安装镜像技术不太一样，红帽这一系的主要使用kickstart，debian则使用<code>preseed</code>。这里安装的是centos7，所以用的主要是kickstart技术。</p>
-<h2 id="kickstart配置"><a href="#kickstart配置" class="headerlink" title="kickstart配置"></a>kickstart配置</h2><p>首先使用yum安装图形化工具<code>system-config-kickstart</code>，对语法熟悉的也可以不用这玩意儿直接撸。</p>
-<p>把镜像挂在到centos里，然后<code>cp -r</code>(需要包含隐藏文件）光盘里面的所有的内容到某个路径，比如<code>/root/iso/</code>。在<code>/root/iso</code>下建立文件夹存放kickstart配置文件，比如<code>/root/iso/kickstart/ks.cfg</code>。</p>
-<p>打开图形化配置工具kickstart，根据个人需求进行配置。具体可以参考<a target="_blank" rel="noopener" href="https://pdf.us/2018/08/13/1710.html">这里的介绍</a>。最后保存为刚才路径下的文件即可。</p>
-<p>网络和个人帐户无需配置，因为可以离线安装。如果自己想装的额外的rpm包，使用<code>repotrack</code>工具下载到<code>Packages</code>文件夹里，在ks的<code>packages</code>部分中加入即可。</p>
-<p>最后生成的ks文件如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">#platform&#x3D;x86, AMD64, 或 Intel EM64T</span><br><span class="line">#version&#x3D;DEVEL</span><br><span class="line"># Install OS instead of upgrade</span><br><span class="line">install</span><br><span class="line"># Keyboard layouts</span><br><span class="line">keyboard &#39;us&#39;</span><br><span class="line"># Root password</span><br><span class="line">rootpw --iscrypted $1$0Rnj3JYy$.O6bjrhyiBucwxVpIg8eF1</span><br><span class="line"># System language</span><br><span class="line">lang en_US</span><br><span class="line"># System authorization information</span><br><span class="line">auth  --useshadow  --passalgo&#x3D;sha512</span><br><span class="line"># Use CDROM installation media</span><br><span class="line">cdrom</span><br><span class="line"># Use text mode install</span><br><span class="line">text</span><br><span class="line"># SELinux configuration</span><br><span class="line">selinux --disabled</span><br><span class="line"># Do not configure the X Window System</span><br><span class="line">skipx</span><br><span class="line"></span><br><span class="line"># System bootloader configuration</span><br><span class="line">bootloader --location&#x3D;mbr</span><br><span class="line"></span><br><span class="line"># Firewall configuration</span><br><span class="line">firewall --disabled</span><br><span class="line">services --disabled&#x3D;&quot;chronyd&quot;</span><br><span class="line">services --enabled&#x3D;&quot;sshd&quot;</span><br><span class="line"># System timezone</span><br><span class="line">timezone Asia&#x2F;Shanghai</span><br><span class="line"># Clear the Master Boot Record</span><br><span class="line">zerombr</span><br><span class="line"># Partition clearing information</span><br><span class="line">clearpart --all --initlabel</span><br><span class="line"># Disk partitioning information</span><br><span class="line">part &#x2F;boot --fstype&#x3D;&quot;xfs&quot; --size&#x3D;500</span><br><span class="line">part &#x2F;boot&#x2F;efi --fstype&#x3D;&quot;xfs&quot; --size&#x3D;500</span><br><span class="line">part swap --fstype&#x3D;&quot;swap&quot; --size&#x3D;1024</span><br><span class="line">part &#x2F; --fstype&#x3D;&quot;ext4&quot; --grow --size&#x3D;1</span><br><span class="line">poweroff</span><br><span class="line"></span><br><span class="line">%packages --multilib --ignoremissing</span><br><span class="line">lrzsz</span><br><span class="line">net-tools</span><br><span class="line">openssl</span><br><span class="line">python3</span><br><span class="line">screen</span><br><span class="line">tcpdump</span><br><span class="line">zip</span><br><span class="line">unzip</span><br><span class="line">vim-enhanced</span><br><span class="line">wget</span><br><span class="line">yum-utils</span><br><span class="line">nano</span><br><span class="line">NetworkManager-tui</span><br><span class="line">%end</span><br><span class="line"></span><br><span class="line">%addon com_redhat_kdump --enable --reserve-mb&#x3D;&#39;auto&#39;</span><br><span class="line">%end</span><br><span class="line"></span><br><span class="line">%post --nochroot</span><br><span class="line">cp -fr &#x2F;mnt&#x2F;install&#x2F;repo&#x2F;plus&#x2F;* &#x2F;mnt&#x2F;sysimage&#x2F;root&#x2F;</span><br><span class="line">echo &quot;&#x2F;bin&#x2F;bash &#x2F;root&#x2F;init.sh&quot; &gt;&gt; &#x2F;mnt&#x2F;sysimage&#x2F;etc&#x2F;rc.local</span><br><span class="line">chmod a+x &#x2F;mnt&#x2F;sysimage&#x2F;etc&#x2F;rc.local</span><br><span class="line">%end</span><br></pre></td></tr></table></figure>
-
-<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><p><strong>每次</strong>修改packages里面的安装条目，需要重新生成repo数据库，语法是在镜像根目录执行<code>createrepo -g repodata/xxxx-c7-minimal-x86_64-comps.xml .</code>，文件的名字可能是一串随机字符，根据个人情况生成。</p>
-<p>下面是修改isolinux.cfg保证使用kickstart文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">default vesamenu.c32</span><br><span class="line">timeout 50</span><br><span class="line"></span><br><span class="line">#省略一部分</span><br><span class="line"></span><br><span class="line">label linux</span><br><span class="line">  menu label ^Auto Install CentOS 7</span><br><span class="line">  menu default</span><br><span class="line">  kernel vmlinuz</span><br><span class="line">  append initrd&#x3D;initrd.img inst.stage2&#x3D;hd:LABEL&#x3D;CENTOS7 inst.ks&#x3D;hd:LABEL&#x3D;CENTOS7:&#x2F;kickstart&#x2F;ks.cfg quiet</span><br><span class="line"></span><br><span class="line"># 省略一部分</span><br><span class="line"></span><br><span class="line">menu end</span><br></pre></td></tr></table></figure>
-
-<p>注意这里通过label指定ks文件的路径，防止U盘安装的时候找不到路径。卷标名在生成iso文件的时候可以修改，尽量不要用空格。</p>
-<p>同样在<code>EFI/BOOT/grub.cfg</code>里面增加一个入口：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">menuentry &#39;Auto Install CentOS 7&#39; --class fedora --class gnu-linux --class gnu --class os &#123;</span><br><span class="line">       linuxefi &#x2F;images&#x2F;pxeboot&#x2F;vmlinuz inst.stage2&#x3D;hd:LABEL&#x3D;CENTOS7 inst.ks&#x3D;hd:LABEL&#x3D;CENTOS7:&#x2F;kickstart&#x2F;ks.cfg quiet</span><br><span class="line">       initrdefi &#x2F;images&#x2F;pxeboot&#x2F;initrd.img</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="生成iso文件"><a href="#生成iso文件" class="headerlink" title="生成iso文件"></a>生成iso文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /root/iso &amp;&amp; mkisofs -v -cache-inodes -joliet-long -R -J -T -V CENTOS7 -o /root/centos7.iso -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e images/efiboot.img -no-emul-boot .</span><br><span class="line">isohybrid /root/centos7.iso</span><br><span class="line">implantisomd5 /root/centos7.iso</span><br></pre></td></tr></table></figure>
-
-<p>上面是一个简单的脚本用来生成iso文件，注意这里使用-V改了卷标，和上面的hd:label保持一致。最后的alt-boot是efi启动支持。</p>
-<p>最后使用dd刻盘到u盘，就可以安装了。</p>
-<h3 id="自动配置脚本"><a href="#自动配置脚本" class="headerlink" title="自动配置脚本"></a>自动配置脚本</h3><p>注意到ks文件的post段里面，创建了一个一次性自运行的服务。在镜像根目录下创建<code>plus</code>文件夹，把想要复制到系统的文件都拷贝进去。<code>cp -fr /mnt/install/repo/plus/* /mnt/sysimage/root/</code>这句会将所有的文件拷贝到<code>/root/</code>目录下。</p>
-<p>其中<code>init.sh</code>的内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># wait other service start</span></span><br><span class="line">sleep 5</span><br><span class="line"><span class="comment"># iot-device</span></span><br><span class="line">mv /root/cron /etc/cron.d/iot-device</span><br><span class="line"><span class="comment"># params</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;&quot;</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;ClientAliveInterval 30&quot;</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;ClientAliveCountMax 86400&quot;</span> &gt;&gt; /etc/ssh/sshd_config</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;* - noproc 11000&quot;</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;root soft nofile 1048576&quot;</span> &gt;&gt;  /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;root hard nofile 1048576&quot;</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;* hard nofile 1048576&quot;</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;* soft nofile 1048576&quot;</span> &gt;&gt; /etc/security/limits.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;fs.file-max = 1048576&quot;</span> &gt;&gt;  /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;net.core.somaxconn=32768&quot;</span> &gt;&gt; /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;DefaultLimitNOFILE=1048576&quot;</span> &gt;&gt; /etc/systemd/system.conf</span><br><span class="line">sysctl -p</span><br><span class="line">sysctl -w net.core.somaxconn=32768</span><br><span class="line">sysctl -w net.ipv4.tcp_max_syn_backlog=16384</span><br><span class="line">sysctl -w net.core.netdev_max_backlog=16384</span><br><span class="line">sysctl -w net.ipv4.ip_local_port_range=<span class="string">&#x27;1000 65535&#x27;</span></span><br><span class="line">sysctl -w net.core.rmem_default=262144</span><br><span class="line">sysctl -w net.core.wmem_default=262144</span><br><span class="line">sysctl -w net.core.rmem_max=16777216</span><br><span class="line">sysctl -w net.core.wmem_max=16777216</span><br><span class="line">sysctl -w net.core.optmem_max=16777216</span><br><span class="line"></span><br><span class="line">sysctl -w net.ipv4.tcp_rmem=<span class="string">&#x27;1024 4096 16777216&#x27;</span></span><br><span class="line">sysctl -w net.ipv4.tcp_wmem=<span class="string">&#x27;1024 4096 16777216&#x27;</span></span><br><span class="line">sysctl -w net.ipv4.tcp_max_tw_buckets=1048576</span><br><span class="line">sysctl -w net.ipv4.tcp_fin_timeout=15</span><br><span class="line">sed -i <span class="string">&#x27;/.*init.*/d&#x27;</span> /etc/rc.local</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清空在安装阶段从光盘安装的所有文件</span></span><br><span class="line">rm -fr /mnt/*</span><br><span class="line">rm /root/*.cfg</span><br><span class="line">rm /root/TRAN*</span><br><span class="line">rm <span class="variable">$0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#主动启动网卡</span></span><br><span class="line">interface=$(ls /sys/class/net| grep -v <span class="string">&quot;lo&quot;</span> | head -1)</span><br><span class="line">ifup <span class="variable">$interface</span></span><br><span class="line"><span class="keyword">if</span> [$? -ne 0];<span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;can&#x27;t start network, please run nmtui to connect Wi-Fi&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取当前网络信息</span></span><br><span class="line">default_route=$(ip route show)</span><br><span class="line">default_interface=$(<span class="built_in">echo</span> <span class="variable">$default_route</span> | sed -e <span class="string">&#x27;s/^.*dev \([^ ]*\).*$/\1/&#x27;</span> | head -n 1)</span><br><span class="line">address=$(ip addr show label <span class="variable">$default_interface</span> scope global | awk <span class="string">&#x27;$1 == &quot;inet&quot; &#123; print $2,$4&#125;&#x27;</span>)</span><br><span class="line">ip=$(<span class="built_in">echo</span> <span class="variable">$address</span> | awk <span class="string">&#x27;&#123;print $1 &#125;&#x27;</span>)</span><br><span class="line">ip=<span class="variable">$&#123;ip%%/*&#125;</span></span><br><span class="line">mask=$(route -n |grep <span class="string">&#x27;U[ \t]&#x27;</span> | head -n 1 | awk <span class="string">&#x27;&#123;print $3&#125;&#x27;</span>)</span><br><span class="line">gateway=$(route -n | grep <span class="string">&#x27;UG[ \t]&#x27;</span> | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>)</span><br><span class="line">dns=$(cat /etc/resolv.conf | grep nameserver | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#判断default_interface是否为空</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$default_interface</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    default_interface=<span class="variable">$interface</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#显示网络信息</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;The current net info [dynamic]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;------------------------------------------&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot; device: <span class="variable">$default_interface</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot; ipaddr: <span class="variable">$ip</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;netmask: <span class="variable">$mask</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;gateway: <span class="variable">$gateway</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;    dns: <span class="variable">$dns</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;------------------------------------------&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="comment"># set last ip to 200</span></span><br><span class="line">IFS=<span class="string">&#x27;.&#x27;</span> <span class="built_in">read</span> -r -a array &lt;&lt;&lt; <span class="string">&quot;<span class="variable">$ip</span>&quot;</span></span><br><span class="line">array[3]=200</span><br><span class="line">newip=$(IFS=. <span class="built_in">eval</span> <span class="string">&#x27;echo &quot;$&#123;array[*]&#125;&quot;&#x27;</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;newip is <span class="variable">$newip</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#网络配置</span></span><br><span class="line">cp /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span> /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span>.bak</span><br><span class="line">uuid=$(cat /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span> |grep UUID|sed -e <span class="string">&#x27;s/&quot;//g&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPV6INIT=yes&quot;</span>               &gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPV6_AUTOCONF=yes&quot;</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;BOOTPROTO=none&quot;</span>            &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;DEVICE=<span class="variable">$default_interface</span>&quot;</span> &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;ONBOOT=yes&quot;</span>                &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$uuid</span>&quot;</span>                     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;TYPE=Ethernet&quot;</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;PROXY_METHOD=none&quot;</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;BROWSER_ONLY=no&quot;</span>           &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPADDR=<span class="variable">$newip</span>&quot;</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;NETMASK=<span class="variable">$mask</span>&quot;</span>             &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;GATEWAY=<span class="variable">$gateway</span>&quot;</span>          &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;DNS1=114.114.114.114&quot;</span>      &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;DEFROUTE=yes&quot;</span>              &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPV4_FAILURE_FATAL=no&quot;</span>     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPV6_DEFROUTE=yes&quot;</span>         &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPV6_FAILURE_FATAL=no&quot;</span>     &gt;&gt; /etc/sysconfig/network-scripts/ifcfg-<span class="variable">$default_interface</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#DNS配置</span></span><br><span class="line">cp /etc/resolv.conf /etc/resolv.conf.bak</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;# Generated by NetworkManager&quot;</span> &gt; /etc/resolv.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nameserver 114.114.114.114&quot;</span> &gt;&gt; /etc/resolv.conf</span><br><span class="line"></span><br><span class="line"><span class="comment">#重启一下网络 使配置生效</span></span><br><span class="line">systemctl restart network</span><br><span class="line">sleep 5</span><br><span class="line">ping -c 4 www.baidu.com</span><br><span class="line"><span class="keyword">if</span> [ $? != 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">&quot;Error! Cant link to Internet&quot;</span></span><br><span class="line">     <span class="comment">#break</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-
-<p>简单来说，根据dhcp自动配置的ip地址，将其最后一位换成200，改成静态ip写死。如果怕ip地址冲突，直接将获得的ip写成静态ip也可以。<br>然后是一些常见服务器参数的改写，最后是禁止并删除掉一次性脚本的自启动，然后删除掉自身。</p>
-<p>如果需要做一些服务相关配置，在这里也可以初始化，比如配置cron定期检查更新。</p>
-<p>上面ks文件设置了安装完毕后自动关机，在合适的环境下插上网线开机，就会自动运行上面的初始化脚本，安装好服务。</p>
-<h2 id="无线网卡"><a href="#无线网卡" class="headerlink" title="无线网卡"></a>无线网卡</h2><p>如果不是插网线，而是用无线网卡，这里的逻辑就比较复杂，必须让用户手动设置Wi-Fi。然后再手动运行脚本设置为静态ip。</p>
-<p>在Package里面增加<code>NetworkManager-tui</code>这个包，init.sh里面判断如果ifup失败，就直接退出。</p>
-<p>此时需要用户运行<code>nmtui</code>设置好Wi-Fi（注意Wi-Fi的ssid应为英文，不然显示是乱码）。然后运行如下脚本来将Wi-Fi设置成静态ip：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#获取当前网络信息</span></span><br><span class="line">default_route=$(ip route show)</span><br><span class="line">default_interface=$(<span class="built_in">echo</span> <span class="variable">$default_route</span> | sed -e <span class="string">&#x27;s/^.*dev \([^ ]*\).*$/\1/&#x27;</span> | head -n 1)</span><br><span class="line">address=$(ip addr show label <span class="variable">$default_interface</span> scope global | awk <span class="string">&#x27;$1 == &quot;inet&quot; &#123; print $2,$4&#125;&#x27;</span>)</span><br><span class="line">ip=$(<span class="built_in">echo</span> <span class="variable">$address</span> | awk <span class="string">&#x27;&#123;print $1 &#125;&#x27;</span>)</span><br><span class="line">ip=<span class="variable">$&#123;ip%%/*&#125;</span></span><br><span class="line">mask=$(route -n |grep <span class="string">&#x27;U[ \t]&#x27;</span> | head -n 1 | awk <span class="string">&#x27;&#123;print $3&#125;&#x27;</span>)</span><br><span class="line">gateway=$(route -n | grep <span class="string">&#x27;UG[ \t]&#x27;</span> | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>)</span><br><span class="line">dns=$(cat /etc/resolv.conf | grep nameserver | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#判断default_interface是否为空</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$default_interface</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;no working network, exit! if you want to use Wi-Fi, please run nmtui to set&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">cfg_name=$(<span class="built_in">cd</span> /etc/sysconfig/network-scripts &amp;&amp; grep -l Wireless *|grep ifcfg)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;config file is <span class="variable">$cfg_name</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#download iot-device</span></span><br><span class="line">/bin/python3 /root/cron_update.py</span><br><span class="line"></span><br><span class="line"><span class="comment">#显示网络信息</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;The current net info [dynamic]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;------------------------------------------&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot; device: <span class="variable">$default_interface</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot; ipaddr: <span class="variable">$ip</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;netmask: <span class="variable">$mask</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;gateway: <span class="variable">$gateway</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;    dns: <span class="variable">$dns</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;------------------------------------------&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="comment"># set last ip to 200</span></span><br><span class="line">IFS=<span class="string">&#x27;.&#x27;</span> <span class="built_in">read</span> -r -a array &lt;&lt;&lt; <span class="string">&quot;<span class="variable">$ip</span>&quot;</span></span><br><span class="line">array[3]=200</span><br><span class="line">newip=$(IFS=. <span class="built_in">eval</span> <span class="string">&#x27;echo &quot;$&#123;array[*]&#125;&quot;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#网络配置</span></span><br><span class="line">cp /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span> /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span>.bak</span><br><span class="line"></span><br><span class="line">sed -i <span class="string">&quot;/.*dhcp.*/d&quot;</span> /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;IPADDR=<span class="variable">$newip</span>&quot;</span>             &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;NETMASK=<span class="variable">$mask</span>&quot;</span>             &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;GATEWAY=<span class="variable">$gateway</span>&quot;</span>          &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;DNS1=114.114.114.114&quot;</span>      &gt;&gt; /etc/sysconfig/network-scripts/<span class="variable">$cfg_name</span></span><br><span class="line"></span><br><span class="line">ifdown <span class="variable">$cfg_name</span> &amp;&amp; ifup <span class="variable">$cfg_name</span></span><br><span class="line">sleep 5</span><br><span class="line">ping -c 4 www.baidu.com</span><br><span class="line"><span class="keyword">if</span> [ $? != 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">&quot;Error! Cant link to Internet&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;current ip is <span class="variable">$newip</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这里仍然是直接设置成200，实际使用的时候可以根据情况编辑。</p>
+      <div class="post-title">
+          <a class="post-title-link" href="/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/" itemprop="url">
+            <span itemprop="name">通用多租户自定义角色权限模型</span>
+          </a>
+      </div>
 
       
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2019-11-19T15:42:52+08:00"
+              content="2019-11-19">
+          11-19
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/" itemprop="url">
+            <span itemprop="name">sass项目顶层设计</span>
+          </a>
+      </div>
+
+      
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2019-11-09T13:48:16+08:00"
+              content="2019-11-09">
+          11-09
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/" itemprop="url">
+            <span itemprop="name">当代编程语言简评</span>
+          </a>
+      </div>
+
+      
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2019-11-02T09:03:43+08:00"
+              content="2019-11-02">
+          11-02
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/" itemprop="url">
+            <span itemprop="name">并发编程模型浅谈</span>
+          </a>
+      </div>
+
+      
+    </header>
+  </article>
+
+
     </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
+  </div>
   
   
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/02/18/mybatis%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9E%9A%E4%B8%BE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/02/18/mybatis%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9E%9A%E4%B8%BE/" class="post-title-link" itemprop="url">mybatis-plus自定义枚举</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-02-18 09:53:04" itemprop="dateCreated datePublished" datetime="2020-02-18T09:53:04+08:00">2020-02-18</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-02-22 20:21:13" itemprop="dateModified" datetime="2020-02-22T20:21:13+08:00">2020-02-22</time>
-      </span>
-
   
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/02/18/mybatis%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9E%9A%E4%B8%BE/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/18/mybatis自定义枚举/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="问题概述"><a href="#问题概述" class="headerlink" title="问题概述"></a>问题概述</h1><p>枚举值在db中存储一般是整形或者字符串，在代码里一般是枚举。我们的需求是在model里使用一种自定义类型，能够：</p>
-<ol>
-<li>校验用户提供的数据在枚举允许范围内，否则自动报错；</li>
-<li>在输出给用户时，json序列化自动加上枚举的中文含义；</li>
-<li>自动通过json反序列化到该类型；</li>
-<li>存入db时自动转化为对应的整形和字符串；</li>
-<li>从db中取出数据时自动转为该自定义类型；</li>
-</ol>
-<p>其中1通过自定义validator实现，2/3通过自定义序列化/反序列化实现，4/5通过自定义typeHandler实现。</p>
-<h1 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h1><p>枚举值有两种实现方式：写死在代码里，或者使用数据字典存储在db/redis里。下面只介绍数据字典存储在db里的方案，其他几种情况处理手段类似。假设数据字典<code>sys_dict</code>包括以下几列：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feat_code   <span class="type">varchar</span>(<span class="number">64</span>)  <span class="keyword">default</span> <span class="string">&#x27;&#x27;</span>   <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;英文代码&#x27;</span>,</span><br><span class="line">value_str   <span class="type">varchar</span>(<span class="number">32</span>)  <span class="keyword">default</span> <span class="string">&#x27;&#x27;</span>   <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;枚举值&#x27;</span>,</span><br><span class="line">value_cn    <span class="type">varchar</span>(<span class="number">128</span>) <span class="keyword">default</span> <span class="string">&#x27;&#x27;</span>   <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;枚举值（中文）&#x27;</span>,</span><br></pre></td></tr></table></figure>
-
-<p>并且使用以下服务：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SysDictService</span> <span class="keyword">extends</span> <span class="title">ServiceImpl</span>&lt;<span class="title">SysDictMapper</span>, <span class="title">SysDict</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Cacheable(cacheNames = Constants.AUTO_CACHE_PREFIX)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">getCodeEnums</span><span class="params">(<span class="meta">@NotNull</span> String code)</span> </span>&#123;</span><br><span class="line">        Wrapper&lt;SysDict&gt; wrapper = <span class="keyword">new</span> QueryWrapper&lt;SysDict&gt;()</span><br><span class="line">                .eq(SysDict.COL_FEAT_CODE, code);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.list(wrapper).stream().collect(</span><br><span class="line">                Collectors.toMap(</span><br><span class="line">                        SysDict::getValueStr,</span><br><span class="line">                        SysDict::getValueCN</span><br><span class="line">                )</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidValue</span><span class="params">(String key, String value)</span> </span>&#123;</span><br><span class="line">        Wrapper&lt;SysDict&gt; wrapper = <span class="keyword">new</span> QueryWrapper&lt;SysDict&gt;()</span><br><span class="line">                .eq(SysDict.COL_FEAT_CODE, key)</span><br><span class="line">                .eq(SysDict.COL_VALUE_STR, value);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.getOne(wrapper) != <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="定义自定义类型"><a href="#定义自定义类型" class="headerlink" title="定义自定义类型"></a>定义自定义类型</h1><h2 id="使用内置枚举类型"><a href="#使用内置枚举类型" class="headerlink" title="使用内置枚举类型"></a>使用内置枚举类型</h2><p>mybatis-plus其实内置了这部分支持，不过他是直接将枚举值替换成对应的中文。我们在此基础上进行扩展：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IDictEnum</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Serializable</span>&gt; <span class="keyword">extends</span> <span class="title">IEnum</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数据库中存储的值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@JsonValue</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function">T <span class="title">getValue</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数据库保存的字典ID</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">String <span class="title">getDictCode</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用的时候，自定义枚举类型实现上述接口。例如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">CorpKindEnum</span> <span class="keyword">implements</span> <span class="title">IDictEnum</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    CORPORATION(<span class="number">0</span>), GOVERNMENT(<span class="number">1</span>), COMMON(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer v;</span><br><span class="line"></span><br><span class="line">    CorpKindEnum(Integer v) &#123;</span><br><span class="line">        <span class="keyword">this</span>.v = v;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getDictCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;CORP_KIND_CODE&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这是一个整形枚举，我们使用<code>CORP_KIND_CODE</code>作为<code>feat_code</code>，在数据字典里插入对应的值和中文释疑。自定义Json序列化如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictEnumSerializer</span> <span class="keyword">extends</span> <span class="title">JsonSerializer</span>&lt;<span class="title">IDictEnum</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SysDictService service;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JsonSerializer初始化比bean更早，所以不能直接字段注入</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictEnumSerializer</span><span class="params">(SysDictService service)</span> </span>&#123;</span><br><span class="line">        DictEnumSerializer.service = service;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictEnumSerializer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serialize</span><span class="params">(IDictEnum value,</span></span></span><br><span class="line"><span class="function"><span class="params">                          JsonGenerator generator, SerializerProvider provider)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">            generator.writeNull();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        generator.writeObject(value.getValue());</span><br><span class="line">        generator.writeFieldName(generator.getOutputContext().getCurrentName() + <span class="string">&quot;CN&quot;</span>);</span><br><span class="line">        generator.writeString(getEnumDesc(value));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Class <span class="title">handledType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> IDictEnum.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getEnumDesc</span><span class="params">(IDictEnum dictEnum)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, String&gt; map = service.getCodeEnums(dictEnum.getDictCode());</span><br><span class="line">        <span class="keyword">return</span> map.get(dictEnum.getValue().toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里在序列化的时候将字段名后面加上<code>CN</code>，同时通过数据字典查询对应的中文含义注入。</p>
-<p>由于我们这里扩展了mybatis-plus的内置类型，使用时就不需要加上typeHandler的注解了。</p>
-<p><strong>问题</strong>：<br>jackson在通过整数反序列化到枚举时，无法通过指定的值来反序列化，而是通过整数的顺序(ordinal)来进行的。如果枚举类型不是从0-N这种赋值，则反序列化结果不正确。这是一个存在历史很悠久的<a target="_blank" rel="noopener" href="https://github.com/FasterXML/jackson-databind/issues/1850">bug</a>。</p>
-<p>解决方案是在枚举里自定义<code>JsonCreator</code>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonCreator</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> CorpKindEnum <span class="title">fromValue</span><span class="params">(Integer v)</span> </span>&#123;</span><br><span class="line"> <span class="keyword">for</span> (CorpKindEnum element : values()) &#123;</span><br><span class="line">       <span class="keyword">if</span> (element.getValue().equals(v)) &#123;</span><br><span class="line">          <span class="keyword">return</span> element;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>; <span class="comment">//or throw exception if you like...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于Java语言的限制，我们无法扩展内置的<code>enum</code>类型，所以每个自定义枚举上都要自己加上<code>JsonCreator</code>。一个简单的解决方案是全部使用字符串枚举，当然这会比使用integer更慢，也比tinyint/smallint更占数据库空间。</p>
-<h2 id="使用自定义类"><a href="#使用自定义类" class="headerlink" title="使用自定义类"></a>使用自定义类</h2><p>上述方案可以解决大部分枚举的问题。但是有些情况下，枚举值特别多，我们又不想在代码里全部列出来，这时候使用内置枚举类型就不太合适了。我们自定义一个抽象类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EqualsAndHashCode</span></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseDictValue</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Serializable</span>&gt; <span class="keyword">implements</span> <span class="title">IDictEnum</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Setter</span></span><br><span class="line">    <span class="keyword">private</span> T value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BaseDictValue</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到实际上和刚才的接口是一致的，不再赘述。然后我们实现自定义的typeHandler：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictValueHandler</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">BaseDictValue</span>&lt;?&gt;&gt; <span class="keyword">extends</span> <span class="title">BaseTypeHandler</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;E&gt; type;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DictValueHandler</span><span class="params">(Class&lt;E&gt; type)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (type == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Type argument cannot be null&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.type = type;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setNonNullParameter</span><span class="params">(PreparedStatement ps, <span class="keyword">int</span> i, E e, JdbcType jdbcType)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        ps.setObject(i, e.getValue());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> E <span class="title">convertResult</span><span class="params">(Object vs)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (vs == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (vs <span class="keyword">instanceof</span> Number) &#123; <span class="comment">//这里假设枚举只有整数和字符串两种类型，理论上够用了</span></span><br><span class="line">                <span class="keyword">return</span> type.getConstructor(Integer.class).newInstance(vs);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> type.getConstructor(String.class).newInstance(vs);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;fail to construct dict value&quot;</span>, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(ResultSet resultSet, String s)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(resultSet.getObject(s));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(ResultSet resultSet, <span class="keyword">int</span> i)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(resultSet.getObject(i));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">getNullableResult</span><span class="params">(CallableStatement callableStatement, <span class="keyword">int</span> i)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> convertResult(callableStatement.getObject(i));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后自定义序列化仍然复用刚才的即可（因为该抽象类实现了对应的接口）。</p>
-<p>最后将刚才的枚举类改成这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EqualsAndHashCode(callSuper = true)</span></span><br><span class="line"><span class="meta">@ToString(callSuper=true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CorpKindEnum</span> <span class="keyword">extends</span> <span class="title">BaseDictValue</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Integer CORPORATION = <span class="number">0</span>; <span class="comment">//只需要用来解析的一些枚举，不必全部列出所有枚举值了…</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonCreator</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CorpKindEnum</span><span class="params">(Integer v)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(v);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getDictCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;CORP_KIND_CODE&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里必须要实现一个单参数构造函数，用来转换对应的基础类型，并将其标注为<code>@JsonCreator</code>用来反序列化。</p>
-<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
-<li>如果要使用mybatis-plus自带的函数进行增删改查，需要在model的<code>@TableName</code>里标注<code>autoResultMap = true</code>；并在对应的字段的<code>@TableField</code>里标注<code>typeHandler = DictValueHandler.class</code>，这样才能正确的进行orm类型转换；</li>
-<li>同样，如果自己写resultMap想要进行类型转换，也要在xml里指定上述<code>typeHandler</code>。</li>
-</ol>
-<h2 id="参数校验"><a href="#参数校验" class="headerlink" title="参数校验"></a>参数校验</h2><p>这个简单，写一个自定义注解：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.FIELD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Constraint(validatedBy = DictFieldValidator.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> DictField &#123;</span><br><span class="line">    <span class="function">String <span class="title">message</span><span class="params">()</span> <span class="keyword">default</span> &quot;参数错误，枚举值不在允许范围内&quot;</span>;</span><br><span class="line">    Class&lt;?&gt;[] groups() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    Class&lt;? extends Payload&gt;[] payload() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后实现校验逻辑：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DictFieldValidator</span> <span class="keyword">implements</span> <span class="title">ConstraintValidator</span>&lt;<span class="title">DictField</span>, <span class="title">Object</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SysDictService service;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(Object o, ConstraintValidatorContext constraintValidatorContext)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (o <span class="keyword">instanceof</span> IDictEnum) &#123;</span><br><span class="line">            IDictEnum v = (IDictEnum) o;</span><br><span class="line">            <span class="keyword">return</span> service.isValidValue(v.getDictCode(), v.getValue().toString());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>用的时候，在对应的字段上加上<code>@DictField</code>注解，对应的类参数前面加上<code>@Valid</code>或者<code>@Validated</code>就可以了.</p>
-<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><ol>
-<li>mybatis-plus自带了一个<code>JacksonTypeHandler</code>，可以将数据库字段转换成任意类型，它的原理和上面是一致的。</li>
-<li>上述Jackson的<code>Serializer</code>需要通过<code>SimpleModule</code>手动注册上去。在springboot中可以通过<code>bean</code>进行配置。这里给一个参考配置：</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ObjectMapper <span class="title">objectMapper</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ObjectMapper objectMapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">    <span class="comment">// 对于空的对象转json的时候不抛出错误</span></span><br><span class="line">    objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);</span><br><span class="line">    <span class="comment">// 禁用遇到未知属性抛出异常</span></span><br><span class="line">    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line">    <span class="comment">// 序列化BigDecimal时不使用科学计数法输出</span></span><br><span class="line">    objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, <span class="keyword">true</span>);</span><br><span class="line">    <span class="comment">//自定义枚举序列化</span></span><br><span class="line">    DictEnumSerializer dictEnumSerializer = <span class="keyword">new</span> DictEnumSerializer();</span><br><span class="line">    SimpleModule simpleModule = <span class="keyword">new</span> SimpleModule();</span><br><span class="line">    simpleModule.addSerializer(dictEnumSerializer);</span><br><span class="line">    <span class="comment">// 日期和时间格式化</span></span><br><span class="line">    JavaTimeModule javaTimeModule = <span class="keyword">new</span> JavaTimeModule();</span><br><span class="line">    javaTimeModule.addSerializer(LocalDateTime.class, <span class="keyword">new</span> LocalDateTimeSerializer(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)));</span><br><span class="line">    javaTimeModule.addSerializer(LocalDate.class, <span class="keyword">new</span> LocalDateSerializer(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd&quot;</span>)));</span><br><span class="line">    javaTimeModule.addSerializer(LocalTime.class, <span class="keyword">new</span> LocalTimeSerializer(DateTimeFormatter.ofPattern(<span class="string">&quot;HH:mm:ss&quot;</span>)));</span><br><span class="line">    javaTimeModule.addDeserializer(LocalDateTime.class, <span class="keyword">new</span> LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)));</span><br><span class="line">    javaTimeModule.addDeserializer(LocalDate.class, <span class="keyword">new</span> LocalDateDeserializer(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd&quot;</span>)));</span><br><span class="line">    javaTimeModule.addDeserializer(LocalTime.class, <span class="keyword">new</span> LocalTimeDeserializer(DateTimeFormatter.ofPattern(<span class="string">&quot;HH:mm:ss&quot;</span>)));</span><br><span class="line">    javaTimeModule.addSerializer(Date.class, <span class="keyword">new</span> DateSerializer(<span class="keyword">false</span>, <span class="keyword">new</span> SimpleDateFormat(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)));</span><br><span class="line">    objectMapper.registerModule(javaTimeModule);</span><br><span class="line">    objectMapper.registerModule(simpleModule);</span><br><span class="line">    <span class="keyword">return</span> objectMapper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/" class="post-title-link" itemprop="url">gb28181实现调研</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-12-23 10:48:56" itemprop="dateCreated datePublished" datetime="2019-12-23T10:48:56+08:00">2019-12-23</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-02-18 13:14:09" itemprop="dateModified" datetime="2020-02-18T13:14:09+08:00">2020-02-18</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/23/gb28181实现调研/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。</p>
-<p>首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的<code>.net core</code>实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。go的话，目前还没有比较稳定的开源实现，有一些不太完整的版本。</p>
-<p>视频流这块，用了RTP/RTCP协议，发送的是PS流，发送给客户端的话，需要转换成可以拿来直播的其他流。</p>
-<p>换句话说，我们需要实现<strong>一个sip网关</strong>用来进行控制，和<strong>一个媒体流网关</strong>用来传输实时媒体数据。</p>
-<p>如果想要做嵌入式网关的话，推荐用纯C版本的库(pjsip实现了sip/RTP/RTCP/RTSP等所有的功能，live555/ffmpeg和gstreamer都是C实现)，自己写上层C++代码实现。</p>
-<p>考虑开发速度可以用高等语言来写其中的一部分，那个开源的<code>.net core</code>就是用C#写的（但是没有流媒体相关的实现）。为了熟悉协议，也可以自己先造个轮子（工作量很大）。</p>
-<p>值得注意的是标准的SDP协议部分使用了扩展字段y，一般开源代码并不支持，需要拿到源码<a target="_blank" rel="noopener" href="https://blog.csdn.net/comhaqs/article/details/101760176">!进行修改</a>。</p>
-<h2 id="协议解析"><a href="#协议解析" class="headerlink" title="协议解析"></a>协议解析</h2><p>github上那个c#的repo里面有协议的pdf文件，可以先下载下来。以下部分内容直接引用自协议文本。</p>
-<pre><code>安全注册、实时视音频点播、历史视音频的回放等应用的会话控制采用IETFRFC3261规定的 Register、Invite 等请求和响应方法实现,历史视音频回放控制采用SIP扩展协议IETFRFC2976规定的INFO方法实现,前端设备控制、信息查询、报警事件通知和分发等应用的会话控制采用SIP扩展协议IETFRFC3428规定的Mesage方法实现。
-</code></pre>
-<p>这里提到的几个方法，都是SIP协议规定的内容。SIP基于TCP/UDP，在应用层是纯文本协议，类似HTTP，也可以使用证书进行加密。</p>
-<p>类似HTTP，sip有标准的header和body。一个标准的SIP Message请求如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">To:sip:目的设备编码@目的域名</span><br><span class="line">CSeq:1 Message</span><br><span class="line">Cal-ID:a84b4c76e66710</span><br><span class="line">Via:SIP&#x2F;2.0&#x2F;UDP源域名或IP地址</span><br><span class="line">From:&lt;sip:源设备编码@源域名&gt;;tag&#x3D;237f57dc</span><br><span class="line">Content-Type:Application&#x2F;MANSCDP+xml</span><br><span class="line">Max-Forwards:69</span><br><span class="line">Content-Length:消息实体的字节长度</span><br><span class="line"></span><br><span class="line">&lt;?xmlversion&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;Control&gt;</span><br><span class="line">&lt;CmdType&gt;DeviceControl&lt;&#x2F;CmdType&gt;</span><br><span class="line">&lt;SN&gt;11&lt;&#x2F;SN&gt;</span><br><span class="line">&lt;DeviceID&gt;64010000041310000345&lt;&#x2F;DeviceID&gt;</span><br><span class="line">&lt;PTZCmd&gt;A50F4D1000001021&lt;&#x2F;PTZCmd&gt;</span><br><span class="line">&lt;Info&gt;</span><br><span class="line">&lt;ControlPriority&gt;5&lt;&#x2F;ControlPriority&gt;</span><br><span class="line">&lt;&#x2F;Info&gt;</span><br><span class="line">&lt;&#x2F;Control&gt;</span><br></pre></td></tr></table></figure>
-
-<p>注意sip是长链接协议，所以规定了标准的register流程。</p>
-<p>经过实际调研，最终决定暂时搁置这块的开发，其实SIP服务器实现起来不难，关键是流媒体转码相关的技术水比较深。目前公司还有其他优先级更高的事情，本文等待后续更新。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">通用多租户自定义角色权限模型</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2019-12-23 09:25:55 / 修改时间：10:47:55" itemprop="dateCreated datePublished" datetime="2019-12-23T09:25:55+08:00">2019-12-23</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/23/通用多租户自定义角色权限模型/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>前段时间在忙一个saas系统的设计，这里总结一下经验。</p>
-<p>首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于定制化开发的范畴了。</p>
-<p>权限系统可以抽象为以下部分：</p>
-<ol>
-<li>功能点。功能点是一个全集，与后台的API对应。不同用户能够看到的功能点是不一样的，这取决于购买的需求；</li>
-<li>UI。功能点对应的UI可以由很多套，不同平台的客户端，不同版本的移动端，都可能有不同的UI；功能点分别关联到UI和API；</li>
-<li>角色。各租户除了内置的管理员，其他角色可以由用户自己定义；<strong>注意</strong>：并不是所有的saas系统都有这种需求，统一设计角色的话，系统设计会精简很多；</li>
-<li>权限。角色在定义的时候关联了功能点的权限。</li>
-</ol>
-<p>详细解释如下——</p>
-<h2 id="功能点"><a href="#功能点" class="headerlink" title="功能点"></a>功能点</h2><p>系统按着模块拆分功能点，功能点是最细的权限粒度。保证UI和API相对功能点都是一对多的关系，不存在多对多的关系。</p>
-<p>如果感觉用户操作功能点分配权限过于繁琐，可以对功能点做一个功能集，这样分配的粒度就会比较粗，但是也可以随时细化。</p>
-<p>功能点都有一个对应的权限描述方式，可以采用二进制位运算表示，也可以用权限字符串（参考shiro）。如果权限的判定需要根据用户请求的参数来决定，那就要动态的权限字符串（参考spel）。我这里用了spel的方式来描述权限，可以用Spring security来实现，或者自己用Spring AOP写一个权限描述。最后的形式类似于<code>#prj:device:view</code>，表示某个project的设备查看。</p>
-<p>每个API都有自己的权限需求，这与功能点的权限描述字符串对应。这里也是一对多的关系，API可以要求多个权限。用户必须拥有全部权限才能访问API。</p>
-<p>功能点理论上也是树型的，不过某些功能点可能对其他功能点有额外的依赖。</p>
-<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><p>UI分为两部分，一个是匹配规则，一个是UI树本身。</p>
-<p>这个比较简单，就是为不同版本、产品，甚至租户设置不同的UI，根据客户端的情况和用户的功能点权限返回UI树给用户渲染。</p>
-<p>UI树不一定需要在服务器存一套完整的，需要权限控制的部分才需要存入数据库。</p>
-<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>简单起见，只有租户的管理员才可以给组织建立对应的角色树。</p>
-<p>角色树关联功能点，某些功能点可能和具体的数据有关，需要额外选择。</p>
-<h2 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h2><p>指的是不同人看到的字段都不一样，或者字段的渲染不一样。</p>
-<p>这个比较麻烦，不太好做成通用的。非要做的话，每个API返回的字段都要存到表里，然后在功能点那一层，最后关联到字段。即<code>#prj:device:view:field</code>，但是这样太过繁琐，对执行效率影响很大。如果没有很通用的需求，可以在代码里对一些特殊API做单独的处理。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">sass项目顶层设计</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2019-11-19 15:42:52 / 修改时间：22:36:44" itemprop="dateCreated datePublished" datetime="2019-11-19T15:42:52+08:00">2019-11-19</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/19/sass项目顶层设计/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
-<p>几个需要讨论的问题：</p>
-<ol>
-<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
-<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
-<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
-<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
-<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
-</ol>
-<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
-<ol>
-<li>目前已有系统如何抽象、拆分服务；</li>
-<li>前端展示层如何设计；</li>
-<li>重构后要保证平台满足当前所有已接入所有业务；</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/" class="post-title-link" itemprop="url">当代编程语言简评</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2019-11-09 13:48:16 / 修改时间：17:18:02" itemprop="dateCreated datePublished" datetime="2019-11-09T13:48:16+08:00">2019-11-09</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/09/当代编程语言简评/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>著名大喷子王垠最喜欢点评各种语言的优缺点（当然基本上都是缺点居多），作为技术人也写一篇东西表达一下自己的看法。</p>
-<h3 id="原初"><a href="#原初" class="headerlink" title="原初"></a>原初</h3><p>C和Lisp是流行至今的最古老的两门编程语言，从一开始就走向了不同的道路。</p>
-<p>C：高效、简洁，直接操控内存和cpu，面向机器<br>Lisp：抽象，强大，但是效率不高，gc语言，面向业务</p>
-<p>从这时候开始，语言演化就是在这两门语言的基础上取长补短</p>
-<h3 id="C-gt-ObjectC-C-gt-Rust"><a href="#C-gt-ObjectC-C-gt-Rust" class="headerlink" title="C -&gt; ObjectC/C++ -&gt; Rust"></a>C -&gt; ObjectC/C++ -&gt; Rust</h3><p>C++完全兼容C90，这是它成功的原因，也是它失败的原因。</p>
-<p>C++最开始就是C with class，随着OO的流行，C语言抽象能力不足的问题越来越明显。于是C++之父往里面塞入了类，以及随之而来的各种概念。后来，又加了模版，于是才有了STL。</p>
-<p>C++非常复杂，包含了各种流行的编程范式。抽象能力得到了巨大的补充，但是并没有引入GC，仍然坚持zero-cost abstraction。虽然后来在C++11中引入了智能指针，但是已经有一些积重难返的感觉了。</p>
-<p>OC也是C的超集，设计的更加不爽了，苹果自己也想要用Swift替代之。</p>
-<p>Rust也坚持零成本抽象，但是它另辟蹊径，从语言和编译器层面上试图解决内存问题，引入了生命周期、各类指针等各种复杂的设计。Rust有现代语言完善的包管理系统，这是比C++好的地方，但是它试图解决问题的手段有些奇怪，有时候有一些因噎废食的感觉。这也是我不太看好Rust流行的原因。真正的高手，用Modern C++就够了。</p>
-<h3 id="Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin"><a href="#Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin" class="headerlink" title="Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin"></a>Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin</h3><p>和C同时期的OO语言，最出名的是Smalltalk（lisp并不是OO语言，它可以抽象出一切，Smalltalk的诞生也是受了lisp的影响）。Java的创造者受够了C++的复杂，决定另起炉灶融合Smalltalk和C++的长处，做出一门新语言。</p>
-<p>Java是工业界长时间以来最流行的语言，虽然C#改进了Java，并引入了linq等方便至极的语法，但是.net core开源的太迟了。</p>
-<p>Java太OO了，这是它成功的地方，也是它失败的地方。Java的流行导致所谓设计模式的泛滥，Java的抽象能力过于局限于OO，导致很多本来很简单的东西写起来复杂无比，Spring这类框架的流行本质上就是在弥补Java语言的缺陷。</p>
-<p>Java7以前的Java足够简单，这为业界量产初级程序员打下了良好的基础。</p>
-<p>Scala是一门学术语言，类似C++，它过于复杂，所以不可能得到流行。Kotlin就好得多，它语言特性优越，并且积极演变。唯一的问题是，它必须运行在jvm上，那到头来你还是承受Java的历史遗留问题。</p>
-<h3 id="Python-Perl-Ruby-Javascript"><a href="#Python-Perl-Ruby-Javascript" class="headerlink" title="Python/Perl/Ruby/Javascript"></a>Python/Perl/Ruby/Javascript</h3><p>虽然动态语言当初走的是完全不同的道路，到最后也慢慢引入类型化，比如Python3也开始支持类型注解，毕竟编译器还是能帮上很多忙的。</p>
-<p>动态语言在开发速度上无与伦比，所以更适合用来搭原型，写脚本。对于I/O密集型工程，也可以选择他们快速开发。</p>
-<p>JS的流行是一个历史上的错误，别的没啥好说的了…</p>
-<h3 id="Erlang-Go-Swift"><a href="#Erlang-Go-Swift" class="headerlink" title="Erlang/Go/Swift"></a>Erlang/Go/Swift</h3><p>Erlang是一门分布式设计语言，它纯粹为了解决工程问题而生，它正确而强大。但是，它的生态不够开放，语法也略显怪异，效率上也不是很尽如人意，所以最终未能大规模流行。</p>
-<p>Go在分布式上做的没有Erlang那么激进，netchan这玩意儿最终还是没有内置到语言里。不过Go的优势是足够快，足够简单。</p>
-<p>Swift目前还是主要用作客户端开发，但是已经开源。啥时候引入async/await以后，也可以用来做服务端开发，可惜没有生态。</p>
-<h3 id="Haskell-OCaml-F"><a href="#Haskell-OCaml-F" class="headerlink" title="Haskell/OCaml/F#"></a>Haskell/OCaml/F#</h3><p>函数式编程语言过于学院派，有一种学之则生，用之则死的感觉，如同Lisp一般。</p>
-<p>不过，他们有一种数学美。</p>
-<h3 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h3><p>PHP没啥好说的，在HTML里面写代码决定了这玩意儿的用处太受限了。如果不是Facebook抱残守缺，早就应该被淘汰了。</p>
-<h3 id="最好的语言"><a href="#最好的语言" class="headerlink" title="最好的语言"></a>最好的语言</h3><p>后端来说，目前就是Java，但是Go2有希望超越。</p>
-<p>顺便说一句，我可不喜欢Java了，我宁愿选Go1。</p>
-<h3 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h3><p>历史并不能给人们以教训，人们总是犯同样的错误。</p>
-<p>C++引入模版，Java和.NET都是半路引入泛型，Go却还要重滔覆辙。C++开始就用异常代替了错误码，Go非要到Go2再还这些技术债，这是何苦。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/" class="post-title-link" itemprop="url">并发编程模型浅谈</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2019-11-02 09:03:43 / 修改时间：12:07:25" itemprop="dateCreated datePublished" datetime="2019-11-02T09:03:43+08:00">2019-11-02</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/02/并发编程模型浅谈/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>当我们设计一个业务模型的代码架构时，不同语言的选择对我们的思维有很大的影响。本文根据个人经验，以设计斗地主服务器为例，试图总结一下其中的区别。</p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>主流设计语言中，C/C++甚至没有线程的概念，全靠调用操作系统自己的接口；Python由于GIL的原因，多线程效率十分底下，一般采用多进程模型；Java是最早采用多线程模型的语言；Erlang是内置Actor模型；Golang是内置CSP模型。值得注意的是，对操作系统而言，最底层的就是线程（不过Windows有内置的Fiber），所以协程（coroutine）在任何语言中其实都可以自己实现，多个协程共同运行在同一个线程中。</p>
-<h2 id="多进程设计"><a href="#多进程设计" class="headerlink" title="多进程设计"></a>多进程设计</h2><p>如果选用Python作为目标任务的编程语言，显然应该采用多进程模型，在进程内部可以使用协程来加快速度。比如我们用Tornado来完成这个游戏：</p>
-<ol>
-<li>首先可以设计一个路由服务（HTTP服务），完成用户身份校验后，根据负载均衡算法随机分配一个实例，将websocket监听地址返回给客户端。并将这个分配地址记录下来，供用户断线重连使用；</li>
-<li>Tornado是单进程单线程模型，这里主要完成游戏逻辑。一个新用户加入后，游戏服在内存中遍历有空闲的房间，将用户加入其中。每个房间有自己的id，游戏逻辑本身靠用户动作来驱动，即通过用户动作来修改房间上下文，直到游戏结束；同时游戏可以使用ioloop的定时器来定义超时，代替用户驱动游戏；</li>
-<li>到游戏结算时，需要入库，可以通过线程池的方法避免阻塞，或者用async-http在路由层完成入库操作。</li>
-</ol>
-<h3 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h3><p>上述过程中，可以把路由和Tornado设计到一起，使用类似prefork的方案，在路由进程中启动tornado的进程池，这种情况下可以使用python内置的多进程通信组件（multiprocessing包里面的）。不过这个设计显然不是很好，不符合现在微服务的设计理念。</p>
-<p>将路由和Tornado作为独立的服务，二者之间的进程通信可以用socket（有应答），或者mq等中间件（无应答），同时也将监听的handler加入ioloop的主循环中。</p>
-<p>注意独立进程之间可能存在数据不一致问题，单节点挂掉的话需要考虑如何处理。</p>
-<h2 id="多线程设计"><a href="#多线程设计" class="headerlink" title="多线程设计"></a>多线程设计</h2><p>以Java的Netty为例。其实和多进程差不多，不过这时候路由和游戏本身肯定是在一个进程里作为一个整体的服务了，那么假设这里通过dns进行负载均衡，用户随机连接到一台服务器上。可以通过redis的setnx这种类分布式锁的机制保证用户断线重连到同一台机器。</p>
-<ol>
-<li>一个单独的线程作为路由服务，将用户分配到不同房间；</li>
-<li>建立房间游戏逻辑线程池。这个线程池可以用netty的，也可以用jdk的。不过棋牌类游戏需要使用大量定时器，所以一般还是用netty的。netty的I/O线程和业务线程在这里是分开的，避免相互阻塞；</li>
-<li>只要保证同一个房间的游戏逻辑总是被同一个线程处理，即可达到无锁编程的目的；</li>
-</ol>
-<h3 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>线程间通信的可靠性显然比进程间强了许多，基本无需考虑数据不一致问题。</p>
-<p>一般使用语言自带的组件来完成线程间通信，比如Future/Promise（有应答），或者直接submit到对应的线程（无应答）。耗时任务一般采用线程池的方法来避免阻塞。</p>
-<h2 id="协程设计"><a href="#协程设计" class="headerlink" title="协程设计"></a>协程设计</h2><p>以Go为例。这里就简单多了：</p>
-<ol>
-<li>一个单独的协程完成路由服务；</li>
-<li>每个房间一个单独的协程完成无锁游戏逻辑计算；</li>
-<li>耗时任务单开协程处理，随用随销毁；</li>
-<li>协程间通过channel通信；</li>
-</ol>
-<h2 id="联系与区别"><a href="#联系与区别" class="headerlink" title="联系与区别"></a>联系与区别</h2><p>按着上面这些分析，其实他们的设计思路大体上是一样的。通过IO多路复用，使用尽量少的系统资源完成更多的任务，通过使同一个房间在同一个线程/协程里，尽量达到无锁编程的目的。</p>
-<p>但是由于操作系统的一个基本运行单位是进程，多进程设计其实就是分布式设计。因此多进程需要更多考虑的到数据一致性的问题，进程间通信的代价昂贵。多线程编程和协程其实差不多，但是协程的代价更低，因此可以每个房间一个协程但不能每个房间一个线程。同样，某些耗时的任务协程可以随时开一个新的，用完再销毁。但是线程不行，这么操作的代价有点大，一般需要做一个池化处理。换句话来说，线程编程要更有总体规划一些，要更加精细的设计，因为一个进程最多有几千个线程，但是却可以有上百万个协程。所以Java这边还是建议把耗时操作封装成类，内部使用池化，同时类对外提供阻塞应答和异步调用等常用通信方式。</p>
-<p>同时需要注意的是，IO操作还要关心外部资源的限制。比如MySQL读写，并发量不大的时候，可以随时开一个线程去读。但是并发量有限的情况下，就要池化以限制资源（在Go里面可以通过Channel扇入扇出来限制）。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实道理是相通的，上面的思路其实也大同小异，但是具体到代码的书写难度上，肯定是依次递减的。协程编程的时代早已到来，这也是为啥Go能这么快速流行的一个原因。但是go的channel并不能跨进程通信，所以实际上来说，Erlang这门古早的语言，才是集群设计最终的答案。</p>
-<p>注意不管是哪种方案，都有data race的情况，这取决于你对业务的设计和架构。并发编程虽然比以前简单了很多，但是没想清楚的时候，还是很容易出问题的（而且很难调试）。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>

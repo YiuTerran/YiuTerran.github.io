@@ -40,12 +40,12 @@
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : false,
+    isHome : true,
     isPost : false,
     lang   : 'zh-CN'
   };
 </script>
-<title>归档 | 无心呢喃</title>
+<title>无心呢喃</title>
   
 
 
@@ -169,12 +169,6 @@
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">44</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
@@ -215,236 +209,1381 @@
 </noscript>
 
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner index posts-expand">
+
+    
 
 
+<div class="post-block">
   
   
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/" class="post-title-link" itemprop="url">leaf框架代码解析和改造</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-31 13:18:00" itemprop="dateCreated datePublished" datetime="2019-10-31T13:18:00+08:00">2019-10-31</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-05-19 18:44:18" itemprop="dateModified" datetime="2020-05-19T18:44:18+08:00">2020-05-19</time>
+      </span>
+
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        
-        <span class="collection-header">还行! 目前共计 44 篇日志。 继续努力。</span>
-      </div>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/31/leaf框架代码解析和改造/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：</p>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。</p>
+<p>它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：</p>
+<ol>
+<li>提供<code>Skeleton</code>这个脚手架，可以把它当成一个功能更加完善的协程。它提供了保证函数执行时序的一些工具，允许callback形式的代码；通过<code>chanRPCServer</code>抽象了一种类似RPC的协程间通信（通过channel），方便快速进行开发；</li>
+<li>按业务抽象了Module，进行生命周期管理；</li>
+<li>抽象了网络接口，并提供了裸TCP和websocket的实现，可以通过简单的配置同时支持多种协议；</li>
+<li>提供了protobuf和json的序列化支持；</li>
+<li>路由机制；</li>
+<li>通过telnet提供pprof接口，同时也可以自定义命令，方便进行debug；</li>
+<li>其他一些工具库；</li>
+</ol>
+<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>下面按着模块进行一些代码难点解析。</p>
+<h3 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h3><p>这个比较简单，规定了一个接口，里面是一些生命周期的回调函数，供leaf启动时注册运行，同时提供了一个<code>chan bool</code>作为关闭的信号。</p>
+<p>注意每个模块运行在单独的协程里。</p>
+<h3 id="Processor"><a href="#Processor" class="headerlink" title="Processor"></a>Processor</h3><p>序列化接口，支持序列化、反序列化和路由消息到对应的handler。框架给出了json和protobuf两种序列化方案。</p>
+<p>json是明文传输，直接用类的名字作为消息的标示即可。protobuf是二进制传输，需要两个字节来描述消息的id，直到id才能正确的反序列化。</p>
+<h3 id="network"><a href="#network" class="headerlink" title="network"></a>network</h3><p>对TCP和WebSocket通信的抽象，<code>Conn</code>是抽象出的接口。</p>
+<p>TCP和WebSocket最大的不同是前者是传输层协议，后者是应用层协议。所以前者需要自定义消息格式，这里采用的是头X个字节描述消息大小，后面是序列化消息的方式，另外注意这里还有大小端的问题。读的过程很简单，每次都是先读前X个字节，然后读出整个消息体；写的过程也类似。</p>
+<h3 id="Gate"><a href="#Gate" class="headerlink" title="Gate"></a>Gate</h3><p>路由主要作用是将socket封装成Agent，这里为了可以同时当作TCP和WebSocket服务器，将相关设置项直接当作Gate的成员变量了。</p>
+<p>消息的路由通过注册processor来实现，通过<code>Run</code>来启动server，显然gate应该被封装作为一个Module在leaf中运行。这里还注册了打开关闭socket的固定回调(“NewAgent”和”CloseAgent”)。</p>
+<p>下面看一下Server启动后做了啥，以TCPServer为例：</p>
+<ol>
+<li>在一个单独的协程中启动server，server本身是一个死循环；</li>
+<li>Accept请求以后，通过server的<code>NewAgent</code>回调创造agent，并在一个单独的协程中运行agent；</li>
+<li>agent的<code>Run</code>也是一个死循环，它简单的读取消息并进行路由处理；</li>
+<li>agent的写消息是在调用协程里异步完成的，它将消息写入conn的<code>writeChan</code>缓冲区后返回；每个conn有个单独的协程遍历channel并完成真正的写操作；</li>
+<li>因此3，4为一个socket的读写各创建了一个单独的协程；</li>
+</ol>
+<p>3中路由处理，在这里分为几种情况，如果对Processor调用了<code>SetHandler</code>或者<code>SetRawHandler</code>，那么就在读消息的协程里直接同步处理了消息。如果调用了<code>SetRouter</code>选择把消息路由到某个chanrpc中，则会把消息塞到队列中进行异步处理（回调的格式写死为f(args []interface{})。</p>
+<h3 id="command"><a href="#command" class="headerlink" title="command"></a>command</h3><p>一个方便调试的工具。</p>
+<p>用户可以通过telnet访问内存情况，通过自定义command指令获取内存中的数据并进行调试。</p>
+<h3 id="chanrpc"><a href="#chanrpc" class="headerlink" title="chanrpc"></a>chanrpc</h3><p>该模块通过精巧的设计，为协程间通信增加了异步回调执行、同步调用、异步通知等常见模式。我们一般不直接使用它，而是通过Skeleton来使用。</p>
+<h3 id="Skeleton"><a href="#Skeleton" class="headerlink" title="Skeleton"></a>Skeleton</h3><p>可以理解为一个胖协程，我们不再单独使用<code>go func()&#123;&#125;</code>运行协程，而是新建一个Skeleton，通过<code>go skeleton.Run()</code>来运行协程。</p>
+<p>这样创建的协程，就可以通过内置的chanrpc来进行通信。此外，这里还对timer进行了封装，go默认的timer是在单独的协程里运行的，这里在时间到达后，将回调函数重新塞回调用chanTimer里，最终仍然在同一个协程里执行函数。同样，内置的<code>Go</code>也是通过类似的方法保证协程的同步。</p>
+<p>所以Skeleton的<code>Run</code>函数就是一个select的死循环，使用io多路复用，依次中上述组件对应的channel中获取结果并执行对应的动作。</p>
+<h2 id="简单改进"><a href="#简单改进" class="headerlink" title="简单改进"></a>简单改进</h2><p>由于leaf常年不再更新，fork了一个版本并修正了一些问题，地址在：<a target="_blank" rel="noopener" href="https://github.com/YiuTerran/leaf">https://github.com/YiuTerran/leaf</a></p>
+<p>主要修正包括：</p>
+<ol>
+<li>移除了一些不需要的模块，如mongo的支持等，这些直接用第三方库即可；</li>
+<li>将自己实现的log模块改为zap的，性能更好并支持json格式的日志；</li>
+<li>将websocket的RemoteAddr返回值改为透过代理的（如果存在）；</li>
+<li>加上go mod支持，修改版本号为规范格式；</li>
+<li>移除了conf文件夹，这个设计不太符合类库的使用规范；</li>
+</ol>
 
       
-    <div class="collection-year">
-      <span class="collection-header">2019</span>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-10-31T13:18:00+08:00"
-              content="2019-10-31">
-          10-31
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/" itemprop="url">
-            <span itemprop="name">leaf框架代码解析和改造</span>
-          </a>
-      </div>
-
+    <footer class="post-footer">
+        <div class="post-eof"></div>
       
-    </header>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-10-31T11:14:08+08:00"
-              content="2019-10-31">
-          10-31
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" itemprop="url">
-            <span itemprop="name">微服务设计迷思-数据存储</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-10-18T18:07:21+08:00"
-              content="2019-10-18">
-          10-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" itemprop="url">
-            <span itemprop="name">面试刷题总结</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-02-17T21:26:39+08:00"
-              content="2019-02-17">
-          02-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/" itemprop="url">
-            <span itemprop="name">docker常见命令</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-02-17T20:18:59+08:00"
-              content="2019-02-17">
-          02-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/" itemprop="url">
-            <span itemprop="name">k8s学习纪要</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-    <div class="collection-year">
-      <span class="collection-header">2018</span>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2018-10-07T09:57:51+08:00"
-              content="2018-10-07">
-          10-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/" itemprop="url">
-            <span itemprop="name">摄影笔记</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2018-02-16T08:49:36+08:00"
-              content="2018-02-16">
-          02-16
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/" itemprop="url">
-            <span itemprop="name">读书笔记-数据密集型应用设计</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2018-01-28T13:14:37+08:00"
-              content="2018-01-28">
-          01-28
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/" itemprop="url">
-            <span itemprop="name">redis知识点总结</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2018-01-25T12:21:36+08:00"
-              content="2018-01-25">
-          01-25
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">面试复习纪要.md</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-    <div class="collection-year">
-      <span class="collection-header">2017</span>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2017-07-16T10:33:34+08:00"
-              content="2017-07-16">
-          07-16
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" itemprop="url">
-            <span itemprop="name">SpringMvc4 Rest Api最佳实践</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
+</div>
 
 
-    </div>
-  </div>
+
+
+    
+
+
+<div class="post-block">
   
   
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" class="post-title-link" itemprop="url">微服务设计迷思-数据存储</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-10-31 11:14:08 / 修改时间：13:16:22" itemprop="dateCreated datePublished" datetime="2019-10-31T11:14:08+08:00">2019-10-31</time>
+    </span>
+
   
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/31/微服务设计迷思-数据存储/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。</p>
+<p>这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：越来越庞大的访问量，和随之产生的数据量。银行证券等金融系统，最开始使用的是db2，sysbase等硬件数据库，然后是oracle这种较为成熟的单点数据库，这两年才逐渐拥抱开源，用pgsql代替oracle或是引入分布式数据库。访问量更为庞大、同时实时性也要求更高的互联网服务（很多金融系统的实时性其实很差，比如跨国swift汇款，可能要一个星期才到账。它涉及到风控等外部因素，实时性并不是第一位的。当然也有要求高的，比如股票购买。），则更为激进，在移动互联网时代就大规模引入redis、mongodb等NoSQL组件，以提高响应速度。</p>
+<h2 id="单点时代"><a href="#单点时代" class="headerlink" title="单点时代"></a>单点时代</h2><p>即使C10K时代，单点数据库一般也足够满足需求。这时候最多考虑的是HA问题，mysql等常见db都提供了副本集的设计，也有比较成熟的集群架构（比如PXC架构）。这些技术在当今也很常见，中小规模的互联网公司仍在使用。oracle自带的分区功能也可以较少单表读写压力。</p>
+<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>稍大规模的服务，也可以根据key值进行手动的分片。虽然麻烦了一些，但是仍然够用，事务的一致性可以通过db得到保证。但是如果引入了NoSQL，如redis，不同组件之间的数据一致性和事务性无法得到保证。</p>
+<p>在代码里进行分库分表耦合太深，所以出现了mycat这一类透明代理，这样代码里仍然把数据库当作单点处理。代理反向解析sql语句，将请求送入正确的db，并进行数据汇总。当然OLAP用这个会有join问题，分页问题等。</p>
+<p>mongodb虽然支持集群，但是不支持表之间的join操作，所以其实也算是一种分片。关于分片的设计，前面的博客有分析（数据密集型应用设计）。</p>
+<h2 id="一库一服"><a href="#一库一服" class="headerlink" title="一库一服"></a>一库一服</h2><p>有人说微服务与SOA最大的区别就是一库一服，实际上这并没有解决任何问题，只是转移了问题，并且带来了新的问题。</p>
+<p>将服务拆分成更小粒度的服务，每个服务使用单独的数据库。这些单独的数据库仍然可以使用分片进行水平扩展分解压力，显然这是一种<strong>分治</strong>的思想。但是分库破坏了db的acid特性，会导致数据失去强一致性。</p>
+<p>以支付服务为例，在同一个db中，可以利用数据库的事务性保证付款和减少库存两个操作的一致性。如果通过微服务，支付服务和库存服务独立的情况下，只能拆分成支付服务扣钱-&gt;通知库存服务减少-&gt;库存减少成功/失败-&gt;回调支付服务确认，这就是所谓的TCC解决方案。</p>
+<p>显然，某些业务（比如股票/火车票购买）是不能用这种模型的，扣钱成功必须保证买到商品，否则用户肯定会投诉的。所以这时候就只能用二阶段提交等一致性搞好的方案，但是效率又得不到保证。</p>
+<h2 id="分布式数据库"><a href="#分布式数据库" class="headerlink" title="分布式数据库"></a>分布式数据库</h2><p>NewSQL的分布式数据库，从db层面上解决了数据扩展性的问题。说白了，它是将分布式事务的问题从服务层面重新转回db层面。于是一切又回到了单点时代，对于服务而言，分布式数据库就当作一个单点来使用即可。</p>
+<p>当然分布式数据库至今仍然有一些问题，不过已经可以在生产上使用。</p>
+<h2 id="未来"><a href="#未来" class="headerlink" title="未来"></a>未来</h2><p>从程序设计的角度来看，一切正在回到初始。</p>
+<p>ServiceMesh和NewSQL，这两项技术将一切外部组件的复杂性进行了屏蔽，那么很多业务就重新回到CURD的简单工作了。</p>
+<p>然而终究没有银弹，在很长一段时间内，上面的技术都会并存于世。合理的进行选型设计才是架构师应该考虑的问题。</p>
+<p>多嘴说一句，Dubbo, SpringCloud这种架构注定会过时的，它将外部组件的复杂性引入了代码，这不符合低耦合高聚集的程序设计原则，注定会被ServiceMesh替代。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">面试刷题总结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-18 18:07:21" itemprop="dateCreated datePublished" datetime="2019-10-18T18:07:21+08:00">2019-10-18</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-10-21 14:26:21" itemprop="dateModified" datetime="2019-10-21T14:26:21+08:00">2019-10-21</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/18/刷题总结/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="题目类型"><a href="#题目类型" class="headerlink" title="题目类型"></a>题目类型</h1><h2 id="字符串-数组"><a href="#字符串-数组" class="headerlink" title="字符串/数组"></a>字符串/数组</h2><p>字符串是数组的一个特例，常用处理方案是一致的。思路包括：</p>
+<ol>
+<li>双指针（首尾）</li>
+<li>回溯</li>
+<li>贪心/dp</li>
+<li>Trie树</li>
+<li>二分搜索（各种变种）</li>
+</ol>
+<h3 id="特殊题型"><a href="#特殊题型" class="headerlink" title="特殊题型"></a>特殊题型</h3><ol>
+<li>旋转数组：多次反转</li>
+<li>判断是否存在，超大规模使用布隆过滤器（能精准判断不存在，但是不能精准判断存在）</li>
+<li>矩阵相关：注意遍历的起始位置，根据矩阵的特点从右上角、左下角开始能迅速计算出目标</li>
+</ol>
+<h2 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h2><p>在Java中通过PriorityQueue实现最大/最小堆（默认是最小）<br>python中通过heapq这个库来实现数组堆化，当然也可以用queue.PriorityQueue<br>堆可以用来解决<strong>topK问题</strong></p>
+<h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><p>栈通常用来解决优先级问题，一系列的操作中，有些优先级高，有些优先级低。可以将优先级低的先压栈，取出优先级高的进行处理。</p>
+<h2 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h2><p>队列可以用来解决二叉树层次遍历问题。</p>
+<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><ol>
+<li>双指针（快慢）<ol>
+<li>快慢指针能相遇则链表有环</li>
+<li>相遇点和链表头各设一个指针，同时前进，交点即环的入口</li>
+<li>两个链表的问题，可以根据长度差X设置两个指针，长链表指针先走X步</li>
+</ol>
+</li>
+</ol>
+<h2 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h2><p>概念：<br>    1. 满二叉树：除了叶子节点，所有节点都有两个子节点的二叉树；层数为K，节点数为2^K - 1个<br>    2. 完全二叉树：最后一层节点从左到右连续，其他层节点达到最大值。满二叉树是完全二叉树的特殊情况<br>    3. 二叉搜索树(BST)：左子树的节点均小于根结点，右子树的节点均大于根结点，子节点也是二叉搜索树<br>       1. 中序遍历BST得到排序后的数组；<br>       2. 反向转换：取mid作为根，左边递归是左子树，右边递归是右子树<br>       3. 二叉搜索树的所有操作复杂度为O(h)，h为树的高度，当树高度不平衡时，退化为O(n)，即链表操作<br>    4. 平衡二叉树：左右子树高度差不超过1，且子节点都是平衡二叉树<br>    5. AVL：自平衡二叉搜索树<br>    6. 红黑树：也是自平衡二叉搜索树，理论性能优于AVL树 =&gt; 由于十分难写，很多实现采用skiplist代替<br>    7. 区间树/线段树：二叉搜索树的元素不再是元素，而是某个区间<br>    8. B树：自平衡多叉树，高度较低，适用于磁盘存储<br>    9.  R树：一般用于存储空间位置信息</p>
+<p>解法：<br>    1. 递归。由于二叉树本身就是递归结构，所以几乎所有的解法都需要递归<br>    2. 遍历：前序、中序、后序都是深度优先搜索（DFS），使用递归即可；层次遍历是广度优先搜索（BFS），使用队列辅助完成；<br>    3. 序列化：用层次遍历即可，先把root放进去然后分别放入其子节点</p>
+<h2 id="排序和搜索"><a href="#排序和搜索" class="headerlink" title="排序和搜索"></a>排序和搜索</h2><p>概念：<br>    1. 经典排序算法：插入、选择、冒泡，复杂度都是O(n^2)，实际上一般并不单独使用<br>    2. 普通排序算法的最佳复杂度就是O(nlgn)，一般我们使用快排，但是它的最差复杂度是O(n^2)，相比之下归并排序具有更稳定的复杂度但是却需要占用更多的空间<br>    3. 如果需要稳定排序，一般还是用归并排序<br>    4. 特殊情况下，可以达到线性事件排序，如桶排序、基数排序等<br>    5. 求Kth最大/小的值，一般采用类似快速排序的切割算法，期望复杂度是O(n)，C++中可以用STL中的nth实现<br>    6. 二分搜索的前提是数组已经排好序</p>
+<h2 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h2><p>dp问题没有固定的解法，一般用于最优化问题（统筹规划），需要根据观察列出dp方程，并找到剪枝方式，从而简化求解过程。<br>dp方程的个数取决于状态的个数，自变量的个数则需要分析题意。</p>
+<p>使用动态规划将问题划分为若干个子问题，这些子问题之间相互重叠，通过记忆化查表的方式简化这些计算，动态规划一般分为自底向上和自顶向下两种设计方式。<br>贪心算法则是对子问题直接作出贪心选择，从而简化计算，贪心算法一般都是自顶向下的。</p>
+<h2 id="图论"><a href="#图论" class="headerlink" title="图论"></a>图论</h2><p>掌握dfs，bfs和并查集<br>并查集主要是join和search两个操作<br>最短路径算法<br>最小生成树</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/" class="post-title-link" itemprop="url">docker常见命令</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-02-17 21:26:39 / 修改时间：22:59:14" itemprop="dateCreated datePublished" datetime="2019-02-17T21:26:39+08:00">2019-02-17</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/17/docker常见命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="日志类"><a href="#日志类" class="headerlink" title="日志类"></a>日志类</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker logs -f &lt;container&gt; <span class="comment"># 查看日志</span></span><br><span class="line">journalctl</span><br></pre></td></tr></table></figure>
+
+<h2 id="容器类"><a href="#容器类" class="headerlink" title="容器类"></a>容器类</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker ps <span class="comment"># 查看正在运行的容器</span></span><br><span class="line">docker ps -a -q <span class="comment"># 查看全部容器和信息</span></span><br><span class="line">docker ps top</span><br><span class="line">docker pull/commit/tag/push/diff/attach</span><br><span class="line">docker create/build/run/rm</span><br><span class="line">docker start/stop/pause</span><br><span class="line">docker  <span class="built_in">exec</span> -it &#123;&#123;containerName or containerID&#125;&#125; bash  <span class="comment"># 进入容器交互</span></span><br><span class="line">docker cp</span><br></pre></td></tr></table></figure>
+
+<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 列出本地所有镜像</span></span><br><span class="line">docker images</span><br><span class="line"><span class="comment"># 本地镜像名为 ubuntu 的所有镜像</span></span><br><span class="line">docker images ubuntu</span><br><span class="line"><span class="comment"># 查看指定镜像的创建历史</span></span><br><span class="line">docker <span class="built_in">history</span> [id]</span><br><span class="line"><span class="comment"># 本地移除一个或多个指定的镜像</span></span><br><span class="line">docker rmi</span><br><span class="line"><span class="comment"># 移除本地全部镜像</span></span><br><span class="line">docker rmi `docker images -a -q`</span><br><span class="line"><span class="comment"># 指定镜像保存成 tar 归档文件， docker load 的逆操作</span></span><br><span class="line">docker save</span><br><span class="line"><span class="comment"># 将镜像 ubuntu:14.04 保存为 ubuntu14.04.tar 文件</span></span><br><span class="line">docker save -o ubuntu14.04.tar ubuntu:14.04</span><br><span class="line"><span class="comment"># 从 tar 镜像归档中载入镜像， docker save 的逆操作</span></span><br><span class="line">docker load</span><br><span class="line"><span class="comment"># 上面命令的意思是将 ubuntu14.04.tar 文件载入镜像中</span></span><br><span class="line">docker load -i ubuntu14.04.tar</span><br><span class="line">docker load &lt; /home/save.tar</span><br><span class="line"><span class="comment"># 构建自己的镜像</span></span><br><span class="line">docker build -t &lt;镜像名&gt; &lt;Dockerfile路径&gt;</span><br><span class="line">docker build -t xx/gitlab .</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/" class="post-title-link" itemprop="url">k8s学习纪要</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-02-17 20:18:59" itemprop="dateCreated datePublished" datetime="2019-02-17T20:18:59+08:00">2019-02-17</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-02-24 19:28:31" itemprop="dateModified" datetime="2019-02-24T19:28:31+08:00">2019-02-24</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/17/k8s学习纪要/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
+<h2 id="k8s及其概念"><a href="#k8s及其概念" class="headerlink" title="k8s及其概念"></a>k8s及其概念</h2><p>k8s的架构有一点类似linux的分层技术，比较复杂，所以最好边学变实践，不然根本记不住。<strong>API对象</strong>是K8s集群中的管理操作单元。K8s集群系统每支持一项新功能，引入一项新技术，一定会新引入对应的API对象，支持对该功能的管理操作。例如副本集Replica Set对应的API对象是RS。下面是各种API对象：</p>
+<h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><p>Pod是在K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。</p>
+<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><p>节点是所有Pod运行所在的工作主机，可以是物理机也可以是虚拟机。工作主机的统一特征是上面要运行kubelet管理节点上运行的容器。</p>
+<h3 id="RS"><a href="#RS" class="headerlink" title="RS"></a>RS</h3><p>副本集，在MongoDB中有此概念，这里其实差不多。提供服务的高可用性。</p>
+<h3 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h3><p>即部署，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。部署通过创建新的RS，将流量转移到新的RS，然后逐渐关闭旧的RS来实现。</p>
+<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>客户端直接访问的服务对象，长期伺服型。每个Service会对应一个集群内部有效的虚拟IP，集群内部通过虚拟IP访问一个服务。在K8s集群中微服务的负载均衡是由Kube-proxy实现的。Kube-proxy是K8s集群内部的负载均衡器。它是一个分布式代理服务器，在K8s的每个节点上都有一个。</p>
+<h3 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h3><p>Job是K8s用来控制批处理型任务的API对象，有点类似Oracle数据库中的Job，例如定时任务等。</p>
+<h3 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h3><p>后台支撑服务集，运行存储，日志和监控等在每个节点上支持K8s集群运行的服务。</p>
+<h3 id="PetSet"><a href="#PetSet" class="headerlink" title="PetSet"></a>PetSet</h3><p>有状态服务集，显然RS是无状态的，这样才能迅速deployment。但是对于db对象，更新的时候显然不能把数据扔了，这时候就需要用PetSet新建一个同名的pod，然后挂载存储继续服务。</p>
+<h3 id="Federation"><a href="#Federation" class="headerlink" title="Federation"></a>Federation</h3><p>集群联邦，为提供跨Region跨服务商K8s集群服务而设计，适用于超大规模集群。</p>
+<h3 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h3><p>类似docker的存储卷，但是更加抽象，pod支持多种存储卷，包括各种云服务的存储（如s3等）</p>
+<h3 id="PV和PVC"><a href="#PV和PVC" class="headerlink" title="PV和PVC"></a>PV和PVC</h3><p>持久存储卷（声明），用以抽象具体的存储逻辑。</p>
+<h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><p>Secret是用来保存和传递密码、密钥、认证凭证这些敏感信息的对象。</p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>为集群提供隔离功能的命名空间。</p>
+<h3 id="RBAC访问授权"><a href="#RBAC访问授权" class="headerlink" title="RBAC访问授权"></a>RBAC访问授权</h3><p>集群的管理需要一定的授权控制，引入常见的RBAC API对象</p>
+<h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;Received request for URL: &#x27;</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">&#x27;Hello World!&#x27;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
+
+<p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> node server.js</span></span><br></pre></td></tr></table></figure>
+
+<p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
+<p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
+<p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
+<p>最后，使用<code>minikube addons enable/disable xxx</code>即可打开/关闭附加服务。使用<code>kubectl delete service hello-node</code></p>
+<p>kubectl最常用的命令格式：</p>
+<ul>
+<li>kubectl get - list resources</li>
+<li>kubectl describe - show detailed information about a resource</li>
+<li>kubectl logs - print the logs from a container in a pod</li>
+<li>kubectl exec - execute a command on a container in a pod</li>
+</ul>
+<h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
+<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">摄影笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-10-07 09:57:51" itemprop="dateCreated datePublished" datetime="2018-10-07T09:57:51+08:00">2018-10-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 18:19:14" itemprop="dateModified" datetime="2019-03-31T18:19:14+08:00">2019-03-31</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/07/摄影笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
+<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
+<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
+<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
+<li>曝光补偿：用以修正曝光值；</li>
+<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
+<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
+</ol>
+<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
+<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
+<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
+</ol>
+<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
+<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
+<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
+</ol>
+<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
+<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
+<li>与光圈成反比</li>
+<li>与焦距成反比</li>
+<li>与对焦距离成正比</li>
+</ol>
+<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
+<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
+<ol>
+<li>快门速度</li>
+<li>光圈大小</li>
+<li>感光度</li>
+<li>曝光补偿</li>
+</ol>
+<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
+<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
+<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
+<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
+<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
+<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
+<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
+</ol>
+<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
+<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">读书笔记-数据密集型应用设计</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-02-16 08:49:36" itemprop="dateCreated datePublished" datetime="2018-02-16T08:49:36+08:00">2018-02-16</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-09-18 19:22:43" itemprop="dateModified" datetime="2019-09-18T19:22:43+08:00">2019-09-18</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/16/读书笔记-数据密集型应用设计/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
+<h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的<code>Data System</code>，包括消息队列、RDBMS, NOSQL, 以及图数据库、列式数据库等等负责存储数据的组件。</p>
+<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>考量以下几点：</p>
+<ol>
+<li> 提供正常正确的功能；</li>
+<li> 错误容忍性；</li>
+<li> 性能；</li>
+<li> 安全认证；</li>
+</ol>
+<p>其中错误容忍性又分为硬件错误（如断电、内存不足、磁盘不足、网络断开等）和软件错误（各种软件 bug 等），以及人工错误（操作错误、输入错误等）</p>
+<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p>当组件性能、容量无法满足需求时，组件能够通过扩展的方式满足需求，这就是所谓的可扩展性。</p>
+<p>书中举了 Twitter 的 timeline 设计作为例子，我们知道 timeline 展示的是 follower 的发布的状态，那么不考虑任何优化的情况下，设计如下：如果用关系型来描述的话，需要一个 user 表，一个用户 follow 关系表，一个 tweets 表，对于 user id 为 1 的用户，其首页的 timeline 生成是</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> t.<span class="operator">*</span> <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id<span class="operator">=</span>t.user_id <span class="keyword">where</span> f.user_id<span class="operator">=</span><span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at limit <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<p>显然 tweets 表会迅速膨胀成一个超大的表，这种设计不能满足性能的需求。采用写扩散的方案，将每个用户的 timeline 独立存储，用户新的 post 插入 tweets 表后，还要将这个 tweet 插入用户的 follower的timeline 缓存中。除了这个方案以外，还有很多其他的方法，比如使用消息队列。用户 ins/del po, follow/unfollow some one 触发事件，需要对 timeline 进行重新生成。Twitter最终采用了两种方案混合的方式。</p>
+<p>性能描述的常用指标包括：延迟、吞吐量、响应时间等。平均响应时间有时候并不能很好的描述性能，中位数响应时间更合适（一半的请求小于该时间，另一半的大于该时间）。中位数响应时间即 50%分位响应时间，如果要求的更严格，可能需要使用 95%分位响应时间等，甚至 99.9%分位。99%分位以上的又被称为尾部延迟。</p>
+<p>一般将可扩展性分为水平扩展和垂直扩展，两者可以结合起来。如果系统具有自动根据负载进行扩展的能力，这种系统是所谓的“弹性系统”。</p>
+<h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><p>这里主要指的是系统本身简单可维护，且代码清晰易改动。可维护性显然不仅仅是架构的问题，涉及到方方面面吧，比如：</p>
+<ol>
+<li> 系统健康监控</li>
+<li> 错误跟踪系统</li>
+<li> 自动化部署</li>
+<li> 完善的文档系统</li>
+<li> 优雅的抽象，模块化</li>
+<li> 持续迭代</li>
+</ol>
+<p>显然这些其实项目管理的内容。</p>
+<h2 id="数据模型和查询语言"><a href="#数据模型和查询语言" class="headerlink" title="数据模型和查询语言"></a>数据模型和查询语言</h2><p>常见的数据模型包括关系型数据模型，文档性数据模型，网络数据模型和图数据模型</p>
+<h3 id="关系型数据模型"><a href="#关系型数据模型" class="headerlink" title="关系型数据模型"></a>关系型数据模型</h3><p>关系型数据库是最经典的数据库，也是最常用的模型。在 1 对多环境下，文档性数据模型（一般是类 JSON 格式）可以很好的描述数据关系；但是多对多就比较麻烦了。而且现在已有的文档型数据库中，大部分是不支持不同表格之前关联查询的。</p>
+<p>随着技术的进步，关系型数据库和文档型数据库产生了一些融合，现在关系型数据库一般也支持 JSON 字段了，虽然这种有效的融合本质上是反模式的。</p>
+<p>关系型数据库统一使用 sql 语言操作，sql 是一种 DML，类似 CSS。文档型、图数据库的查询语言不通用由各个实现自己定义。当然随着分布式关系型数据库的发展，sql 仍然是最重要的数据操纵语言。</p>
+<p>图数据模型比较复杂，按着一般图的概念，结点和关系构成了整张图。属性图模型的设计如下：</p>
+<ol>
+<li> 一个图中会记录节点和关系</li>
+<li> 关系可以用来关联两个节点</li>
+<li> 节点和关系都可以拥有自己的属性</li>
+<li> 可以赋予节点多个标签(类别)</li>
+</ol>
+<p>在某些应用场景里（如社交网络、金融风控等多对多场景），图数据库在描述关系上具有无与伦比的优势，可以大幅简化查询设计。除了属性图外，还有其他图数据模型实现，如 Triple-Stores，将数据存为主谓宾三元组，一般是使用 SPARQL 进行查询；然后还有 RDF 数据模型，一般使用 XML 语言描述。</p>
+<h2 id="存储和取回"><a href="#存储和取回" class="headerlink" title="存储和取回"></a>存储和取回</h2><p>本章阐述了数据库底层存储和查询的原理。文中先举例了一个 KV 数据库最简单的实现，将数据存在文件中，写入就直接写在文件尾部，读取则用 tail 值（逆序查找即可）。这种直接写到文件尾部的只读文件，本质上是一种 log.</p>
+<p>当然这个实现有个很明显的问题：写入很快，但是查找很慢。如果 key 根本不存在，需要遍历整个文件，因此需要引入索引(index)的实现。比如这里将所有的 key 存入一个红黑树或者哈希表，然后存放对应的偏移量作为值，即成为一个索引。</p>
+<p>由于数据存入文件是 append only 的，很容易导致磁盘空间耗尽，因此需要周期性的对文件进行压缩。对于 KV 数据库而言，每个 key 值最后对应的 value 是唯一的，所谓的压缩其实就是将对同一个 key 的赋值仅保留最后一个。显然这个过程可以分片同步进行（类似归并排序的流程），也可以放在后台进行，不影响前台正常的读写。</p>
+<p>哈希索引是最快的查询索引，仅需要 O(1)时间，但是问题是哈希表必须存入内存之中，一般多用在内存数据库中。而对于存储在磁盘上的数据，一般使用 b-tree 来存放。</p>
+<h3 id="SSTABLE-和-LSM-TREE"><a href="#SSTABLE-和-LSM-TREE" class="headerlink" title="SSTABLE 和 LSM-TREE"></a>SSTABLE 和 LSM-TREE</h3><p>如果将上述实现的 KV 数据库中的 KEY 排序，得到的表就是所谓 SSTABLE(SORTED STRING TABLE)，这种表格归并和查找的速度都明显超过普通的文件，这样就不再需要额外的完整索引来进行查找加速（但是可能需要稀疏索引来加速搜索）。</p>
+<p>SSTABLE 在内存中可以使用各种平衡二叉树，比如红黑树或者 AVL 树。为了性能考虑，先把数据写入内存表（即缓存），然后等到内存中的数据达到一定的阈值后，再序列化写入硬盘，写入硬盘的部分也可以分片。最后，周期性运行数据压缩，消除冗余 key 值。</p>
+<p>SSTABLE 的设计比较完善，考虑到掉电问题，还需要对内存表的操作保留一份日志，以便进行错误恢复。可以使用 WAL（WRITE AHEAD LOG)日志来记录。</p>
+<p>以上思路，就是所谓的 LOG STRUCTURED MERGE-TREE, 即 LSM-TREE，Lucence 这个搜索引擎在底层即使用了这种数据结构，然后 Level DB 等数据库也使用了这种数据结构，Level 指的是数据归并压缩时使用的策略。将 key 根据范围划分为不同的 Level，从而用来加速归并和压缩的速度。</p>
+<p>可以使用<code>Bloom filters</code>算法加速搜索，确认 key 不存在。</p>
+<h3 id="B-TREE"><a href="#B-TREE" class="headerlink" title="B-TREE"></a>B-TREE</h3><p>b-tree 是磁盘存储数据时最常用的索引结构，这是一种自平衡多路查找树，特点是能够保持较低的高度。</p>
+<p>b-tree 将数据抽象成固定大小的 block 或者说 page，一般是 4Kb 每页（机器硬盘），每次读写一页。每个 page 里面是数据和指向其他 page 的指针，这棵树也有一个根节点，是每次搜索的开始。每页包含指向子叶的指针数，即所谓的“分支因子”（一般是几百个）。page 里面是索引列的有序键值，但是这个键值是稀疏的排序，树的高度被保证为较小的值，这样通过 3~4 层的搜索能够找到大部分 key 值。</p>
+<p>还有一些常见的其他的优化措施，如 WAL 啊，多线程保护（latch）啊，写时复制啊，或者使用变体的分型树、<code>b+</code>树、<code>b*</code>树等.</p>
+<p>对比B-Tree和LSM-Tree，后者拥有更好的写性能（速度和吞吐量），前者拥有更好的读性能。同时，后者由于会定期重写SSTables清除碎片，对磁盘空间的需求量也小的多。但是LSM-Tree在压缩数据时会影响磁盘的IO性能，进而影响到数据库的读写速度。</p>
+<h3 id="聚簇索引与非聚簇索引"><a href="#聚簇索引与非聚簇索引" class="headerlink" title="聚簇索引与非聚簇索引"></a>聚簇索引与非聚簇索引</h3><p>简单来说，直接将值放在索引里的是聚簇索引；放的是数据的引用/指针的则是非聚簇索引。后者需要回表索取原始数据，所以性能会差一些。综合两者的被称为覆盖索引。</p>
+<h3 id="多列索引"><a href="#多列索引" class="headerlink" title="多列索引"></a>多列索引</h3><p>简单的实现是直接将多列拼接成同一个 key，复杂情况使用其他优化的数据结构。Mysql中通常成为复合索引，适用最左匹配原则。</p>
+<p>GIS 中的地理位置索引，包含经度和纬度，一般使用 R-TREE 来实现。</p>
+<h3 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h3><p>对于搜索引擎，需要的是进行模糊查询，一般的索引技术不能满足需求。数据结构以外，还需要结合分词技术、机器学习等其他技术才能满足各种需求。</p>
+<h3 id="内存数据库"><a href="#内存数据库" class="headerlink" title="内存数据库"></a>内存数据库</h3><p>随着内存价格的降低和容量的增加，全内存型数据库也开始涌现。对于 IO 性能要求较高的场合，大量使用内存数据库（如游戏）。关系型内存数据库常见的如 voltdb，KV 型的如 redis 等。</p>
+<p>内存数据库速度快的原因不是把所有数据都放在内存里，因为传统关系型数据库也有 cache，这个优势并没有想象的那么大。内存数据库避免了序列化/反序列化的额外负担，同时还可以实现一些无法在磁盘中实现的功能，如 Redis 中的 set, zset 等。</p>
+<p>内存数据库可以存放超过内存大小的数据，简单来说就是将最近未使用的数据写入磁盘，需要的时候再重载入内存，类似操作系统的虚拟内存技术。随着非易失性内存技术的发展，最终硬盘和内存将会殊途同归，也就不用再考虑这些问题了。</p>
+<h3 id="OLTP-与-OLAP"><a href="#OLTP-与-OLAP" class="headerlink" title="OLTP 与 OLAP"></a>OLTP 与 OLAP</h3><p>前者用于大量写入，对事务的性能要求较高，后者用于数据分析。</p>
+<p>刚开始的时候都用普通 db，随着量级的发展，OLAP 一般使用独立的数仓来完成。数仓将 OLTP 数据库中的数据进行 ETL，存入专门用来数据分析的 db. OLAP 数据库和 OLTP 使用不同的优化方式，前者使用了一些其他的索引技术。</p>
+<p>OLAP 一般使用星型模型/雪花模型，将多维度数据聚合到事实表中，从而避免大量 join 查询。此外，OLAP 会使用列式数据库（如HBase），列式可以更方便的进行数据压缩，对查询进行更好的优化。</p>
+<p>列式数据库的写入很麻烦，一般使用 LSM-TREE 进行优化，先写入内存，异步写入文件。</p>
+<p>除了这些技术以外，还有很多其他辅助手段用来提升 OLAP 的查询速度，如物化视图。对于需要经常查询的聚合数据，适用物化视图相当于加了个触发器，自动根据原始数据更新对应的聚合数据表。这样查询的时候就不要实时聚合，大幅度提高了查询速度。</p>
+<h2 id="编码与迭代"><a href="#编码与迭代" class="headerlink" title="编码与迭代"></a>编码与迭代</h2><p>本章主要讨论消息序列化的编码结构（不是字符编码），以及这些编码形式如何应对字段变更、滚动升级等需求。</p>
+<h3 id="二进制序列化"><a href="#二进制序列化" class="headerlink" title="二进制序列化"></a>二进制序列化</h3><p>各个语言有自己的二进制序列化机制，但是一般并不推荐使用，其兼容性、适用性和安全性都有一些问题。不过二进制序列化速度一般比纯文本格式要快一些。</p>
+<h3 id="JSON-XML-和二进制编码"><a href="#JSON-XML-和二进制编码" class="headerlink" title="JSON, XML 和二进制编码"></a>JSON, XML 和二进制编码</h3><p>一般情况下，JSON 和 XML 足够用了，除了一些缺点。JSON 的问题是只支持浮点数，且无法指定精度，有溢出风险。XML 的话就是有点过于笨重，但是支持 XPATH 这种高级检索语言。基于 JSON 和 XML 也有一些二进制编码。</p>
+<p>如果使用 RPC 通信，可以考虑使用二进制编码，例如 Thift 或者 Protobuf，此外还有 Avro 等.</p>
+<p>显然 JSON 是通过字段的 key 值来保持兼容性的，而 XML 则使用属性。而 Thift 和 Protobuf 则使用的是字段的 tag，旧的代码读到不认识的 tag，就会忽略掉对应的字段，从而保持兼容性。当然，这里有个问题，新增的字段不可定义为<code>required</code>，就如同给关系型数据库新增字段不能为 NOT NULL 且没有 DEFAULT 值一样。如果是移除字段，也只能移除<code>optional</code>的，且该字段的 tag 将来一定不能被重复使用。如果想要修改字段类型，就有一定的风险，需要视字段间的兼容性和精度而定。protobuf3移除了这两个关键字（并且加入了map），所有的字段都被视为optional.<code>protobuf</code>的一个问题是他不允许嵌套的array和map（当然可以通过嵌套message变相实现），Thrift则允许。</p>
+<p>对于 Avro，其 IDL 里面根本没有 tag，读方的 schema 和写方的 schema 可以不一致，avro 会自动处理兼容的字段，忽略不兼容的字段（或者赋默认值）。Avro 是为了给 Hadoop 使用的，这种设计的目的是为了关系型数据库增减字段时不需要人工手动修改 IDL 的 schema.</p>
+<h3 id="HTTP-RPC-MQ"><a href="#HTTP-RPC-MQ" class="headerlink" title="HTTP, RPC, MQ"></a>HTTP, RPC, MQ</h3><p>基于不同传输协议的数据封装讨论，都是一些开发者耳熟能详的知识点，不再赘述。</p>
+<h2 id="副本集"><a href="#副本集" class="headerlink" title="副本集"></a>副本集</h2><p>副本集一般有三种架构：single leader，multi leader， no leader。对应mysql，一主多从的架构有MHA，多主的架构有PXC。副本集的主要目的是保证数据高可用，副效果是降低单机的负载。</p>
+<h3 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h3><p>即单主模式，写到 leader，leader 通过 log 或者 Stream 同步到 follower，读的时候可以从从库读，也可以从主库读（即读写分离）。</p>
+<p>主库到从库的同步可能是同步或异步的，后者会出现读出的数据是 old data 的情况。</p>
+<p>故障恢复：如果从库 down 了，重启后通过日志重新同步即可；但是如果主库 down 了，就需要重新选举一个 leader，否则整个服务就不可用了。选举的过程包括：</p>
+<ol>
+<li> 认定 leader down，一般使用 timeout</li>
+<li> 选举新的 leader；一般使用具有最新数据的副本当leader（共识问题）</li>
+<li> 使用选举出来的新 leader</li>
+</ol>
+<p>需要解决的问题：</p>
+<ol>
+<li> 如果 follower 与 leader 之间的数据同步是异步进行的，old leader down 之前可能还没来得及将数据同步给其他 follower，那么新的 leader 就有丢失一部分数据。old leader 恢复后，需要成为 follower，并丢弃这部分未同步的内容；这种丢弃是很危险的，有可能出现各种问题；</li>
+<li> 可能会出现两个节点都以为自己是 leader 的问题，即所谓的脑裂问题；</li>
+<li> 判定服务 down 的 timeout 确定；</li>
+<li> 原来的主库重新上线后，可能有冲突要解决；</li>
+</ol>
+<h4 id="副本-log-的实现原理"><a href="#副本-log-的实现原理" class="headerlink" title="副本 log 的实现原理"></a>副本 log 的实现原理</h4><p>对于关系型数据库而言，一种显而易见的实现方式是将所有写语句(CREATE, UPDATE, DELETE, ALTER)都记录到日志里，follower 依序重复执行这些语句。但是这里可能有一些问题：</p>
+<ol>
+<li> 有些函数是不可能重复执行的，如 RAND(), NOW()之类的；</li>
+<li> 如果依赖已经存在的数据，必须保证执行顺序，这意味着不能并发执行 log 中的语句；</li>
+<li> 有副作用的语句在各个副本集中造成的副作用可能不一致；</li>
+</ol>
+<p>这些问题可以通过将非确定性的语句修改为确定性的（即将 NOW()的结果记录）来解决，MySQL 则直接使用了 ROW-BASED 将行数据覆盖的方法（又称为 logic log）来解决。还可以使用 WAL 这种直接修改磁盘字节的方法来进行，这种方法最大的问题是要求所有的 follower 必须和 leader 保持同样的二进制结构（如存储引擎），这会导致无法平滑升级服务。最后还有一种基于触发器实现的同步，一般是在应用层同步数据时当作工具来使用。</p>
+<h4 id="副本-log-的问题"><a href="#副本-log-的问题" class="headerlink" title="副本 log 的问题"></a>副本 log 的问题</h4><ol>
+<li> 读写一致性问题。用户写完以后立刻读，必须保证读到的是刚写的数据，但是由于从库的同步是异步的，所以可能会出问题；主从异步同步模式仅仅能保证最终一致性，而不是实时强一致；</li>
+<li> 数据时序性问题。如果用户使用了一系列的读（落到不同的 follower 上），可能由于同步进度的问题，导致部分读到的是新数据，部分是旧数据；</li>
+</ol>
+<p>解决方案：</p>
+<ol>
+<li>如果能明确区分数据属于用户自己，则直接从主库读取；</li>
+<li>最简单的方案是用户总是从同一个副本中读取（即所谓的单调读）；不过这样还要考虑副本down了的HA；然而除了这种顺序以外，还有一种：假设用户A和用户B在对话，二者读的是不同的从库。那么用户C在旁观这种对话过程中，可能观察到错误的对话顺序。在IM群聊中这种场景比较常见，对应这样的场景，需要保证一个群总是对应唯一的服务器节点，保证这种因果关系的顺序性。</li>
+</ol>
+<p>换句话来说，这两个问题都没有完美的解决方案，只能根据业务的实际情况来区别对待。</p>
+<h3 id="多-leader-模式"><a href="#多-leader-模式" class="headerlink" title="多 leader 模式"></a>多 leader 模式</h3><p>单主模式情况下，如果服务器和主库的网络发生故障，服务就不再可用。在局域网中这种情况基本不太可能，但是如果存在多个数据中心（异地），这时候各个 data center 各有一个 leader 是更合适的，所有的写发往 local 的 leader，然后由 leader 之间相互同步。显然，多 leader 之间的数据同步会引发各种问题。而且新加入的节点需要同步全量数据，开销很大。</p>
+<p>还有一种特殊的多 leader 模式：如果应用需要能够离线工作（如日历），但是设备没有连接上英特网，那么此时设备本地的 db 就是 leader.</p>
+<p>多主模式下，两个不同节点的事务可能都提交成功，但是db之间合并数据时可能会出现冲突。解决方案：</p>
+<ol>
+<li> 避免这种情况，根据用户的 ip 地址就近选择数据中心，游戏分服就是这样解决的。但是如果用户换了地方，原来账号的体验就会比较差了。</li>
+<li> 自动解决冲突：数据加入时间戳（自增 ID），使用最新的值解决冲突（即LWW，会丢数据）；或者允许用户自定义冲突解决代码，当发现冲突时自动调用这段代码；</li>
+<li> 手动解决冲突：数据库记录下所有冲突，当该值被阅读时，返回所有值，提示用户手动解决冲突，CouchDB 使用该方案；</li>
+</ol>
+<p>多 leader 之间同步拓扑：</p>
+<ol>
+<li> 环形拓扑：每个 leader 只同步给另外一个 leader，这里要注意单节点挂掉的问题；</li>
+<li> 星形拓扑：使用一个 root 节点，其他所有节点与该节点进行同步，root 节点可能挂掉；</li>
+<li> all to all，每个节点和其他所有节点拓扑，这时要注意时序问题；</li>
+</ol>
+<p>总的来说，目前多主模式在实际运行中的冲突问题还没有完美的自动化解决方案，需要根据业务场景确定策略。</p>
+<h3 id="leaderless-模式"><a href="#leaderless-模式" class="headerlink" title="leaderless 模式"></a>leaderless 模式</h3><p>这种模式没有主从，客户端的读写同时发送给所有的结点。如果有节点 down 掉，写请求会忽略挂掉的结点；当结点恢复后，会出现数据不一致的问题，客户端从多份节点数据中选取时，选取 version number 较大的数据，作为准确的数据返回。</p>
+<p>上面这种宕机情况，数据修复方案：</p>
+<ol>
+<li> 客户端修复，客户端发现某个节点的数据版本落后于其他节点，那么就将最新版本的数据写入其他节点；这个的问题就是有些数据可能不怎么会被读到，数据长时间存在不一致的问题；</li>
+<li> 多节点之间自动同步，异步，无特定拓扑顺序，所以可能滞后很多；</li>
+</ol>
+<p>多节点同时读取还有读取/写入数量，以及可信度的问题。一般而言，一共有 n 个结点，至少写入 w 个节点保证写成功，至少读取 r 个节点保证读成功，则必须有<code>w+r&gt;n</code>才能保证系统的可靠性。一般情况下，n 是一个奇数，<code>w=r=(n+1)/2</code>. 当然可以根据实际需要调整 w 和 r，以协调自己所需的性能和可靠性。</p>
+<p>显然 leaderless 模式会遇到和 multi-leader 类似的问题：时序问题、冲突问题，解决方案也类似。</p>
+<h4 id="版本向量"><a href="#版本向量" class="headerlink" title="版本向量"></a>版本向量</h4><p>一种多客户端写入时解决冲突的方案，即对客户端的每个请求创建的数据都生成一个版本号。在返回客户端时，除了原始数据外也将数据的版本号返回客户端，客户端请求的时候带着本地的最新版本号，这样就可以根据数据的版本进行自动的数据合并。</p>
+<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>数据分片与副本集不同，是将数据进行垂直切分，也就是所谓的 sharding 技术，经常与副本技术配合使用。对于 KV 型数据库，常见的分区策略包括：</p>
+<ol>
+<li> 按 key 值范围，缺点是分区可能不均匀；</li>
+<li> 按 key 值的 hash 值范围，解决不均匀问题。此时要注意 hash 值必须唯一，如 md5。这会引入一个新问题：无法范围查询 key 值，因为他们不再毗邻。Cassandra 的解决方案是用联合主键，如果第一位确认，后面的还能保证都在一个 partition 上，如(user_id, timestamp)；</li>
+<li> 即使使用了 hash，有时候也会遇到单点过热问题，如社交网络上某个名人的行为总会引起大的数据波动，这个只能在应用层解决了；</li>
+</ol>
+<h3 id="次级索引"><a href="#次级索引" class="headerlink" title="次级索引"></a>次级索引</h3><p>对于 RDBMS，除了主键，一般还有其他索引，如果访问需要通过多个索引字段进行，分片的方式就需要斟酌了。次级索引包括：</p>
+<ol>
+<li>分区本地索引；此时范围查询的请求只能发给所有分片，然后再归并查询结果(scatter/gather);</li>
+<li>全局索引；即对全局数据进行规约后的索引，但是全局索引也要分片，只是分片的方案需要根据业务来取舍；</li>
+</ol>
+<h3 id="再平衡"><a href="#再平衡" class="headerlink" title="再平衡"></a>再平衡</h3><p>在运行一段时间后，数据在各个分片中可能不太均衡，或者需要增加/减少节点，需要将数据在节点之中进行数据搬运。这被称为<strong>再平衡</strong>。</p>
+<ol>
+<li>一个简单的方案是为每个节点预先分配多个分区，当新的节点加入时将其他节点的部分分区数据迁移到该节点即可；删除节点执行反向操作；这个方案的问题是，预分配的分区数量可能难以确定；</li>
+<li>使用动态分区。数据库会根据数据量的大小动态增加或者缩减分区个数；当然初始数据量很小的时候，可能只需要一个分区，此时可以预分区；</li>
+<li>每个节点的分区数保持不变；当加入新节点时，增加对应数量的分区。这样可以更好的平衡各个节点；</li>
+</ol>
+<p>使用一致性哈希算法，可以有效减少再平衡时需要移动的数据数量。</p>
+<p>再平衡后的服务发现问题：服务器需要知道从哪个节点取数据。一般来说有3个解决方案：</p>
+<ol>
+<li>服务器自己知道：将分区依据写成配置。手动再平衡完毕后修改配置；</li>
+<li>使用代理的路由层，代理知道如何寻址；注意路由层本身也应该是个分布式的组件（例如zookeeper）；</li>
+<li>随便发给任意一个节点，节点自己转发；</li>
+</ol>
+<p>除了方案1的静态配置，其他两个方案需要动态发现正确的路由。这涉及到分布式环境的共识问题，</p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>关系型数据库一般都有 ACID 特性，其中 A 指的是原子性，即一件事要么发生，要么不发生，即使这件事里面包含多个动作；I 指的是隔离性，不同事务之间不相互影响，不会出现脏读等问题；D 指的是持久化能力；而 C 指的是一致性，这个其实无法由数据库来保证，在分布式系统里，最终一致性需要很多条件才能保证。</p>
+<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><p>一般数据库都能保证单对象写入的原子性，但是只有少部分数据库能保证多对象写入的原子性（即支持事务）。</p>
+<h3 id="隔离性"><a href="#隔离性" class="headerlink" title="隔离性"></a>隔离性</h3><p>那么根据不同的隔离级别，有以下几种弱隔离性实现：脏读-&gt;不可重复读-&gt;可重复读（幻读）-&gt;串行化.</p>
+<p>数据库一般默认使用 MVCC 技术实现隔离。不可重复读一般情况下没啥影响，但是如果数据库同时在进行备份，可能中间状态就丢了，大部分db的默认隔离级别是这个。</p>
+<p>使用 MVCC 将隔离级别上升为可重复读，或者说叫快照隔离（mysql默认该级别）。此时当事务开始时，会获得一个事务全局递增的唯一事务编号，而更新将会被拆分成删除+创建。这样，一个更新操作实际上产生了两个版本的数据。当一个事务开始时，做如下判定：</p>
+<ol>
+<li> 首先确定当前正在进行但还未提交的事务，使用这些事务开始前的数据版本；</li>
+<li> 已经 rollback 的事务，其数据修改被直接废弃；</li>
+<li> 事务 ID 号大于当前事务的提交，不管事务有没有提交，忽略其提交结果；</li>
+<li> 除了上诉情况以外，其他的写入可以被当前事务感知到；</li>
+</ol>
+<p>这种实现对索引的使用：多个版本同个字段使用索引，使用 B 树时，update 不是直接修改 page，而是产生一个新 page，也就是<code>copy-on-write</code>。</p>
+<h4 id="写丢失"><a href="#写丢失" class="headerlink" title="写丢失"></a>写丢失</h4><p>两个事务同时写，一个的写入可能会丢失。解决方案：</p>
+<ol>
+<li>原子写入，包括使用CAS。但是用ORM的时候有时候会很难写出k=k+1这种语句，因为k会被直接解释为变量当前的值；</li>
+<li>使用悲观锁，即<code>select ... for update</code>，不过在数据不存在时，不能用这个方案；而是要使用类似数据库的upsert语义方言。如mysql的<code>ON DUPLICATE UPDATE</code>，oracle的<code>merge</code>；</li>
+<li>部分 db（不含 mysql）实现了 lost update detection，可以自动侦测到该问题；</li>
+</ol>
+<h4 id="幻读问题"><a href="#幻读问题" class="headerlink" title="幻读问题"></a>幻读问题</h4><p>可重复读会导致幻读，如果想要解决这个问题，只能使用串行化，这种隔离的实现方案包括：</p>
+<ol>
+<li> 单线程执行所有事务，这样就自动串行化了。如 Redis、VoltDB（使用存储过程，将读写都写在一起，优化方案）；</li>
+<li> 2PL，即两阶段锁。类似读写锁，如果事务对对象没有写入，就允许共享同一个对象。但是一旦开始写入，则使用排他锁进行独占；这比单独的写锁性能更好（这是显然的）；</li>
+</ol>
+<h4 id="序列化算法"><a href="#序列化算法" class="headerlink" title="序列化算法"></a>序列化算法</h4><ol>
+<li>共享锁、排他锁、读写锁；</li>
+<li>谓词锁。即对某个条件产生锁，即使该条件下尚不存在数据。显然谓词锁可能会大幅度降低数据库的性能（创建太多），他的替代品是：</li>
+<li>间隙锁。即对搜索条件使用的某个字段的索引进行加锁；但是如果无法命中索引的话，会退化成表锁，大幅度影响性能；</li>
+</ol>
+<p>将最后两个隔离方案结合起来，就是所谓的<code>serializable snapshot isolation</code>，即 SSI，这是一个新算法（2008 年提出），在 PostgreSQL 9.1 以后使用，较有潜力。</p>
+<h2 id="分布式系统的问题"><a href="#分布式系统的问题" class="headerlink" title="分布式系统的问题"></a>分布式系统的问题</h2><h3 id="局部失败"><a href="#局部失败" class="headerlink" title="局部失败"></a>局部失败</h3><p>分布式系统某个节点挂掉引起的一系列问题。</p>
+<ol>
+<li> 如果是单主集群，需要重新选举；</li>
+<li> 需要考虑节点恢复后如何重新纳入集群；</li>
+<li> 需要考虑如何判定节点挂掉，一般是用网络超时，但是这个值比较难以假定；</li>
+<li> 考虑单节点阻塞导致的丢包问题；</li>
+</ol>
+<h3 id="时序问题"><a href="#时序问题" class="headerlink" title="时序问题"></a>时序问题</h3><p>分布式系统不同节点之间的时钟同步。</p>
+<ol>
+<li> 依赖时序策略的影响，如 LWW（可以使用逻辑时钟代替墙上时钟）；</li>
+<li> NTP 同步的精确度，NTP 本身的延迟，NTP 服务本身的不可靠性；</li>
+<li> Google spanner 的时钟策略，返回一个[least, most]的时钟范围，保证准确的时间落在该范围之内；</li>
+</ol>
+<h3 id="系统阻塞"><a href="#系统阻塞" class="headerlink" title="系统阻塞"></a>系统阻塞</h3><ol>
+<li> GC 引起的 stop the world</li>
+<li> 单线程阻塞</li>
+</ol>
+<p>其他原因造成的系统结点卡顿，以至于其他结点访问超时，误以为该节点挂了。</p>
+<h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><h3 id="线性一致性-Linearizability"><a href="#线性一致性-Linearizability" class="headerlink" title="线性一致性(Linearizability)"></a>线性一致性(Linearizability)</h3><p>所谓线性一致性，指的是对于一个分布式系统的多个副本集，读出的结果永远都是一致的（就好像从唯一一个副本集中读出的一样）。该一致性模型是我们能实现的最强一致性模型，所以又被称为 strong consistency.这种模型假设操作具有一个全局有效时钟的时间戳，但是这个时钟仅具有有限的精确度。要求时间戳在前的进程先执行，换句话说，所有的操作都不是并发的，而是有严格的顺序的（全序）。</p>
+<p>单 leader 的副本集群，理论上可以做到线性一致，但是在节点故障的时候可能出现脑裂等问题，此时就会违反线性一致性；而多 leader 节点一定不会是线性一致的，无 leader 集群则不一定，取决于配置（只有 read repair 策略下或许可行，但是这个效率很低，故一般认为不保证。）。另外 LWW 策略必然是非线性的（依赖时钟）。</p>
+<p>在某些场景下，只允许线性一致性，比如 leader 选举等。显然该一致性的性能是最差的。</p>
+<h3 id="因果一致性-causal-consistency"><a href="#因果一致性-causal-consistency" class="headerlink" title="因果一致性(causal consistency)"></a>因果一致性(causal consistency)</h3><p>当一个读操作后面跟着一个写操作时，这两个事件就具有潜在的因果关系，同样，读操作也与为读操作提供数据的写操作因果相关。没有因果关系的操作被称为并发的。</p>
+<p>所有进程必须以相同的顺序看到具有潜在因果关系的写操作，不同机器上的进程可以以不同的顺序被看到并发的写操作。</p>
+<p>实现因果一致性要求跟踪哪些进程看到了哪些写操作。这就意味着必须构建和维护一张记录哪些操作依赖于哪些操作的依赖关系图。一种实现方法是版本（向量）时间戳。</p>
+<p>几乎所有的分布式系统都支持因果一致性。前面讨论的事务追踪数据过期抛出失败，也就是保证了因果一致性。</p>
+<p>使用 Lamport 时间戳可以保证因果一致性，其实现原理如下：</p>
+<ol>
+<li> 不同的结点各有自己的编号 n；</li>
+<li> 每个结点使用自己的计数器 c；</li>
+<li> 使用(c, n)表示 lamport 时间戳；</li>
+<li> 客户端/node 跟踪 c 值，当 node 发现客户端请求的 c 值大于自身 c 值时，立刻将自身 c 值设为请求的 c 值（对客户端亦然）；</li>
+<li> 定义当 n 相等时 c 值较小的逻辑时间较小；否则 n 值较小的逻辑时间较小；</li>
+</ol>
+<p>显然 lamport 时间戳定义了一个全序的操作序列。问题在于这个顺序必须在动作执行完成后（即 node 返回后）才能确定下来，这对于某些场合不够用（比如唯一约束）。</p>
+<h3 id="弱一致性-weak-consistency"><a href="#弱一致性-weak-consistency" class="headerlink" title="弱一致性(weak consistency)"></a>弱一致性(weak consistency)</h3><p>引入同步变量 S，其仅有一个关联操作 synchronize(S)，该操作同步数据存储的所有本地拷贝。</p>
+<p>使用同步变量来部分地定义一致性就得到称为弱一致性模型，其具有三个属性：</p>
+<ul>
+<li>对数据存储所关联的同步变量的访问是顺序一致的；</li>
+<li>每个拷贝完成所有先前执行的写操作之前，不允许对同步变量进行任何操作；</li>
+<li>所有先前对同步变量执行的操作都执行完毕之前，不允许对数据项进行任何读或写操作。</li>
+</ul>
+<h3 id="CAP-理论"><a href="#CAP-理论" class="headerlink" title="CAP 理论"></a>CAP 理论</h3><p>在网络分区的情况下，一致性和高可用性只能取其一，即所谓 CAP 理论。CAP 理论在最开始时(2000 年)对分布式系统的设计起到了很重要的指导作用，但是现在要考虑的情况要复杂的多，因此一般不再提起该理论。</p>
+<h3 id="全序广播"><a href="#全序广播" class="headerlink" title="全序广播"></a>全序广播</h3><p>通过单 Leader 多 Follower 机制，在 Leader 节点上对所有操作进行排序，从而决定了整个操作顺序，并将操作顺序进行广播。</p>
+<p>全序广播要求满足如下两个属性总是被满足：</p>
+<ul>
+<li>可靠的交付,没有消息丢失：</li>
+<li>如果消息被传递到一个节点，它将被传递给所有节点。完全有序传递，消息以相同的顺序传递给每个节点。</li>
+</ul>
+<p>全序广播是异步的：消息保证以固定的顺序可靠地传递，但不能保证何时传递消息（因此存在节点可能落后于其他节点）。而线性化一致性能够保证：每次读操作能够读到最新值的写入。我们可以依托于全序广播，在存储上实现线性化一致性。全序广播需要一个序列生成器，然而这又是一个共识问题。</p>
+<h2 id="共识"><a href="#共识" class="headerlink" title="共识"></a>共识</h2><p>所谓共识，指的就是最终一致性。在理论上，如果节点可能崩溃，则共识不可能达成（FLP）。不过在现实中，节点崩溃是可以探测的，所以共识还是可以达成的。</p>
+<h3 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h3><p>当客户端准备提交事务时，协调者（事务管理器）开始阶段 1：所有参与者进行预提交，根据响应，分为两种情况：</p>
+<ol>
+<li> 所有节点准备完毕（使用 transaction id，完成相关写入）。进入阶段 2，开始真正的 commit；</li>
+<li> 任一节点未正确响应，进入 abort;</li>
+</ol>
+<p>显然，各节点即使准备完毕，也可能因为异常导致并未正确提交，所以该节点在未做出正确答复之前，协调者会持续询问。</p>
+<p>但是如果协调者也挂了，2PC就会卡住，必须等待协调者恢复，此时的状态称为存疑事务。</p>
+<h3 id="三阶段提交"><a href="#三阶段提交" class="headerlink" title="三阶段提交"></a>三阶段提交</h3><p>改进的二阶段提交，加入了询问机制。该协议假设网络延迟有界，这不符合正常的场景，所以一般还是用2PC.</p>
+<h3 id="异构系统的分布式事务方案：XA事务"><a href="#异构系统的分布式事务方案：XA事务" class="headerlink" title="异构系统的分布式事务方案：XA事务"></a>异构系统的分布式事务方案：XA事务</h3><p>这是一种协议，由数据库自己实现。具体来说就是应用程序自己充当协调者发起异构系统之间的二阶段提交。</p>
+<h3 id="paxos-算法"><a href="#paxos-算法" class="headerlink" title="paxos 算法"></a>paxos 算法</h3><p>paxos 算法是分布式系统实现最终共识的当前唯一正确算法，raft 等算法只是其变种。他解决的是最终一致性（共识）问题，这个前面提的一致性不是一个概念。其流程如下：</p>
+<pre><code>阶段一：
+
+(a) Proposer选择一个提案编号N，然后向半数以上的Acceptor发送编号为N的Prepare请求。
+
+(b) 如果一个Acceptor收到一个编号为N的Prepare请求，且N大于该Acceptor已经响应过的所有Prepare请求的编号，那么它就会将它已经接受过的编号最大的提案（如果有的话）作为响应反馈给Proposer，同时该Acceptor承诺不再接受任何编号小于N的提案。
+
+阶段二：
+
+(a) 如果Proposer收到半数以上Acceptor对其发出的编号为N的Prepare请求的响应，那么它就会发送一个针对[N,V]提案的Accept请求给半数以上的Acceptor。注意：V就是收到的响应中编号最大的提案的value，如果响应中不包含任何提案，那么V就由Proposer自己决定。
+
+(b) 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要该Acceptor没有对编号大于N的Prepare请求做出过响应，它就接受该提案。
+</code></pre>
+<h2 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h2><p>这一章介绍了一些常用的处理工具，包括unix上常见的sed、awk等小工具和map-reduce. 后续还介绍了流式数据处理需要注意的问题。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">redis知识点总结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-01-28 13:14:37" itemprop="dateCreated datePublished" datetime="2018-01-28T13:14:37+08:00">2018-01-28</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-09-19 19:42:20" itemprop="dateModified" datetime="2019-09-19T19:42:20+08:00">2019-09-19</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/28/redis知识点总结/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
+<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
+<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
+<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
+<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
+<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
+<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
+<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
+<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
+<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
+<p>GC：自己实现的引用计数。</p>
+<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
+<p>过期删除使用惰性策略+定期删除。</p>
+<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/" class="post-title-link" itemprop="url">面试复习纪要.md</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-01-25 12:21:36" itemprop="dateCreated datePublished" datetime="2018-01-25T12:21:36+08:00">2018-01-25</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-10-19 12:33:28" itemprop="dateModified" datetime="2019-10-19T12:33:28+08:00">2019-10-19</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/25/面试复习/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>到 30 岁了，突然发现自己还是对编程理解的很浅，在此梳理一下技术栈，并准备新年的面试。</p>
+<p>作为一个服务器开发工程师，涉及的技术相当之多，部分角度的深入理解需要花费大量时间，因此到最后一般是精通某个/几个方向，并对其他方向也有涉猎。</p>
+<h2 id="必备知识"><a href="#必备知识" class="headerlink" title="必备知识"></a>必备知识</h2><ol>
+<li><p>基本数学知识。包括：数据结构、算法；</p>
+</li>
+<li><p>web 相关技术。对于一般以业务为主的公司，这个就是吃饭的本事。细分如下：</p>
+<ul>
+<li>通信相关基础知识，如Http，TCP，UDP，Socket编程等；</li>
+<li>一门编程语言，一个或多个 web 框架。如 PHP + Laraval, Python + Flask, Ruby On Rails, Java + Spring 等；</li>
+<li>理解框架底层原理，如select，epoll或者Java的NIO等设计机制；理解CSP和Actor并发模型；理解大并发下常见的优化策略；</li>
+<li>RDMS，不管是 oracle、mysql 或者 postgresql，除了基本的使用增删改查以外，还要了解常见的优化措施。随着 NewSQL 的兴起，大量分布式云数据库开始出现，如 TiDB, RedShift 和 HyriaDB 等.</li>
+<li>NoSQL，如 Redis，MongoDB 或者 cassandra；</li>
+<li>此外还有内存数据库，其使用和 rdms 基本一致，如 Apache ignite；</li>
+<li>以上数据库针对不同场景和数据量级，做不同的技术选型；</li>
+<li>Linux 的常见使用，运维方向的一些基础知识（Python 和 shell 是必备技能）；</li>
+<li>常见应用层协议：http, https, websocket，rpc</li>
+</ul>
+</li>
+<li><p>分布式相关技术。随着业务的扩展，后端架构的复杂度会指数级上升，单机的性能无法满足业务需求，必须引入分布式系统。</p>
+<ul>
+<li>基本理论。分布式系统非常复杂，必须熟读相关理论，如 CAP，Paxos 等，知道常见的问题和解决方案；</li>
+<li>常见组件，如 docker, etcd等，各自的使用场景和原理；</li>
+<li>常见框架，如 Spring Cloud 以及最新的 Service Mesh 的实现;</li>
+</ul>
+</li>
+<li><p>测试/运维相关技术。如果在小公司，一个后端开发一般同时担任部分运维和测试的职责。</p>
+<ul>
+<li>版本控制相关，严格来说正确使用 git/svn 是所有开发的基本能力；</li>
+<li>自动构建，快速部署。Docker 相关技术；</li>
+<li>线上监控，告警系统；</li>
+<li>自动化测试系统；</li>
+</ul>
+</li>
+<li><p>大数据相关技术。所谓大数据，其实本质上就是 OLAP，由于数据量过大，rdms 已经无法承载对应的数据量和性能需求。</p>
+<ul>
+<li>数据收集：如 flame 等；</li>
+<li>数据存储，如 HBASE，hive 等；</li>
+<li>数据分析：如 spark、Hadoop 等；</li>
+</ul>
+</li>
+<li><p>扯淡的人工智能。 对于大部分公司而言，人工智能是不应被涉足的领域。</p>
+</li>
+</ol>
+<h2 id="深入领域"><a href="#深入领域" class="headerlink" title="深入领域"></a>深入领域</h2><ol>
+<li>整体架构</li>
+</ol>
+<h3 id="并发模型"><a href="#并发模型" class="headerlink" title="并发模型"></a>并发模型</h3><p>目前web架构，单体应用的并发模型，perfork是典型的多进程思路，一个master进程用于接受并分配请求，fork出的worker进程用于处理实际的请求；而Java的BIO是典型的多线程思路；Go对每个连接启用一个goroutine，是典型的多协程思路。</p>
+<p>perfork的worker进程可以用epoll等同时处理多个请求，这是I/O多路复用。Java的NIO也是类似的思路，本质是用事件机制达到更好的cpu利用率，同时加大负载能力。Nginx，uwsgi都是perfork架构的，由于python的GIL问题，uwsgi的worker一般只有一个线程。当然python还有tornado这种框架，也是用event loop的方式实现i/o多路复用。或者说，协程的方式。</p>
+<p>对于异步编程，业界最流行的是async/await其实就是协程模型，协程本质是用户态下的线程，用户可以自己手动切换上下文进行让渡(await即可）；相比之下，goroutine的调度更加简单，因为他是有栈协程，一旦发生IO阻塞，调度器会自行切换协程，用户在编写代码的时候无需关心这一点（当然也可以自己手动切换，用channel阻塞即可）。在和已有第三方组件的对接上，有栈协程可以吊打promise，因为它就是正常的写阻塞代码就行，而async/await会污染所有相关代码，比较麻烦。</p>
+<p>对于Java，默认的BIO就是传统的多线程模型，比如web服务器就是简单的一个请求一个线程，发生IO事件的时候线程也要阻塞等待，浪费cpu；NIO就是收到事件通知（数据就绪）才开始IO（阻塞），也就是io多路复用；AIO就更牛逼了，系统直接告诉你读完了，调你的回调就行。可惜AIO需要操作系统支持，目前只有Windows上的IOCP可以满足这个条件，所以一般不讨论。</p>
+<p>此外，linux2.6以前i/o多路复用使用select，之后使用epoll. 2.6以前accept存在惊群问题，之后内核只会唤醒等待队列上任一个进程。但是epoll也存在惊群问题，多个worker在事件抵达的时候会被同时唤醒。直到linux3.9加入SO_REUSEPORT特性，允许多个进程监听同一端口，将listen从master进程移入worker进程，这个问题才得到解决。</p>
+<h3 id="单体架构"><a href="#单体架构" class="headerlink" title="单体架构"></a>单体架构</h3><p>经典的MVC结构。旧时代里，asp/jsp/php以及集大成者的ror都是mvc结构，前后端不分离，直接由服务器渲染出页面。ror之所以流行，是因为其约定大于配置的设计大幅度简化了开发流程，SpringBoot相对于SpringMVC其实只是引入了这一思想进行简化。</p>
+<p>自从前端工程化以来，前后端基本分离，后端仅仅提供API接口，这时候的单体应用更加简单。随着服务规模的越发庞大，单体后端承担的职能越来越多，需要对服务进行拆分以减少体积和维护难度。</p>
+<h3 id="SOA和微服务"><a href="#SOA和微服务" class="headerlink" title="SOA和微服务"></a>SOA和微服务</h3><p>微服务其实只是对SOA做了更细粒度的优化。拆分服务引来的问题包括：服务间通信和分布式事务。服务间通信可以通过一个集中的渠道，即所谓的通信总线（API网关）；也可以直接相互通信。使用HTTP的话，直接用DNS和Nginx就可以做API网关了；使用rpc的话，比如grpc也提供了生成API网关的方法。</p>
+<p>微服务还引入了服务熔断、配置分发、服务发现等组件，这些也是需要关注的。</p>
+<h3 id="Spring-Cloud和Service-Mesh"><a href="#Spring-Cloud和Service-Mesh" class="headerlink" title="Spring Cloud和Service Mesh"></a>Spring Cloud和Service Mesh</h3><p>这是两种不同的微服务思路，前者是一个框架，由各种组件构成，应用代码里明确知道这些组件的存在并需要进行处理；后者是外挂式的组件，代码对组件是无感知的，比如连接集群和连接单点都是通过proxy，代码不关心自己连的是什么。一个简单的例子，mysql分库分片可以用proxy来完成，也可以在代码里写死。显然service mesh更符合低耦合的思路，也是微服务真正的未来。</p>
+<ol>
+<li>编程语言</li>
+</ol>
+<p>虽然理论上来说，通用设计语言可以完成的事情都是一致的，不过各语言的特性和历史的沉淀导致了如今的情况是这样的：</p>
+<pre><code>* 前端领域js独占鳌头，es6以后js语言基本完善了；当然强类型的TS也有它的优势；
+* 后端领域Java占了半壁江山，这不是因为Java多么牛逼，完全是历史的沉淀导致。Java至今没有协程支持（project loom遥遥无期），编写繁琐，很多人讨厌。Go是冉冉上升的另一个明星，简单的语法、快速的开发速度、强有力的并发模型；当然缺点是不支持泛型和繁琐的错误处理。Go2会解决这些问题，希望早点来到。除了这两个以外，其他的语言在服务端领域基本上都会被淘汰，比如Python其实更适合做快速原型，所以更适合非工程人士，当然拿来写个脚本也是极好的；
+* 大数据领域基本还是Java/Scala的天下，当然基本也支持python了。个人感觉Scala过于复杂了，还是尽量灭了吧；
+* 高性能领域仍然是C/C++的天下，Rust也开始逐渐普及。不过Rust还是有很多坑，且门槛太高，短时间内个人不再看好；
+* 客户端领域语言就比较复杂了。Windows还是C#的天下，Android则是Java和Kotlin，苹果的是swift和oc；新兴框架中，flutter的dart也是很重要的；
+</code></pre>
+<p>总结来说，当前后端开发应该掌握的语言包括：Bash/C/C++/Java/Python和Go，可以学习的语言包括Rust. php/nodejs/ruby的存在完全是历史意义上的，基本没有存在价值。在通信协议上，HTTP1/2/3都会逐渐流行，websocket的效率则更高。grpc是over http2的，这个设计很蛋疼，很多时候不如自己rpc over websocket实用。</p>
+<ol>
+<li>常用框架源码</li>
+</ol>
+<ul>
+<li>python的常用框架：django/flask/tornado/greenlet/celery/sqlalchemy</li>
+<li>java的常用框架：spring/springMVC/springBoot/springCloud/Netty</li>
+<li>go的常用框架：gin/fasthttp</li>
+</ul>
+<ol>
+<li>常用组件源码</li>
+</ol>
+<ul>
+<li>db级别的估计只能看看sqlite了</li>
+<li>mq可以研究一下zeromq、kafka和rabbitmq</li>
+<li>各类分布式相关组件</li>
+</ul>
+<ol start="2">
+<li>数据库优化</li>
+</ol>
+<ul>
+<li>mysql通过执行计划、慢查询日志进行优化，各类索引添加等</li>
+<li>redis使用优化，事务粒度，数据结构，pipeline等</li>
+<li>es优化，JVM参数，分词，shard设置等</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">SpringMvc4 Rest Api最佳实践</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-07-16 10:33:34" itemprop="dateCreated datePublished" datetime="2017-07-16T10:33:34+08:00">2017-07-16</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-08-29 10:25:44" itemprop="dateModified" datetime="2019-08-29T10:25:44+08:00">2019-08-29</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/16/SpringMvc4-Rest-Api最佳实践/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
+<h2 id="所谓IOC"><a href="#所谓IOC" class="headerlink" title="所谓IOC"></a>所谓IOC</h2><p>Spring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类注册成Bean（可以指定构造函数的参数和bean的id等），然后框架再把这些Bean注入到<code>@Autowired</code>(按类型注入)，<code>@Resource</code>(按名称)等注解的变量（也可以使用XML配置的方式注入）。</p>
+<p>默认情况下，注册的都是一个单例，spring每次创建新对象时都使用同一个对象。也可以在xml中配置为<code>prototype</code>，这时候就是每次new一个新的对象了。另外spring mvc另外加了两个生命周期：session和request，分别表示为单次请求和session有效期内的对象。使用<code>@Scope</code>修改生命周期（作用域）。</p>
+<p>可以使用<code>@PostConstruct</code>和<code>@PreDestroy</code>注册两个回调方法，在spring实例化Bean（并装配）后回调对象对应的方法。</p>
+<p>一般使用<code>@Component</code>注册bean，<code>@Service</code>, <code>@Controller</code>和<code>@Repository</code>都是其别名。</p>
+<p>此外，还可以使用配置类(<code>@Configuration</code>)代替xml注册bean(<code>@Bean</code>)，在其注解的方法内进行恰当的初始化，并返回一个对象注册为Bean. <code>@Configuration</code>具有<code>@Component</code>的作用，在类里面也可以直接注入。但是如果想要引用其他配置类的Bean，需要使用<code>@import</code>.</p>
+<h2 id="所谓AOP"><a href="#所谓AOP" class="headerlink" title="所谓AOP"></a>所谓AOP</h2><p>可以简单理解为python中的装饰器…由于Java语法不支持装饰器，想要完成类似装饰器的用法，只能通过反射。比如，先声明一个类，完成主要的工作，称为target. 再通过一个类实现<code>org.springframework.aop.MethodBeforeAdvice</code>，其参数中捕获target的参数完成前置工作。最后通过spring的<code>ProxyFactory</code>生成代理工厂，设置target并添加advice，最后用代理工厂生成实例。</p>
+<p>需要注意的是，Java本身的动态代理是基于接口的。对于没有实现任何接口的类，只能通过CGLIB通过继承进行代理，但是后者显然不支持final类。spring在生成对象时会优先选择JDK代理，不行再尝试CGLIB代理。</p>
+<p>当然，除了在代码中使用，也可以用xml配置（实际上Java很多代码都可以通过xml实现，这也是非常惹人生厌的地方）。</p>
+<p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
+<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
+<p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
   <nav class="pagination">
     <a class="extend prev" rel="prev" href="/archives/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/5/">5</a><a class="extend next" rel="next" href="/archives/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
