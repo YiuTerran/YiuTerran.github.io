@@ -129,7 +129,6 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
   </ul>
 </nav>
 
@@ -173,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-count">56</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -211,135 +210,6 @@
 
 
     <div class="main-inner index posts-expand">
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/" class="post-title-link" itemprop="url">leaf框架代码解析和改造</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-10-31 13:18:00" itemprop="dateCreated datePublished" datetime="2019-10-31T13:18:00+08:00">2019-10-31</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-05-19 18:44:18" itemprop="dateModified" datetime="2020-05-19T18:44:18+08:00">2020-05-19</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/31/leaf框架代码解析和改造/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在接游戏外包的一段时间里，选型了golang的leaf框架作为游戏开发的基础框架，但是进行了一系列改造以更好的完成业务需求。简单记录如下：</p>
-<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>leaf本质上其实不是一个游戏框架，而是一个网络工程的脚手架，换句话来说你可以用它来写任何服务端而不仅仅是游戏。</p>
-<p>它的基本思路是将每个socket封装成一个agent，使用独立的协程进行读写。主要分为几个模块：</p>
-<ol>
-<li>提供<code>Skeleton</code>这个脚手架，可以把它当成一个功能更加完善的协程。它提供了保证函数执行时序的一些工具，允许callback形式的代码；通过<code>chanRPCServer</code>抽象了一种类似RPC的协程间通信（通过channel），方便快速进行开发；</li>
-<li>按业务抽象了Module，进行生命周期管理；</li>
-<li>抽象了网络接口，并提供了裸TCP和websocket的实现，可以通过简单的配置同时支持多种协议；</li>
-<li>提供了protobuf和json的序列化支持；</li>
-<li>路由机制；</li>
-<li>通过telnet提供pprof接口，同时也可以自定义命令，方便进行debug；</li>
-<li>其他一些工具库；</li>
-</ol>
-<h2 id="细节分析"><a href="#细节分析" class="headerlink" title="细节分析"></a>细节分析</h2><p>下面按着模块进行一些代码难点解析。</p>
-<h3 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h3><p>这个比较简单，规定了一个接口，里面是一些生命周期的回调函数，供leaf启动时注册运行，同时提供了一个<code>chan bool</code>作为关闭的信号。</p>
-<p>注意每个模块运行在单独的协程里。</p>
-<h3 id="Processor"><a href="#Processor" class="headerlink" title="Processor"></a>Processor</h3><p>序列化接口，支持序列化、反序列化和路由消息到对应的handler。框架给出了json和protobuf两种序列化方案。</p>
-<p>json是明文传输，直接用类的名字作为消息的标示即可。protobuf是二进制传输，需要两个字节来描述消息的id，直到id才能正确的反序列化。</p>
-<h3 id="network"><a href="#network" class="headerlink" title="network"></a>network</h3><p>对TCP和WebSocket通信的抽象，<code>Conn</code>是抽象出的接口。</p>
-<p>TCP和WebSocket最大的不同是前者是传输层协议，后者是应用层协议。所以前者需要自定义消息格式，这里采用的是头X个字节描述消息大小，后面是序列化消息的方式，另外注意这里还有大小端的问题。读的过程很简单，每次都是先读前X个字节，然后读出整个消息体；写的过程也类似。</p>
-<h3 id="Gate"><a href="#Gate" class="headerlink" title="Gate"></a>Gate</h3><p>路由主要作用是将socket封装成Agent，这里为了可以同时当作TCP和WebSocket服务器，将相关设置项直接当作Gate的成员变量了。</p>
-<p>消息的路由通过注册processor来实现，通过<code>Run</code>来启动server，显然gate应该被封装作为一个Module在leaf中运行。这里还注册了打开关闭socket的固定回调(“NewAgent”和”CloseAgent”)。</p>
-<p>下面看一下Server启动后做了啥，以TCPServer为例：</p>
-<ol>
-<li>在一个单独的协程中启动server，server本身是一个死循环；</li>
-<li>Accept请求以后，通过server的<code>NewAgent</code>回调创造agent，并在一个单独的协程中运行agent；</li>
-<li>agent的<code>Run</code>也是一个死循环，它简单的读取消息并进行路由处理；</li>
-<li>agent的写消息是在调用协程里异步完成的，它将消息写入conn的<code>writeChan</code>缓冲区后返回；每个conn有个单独的协程遍历channel并完成真正的写操作；</li>
-<li>因此3，4为一个socket的读写各创建了一个单独的协程；</li>
-</ol>
-<p>3中路由处理，在这里分为几种情况，如果对Processor调用了<code>SetHandler</code>或者<code>SetRawHandler</code>，那么就在读消息的协程里直接同步处理了消息。如果调用了<code>SetRouter</code>选择把消息路由到某个chanrpc中，则会把消息塞到队列中进行异步处理（回调的格式写死为f(args []interface{})。</p>
-<h3 id="command"><a href="#command" class="headerlink" title="command"></a>command</h3><p>一个方便调试的工具。</p>
-<p>用户可以通过telnet访问内存情况，通过自定义command指令获取内存中的数据并进行调试。</p>
-<h3 id="chanrpc"><a href="#chanrpc" class="headerlink" title="chanrpc"></a>chanrpc</h3><p>该模块通过精巧的设计，为协程间通信增加了异步回调执行、同步调用、异步通知等常见模式。我们一般不直接使用它，而是通过Skeleton来使用。</p>
-<h3 id="Skeleton"><a href="#Skeleton" class="headerlink" title="Skeleton"></a>Skeleton</h3><p>可以理解为一个胖协程，我们不再单独使用<code>go func()&#123;&#125;</code>运行协程，而是新建一个Skeleton，通过<code>go skeleton.Run()</code>来运行协程。</p>
-<p>这样创建的协程，就可以通过内置的chanrpc来进行通信。此外，这里还对timer进行了封装，go默认的timer是在单独的协程里运行的，这里在时间到达后，将回调函数重新塞回调用chanTimer里，最终仍然在同一个协程里执行函数。同样，内置的<code>Go</code>也是通过类似的方法保证协程的同步。</p>
-<p>所以Skeleton的<code>Run</code>函数就是一个select的死循环，使用io多路复用，依次中上述组件对应的channel中获取结果并执行对应的动作。</p>
-<h2 id="简单改进"><a href="#简单改进" class="headerlink" title="简单改进"></a>简单改进</h2><p>由于leaf常年不再更新，fork了一个版本并修正了一些问题，地址在：<a target="_blank" rel="noopener" href="https://github.com/YiuTerran/leaf">https://github.com/YiuTerran/leaf</a></p>
-<p>主要修正包括：</p>
-<ol>
-<li>移除了一些不需要的模块，如mongo的支持等，这些直接用第三方库即可；</li>
-<li>将自己实现的log模块改为zap的，性能更好并支持json格式的日志；</li>
-<li>将websocket的RemoteAddr返回值改为透过代理的（如果存在）；</li>
-<li>加上go mod支持，修改版本号为规范格式；</li>
-<li>移除了conf文件夹，这个设计不太符合类库的使用规范；</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
 
     
 
@@ -1567,6 +1437,117 @@
 <p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
 <h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
 <p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/" class="post-title-link" itemprop="url">报表打印(pdf)技术选型</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-07-07 00:21:00" itemprop="dateCreated datePublished" datetime="2017-07-07T00:21:00+08:00">2017-07-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-07-10 13:32:38" itemprop="dateModified" datetime="2017-07-10T13:32:38+08:00">2017-07-10</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/07/报表打印-pdf-技术选型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
 
       
     </div>

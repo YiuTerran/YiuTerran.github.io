@@ -7,49 +7,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>CometD源码学习[0]</title>
-    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
-    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
-<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
-<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
-<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
-<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
-<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
-<blockquote>
-<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
-</blockquote>
-<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
-<ol>
-<li>创建队列线程池，用于处理请求；</li>
-<li>创建ServerSocket用于准备接受请求；</li>
-<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
-<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
-</ol>
-<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
-<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
-<ol>
-<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
-<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
-<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
-<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
-<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
-<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
-<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
-</ol>
-<p>NIO的一般工作原理用代码描述如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
-<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
-<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
-<hr>
-<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
-]]></content>
-      <tags>
-        <tag>cometd</tag>
-        <tag>jetty</tag>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CometD源码学习[1]</title>
     <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/</url>
     <content><![CDATA[<p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
@@ -180,166 +137,6 @@
         <tag>cometd</tag>
         <tag>java</tag>
         <tag>push</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>effective java 读书笔记</title>
-    <url>/2017/06/12/EffectiveJava/</url>
-    <content><![CDATA[<h2 id="创建和销毁对象"><a href="#创建和销毁对象" class="headerlink" title="创建和销毁对象"></a>创建和销毁对象</h2><ol>
-<li>用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。不过，这种方法和普通的静态方法没有任何语法形式的区别，且静态方法不能被继承（C++中<code>virtual</code>与<code>static</code>不能共存）；</li>
-<li>当构造参数非常多时，使用构建器(builder)。我们通常会使用默认构造函数，然后用<code>set</code>方法一一设置属性，如果让<code>set</code>返回<code>this</code>，就可以连续使用<code>set</code>，这就是<code>builder</code>。对于具有“具名参数”语法的语言（如python，C#）这种模式就不是很必要了，对于有<code>default value</code>（如C++）语法的语言，这种模式的使用频率也要低一些。</li>
-<li>用私有构造器或枚举强化单例属性。这里给出了一个创建单例的建议：创建一个仅包含单元素的枚举类型，由于java语言特性，枚举直接免费提供了序列化、防止多次实例化等功能，因此可以简洁的解决很多问题。</li>
-<li>如果一个类不可实例化，应该将其构造器私有化，这种类一般只是提供静态函数（类似C++中的函数）</li>
-<li>尽量少创建新对象，而应该多复用已有对象。这条尤其对immuable的对象很重要，例如String。每次使用<code>new</code>时，对应该仔细考虑是否需要创建一个新的对象，而不是复用以前的对象。当然，对于小对象，这个不需要考虑。正如C++中的传值和传址的差别，小对象使用传值反而更好一些，可以避免许多不必要的麻烦。<br>另外，由于<code>autoboxing</code>的存在，基本类型与装箱基本类型之间会相互转化。但是需要记住，要优先使用基本类型。</li>
-<li>消除过期的对象引用。这条主要针对“程序员自己管理内存/池化”的情景。在C++中，我们习惯在<code>free</code> or <code>delete</code>之后，将其置0(<code>nullptr</code>)，这样可以避免后续一些莫名其妙的Bug。java是GC机制的，因此一般不需要这么做。但是，如果自己池化了对象管理机制（例如创建某些数据结构时），就要注意这些问题了。<br>本条款给出的建议中，要注意缓存（比如建了一个全局list/map）中过期的东西记得删除。可以使用<code>WeakHashMap</code>自动管理(当内存中没有其引用对象时自动清除），或者<code>LinkedHashMap</code>的<code>removeEldestEntry</code>手动管理（每次添加新元素时）。对于更加复杂的场景，必须使用<code>java.lang.ref</code><a href="http://www.ibm.com/developerworks/cn/java/j-lo-langref/">^1</a>.<br>此外，<strong>注册</strong>一个回调方法，但是没有显式取消它，会导致其不断被累积。因此在使用<code>addListener</code>创建函数对象时，请记得<code>removeListener</code>.</li>
-<li>避免使用终结器(<code>finalizer</code>）。java使用GC来回收内存，因此终结器的用处不大，更重要的是，终结器的优先级很低，不能保证被及时执行，很容易造成性能bug。比较妥当的是提供显示的终结方法（如<code>close</code>），然后在<code>finally</code>中执行。注意终结方法不应该再抛出异常，而是应该捕获并打印日志。<br>但是用户可能忘记调用显示的终结方法，因此终结器还是可以充当最后的安全保证，当然，这其实是程序不得已使用的方法，应该在日志中使用警告。<br>另外需要注意的是，子类终结器必须显式调用父类的，这点和C++中的自动析构并不一样，请注意。可以考虑使用<code>finalize guard</code>来确保这一点。</li>
-</ol>
-<h2 id="object通用方法"><a href="#object通用方法" class="headerlink" title="object通用方法"></a>object通用方法</h2><ol>
-<li><code>equals</code>方法。C++中，重载<code>==</code>操作符限定在同类之间， 其他的要通过类型转换来进行比较，因此存在非常复杂的显式/隐式类型转换。java中，<code>equals</code>方法的参数必须是<code>Object</code>类型，这意味着所有的对象之间都可以判断是否相等。<code>equals</code>方法的设计必须非常谨慎，要严格遵守自反性、对称性、一致性和传递性这几个特征。</li>
-</ol>
-<ul>
-<li>自反性，意思是x=x恒成立；</li>
-<li>对称性，意味着a=b，必须也要b=a. 但是由于参数是<code>Object</code>，很容易无意识的违反这点。一般判断步骤中，首先需要知道这个<code>Object</code>是不是属于这个类（使用<code>instanceof</code>）,严格认为不属于这个类的对象不可能相等（即使是value意义上的相等）。如果需要value意义上的相等，就写一个显式的类型转换方法。</li>
-<li>传递性，意味着a=b, b=c则a=c成立。这条在设计类层次结构时很容易被违反。在多层类均可被实例化时，判断这些类之间的相等性往往会出现混乱。</li>
-<li>一致性。即相等的永远都相等，不等的永远都不等。这里注意的是判断时不要依赖不可靠的资源；</li>
-<li>非空性。这是额外的一个特性，任何对象在任何情况下都不应该与<code>null</code>相等——这是显然的。但是这一步不需要特别写出来，<code>instanceof</code>会替我们做这些的。<br>除了上面的款项以外，还有一些使用技巧：</li>
-<li>如果比较流程复杂，可以先用<code>==</code>判断是否是同一个对象；</li>
-<li>在比较时注意npt异常；</li>
-<li>短路求值与比较顺序；</li>
-<li>覆盖<code>hashcode</code>;</li>
-</ul>
-<ol start="2">
-<li><code>hashcode</code>方法。如果覆盖了<code>equals</code>，<strong>必须</strong>同时覆盖<code>hashcode</code>，这是因为相等的对象必须有相同的hash code. 这意味着我们必须为这个类提供一种hash算法，这个活并不简单，不过一般情况下可以这么做：<ol>
-<li>选一个非0常数记为result，比如17；</li>
-<li>对于<code>equals</code>中涉及的每一个域f(成员变量)，计算其hashcode：<ul>
-<li>boolean -&gt; 1 or 0</li>
-<li>byte, short, int -&gt; int(f)</li>
-<li>long -&gt; int(f^(f&gt;&gt;32))</li>
-<li>float -&gt; Float.floatToIntBits(f)</li>
-<li>double -&gt; Double.doubleToLongBits(f) -&gt; 按着long计算</li>
-<li>对象引用：null -&gt; 0，其他：递归调用hashcode方法</li>
-<li>数组：把每个对象当作一个单独的域计算hashcode</li>
-</ul>
-</li>
-<li>result=$31 * result + \Sigma_{i=1}^{\propto}f_i$<br>如果一个域的结果可以通过其他域计算出来，可以不必参与上面的计算过程。<br>如果hash计算非常复杂，可以考虑使用延迟初始化技术。定义一个<code>volatile int hashcode</code>，在对应的method里，先<code>if(hashcode==0)</code>，否则直接返回缓存的结果。</li>
-</ol>
-</li>
-<li><code>toString</code>方法。同C#一样，一般推荐覆盖这个方法，这样<code>print</code>时，会方便很多。</li>
-<li><code>clone</code>方法。很遗憾，java的<code>clone</code>不好用——很不好用，它的约定太弱。即使类implement了<code>Cloneable</code>接口，你也不能指望什么。最好的方法是别管这个东西，自己实现一个拷贝构造器，或者拷贝工厂。</li>
-<li>考虑实现<code>Comparable</code>接口。这个接口唯一声明了<code>compareTo</code>方法，这是一个泛型方法。如果你需要排序，最好事先这个方法——正如C++中的重载<code>&lt;</code>操作符一样，这是泛型容器排序的基础。显然<code>compareTo</code>需要和<code>equals</code>在判断相等时保持一致。<br>比<code>equals</code>简单的是，<code>compareTo</code>的参数只能和自身类型一样，因为在implements泛型类时，填入的具体参数显然就是这个类自身。</li>
-</ol>
-<h2 id="类和接口"><a href="#类和接口" class="headerlink" title="类和接口"></a>类和接口</h2><ol>
-<li><p>使类和成员的可访问性最小化。本条和语言无关，所有面向对象设计中，<strong>信息隐藏</strong>的重要性都是一致的。切记尽量少暴露实现细节，保持对外开放性最小。这可以有效减少软件工程的复杂度。<br>有个细节的技巧：数组不可能是public final的， 因为数组本身是可变的。C++中有个蛋疼的<code>const int* const p</code>的问题，指的就是指针的可变性和内容的可变性问题。<br>此外，java默认访问类型是<code>package private</code>的，这和其他语言有区别。</p>
-</li>
-<li><p>使用<code>getter</code>,<code>setter</code>代替公有成员变量。这条其实并不是那么严格，至少C++中经常可以看到反例。因为写起来实在太麻烦，所以C#引入了属性这种语法糖。</p>
-</li>
-<li><p>设计不可变类。省事起见，如果对性能没有特别大的需求尽量设计不可变类，这种类的所有方法都会返回一个<code>new</code>对象，而不是直接修改对象本身。这种类的设计遵从如下原则：</p>
-<ol>
-<li>不提供mutator修改对象本身；</li>
-<li>保证类不会被继承；</li>
-<li>所有域都是不可变的（final）；</li>
-<li>所有域都是私有的；</li>
-<li>确保对于任何可变组件的互斥访问；</li>
-</ol>
-</li>
-<li><p>复合优先于继承。这条是面向对象的泛用条款，从略；</p>
-</li>
-<li><p>要么为继承而设计，要么禁止继承。这条要求在设计一个类时，要明确它是否会被继承。这里强调了一个细节：构造器不可调用可被覆盖的方法。这和C++中<strong>构造函数和析构函数不应该调用虚函数</strong>本质上是一直的，因为对象是从基类到派生类逐级构造的，如果调用虚函数，动态绑定可能不会生效，从而产生undefined的后果；</p>
-</li>
-<li><p>接口优先于抽象类。显然，也是泛用条款。对于C++而言，没那么明显（因为没有接口），不过全是纯虚函数的类就是接口…</p>
-</li>
-<li><p>接口只用于定义类型。是的，只应该有public的method，而不要塞进去一堆常量。后者最好用枚举代替。</p>
-</li>
-<li><p>类层次优先于标签类。标签类就是在构造函数中传入flag，在方法中<code>switch...case</code>，在C语言中，这是常见的设计。但是在面向对象中，显然更适合使用继承来合理安排类结构。</p>
-</li>
-<li><p>用函数对象表示策略。由于C++11有了<code>std::function&lt;&gt;</code>和<code>lambda</code>，所以函数对象这种累赘的东西一般是用不上了，但是垂垂老矣的java中，还没有这些东西(java8引入lambda了，谢天谢地），一般是写一个接口，然后用匿名函数实现它。</p>
-</li>
-<li><p>优先考虑静态成员类。nested class最好设计成静态的，这是为了减少对象的数量——非静态类都必须与一个外围实例关联。nested class可以摆脱友元这种东西的困扰，访问所有的成员方法|变量（某种形式的闭包）。但是静态成员类和对象本身无关，所以就只能访问静态方法和静态成员了。</p>
-</li>
-</ol>
-<h2 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h2><p>在C++中，template和oo完全是两种不同的范式，因为C++并没有<code>all is object</code>这种思想，因此没人会觉得<code>vector&lt;basic_string&gt;</code>不是<code>vector&lt;string&gt;</code>的父类有啥问题。java其实也一样，<code>list&lt;string&gt;</code>和<code>list&lt;object&gt;</code>之间也不是继承的关系。泛型使java复杂化，并且失去了优雅。</p>
-<ol>
-<li>用泛型，不用原生态类型。java从1.5版本引入泛型，c#从1.2开始，C++则一直都有模板这种东西。没有泛型的语言一般都会引入一些很丑陋的类型转换，比如C中的<code>void *</code>。尽量使用泛型而非原生态的类型，如果需要指代任意类型而不关心具体类型，可以用<code>?</code>比如<code>set&lt;?&gt;</code>；此外，<code>instanceof</code>操作符后面必须跟着原生态类型；</li>
-<li>消除<code>unchecked warning</code>，对于编译器的抱怨，要好好检查，如果确定没有问题，就使用<code>@SuppressWarnings(&quot;unchecked&quot;)</code>关闭这个提醒，受检警告仅存在在语言层面，并非是jvm虚拟机的特性；</li>
-<li>优先使用List而不是Array。在C++中，array本质上是一个指针，因此效率比<code>std::vector&lt;&gt;</code>要高上不少；java中<code>Array</code>也比<code>list&lt;&gt;</code>要快一些，但是却更推荐使用后者。<br>java的泛型在运行时其元素类型是被擦除(erase<a href="http://www.infoq.com/cn/articles/cf-java-generics">^2</a>)的，这点和C++完全不同（为了历史兼容性做出的妥协）。因此<strong>数组是运行时安全但编译时不安全的，泛型则相反</strong>。最后，最好不要同时使用泛型和数组，这会让你蛋疼无比——如果真的需要泛型数组，必须同时使用强制类型转换和<code>SuppressWarnings</code>技术。</li>
-<li>优先考虑泛型和泛型方法。</li>
-<li>使用<code>set&lt;? extends Object&gt;</code> or <code>set&lt;? super String&gt;</code>这种技巧来完成某些动作。助记符是__PECS__,就是说，把这个对象当生产者使用时，用<code>extends</code>，反之，用<code>super</code>。<br>在返回的时候，仍然使用普通类型，而不是通配符。<br>本条对于类库编写者比较重要。</li>
-<li>优先使用类型安全的异构容器。本条通过一些奇技淫巧完成一个容器里面同时存放多种类型(异构，通过<code>class&lt;?&gt;</code>实现)，但是又能保证类型安全(通过<code>type.cast</code>实现)这一目标。</li>
-</ol>
-<h2 id="枚举与注解"><a href="#枚举与注解" class="headerlink" title="枚举与注解"></a>枚举与注解</h2><p>java的枚举有点难用，不如C#那么强大，也不如C/C++那么简洁。简单来说，每一个枚举值都是该类（枚举）的一个实例，相当于一种工厂方法，因此枚举对象可以直接调用枚举类的方法。</p>
-<ol>
-<li>枚举的所有域都应该是私有final的（需要的时候提供公有的访问函数）；可以通过<code>values</code>方法访问所有的枚举值（依照声明顺序）。对于每一个枚举值在后面加上<code>&#123;&#125;</code>，里面是<strong>特定于常量的方法实现</strong>，可以通过在枚举类中声明一个抽象方法，在常量中再进行覆盖来实现对不同枚举值的特殊操作（<code>switch(this)</code>这种方法更适用于控制外部传入的不可控的变量的方法中）。<br>如果在枚举值后面加上初始化表达式，调用该常量时会自动使用该表达式调用构造函数（但是显然我们不能直接调用构造器），比如<code>MONDAY(&quot;mon&quot;)</code>这种.<br>PS: 这里给了一个有趣的技巧：使用<code>%n</code>保证换行符的跨平台性，有些类似python中的<code>os.linesep</code>.</li>
-<li>如果不给枚举赋值，默认使用序列（0，1，2…），可以使用<code>ordinal</code>方法取得该序列的int值。当然，最好别依赖于这种自动生成的东西，而是明确赋值…</li>
-<li>用<code>EnumSet</code>代替位域，主要使用<code>EnumSet.of</code>创建枚举set，用来取代依靠位运算得出的集合特性。不过，这种方法只是可读性好一些，如果需要做存储或者与提供API，还是希望使用int。</li>
-<li>用<code>EnumMap</code>代替序数索引。可以将一个<code>enum</code>直接传入<code>EnumMap&lt;enum,Object&gt;</code>中，<code>enum</code>的所有常量值都会转化为<code>EnumMap</code>的<code>key</code>，这其实就是普通的<code>map</code>，但是做了优化。</li>
-<li>枚举不是可扩展的，但是我们可以使用接口来变相实现这种可扩展性。简单来说，就是枚举实现接口，然后在需要的时候，使用接口来声明枚举而不是相反。</li>
-<li>注解优先于命名模式。注解的声明需要导入<code>java.lang.annotation.*</code>，然后使用<strong>元注解</strong>来标明该注解的属性。例如<code>@Retention</code>, <code>@Target</code>，注解类的必须是<code>@interface</code>类型。如:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public @interface Test&#123;</span><br><span class="line">    Class&lt;? extend Exception&gt;[] value();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-使用时：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@Test(&#123;IndexOutOfBoundException.class, NullPointerException.class&#125;)</span><br><span class="line">public static void example()&#123;</span><br><span class="line">&#x2F;&#x2F;...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-测试时:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if(m.isAnnotationPresent(Test.class)&#123;</span><br><span class="line">    test++;</span><br><span class="line">    try&#123;</span><br><span class="line">        m.invoke(null);</span><br><span class="line">    &#125;catch(Throwable wrappedExc)&#123;</span><br><span class="line">        Throwable exc &#x3D; wrappedExc.getCause();</span><br><span class="line">        Class&lt;? extends Excetption&gt;[] excTypes&#x3D;</span><br><span class="line">            m.getAnnotation(Test.class).value();</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-注解并不会改变代码原本的含义（和python的装饰器完全不同），但是可以使对象经过某些工具的特殊处理（用于反射）。<br>显然一般程序员是不需要自定义注解类型的，除了某些设计工具平台的人以外。</li>
-<li>坚持使用<code>Override</code>注解。这是一种良好的变成习惯，不再赘述。</li>
-<li>用标记接口定义类型。标记接口很罕见，最常见的是<code>Serializable</code>，它只是一个接口，并没有规定任意方法。换言之，这只是一个空接口。</li>
-</ol>
-<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><ol>
-<li>检查参数的有效性。即防御性编程，对于公有方法，应该在Javadoc中使用<code>@throws</code>标明在违反约定时会抛出什么异常；对于非导出方法，设计者自己知道会传入什么参数，因此应该使用<code>assert</code>来进行错误检测。</li>
-<li>必要时使用保护性拷贝。java的对象本质上都是c++中的指针或引用，因此如果对象本身是可变的，即使参数是不可变的，也可能因为某些意外导致对象被修改。比较简单的方法是使用深拷贝（值拷贝）摆脱这种引用的关系，这在C++中是比较明显的：传值还是传址的问题，但是java中如果不留意很容易忘掉这一点。</li>
-<li>谨慎设计方法签名。本条款说了一些设计方法的技巧和忌讳，包括：<ul>
-<li>命名要谨慎</li>
-<li>尽量保持接口最小，而不是提供很多快捷方式</li>
-<li>避免过长的参数列表（4个以下）</li>
-<li>如果上述条款不可避免，使用builder（参见前文）</li>
-<li>参数类型优先使用接口</li>
-<li>flag尽量使用enum而不是boolean</li>
-</ul>
-</li>
-<li>慎用重载。有个原则是：永远不要导出两个具有相同<strong>参数数目</strong>的重载方法。如果方法使用可变参数，那么尽量不要重载它。如果违反上述两条规定，干脆给方法起不同的名字（如同在C语言中那样）。</li>
-<li>慎用可变参数。和其他语言一样，可变参数为<code>printf</code>而生，但是实际上自己需要写的并不多，大部分情况下传入一个列表或者使用泛型可以解决应用问题。可变参数本身有一定的性能约束：传入可变参数隐式创建并初始化了一个数组。</li>
-<li>返回0长度的数组或集合，而不是null。这是一条设计上的经验，在非C语言环境下，返回null往往得不偿失——需要单独写语句进行分析，而不能直接迭代。如果担心性能问题，可以使用<code>Collections.emptyList()</code>等方法返回不可变的空集，如果是数组，可以自己创建一个不可变的<code>static final</code>成员变量。</li>
-<li>为所有的导出API写文档注释。尤其是在替别人写类库的时候，这条非常重要。必须明确标注哪些是可能会改变的，哪些是兼容的。</li>
-</ol>
-<h2 id="通用程序设计"><a href="#通用程序设计" class="headerlink" title="通用程序设计"></a>通用程序设计</h2><ol>
-<li>使局部变量的作用域最小化。这点和C++、C#一致，C语言则是习惯把所有变量声明放在最前面（因为C只有基本数据和结构，且一般更习惯使用指针），python则不需要声明。</li>
-<li>for-each优先于for。同所有语言一致，C++11中引入类似语法，C#和python用<code>in</code>关键字. 但是for-each是不能修改容器本身的，因此在必须要的时候还是要使用for。</li>
-<li>了解和使用类库。应该熟悉<code>java.lang</code>和<code>java.util</code>中的内容。</li>
-<li>不要使用<code>float</code>和<code>double</code>进行精确计算。如果需要精确的小数计算，应该使用<code>BigDecimal</code>，或者自己处理小数点，用<code>int</code>或<code>long</code>。</li>
-<li>基本类型优先于装箱类型。由于装箱类型表示对象，因此用<code>==</code>判断两者之间的相等性总是错误的。当混合两者运算时，装箱类型就会自动拆箱。尽可能使用基本类型以避免不停的装箱、拆箱造成的性能损失。在如下场合必须使用装箱类型：<ul>
-<li>集合的key和value；</li>
-<li>泛型的参数；</li>
-<li>进行反射方法调用时；</li>
-</ul>
-</li>
-<li>如果其他类型更适合，不要使用字符串。例如，不要用”True”来代替<code>true</code>这种。</li>
-<li>字符串连接问题。使用<code>StringBuilder</code>代替<code>String</code>，提高性能。</li>
-<li>通过接口引用对象。这样更加灵活，但是必要的时候你可能需要进行类型转换。如果是基于类的框架，则使用基类更加合适。</li>
-<li>接口优先于反射。反射的性能实际上是很差的，但是在必要的时候会非常有用。其中<code>Class a=Class.forname(&quot;xxx&quot;)</code>，然后使用<code>a.newInstance()</code>这种方法比较常见。</li>
-<li>谨慎的使用native method. JNI允许java调用C/C++来访问特定的基于平台的sdk接口。但是，如果仅仅为了提高性能，并不提倡非要使用这种技术。</li>
-<li>谨慎优化。写出好的程序，如果存在性能问题，则使用性能分析工具去分析它，再针对瓶颈进行优化。</li>
-<li>遵守命名习惯。java的命名习惯和C#基本一致（而python和C++基本一致），java不喜欢下划线，而C++不喜欢驼峰。当然，一般常量还是都用全大写中间用下划线的表示方式。</li>
-</ol>
-<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>java的异常分为<code>checked</code>和<code>unchecked</code>两类，后者是<code>RuntimeExcception</code>或者<code>Error</code>的子类，如果程序抛出这种异常，可以不加以捕获而编译通过。<br>通常情况下，应该使用标准异常。且，只在真正的异常情况下使用异常。</p>
-<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h2><ol>
-<li><code>synchronized</code>和<code>volatile</code>关键字的使用。前者类似C#中的<code>lock</code>，后者意思同C。C语言中虽然没有线程，但是有中断和信号。</li>
-<li>避免过度同步。如果需要并发集合，那就使用语言内置的并发集合，而不要自己使用<code>synchronized</code>关键字加锁。<code>CopyOnWriteArrayList</code>是一种写时复制的并发容器，类似<code>ConcurrentArrayList</code>。如果类库使用者可以外部同步，那么设计类的时候就不要设计成内部同步的（这是C++的设计原则之一——效率最高）。如果修改了静态域，由于外部用户无法自己加锁，因此类的内部必须加锁。尽量不要从同步区域内部调用外来方法。</li>
-<li><code>executor</code>和<code>task</code>优先于线程。这点类似于C#，尽量不要使用抽象程度较低的线程，而是更加漂亮简洁的其他高级类。在<code>java.lang.concurrent</code>里包含了已经封装好的比较通用的线程模型，尽量使用它们而不是自己去写。</li>
-<li>并发工具优先于<code>wait</code>和<code>notify</code>。类似上一条，优先使用高级工具。</li>
-<li>慎用延迟初始化。本条目给出了几个好的建议：<ol>
-<li>正常初始化优先于延迟初始化；</li>
-<li>使用同步方法；</li>
-<li>如果需要性能优化，静态域延迟初始化使用一个static class作为holder，这样在第一次访问这个静态类时，所需要的域才会被初始化；</li>
-<li>如果需要性能优化，实例域延迟初始化最好使用双重检查模式。这时候域必须被声明为<code>volatile</code>的，而且习惯上使用一个局部变量来优化对域的检查。</li>
-</ol>
-</li>
-<li>不要使用<code>Thread.yield</code>，直接用<code>Thread.sleep(1)</code>就好。java的线程调度器不可靠，不要使用线程优先级来调度。</li>
-<li>不要使用java线程组，这个技术已经过时了…</li>
-</ol>
-<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><p>所谓序列化，指的是将一个对象编码成字节流，一般用来持久化。</p>
-<ol>
-<li>谨慎实现<code>Serializable</code>接口。</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>java</tag>
-        <tag>base</tag>
       </tags>
   </entry>
   <entry>
@@ -503,6 +300,209 @@
 ]]></content>
       <tags>
         <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CometD源码学习[0]</title>
+    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
+    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
+<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
+<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
+<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
+<blockquote>
+<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
+</blockquote>
+<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
+<ol>
+<li>创建队列线程池，用于处理请求；</li>
+<li>创建ServerSocket用于准备接受请求；</li>
+<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
+<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
+</ol>
+<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
+<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
+<ol>
+<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
+<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
+<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
+<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
+<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
+<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
+<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
+</ol>
+<p>NIO的一般工作原理用代码描述如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
+<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
+<hr>
+<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>jetty</tag>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>effective java 读书笔记</title>
+    <url>/2017/06/12/EffectiveJava/</url>
+    <content><![CDATA[<h2 id="创建和销毁对象"><a href="#创建和销毁对象" class="headerlink" title="创建和销毁对象"></a>创建和销毁对象</h2><ol>
+<li>用静态工厂方法代替构造器。这里的静态工厂方法不是factory mode，而是一种构造器的替代方法。本条款鼓励设计者在构建一个类时，优先考虑使用static factory method。后者有多个优势：更清晰，更简洁，在参数相同时不需要使用boolean或者enum来进行区分，可以通过register——get方法提供工厂特性（子类）。不过，这种方法和普通的静态方法没有任何语法形式的区别，且静态方法不能被继承（C++中<code>virtual</code>与<code>static</code>不能共存）；</li>
+<li>当构造参数非常多时，使用构建器(builder)。我们通常会使用默认构造函数，然后用<code>set</code>方法一一设置属性，如果让<code>set</code>返回<code>this</code>，就可以连续使用<code>set</code>，这就是<code>builder</code>。对于具有“具名参数”语法的语言（如python，C#）这种模式就不是很必要了，对于有<code>default value</code>（如C++）语法的语言，这种模式的使用频率也要低一些。</li>
+<li>用私有构造器或枚举强化单例属性。这里给出了一个创建单例的建议：创建一个仅包含单元素的枚举类型，由于java语言特性，枚举直接免费提供了序列化、防止多次实例化等功能，因此可以简洁的解决很多问题。</li>
+<li>如果一个类不可实例化，应该将其构造器私有化，这种类一般只是提供静态函数（类似C++中的函数）</li>
+<li>尽量少创建新对象，而应该多复用已有对象。这条尤其对immuable的对象很重要，例如String。每次使用<code>new</code>时，对应该仔细考虑是否需要创建一个新的对象，而不是复用以前的对象。当然，对于小对象，这个不需要考虑。正如C++中的传值和传址的差别，小对象使用传值反而更好一些，可以避免许多不必要的麻烦。<br>另外，由于<code>autoboxing</code>的存在，基本类型与装箱基本类型之间会相互转化。但是需要记住，要优先使用基本类型。</li>
+<li>消除过期的对象引用。这条主要针对“程序员自己管理内存/池化”的情景。在C++中，我们习惯在<code>free</code> or <code>delete</code>之后，将其置0(<code>nullptr</code>)，这样可以避免后续一些莫名其妙的Bug。java是GC机制的，因此一般不需要这么做。但是，如果自己池化了对象管理机制（例如创建某些数据结构时），就要注意这些问题了。<br>本条款给出的建议中，要注意缓存（比如建了一个全局list/map）中过期的东西记得删除。可以使用<code>WeakHashMap</code>自动管理(当内存中没有其引用对象时自动清除），或者<code>LinkedHashMap</code>的<code>removeEldestEntry</code>手动管理（每次添加新元素时）。对于更加复杂的场景，必须使用<code>java.lang.ref</code><a href="http://www.ibm.com/developerworks/cn/java/j-lo-langref/">^1</a>.<br>此外，<strong>注册</strong>一个回调方法，但是没有显式取消它，会导致其不断被累积。因此在使用<code>addListener</code>创建函数对象时，请记得<code>removeListener</code>.</li>
+<li>避免使用终结器(<code>finalizer</code>）。java使用GC来回收内存，因此终结器的用处不大，更重要的是，终结器的优先级很低，不能保证被及时执行，很容易造成性能bug。比较妥当的是提供显示的终结方法（如<code>close</code>），然后在<code>finally</code>中执行。注意终结方法不应该再抛出异常，而是应该捕获并打印日志。<br>但是用户可能忘记调用显示的终结方法，因此终结器还是可以充当最后的安全保证，当然，这其实是程序不得已使用的方法，应该在日志中使用警告。<br>另外需要注意的是，子类终结器必须显式调用父类的，这点和C++中的自动析构并不一样，请注意。可以考虑使用<code>finalize guard</code>来确保这一点。</li>
+</ol>
+<h2 id="object通用方法"><a href="#object通用方法" class="headerlink" title="object通用方法"></a>object通用方法</h2><ol>
+<li><code>equals</code>方法。C++中，重载<code>==</code>操作符限定在同类之间， 其他的要通过类型转换来进行比较，因此存在非常复杂的显式/隐式类型转换。java中，<code>equals</code>方法的参数必须是<code>Object</code>类型，这意味着所有的对象之间都可以判断是否相等。<code>equals</code>方法的设计必须非常谨慎，要严格遵守自反性、对称性、一致性和传递性这几个特征。</li>
+</ol>
+<ul>
+<li>自反性，意思是x=x恒成立；</li>
+<li>对称性，意味着a=b，必须也要b=a. 但是由于参数是<code>Object</code>，很容易无意识的违反这点。一般判断步骤中，首先需要知道这个<code>Object</code>是不是属于这个类（使用<code>instanceof</code>）,严格认为不属于这个类的对象不可能相等（即使是value意义上的相等）。如果需要value意义上的相等，就写一个显式的类型转换方法。</li>
+<li>传递性，意味着a=b, b=c则a=c成立。这条在设计类层次结构时很容易被违反。在多层类均可被实例化时，判断这些类之间的相等性往往会出现混乱。</li>
+<li>一致性。即相等的永远都相等，不等的永远都不等。这里注意的是判断时不要依赖不可靠的资源；</li>
+<li>非空性。这是额外的一个特性，任何对象在任何情况下都不应该与<code>null</code>相等——这是显然的。但是这一步不需要特别写出来，<code>instanceof</code>会替我们做这些的。<br>除了上面的款项以外，还有一些使用技巧：</li>
+<li>如果比较流程复杂，可以先用<code>==</code>判断是否是同一个对象；</li>
+<li>在比较时注意npt异常；</li>
+<li>短路求值与比较顺序；</li>
+<li>覆盖<code>hashcode</code>;</li>
+</ul>
+<ol start="2">
+<li><code>hashcode</code>方法。如果覆盖了<code>equals</code>，<strong>必须</strong>同时覆盖<code>hashcode</code>，这是因为相等的对象必须有相同的hash code. 这意味着我们必须为这个类提供一种hash算法，这个活并不简单，不过一般情况下可以这么做：<ol>
+<li>选一个非0常数记为result，比如17；</li>
+<li>对于<code>equals</code>中涉及的每一个域f(成员变量)，计算其hashcode：<ul>
+<li>boolean -&gt; 1 or 0</li>
+<li>byte, short, int -&gt; int(f)</li>
+<li>long -&gt; int(f^(f&gt;&gt;32))</li>
+<li>float -&gt; Float.floatToIntBits(f)</li>
+<li>double -&gt; Double.doubleToLongBits(f) -&gt; 按着long计算</li>
+<li>对象引用：null -&gt; 0，其他：递归调用hashcode方法</li>
+<li>数组：把每个对象当作一个单独的域计算hashcode</li>
+</ul>
+</li>
+<li>result=$31 * result + \Sigma_{i=1}^{\propto}f_i$<br>如果一个域的结果可以通过其他域计算出来，可以不必参与上面的计算过程。<br>如果hash计算非常复杂，可以考虑使用延迟初始化技术。定义一个<code>volatile int hashcode</code>，在对应的method里，先<code>if(hashcode==0)</code>，否则直接返回缓存的结果。</li>
+</ol>
+</li>
+<li><code>toString</code>方法。同C#一样，一般推荐覆盖这个方法，这样<code>print</code>时，会方便很多。</li>
+<li><code>clone</code>方法。很遗憾，java的<code>clone</code>不好用——很不好用，它的约定太弱。即使类implement了<code>Cloneable</code>接口，你也不能指望什么。最好的方法是别管这个东西，自己实现一个拷贝构造器，或者拷贝工厂。</li>
+<li>考虑实现<code>Comparable</code>接口。这个接口唯一声明了<code>compareTo</code>方法，这是一个泛型方法。如果你需要排序，最好事先这个方法——正如C++中的重载<code>&lt;</code>操作符一样，这是泛型容器排序的基础。显然<code>compareTo</code>需要和<code>equals</code>在判断相等时保持一致。<br>比<code>equals</code>简单的是，<code>compareTo</code>的参数只能和自身类型一样，因为在implements泛型类时，填入的具体参数显然就是这个类自身。</li>
+</ol>
+<h2 id="类和接口"><a href="#类和接口" class="headerlink" title="类和接口"></a>类和接口</h2><ol>
+<li><p>使类和成员的可访问性最小化。本条和语言无关，所有面向对象设计中，<strong>信息隐藏</strong>的重要性都是一致的。切记尽量少暴露实现细节，保持对外开放性最小。这可以有效减少软件工程的复杂度。<br>有个细节的技巧：数组不可能是public final的， 因为数组本身是可变的。C++中有个蛋疼的<code>const int* const p</code>的问题，指的就是指针的可变性和内容的可变性问题。<br>此外，java默认访问类型是<code>package private</code>的，这和其他语言有区别。</p>
+</li>
+<li><p>使用<code>getter</code>,<code>setter</code>代替公有成员变量。这条其实并不是那么严格，至少C++中经常可以看到反例。因为写起来实在太麻烦，所以C#引入了属性这种语法糖。</p>
+</li>
+<li><p>设计不可变类。省事起见，如果对性能没有特别大的需求尽量设计不可变类，这种类的所有方法都会返回一个<code>new</code>对象，而不是直接修改对象本身。这种类的设计遵从如下原则：</p>
+<ol>
+<li>不提供mutator修改对象本身；</li>
+<li>保证类不会被继承；</li>
+<li>所有域都是不可变的（final）；</li>
+<li>所有域都是私有的；</li>
+<li>确保对于任何可变组件的互斥访问；</li>
+</ol>
+</li>
+<li><p>复合优先于继承。这条是面向对象的泛用条款，从略；</p>
+</li>
+<li><p>要么为继承而设计，要么禁止继承。这条要求在设计一个类时，要明确它是否会被继承。这里强调了一个细节：构造器不可调用可被覆盖的方法。这和C++中<strong>构造函数和析构函数不应该调用虚函数</strong>本质上是一直的，因为对象是从基类到派生类逐级构造的，如果调用虚函数，动态绑定可能不会生效，从而产生undefined的后果；</p>
+</li>
+<li><p>接口优先于抽象类。显然，也是泛用条款。对于C++而言，没那么明显（因为没有接口），不过全是纯虚函数的类就是接口…</p>
+</li>
+<li><p>接口只用于定义类型。是的，只应该有public的method，而不要塞进去一堆常量。后者最好用枚举代替。</p>
+</li>
+<li><p>类层次优先于标签类。标签类就是在构造函数中传入flag，在方法中<code>switch...case</code>，在C语言中，这是常见的设计。但是在面向对象中，显然更适合使用继承来合理安排类结构。</p>
+</li>
+<li><p>用函数对象表示策略。由于C++11有了<code>std::function&lt;&gt;</code>和<code>lambda</code>，所以函数对象这种累赘的东西一般是用不上了，但是垂垂老矣的java中，还没有这些东西(java8引入lambda了，谢天谢地），一般是写一个接口，然后用匿名函数实现它。</p>
+</li>
+<li><p>优先考虑静态成员类。nested class最好设计成静态的，这是为了减少对象的数量——非静态类都必须与一个外围实例关联。nested class可以摆脱友元这种东西的困扰，访问所有的成员方法|变量（某种形式的闭包）。但是静态成员类和对象本身无关，所以就只能访问静态方法和静态成员了。</p>
+</li>
+</ol>
+<h2 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h2><p>在C++中，template和oo完全是两种不同的范式，因为C++并没有<code>all is object</code>这种思想，因此没人会觉得<code>vector&lt;basic_string&gt;</code>不是<code>vector&lt;string&gt;</code>的父类有啥问题。java其实也一样，<code>list&lt;string&gt;</code>和<code>list&lt;object&gt;</code>之间也不是继承的关系。泛型使java复杂化，并且失去了优雅。</p>
+<ol>
+<li>用泛型，不用原生态类型。java从1.5版本引入泛型，c#从1.2开始，C++则一直都有模板这种东西。没有泛型的语言一般都会引入一些很丑陋的类型转换，比如C中的<code>void *</code>。尽量使用泛型而非原生态的类型，如果需要指代任意类型而不关心具体类型，可以用<code>?</code>比如<code>set&lt;?&gt;</code>；此外，<code>instanceof</code>操作符后面必须跟着原生态类型；</li>
+<li>消除<code>unchecked warning</code>，对于编译器的抱怨，要好好检查，如果确定没有问题，就使用<code>@SuppressWarnings(&quot;unchecked&quot;)</code>关闭这个提醒，受检警告仅存在在语言层面，并非是jvm虚拟机的特性；</li>
+<li>优先使用List而不是Array。在C++中，array本质上是一个指针，因此效率比<code>std::vector&lt;&gt;</code>要高上不少；java中<code>Array</code>也比<code>list&lt;&gt;</code>要快一些，但是却更推荐使用后者。<br>java的泛型在运行时其元素类型是被擦除(erase<a href="http://www.infoq.com/cn/articles/cf-java-generics">^2</a>)的，这点和C++完全不同（为了历史兼容性做出的妥协）。因此<strong>数组是运行时安全但编译时不安全的，泛型则相反</strong>。最后，最好不要同时使用泛型和数组，这会让你蛋疼无比——如果真的需要泛型数组，必须同时使用强制类型转换和<code>SuppressWarnings</code>技术。</li>
+<li>优先考虑泛型和泛型方法。</li>
+<li>使用<code>set&lt;? extends Object&gt;</code> or <code>set&lt;? super String&gt;</code>这种技巧来完成某些动作。助记符是__PECS__,就是说，把这个对象当生产者使用时，用<code>extends</code>，反之，用<code>super</code>。<br>在返回的时候，仍然使用普通类型，而不是通配符。<br>本条对于类库编写者比较重要。</li>
+<li>优先使用类型安全的异构容器。本条通过一些奇技淫巧完成一个容器里面同时存放多种类型(异构，通过<code>class&lt;?&gt;</code>实现)，但是又能保证类型安全(通过<code>type.cast</code>实现)这一目标。</li>
+</ol>
+<h2 id="枚举与注解"><a href="#枚举与注解" class="headerlink" title="枚举与注解"></a>枚举与注解</h2><p>java的枚举有点难用，不如C#那么强大，也不如C/C++那么简洁。简单来说，每一个枚举值都是该类（枚举）的一个实例，相当于一种工厂方法，因此枚举对象可以直接调用枚举类的方法。</p>
+<ol>
+<li>枚举的所有域都应该是私有final的（需要的时候提供公有的访问函数）；可以通过<code>values</code>方法访问所有的枚举值（依照声明顺序）。对于每一个枚举值在后面加上<code>&#123;&#125;</code>，里面是<strong>特定于常量的方法实现</strong>，可以通过在枚举类中声明一个抽象方法，在常量中再进行覆盖来实现对不同枚举值的特殊操作（<code>switch(this)</code>这种方法更适用于控制外部传入的不可控的变量的方法中）。<br>如果在枚举值后面加上初始化表达式，调用该常量时会自动使用该表达式调用构造函数（但是显然我们不能直接调用构造器），比如<code>MONDAY(&quot;mon&quot;)</code>这种.<br>PS: 这里给了一个有趣的技巧：使用<code>%n</code>保证换行符的跨平台性，有些类似python中的<code>os.linesep</code>.</li>
+<li>如果不给枚举赋值，默认使用序列（0，1，2…），可以使用<code>ordinal</code>方法取得该序列的int值。当然，最好别依赖于这种自动生成的东西，而是明确赋值…</li>
+<li>用<code>EnumSet</code>代替位域，主要使用<code>EnumSet.of</code>创建枚举set，用来取代依靠位运算得出的集合特性。不过，这种方法只是可读性好一些，如果需要做存储或者与提供API，还是希望使用int。</li>
+<li>用<code>EnumMap</code>代替序数索引。可以将一个<code>enum</code>直接传入<code>EnumMap&lt;enum,Object&gt;</code>中，<code>enum</code>的所有常量值都会转化为<code>EnumMap</code>的<code>key</code>，这其实就是普通的<code>map</code>，但是做了优化。</li>
+<li>枚举不是可扩展的，但是我们可以使用接口来变相实现这种可扩展性。简单来说，就是枚举实现接口，然后在需要的时候，使用接口来声明枚举而不是相反。</li>
+<li>注解优先于命名模式。注解的声明需要导入<code>java.lang.annotation.*</code>，然后使用<strong>元注解</strong>来标明该注解的属性。例如<code>@Retention</code>, <code>@Target</code>，注解类的必须是<code>@interface</code>类型。如:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public @interface Test&#123;</span><br><span class="line">    Class&lt;? extend Exception&gt;[] value();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+使用时：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@Test(&#123;IndexOutOfBoundException.class, NullPointerException.class&#125;)</span><br><span class="line">public static void example()&#123;</span><br><span class="line">&#x2F;&#x2F;...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+测试时:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if(m.isAnnotationPresent(Test.class)&#123;</span><br><span class="line">    test++;</span><br><span class="line">    try&#123;</span><br><span class="line">        m.invoke(null);</span><br><span class="line">    &#125;catch(Throwable wrappedExc)&#123;</span><br><span class="line">        Throwable exc &#x3D; wrappedExc.getCause();</span><br><span class="line">        Class&lt;? extends Excetption&gt;[] excTypes&#x3D;</span><br><span class="line">            m.getAnnotation(Test.class).value();</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+注解并不会改变代码原本的含义（和python的装饰器完全不同），但是可以使对象经过某些工具的特殊处理（用于反射）。<br>显然一般程序员是不需要自定义注解类型的，除了某些设计工具平台的人以外。</li>
+<li>坚持使用<code>Override</code>注解。这是一种良好的变成习惯，不再赘述。</li>
+<li>用标记接口定义类型。标记接口很罕见，最常见的是<code>Serializable</code>，它只是一个接口，并没有规定任意方法。换言之，这只是一个空接口。</li>
+</ol>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><ol>
+<li>检查参数的有效性。即防御性编程，对于公有方法，应该在Javadoc中使用<code>@throws</code>标明在违反约定时会抛出什么异常；对于非导出方法，设计者自己知道会传入什么参数，因此应该使用<code>assert</code>来进行错误检测。</li>
+<li>必要时使用保护性拷贝。java的对象本质上都是c++中的指针或引用，因此如果对象本身是可变的，即使参数是不可变的，也可能因为某些意外导致对象被修改。比较简单的方法是使用深拷贝（值拷贝）摆脱这种引用的关系，这在C++中是比较明显的：传值还是传址的问题，但是java中如果不留意很容易忘掉这一点。</li>
+<li>谨慎设计方法签名。本条款说了一些设计方法的技巧和忌讳，包括：<ul>
+<li>命名要谨慎</li>
+<li>尽量保持接口最小，而不是提供很多快捷方式</li>
+<li>避免过长的参数列表（4个以下）</li>
+<li>如果上述条款不可避免，使用builder（参见前文）</li>
+<li>参数类型优先使用接口</li>
+<li>flag尽量使用enum而不是boolean</li>
+</ul>
+</li>
+<li>慎用重载。有个原则是：永远不要导出两个具有相同<strong>参数数目</strong>的重载方法。如果方法使用可变参数，那么尽量不要重载它。如果违反上述两条规定，干脆给方法起不同的名字（如同在C语言中那样）。</li>
+<li>慎用可变参数。和其他语言一样，可变参数为<code>printf</code>而生，但是实际上自己需要写的并不多，大部分情况下传入一个列表或者使用泛型可以解决应用问题。可变参数本身有一定的性能约束：传入可变参数隐式创建并初始化了一个数组。</li>
+<li>返回0长度的数组或集合，而不是null。这是一条设计上的经验，在非C语言环境下，返回null往往得不偿失——需要单独写语句进行分析，而不能直接迭代。如果担心性能问题，可以使用<code>Collections.emptyList()</code>等方法返回不可变的空集，如果是数组，可以自己创建一个不可变的<code>static final</code>成员变量。</li>
+<li>为所有的导出API写文档注释。尤其是在替别人写类库的时候，这条非常重要。必须明确标注哪些是可能会改变的，哪些是兼容的。</li>
+</ol>
+<h2 id="通用程序设计"><a href="#通用程序设计" class="headerlink" title="通用程序设计"></a>通用程序设计</h2><ol>
+<li>使局部变量的作用域最小化。这点和C++、C#一致，C语言则是习惯把所有变量声明放在最前面（因为C只有基本数据和结构，且一般更习惯使用指针），python则不需要声明。</li>
+<li>for-each优先于for。同所有语言一致，C++11中引入类似语法，C#和python用<code>in</code>关键字. 但是for-each是不能修改容器本身的，因此在必须要的时候还是要使用for。</li>
+<li>了解和使用类库。应该熟悉<code>java.lang</code>和<code>java.util</code>中的内容。</li>
+<li>不要使用<code>float</code>和<code>double</code>进行精确计算。如果需要精确的小数计算，应该使用<code>BigDecimal</code>，或者自己处理小数点，用<code>int</code>或<code>long</code>。</li>
+<li>基本类型优先于装箱类型。由于装箱类型表示对象，因此用<code>==</code>判断两者之间的相等性总是错误的。当混合两者运算时，装箱类型就会自动拆箱。尽可能使用基本类型以避免不停的装箱、拆箱造成的性能损失。在如下场合必须使用装箱类型：<ul>
+<li>集合的key和value；</li>
+<li>泛型的参数；</li>
+<li>进行反射方法调用时；</li>
+</ul>
+</li>
+<li>如果其他类型更适合，不要使用字符串。例如，不要用”True”来代替<code>true</code>这种。</li>
+<li>字符串连接问题。使用<code>StringBuilder</code>代替<code>String</code>，提高性能。</li>
+<li>通过接口引用对象。这样更加灵活，但是必要的时候你可能需要进行类型转换。如果是基于类的框架，则使用基类更加合适。</li>
+<li>接口优先于反射。反射的性能实际上是很差的，但是在必要的时候会非常有用。其中<code>Class a=Class.forname(&quot;xxx&quot;)</code>，然后使用<code>a.newInstance()</code>这种方法比较常见。</li>
+<li>谨慎的使用native method. JNI允许java调用C/C++来访问特定的基于平台的sdk接口。但是，如果仅仅为了提高性能，并不提倡非要使用这种技术。</li>
+<li>谨慎优化。写出好的程序，如果存在性能问题，则使用性能分析工具去分析它，再针对瓶颈进行优化。</li>
+<li>遵守命名习惯。java的命名习惯和C#基本一致（而python和C++基本一致），java不喜欢下划线，而C++不喜欢驼峰。当然，一般常量还是都用全大写中间用下划线的表示方式。</li>
+</ol>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>java的异常分为<code>checked</code>和<code>unchecked</code>两类，后者是<code>RuntimeExcception</code>或者<code>Error</code>的子类，如果程序抛出这种异常，可以不加以捕获而编译通过。<br>通常情况下，应该使用标准异常。且，只在真正的异常情况下使用异常。</p>
+<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h2><ol>
+<li><code>synchronized</code>和<code>volatile</code>关键字的使用。前者类似C#中的<code>lock</code>，后者意思同C。C语言中虽然没有线程，但是有中断和信号。</li>
+<li>避免过度同步。如果需要并发集合，那就使用语言内置的并发集合，而不要自己使用<code>synchronized</code>关键字加锁。<code>CopyOnWriteArrayList</code>是一种写时复制的并发容器，类似<code>ConcurrentArrayList</code>。如果类库使用者可以外部同步，那么设计类的时候就不要设计成内部同步的（这是C++的设计原则之一——效率最高）。如果修改了静态域，由于外部用户无法自己加锁，因此类的内部必须加锁。尽量不要从同步区域内部调用外来方法。</li>
+<li><code>executor</code>和<code>task</code>优先于线程。这点类似于C#，尽量不要使用抽象程度较低的线程，而是更加漂亮简洁的其他高级类。在<code>java.lang.concurrent</code>里包含了已经封装好的比较通用的线程模型，尽量使用它们而不是自己去写。</li>
+<li>并发工具优先于<code>wait</code>和<code>notify</code>。类似上一条，优先使用高级工具。</li>
+<li>慎用延迟初始化。本条目给出了几个好的建议：<ol>
+<li>正常初始化优先于延迟初始化；</li>
+<li>使用同步方法；</li>
+<li>如果需要性能优化，静态域延迟初始化使用一个static class作为holder，这样在第一次访问这个静态类时，所需要的域才会被初始化；</li>
+<li>如果需要性能优化，实例域延迟初始化最好使用双重检查模式。这时候域必须被声明为<code>volatile</code>的，而且习惯上使用一个局部变量来优化对域的检查。</li>
+</ol>
+</li>
+<li>不要使用<code>Thread.yield</code>，直接用<code>Thread.sleep(1)</code>就好。java的线程调度器不可靠，不要使用线程优先级来调度。</li>
+<li>不要使用java线程组，这个技术已经过时了…</li>
+</ol>
+<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><p>所谓序列化，指的是将一个对象编码成字节流，一般用来持久化。</p>
+<ol>
+<li>谨慎实现<code>Serializable</code>接口。</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>java</tag>
+        <tag>base</tag>
       </tags>
   </entry>
   <entry>
@@ -718,18 +718,6 @@
       </tags>
   </entry>
   <entry>
-    <title>docker常见命令</title>
-    <url>/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="日志类"><a href="#日志类" class="headerlink" title="日志类"></a>日志类</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker logs -f &lt;container&gt; <span class="comment"># 查看日志</span></span><br><span class="line">journalctl</span><br></pre></td></tr></table></figure>
-
-<h2 id="容器类"><a href="#容器类" class="headerlink" title="容器类"></a>容器类</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker ps <span class="comment"># 查看正在运行的容器</span></span><br><span class="line">docker ps -a -q <span class="comment"># 查看全部容器和信息</span></span><br><span class="line">docker ps top</span><br><span class="line">docker pull/commit/tag/push/diff/attach</span><br><span class="line">docker create/build/run/rm</span><br><span class="line">docker start/stop/pause</span><br><span class="line">docker  <span class="built_in">exec</span> -it &#123;&#123;containerName or containerID&#125;&#125; bash  <span class="comment"># 进入容器交互</span></span><br><span class="line">docker cp</span><br></pre></td></tr></table></figure>
-
-<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本地所有镜像</span></span><br><span class="line">docker images</span><br><span class="line"><span class="comment"># 本地镜像名为 ubuntu 的所有镜像</span></span><br><span class="line">docker images ubuntu</span><br><span class="line"><span class="comment"># 查看指定镜像的创建历史</span></span><br><span class="line">docker <span class="built_in">history</span> [id]</span><br><span class="line"><span class="comment"># 本地移除一个或多个指定的镜像</span></span><br><span class="line">docker rmi</span><br><span class="line"><span class="comment"># 移除本地全部镜像</span></span><br><span class="line">docker rmi `docker images -a -q`</span><br><span class="line"><span class="comment"># 指定镜像保存成 tar 归档文件， docker load 的逆操作</span></span><br><span class="line">docker save</span><br><span class="line"><span class="comment"># 将镜像 ubuntu:14.04 保存为 ubuntu14.04.tar 文件</span></span><br><span class="line">docker save -o ubuntu14.04.tar ubuntu:14.04</span><br><span class="line"><span class="comment"># 从 tar 镜像归档中载入镜像， docker save 的逆操作</span></span><br><span class="line">docker load</span><br><span class="line"><span class="comment"># 上面命令的意思是将 ubuntu14.04.tar 文件载入镜像中</span></span><br><span class="line">docker load -i ubuntu14.04.tar</span><br><span class="line">docker load &lt; /home/save.tar</span><br><span class="line"><span class="comment"># 构建自己的镜像</span></span><br><span class="line">docker build -t &lt;镜像名&gt; &lt;Dockerfile路径&gt;</span><br><span class="line">docker build -t xx/gitlab .</span><br></pre></td></tr></table></figure>]]></content>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>erlang速记</title>
     <url>/2017/06/12/erlang%E9%80%9F%E8%AE%B0/</url>
     <content><![CDATA[<p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
@@ -793,6 +781,29 @@
       </tags>
   </entry>
   <entry>
+    <title>docker常见命令</title>
+    <url>/2019/02/17/docker%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="日志类"><a href="#日志类" class="headerlink" title="日志类"></a>日志类</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker logs -f &lt;container&gt; <span class="comment"># 查看日志</span></span><br><span class="line">journalctl</span><br></pre></td></tr></table></figure>
+
+<h2 id="容器类"><a href="#容器类" class="headerlink" title="容器类"></a>容器类</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker ps <span class="comment"># 查看正在运行的容器</span></span><br><span class="line">docker ps -a -q <span class="comment"># 查看全部容器和信息</span></span><br><span class="line">docker ps top</span><br><span class="line">docker pull/commit/tag/push/diff/attach</span><br><span class="line">docker create/build/run/rm</span><br><span class="line">docker start/stop/pause</span><br><span class="line">docker  <span class="built_in">exec</span> -it &#123;&#123;containerName or containerID&#125;&#125; bash  <span class="comment"># 进入容器交互</span></span><br><span class="line">docker cp</span><br></pre></td></tr></table></figure>
+
+<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本地所有镜像</span></span><br><span class="line">docker images</span><br><span class="line"><span class="comment"># 本地镜像名为 ubuntu 的所有镜像</span></span><br><span class="line">docker images ubuntu</span><br><span class="line"><span class="comment"># 查看指定镜像的创建历史</span></span><br><span class="line">docker <span class="built_in">history</span> [id]</span><br><span class="line"><span class="comment"># 本地移除一个或多个指定的镜像</span></span><br><span class="line">docker rmi</span><br><span class="line"><span class="comment"># 移除本地全部镜像</span></span><br><span class="line">docker rmi `docker images -a -q`</span><br><span class="line"><span class="comment"># 指定镜像保存成 tar 归档文件， docker load 的逆操作</span></span><br><span class="line">docker save</span><br><span class="line"><span class="comment"># 将镜像 ubuntu:14.04 保存为 ubuntu14.04.tar 文件</span></span><br><span class="line">docker save -o ubuntu14.04.tar ubuntu:14.04</span><br><span class="line"><span class="comment"># 从 tar 镜像归档中载入镜像， docker save 的逆操作</span></span><br><span class="line">docker load</span><br><span class="line"><span class="comment"># 上面命令的意思是将 ubuntu14.04.tar 文件载入镜像中</span></span><br><span class="line">docker load -i ubuntu14.04.tar</span><br><span class="line">docker load &lt; /home/save.tar</span><br><span class="line"><span class="comment"># 构建自己的镜像</span></span><br><span class="line">docker build -t &lt;镜像名&gt; &lt;Dockerfile路径&gt;</span><br><span class="line">docker build -t xx/gitlab .</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>golang文件操作的一个坑</title>
+    <url>/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/</url>
+    <content><![CDATA[<p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
+<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
+<p>哎，浪费了一上午=_=</p>
+]]></content>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>gb28181实现调研</title>
     <url>/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/</url>
     <content><![CDATA[<p>由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。</p>
@@ -815,17 +826,6 @@
       <tags>
         <tag>camera</tag>
         <tag>design</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>golang文件操作的一个坑</title>
-    <url>/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/</url>
-    <content><![CDATA[<p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
-<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
-<p>哎，浪费了一上午=_=</p>
-]]></content>
-      <tags>
-        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -950,44 +950,42 @@
       </tags>
   </entry>
   <entry>
-    <title>java并发编程实战读书笔记</title>
-    <url>/2017/06/12/java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>并发编程实际上极其复杂，有很多绝对值得去看的建议。</p>
+    <title>java CMS GC调优步骤</title>
+    <url>/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<p>0.增加GC相关选项：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
 <ol>
-<li>不要在构造器里面调用可变函数（虚函数），这是所谓的安全构造需求；</li>
-<li>最简单的线程安全类是不可变类，不可变类有如下硬性要求：<ul>
-<li>对象创建以后就不能修改</li>
-<li>对象所有域都是<code>final</code>的</li>
-<li>对象是安全构造的</li>
-</ul>
-</li>
-<li>所谓可见性指的是a线程修改了变量，b线程可以知道这种修改；所谓原子性指的是a线程在修改变量时，b线程不会干扰这种修改；</li>
-<li>所谓安全发布，必须满足以下条件之一：<ul>
-<li>在静态初始化函数中初始化一个对象引用</li>
-<li>将对象的引用保存到<code>volatile</code>类型或者<code>AtomicReferance</code>对象之中</li>
-<li>将对象的应用保存到某个正确构造对象的<code>final</code>域中</li>
-<li>将对象引用保存到一个由锁保护的域中</li>
-</ul>
-</li>
-<li><code>volatile</code>变量只能保证可见性，无法保证原子性；加锁则都可以保证（但是会繁琐一些）。</li>
-<li>不要在构造器中调用新的线程，这会导致不安全发布；正确的做法是使用静态工厂函数，构造完毕后再启动线程（或者做其他发布）；</li>
-<li>最简单维持线程安全的方法是使用局部变量（栈封闭），其次是使用原子类，包括现场本地存储类<code>ThreadLocal&lt;&gt;</code></li>
-<li>大多数情况下，我们无须直接使用<code>Thread</code>这种基础类，java提供了很多适用范围广泛的组件，包括：</li>
-<li>并发容器类，使用<code>java.util.concurrent</code>中定义的包括<code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>，<code>ConcurrentLinkedQueue</code>和<code>BlockingQueue</code>（<code>BlockingDeque</code>),以及<code>ConcurrentSkipListMap</code>和<code>ConcurrentSkipListSet</code>（作为<code>SortedMap</code>和<code>SortedSet</code>的替代品）.<code>BlockingQueue</code>在<code>take</code>和<code>put</code>时，如果没有元素/空间就会阻塞；</li>
-<li>如果线程被中断，会抛出<code>InterruptedException</code>如果是<code>Runnable</code>的对象，是不可以直接抛出这个异常的，必须捕获并使用<code>Thread.currentThread().interrupt()</code>恢复中断；其他类型的对象倒是无所谓，可以直接抛出或者捕获清理后重新抛出；</li>
-<li>闭锁。<code>CountDownLatch</code>可以用来等待计数，<code>FutureTask</code>是一种<code>Callable</code>，可以通过<code>get</code>来获得结果（或者阻塞），<code>Semaphore</code>用来对资源进行限制计数，可以用来实现资源池，使用<code>acquire</code>获得一个资源，使用<code>release</code>释放一个资源，<code>Barrier</code>用来实现分段任务，当所有任务都到达Barrier时，任务继续，否则抛出<code>BrokenBarrierException</code>异常。本章给出了一个缓存的例子。</li>
-<li>Executor框架。<code>Executor</code>是一个接口，只规定了<code>execute</code>一个接口（其参数是一个<code>Runnable</code> class）；<code>Executors</code>包含生产线程池的几个静态方法，如<code>newFixedThreadPool</code>（固定大小），<code>newCachedThreadPool</code>（无限增长）和<code>newSingleThreadExecutor</code>（单线程串行）,和<code>newScheduledThreadPool</code>（定时执行）。如果这些都不能满足需求，可以直接使用<code>ThreadPoolExecutor</code>自己灵活构造线程池</li>
-<li><code>ExecutorService</code>接口在<code>Executor</code>接口的基础上增加了生命周期，可以使用<code>shutdown</code>，<code>shutdownNow</code>，<code>awaitTermination</code>等方法进行生命周期（运行、关闭和已终止）控制和感知。</li>
-<li><code>ExecutorService</code>的<code>submit</code>方法用于提交一个任务并返回一个<code>Future</code>，使用这个结果可以控制任务的生命周期；</li>
-<li>线程的超时：一般可以用重载的<code>get</code>，<code>await</code>等方法指定超时时间；</li>
-<li>线程的取消：习惯上使用一个<code>volatile</code>变量作为取消标志，但是如果线程阻塞了，这个方法就不好用了。最佳方式是使用中断(<code>Future.cancel</code>)，注意需要处理好相关的异常；</li>
-<li>可以通过继承<code>Thread</code>重载<code>interrupt</code>方法来将中断处理封闭在异常类中；可以通过使用<code>ThreadPoolExecutor</code>中的<code>newTaskFor</code>静态方法由<code>Callable</code>生产<code>RunnableFuture</code></li>
+<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
+<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
+<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
+<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
+<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
+<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
+<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
+<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
+<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
+<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
+<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
+<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
+<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
+<li>注意调节Survivor大小时，保持Eden大小不变；</li>
+<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
+<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
+<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
+<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
+<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
+<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
+<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
+<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
+<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
+G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
 </ol>
+<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
 ]]></content>
       <tags>
         <tag>java</tag>
-        <tag>base</tag>
-        <tag>concurrent</tag>
+        <tag>gc</tag>
+        <tag>jvm</tag>
       </tags>
   </entry>
   <entry>
@@ -1103,42 +1101,44 @@
       </tags>
   </entry>
   <entry>
-    <title>java CMS GC调优步骤</title>
-    <url>/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</url>
-    <content><![CDATA[<p>0.增加GC相关选项：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
+    <title>java并发编程实战读书笔记</title>
+    <url>/2017/06/12/java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>并发编程实际上极其复杂，有很多绝对值得去看的建议。</p>
 <ol>
-<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
-<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
-<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
-<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
-<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
-<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
-<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
-<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
-<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
-<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
-<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
-<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
-<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
-<li>注意调节Survivor大小时，保持Eden大小不变；</li>
-<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
-<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
-<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
-<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
-<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
-<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
-<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
-<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
-<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
-G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
+<li>不要在构造器里面调用可变函数（虚函数），这是所谓的安全构造需求；</li>
+<li>最简单的线程安全类是不可变类，不可变类有如下硬性要求：<ul>
+<li>对象创建以后就不能修改</li>
+<li>对象所有域都是<code>final</code>的</li>
+<li>对象是安全构造的</li>
+</ul>
+</li>
+<li>所谓可见性指的是a线程修改了变量，b线程可以知道这种修改；所谓原子性指的是a线程在修改变量时，b线程不会干扰这种修改；</li>
+<li>所谓安全发布，必须满足以下条件之一：<ul>
+<li>在静态初始化函数中初始化一个对象引用</li>
+<li>将对象的引用保存到<code>volatile</code>类型或者<code>AtomicReferance</code>对象之中</li>
+<li>将对象的应用保存到某个正确构造对象的<code>final</code>域中</li>
+<li>将对象引用保存到一个由锁保护的域中</li>
+</ul>
+</li>
+<li><code>volatile</code>变量只能保证可见性，无法保证原子性；加锁则都可以保证（但是会繁琐一些）。</li>
+<li>不要在构造器中调用新的线程，这会导致不安全发布；正确的做法是使用静态工厂函数，构造完毕后再启动线程（或者做其他发布）；</li>
+<li>最简单维持线程安全的方法是使用局部变量（栈封闭），其次是使用原子类，包括现场本地存储类<code>ThreadLocal&lt;&gt;</code></li>
+<li>大多数情况下，我们无须直接使用<code>Thread</code>这种基础类，java提供了很多适用范围广泛的组件，包括：</li>
+<li>并发容器类，使用<code>java.util.concurrent</code>中定义的包括<code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>，<code>ConcurrentLinkedQueue</code>和<code>BlockingQueue</code>（<code>BlockingDeque</code>),以及<code>ConcurrentSkipListMap</code>和<code>ConcurrentSkipListSet</code>（作为<code>SortedMap</code>和<code>SortedSet</code>的替代品）.<code>BlockingQueue</code>在<code>take</code>和<code>put</code>时，如果没有元素/空间就会阻塞；</li>
+<li>如果线程被中断，会抛出<code>InterruptedException</code>如果是<code>Runnable</code>的对象，是不可以直接抛出这个异常的，必须捕获并使用<code>Thread.currentThread().interrupt()</code>恢复中断；其他类型的对象倒是无所谓，可以直接抛出或者捕获清理后重新抛出；</li>
+<li>闭锁。<code>CountDownLatch</code>可以用来等待计数，<code>FutureTask</code>是一种<code>Callable</code>，可以通过<code>get</code>来获得结果（或者阻塞），<code>Semaphore</code>用来对资源进行限制计数，可以用来实现资源池，使用<code>acquire</code>获得一个资源，使用<code>release</code>释放一个资源，<code>Barrier</code>用来实现分段任务，当所有任务都到达Barrier时，任务继续，否则抛出<code>BrokenBarrierException</code>异常。本章给出了一个缓存的例子。</li>
+<li>Executor框架。<code>Executor</code>是一个接口，只规定了<code>execute</code>一个接口（其参数是一个<code>Runnable</code> class）；<code>Executors</code>包含生产线程池的几个静态方法，如<code>newFixedThreadPool</code>（固定大小），<code>newCachedThreadPool</code>（无限增长）和<code>newSingleThreadExecutor</code>（单线程串行）,和<code>newScheduledThreadPool</code>（定时执行）。如果这些都不能满足需求，可以直接使用<code>ThreadPoolExecutor</code>自己灵活构造线程池</li>
+<li><code>ExecutorService</code>接口在<code>Executor</code>接口的基础上增加了生命周期，可以使用<code>shutdown</code>，<code>shutdownNow</code>，<code>awaitTermination</code>等方法进行生命周期（运行、关闭和已终止）控制和感知。</li>
+<li><code>ExecutorService</code>的<code>submit</code>方法用于提交一个任务并返回一个<code>Future</code>，使用这个结果可以控制任务的生命周期；</li>
+<li>线程的超时：一般可以用重载的<code>get</code>，<code>await</code>等方法指定超时时间；</li>
+<li>线程的取消：习惯上使用一个<code>volatile</code>变量作为取消标志，但是如果线程阻塞了，这个方法就不好用了。最佳方式是使用中断(<code>Future.cancel</code>)，注意需要处理好相关的异常；</li>
+<li>可以通过继承<code>Thread</code>重载<code>interrupt</code>方法来将中断处理封闭在异常类中；可以通过使用<code>ThreadPoolExecutor</code>中的<code>newTaskFor</code>静态方法由<code>Callable</code>生产<code>RunnableFuture</code></li>
 </ol>
-<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
 ]]></content>
       <tags>
         <tag>java</tag>
-        <tag>gc</tag>
-        <tag>jvm</tag>
+        <tag>base</tag>
+        <tag>concurrent</tag>
       </tags>
   </entry>
   <entry>
@@ -1240,6 +1240,28 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
       </tags>
   </entry>
   <entry>
+    <title>maven和gradle一些选项</title>
+    <url>/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/</url>
+    <content><![CDATA[<p>Java的包依赖系统简单粗暴，就是直接下载jar包，经历了<code>Ant</code> -&gt; <code>Maven</code> -&gt; <code>Gradle</code>这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。</p>
+<p>如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。</p>
+<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），而Gradle会尝试自动解决该问题（使用公共依赖的最新版本）。</p>
+<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p>类似<code>npm</code>中的概念：这个包是啥时候被需要。显然有些包只是编译的时候需求，运行的时候不再被需要，因为Maven中的<code>scope</code>分为以下几种：</p>
+<ul>
+<li>compile. 默认范围，会被打包。</li>
+<li>provided. 这个概念比较模糊，意思是这东西由外部容器提供，不需要自己打包进去。</li>
+<li>runtime. 只有运行和测试系统的时候需要，编译的时候不需要。一个典型的例子就是<code>jdbc</code>的接口API在编译时必须要可用，但是具体实现可以只在运行时插入。</li>
+<li>test. 只被测试依赖。Maven有标准的测试流程。</li>
+<li>system. 系统范围，jar包被放在本地，无须从仓库中寻找。当然一般不推荐使用。</li>
+</ul>
+<h2 id="Idea的使用"><a href="#Idea的使用" class="headerlink" title="Idea的使用"></a>Idea的使用</h2><p>Idea中可以在<code>Project Structure</code>里面直接修改配置，会自动生成/修改对应的Pom文件，主要在<code>modules/dependencies</code>里面改。</p>
+]]></content>
+      <tags>
+        <tag>java</tag>
+        <tag>maven</tag>
+        <tag>gradle</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux无人值守安装镜像制作.md</title>
     <url>/2020/04/29/linux%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/</url>
     <content><![CDATA[<p>这里需要批量安装的是centos 7服务器版，首先下载centos 7最新版，带上GUI的镜像，装在虚拟机里面。然后下载centos 7 minimal镜像用作批量安装的母盘。</p>
@@ -1281,54 +1303,6 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
       <tags>
         <tag>linux</tag>
         <tag>devops</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>lua5.1要点笔记</title>
-    <url>/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><code>sudo apt-get install lua5.1</code></p>
-<p>lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。</p>
-<p>lua是一门嵌入式语言，也就是程序的入口点必定在别处，这是和python等脚本语言的最大区别。lua的性能很好，虽然比不上v8的js。</p>
-<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><ol>
-<li>作为一门动态语言，可以从lua身上看出许多动态语言的影子。lua与js，python都有一定的相似性，可以说是综合了二者之所长。但是有个坑，就是unicode问题，lua5.3解决了这个问题。不过对于heka，一般情况下我们不太需要处理utf8，毕竟日志数据track一般都是编号和数据。</li>
-<li>与python不同而与js类似，lua是动态类型语言。字符串会在适当时候自动转成数字， 当然也可以使用string.format自己进行转换；</li>
-<li>所有的变量默认是全局的（与js一致），需要使用local修饰符来创建局部变量；全局变量被存放在一个table中，被称为环境，可以通过<code>getfenv</code>和<code>setfenv</code>来对环境进行操作；</li>
-<li>只有一种数据结构：table. 赋值语句比较奇怪:<figure class="highlight lua"><table><tr><td class="code"><pre><span class="line">a = &#123;x=<span class="number">3</span>, [<span class="number">2</span>]=<span class="number">2</span>&#125;</span><br><span class="line">a[<span class="number">1</span>] == <span class="number">2</span></span><br><span class="line">a[<span class="string">&quot;x&quot;</span>] == <span class="number">3</span></span><br></pre></td></tr></table></figure>
-注意table里面值不能是nil，否则会有各种奇怪的问题，比如<code>#</code>返回的是<code>nil</code>值之前的长度；所以可以用<code>a[x] == nil</code>或者<code>if a[x]</code>来判断exists；将<code>a[x]=nil</code>则相当于删除了<code>x</code>元素。但是不能这样删除数组里面的元素，因为会导致<code>#</code>操作符的结果错误，需要使用<code>table.remove(x)</code>;</li>
-<li>连接操作符：<code>..</code>; 取长度操作符（相当于<code>len</code>)<code>#</code>，但是<code>#</code>返回的是字节数，所以更像是<code>sizeof</code></li>
-<li>函数与js中的很像，支持闭包。<code>：</code>可以用来定义方法，本质上是一种语法糖；</li>
-<li><code>metatable</code>类似与python的内置方法，各种重载操作符。</li>
-<li>lua支持<code>coroutine</code>.</li>
-</ol>
-<h3 id="库"><a href="#库" class="headerlink" title="库"></a>库</h3><ol>
-<li>由于lua中table不支持<code>nil</code>，这与json中的<code>null</code>产生了矛盾，需要使用<code>cjson.null</code>来表示</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>heka</tag>
-        <tag>lua</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>maven和gradle一些选项</title>
-    <url>/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/</url>
-    <content><![CDATA[<p>Java的包依赖系统简单粗暴，就是直接下载jar包，经历了<code>Ant</code> -&gt; <code>Maven</code> -&gt; <code>Gradle</code>这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。</p>
-<p>如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。</p>
-<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），而Gradle会尝试自动解决该问题（使用公共依赖的最新版本）。</p>
-<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p>类似<code>npm</code>中的概念：这个包是啥时候被需要。显然有些包只是编译的时候需求，运行的时候不再被需要，因为Maven中的<code>scope</code>分为以下几种：</p>
-<ul>
-<li>compile. 默认范围，会被打包。</li>
-<li>provided. 这个概念比较模糊，意思是这东西由外部容器提供，不需要自己打包进去。</li>
-<li>runtime. 只有运行和测试系统的时候需要，编译的时候不需要。一个典型的例子就是<code>jdbc</code>的接口API在编译时必须要可用，但是具体实现可以只在运行时插入。</li>
-<li>test. 只被测试依赖。Maven有标准的测试流程。</li>
-<li>system. 系统范围，jar包被放在本地，无须从仓库中寻找。当然一般不推荐使用。</li>
-</ul>
-<h2 id="Idea的使用"><a href="#Idea的使用" class="headerlink" title="Idea的使用"></a>Idea的使用</h2><p>Idea中可以在<code>Project Structure</code>里面直接修改配置，会自动生成/修改对应的Pom文件，主要在<code>modules/dependencies</code>里面改。</p>
-]]></content>
-      <tags>
-        <tag>java</tag>
-        <tag>maven</tag>
-        <tag>gradle</tag>
       </tags>
   </entry>
   <entry>
@@ -1400,24 +1374,29 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
       </tags>
   </entry>
   <entry>
-    <title>netty的一些基础概念</title>
-    <url>/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<p>Java框架的问题就是概念很多，Netty作为“用Java必会的网络编程框架”，其实并不复杂，就是其他语言中的事件驱动。如果写过原生epoll的话，对这玩意儿不难理解。问题在于Java的框架抽象了一堆概念，所以重点就是把这些概念和其他语言中的东西做映射。</p>
-<p>有一点要清楚：epoll其实是一个同步非阻塞模型，并不是异步的，只有AIO才是异步模型（但是AIO目前是通过线程池实现的，内核和用户态的上下文切换导致效率并不高）。同样，netty也是同步模型。</p>
-<h2 id="调用方式"><a href="#调用方式" class="headerlink" title="调用方式"></a>调用方式</h2><p>EpollEventLoop底层使用epoll实现多路复用。</p>
-<p>EpollEventLoop中会初始化epollFd、eventFd、timerFd。</p>
-<pre><code>epollFd是调用系统方法生成的epoll对象，后续会使用其管理所有需要监听的fd
-
-eventFd是用于线程通讯，程序会把eventFd添加到epollFd中，监听eventFd，一旦eventFd有操作，则会唤醒调用epoll_wait的线程。
-
-timerFd是用于计时，同样的监听timerFd，一旦时间到达，则会唤醒调用epoll_wait的线程。
-</code></pre>
-<p>每当连接接入或者断连，都会调用epoll_ctl_add/epoll_ctl_del方法来操作epoll对象。</p>
-<p>在EpollEventLoop的run方法中，会调用epoll_wait来监听所有fd，一旦有fd就绪，会拷贝至EpollEventArray中，应用程序遍历EpollEventArray处理所有就绪事件。</p>
-<h2 id="概念解释"><a href="#概念解释" class="headerlink" title="概念解释"></a>概念解释</h2>]]></content>
+    <title>lua5.1要点笔记</title>
+    <url>/2017/06/12/lua5.1%E8%A6%81%E7%82%B9%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><code>sudo apt-get install lua5.1</code></p>
+<p>lua的各个版本之间不兼容问题很严重，5.1-5.2-5.3之间都有一些不兼容的问题，5.1是最经典的版本，适用范围广泛。luajit与lua的关系相当于pypy与cpython的关系，luajit采用lua5.1语法，作者已经另起炉灶了，永远不和lua5.2兼容。Heka的lua扩展也是使用5.1版本的lua。</p>
+<p>lua是一门嵌入式语言，也就是程序的入口点必定在别处，这是和python等脚本语言的最大区别。lua的性能很好，虽然比不上v8的js。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><ol>
+<li>作为一门动态语言，可以从lua身上看出许多动态语言的影子。lua与js，python都有一定的相似性，可以说是综合了二者之所长。但是有个坑，就是unicode问题，lua5.3解决了这个问题。不过对于heka，一般情况下我们不太需要处理utf8，毕竟日志数据track一般都是编号和数据。</li>
+<li>与python不同而与js类似，lua是动态类型语言。字符串会在适当时候自动转成数字， 当然也可以使用string.format自己进行转换；</li>
+<li>所有的变量默认是全局的（与js一致），需要使用local修饰符来创建局部变量；全局变量被存放在一个table中，被称为环境，可以通过<code>getfenv</code>和<code>setfenv</code>来对环境进行操作；</li>
+<li>只有一种数据结构：table. 赋值语句比较奇怪:<figure class="highlight lua"><table><tr><td class="code"><pre><span class="line">a = &#123;x=<span class="number">3</span>, [<span class="number">2</span>]=<span class="number">2</span>&#125;</span><br><span class="line">a[<span class="number">1</span>] == <span class="number">2</span></span><br><span class="line">a[<span class="string">&quot;x&quot;</span>] == <span class="number">3</span></span><br></pre></td></tr></table></figure>
+注意table里面值不能是nil，否则会有各种奇怪的问题，比如<code>#</code>返回的是<code>nil</code>值之前的长度；所以可以用<code>a[x] == nil</code>或者<code>if a[x]</code>来判断exists；将<code>a[x]=nil</code>则相当于删除了<code>x</code>元素。但是不能这样删除数组里面的元素，因为会导致<code>#</code>操作符的结果错误，需要使用<code>table.remove(x)</code>;</li>
+<li>连接操作符：<code>..</code>; 取长度操作符（相当于<code>len</code>)<code>#</code>，但是<code>#</code>返回的是字节数，所以更像是<code>sizeof</code></li>
+<li>函数与js中的很像，支持闭包。<code>：</code>可以用来定义方法，本质上是一种语法糖；</li>
+<li><code>metatable</code>类似与python的内置方法，各种重载操作符。</li>
+<li>lua支持<code>coroutine</code>.</li>
+</ol>
+<h3 id="库"><a href="#库" class="headerlink" title="库"></a>库</h3><ol>
+<li>由于lua中table不支持<code>nil</code>，这与json中的<code>null</code>产生了矛盾，需要使用<code>cjson.null</code>来表示</li>
+</ol>
+]]></content>
       <tags>
-        <tag>java</tag>
-        <tag>netty</tag>
+        <tag>heka</tag>
+        <tag>lua</tag>
       </tags>
   </entry>
   <entry>
@@ -1587,54 +1566,6 @@ ZERO_DIVIDE            零被整除
       </tags>
   </entry>
   <entry>
-    <title>redis知识点总结</title>
-    <url>/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
-<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
-<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
-<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
-<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
-<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
-<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
-<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
-<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
-<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
-<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
-<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
-<p>GC：自己实现的引用计数。</p>
-<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
-<p>过期删除使用惰性策略+定期删除。</p>
-<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
-]]></content>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>sass项目顶层设计</title>
-    <url>/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
-<p>几个需要讨论的问题：</p>
-<ol>
-<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
-<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
-<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
-<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
-<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
-</ol>
-<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
-<ol>
-<li>目前已有系统如何抽象、拆分服务；</li>
-<li>前端展示层如何设计；</li>
-<li>重构后要保证平台满足当前所有已接入所有业务；</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>sass</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>web前端开发进阶</title>
     <url>/2017/06/12/web%E5%BC%80%E5%8F%91%E8%BF%9B%E9%98%B6/</url>
     <content><![CDATA[<p>目前的项目还是用backbone写控制台，说实话，快写吐了…前段时间看了一下ES6，ES7的变化，发现javascript正在变得越来越好，加上V8的给力性能，在web开发这块，js取代python指日可待。当然python丰富的第三方库决定了它在运维/科学计算/爬虫等方面的可靠性，仍然是值得推荐的第一入门语言（当然，学院派最好从lisp入手）。</p>
@@ -1668,6 +1599,29 @@ ZERO_DIVIDE            零被整除
         <tag>web</tag>
         <tag>javascript</tag>
         <tag>es6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>sass项目顶层设计</title>
+    <url>/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
+<p>几个需要讨论的问题：</p>
+<ol>
+<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
+<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
+<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
+<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
+<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
+</ol>
+<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
+<ol>
+<li>目前已有系统如何抽象、拆分服务；</li>
+<li>前端展示层如何设计；</li>
+<li>重构后要保证平台满足当前所有已接入所有业务；</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>sass</tag>
       </tags>
   </entry>
   <entry>
@@ -1707,6 +1661,31 @@ ZERO_DIVIDE            零被整除
       <tags>
         <tag>leetcode</tag>
         <tag>面试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis知识点总结</title>
+    <url>/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
+<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
+<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
+<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
+<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
+<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
+<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
+<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
+<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
+<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
+<p>GC：自己实现的引用计数。</p>
+<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
+<p>过期删除使用惰性策略+定期删除。</p>
+<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
+]]></content>
+      <tags>
+        <tag>redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1784,6 +1763,54 @@ ZERO_DIVIDE            零被整除
 ]]></content>
       <tags>
         <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>摄影笔记</title>
+    <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
+<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
+<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
+<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
+<li>曝光补偿：用以修正曝光值；</li>
+<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
+<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
+</ol>
+<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
+<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
+<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
+</ol>
+<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
+<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
+<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
+</ol>
+<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
+<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
+<li>与光圈成反比</li>
+<li>与焦距成反比</li>
+<li>与对焦距离成正比</li>
+</ol>
+<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
+<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
+<ol>
+<li>快门速度</li>
+<li>光圈大小</li>
+<li>感光度</li>
+<li>曝光补偿</li>
+</ol>
+<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
+<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
+<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
+<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
+<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
+<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
+<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
+</ol>
+<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
+<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
+]]></content>
+      <tags>
+        <tag>摄影</tag>
       </tags>
   </entry>
   <entry>
@@ -2109,54 +2136,6 @@ ZERO_DIVIDE            零被整除
       <tags>
         <tag>database</tag>
         <tag>note</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>摄影笔记</title>
-    <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
-<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
-<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
-<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
-<li>曝光补偿：用以修正曝光值；</li>
-<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
-<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
-</ol>
-<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
-<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
-<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
-</ol>
-<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
-<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
-<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
-</ol>
-<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
-<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
-<li>与光圈成反比</li>
-<li>与焦距成反比</li>
-<li>与对焦距离成正比</li>
-</ol>
-<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
-<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
-<ol>
-<li>快门速度</li>
-<li>光圈大小</li>
-<li>感光度</li>
-<li>曝光补偿</li>
-</ol>
-<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
-<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
-<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
-<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
-<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
-<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
-<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
-</ol>
-<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
-<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
-]]></content>
-      <tags>
-        <tag>摄影</tag>
       </tags>
   </entry>
   <entry>

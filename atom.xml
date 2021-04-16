@@ -6,7 +6,7 @@
   <link href="http://yiuterran.github.io/atom.xml" rel="self"/>
   
   <link href="http://yiuterran.github.io/"/>
-  <updated>2021-02-24T06:25:50.767Z</updated>
+  <updated>2020-06-05T05:54:13.058Z</updated>
   <id>http://yiuterran.github.io/</id>
   
   <author>
@@ -15,31 +15,6 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>netty的一些基础概念</title>
-    <link href="http://yiuterran.github.io/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/"/>
-    <id>http://yiuterran.github.io/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</id>
-    <published>2021-02-24T01:54:00.000Z</published>
-    <updated>2021-02-24T06:25:50.767Z</updated>
-    
-    <content type="html"><![CDATA[<p>Java框架的问题就是概念很多，Netty作为“用Java必会的网络编程框架”，其实并不复杂，就是其他语言中的事件驱动。如果写过原生epoll的话，对这玩意儿不难理解。问题在于Java的框架抽象了一堆概念，所以重点就是把这些概念和其他语言中的东西做映射。</p><p>有一点要清楚：epoll其实是一个同步非阻塞模型，并不是异步的，只有AIO才是异步模型（但是AIO目前是通过线程池实现的，内核和用户态的上下文切换导致效率并不高）。同样，netty也是同步模型。</p><h2 id="调用方式"><a href="#调用方式" class="headerlink" title="调用方式"></a>调用方式</h2><p>EpollEventLoop底层使用epoll实现多路复用。</p><p>EpollEventLoop中会初始化epollFd、eventFd、timerFd。</p><pre><code>epollFd是调用系统方法生成的epoll对象，后续会使用其管理所有需要监听的fdeventFd是用于线程通讯，程序会把eventFd添加到epollFd中，监听eventFd，一旦eventFd有操作，则会唤醒调用epoll_wait的线程。timerFd是用于计时，同样的监听timerFd，一旦时间到达，则会唤醒调用epoll_wait的线程。</code></pre><p>每当连接接入或者断连，都会调用epoll_ctl_add/epoll_ctl_del方法来操作epoll对象。</p><p>在EpollEventLoop的run方法中，会调用epoll_wait来监听所有fd，一旦有fd就绪，会拷贝至EpollEventArray中，应用程序遍历EpollEventArray处理所有就绪事件。</p><h2 id="概念解释"><a href="#概念解释" class="headerlink" title="概念解释"></a>概念解释</h2>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;Java框架的问题就是概念很多，Netty作为“用Java必会的网络编程框架”，其实并不复杂，就是其他语言中的事件驱动。如果写过原生epoll的话，对这玩意儿不难理解。问题在于Java的框架抽象了一堆概念，所以重点就是把这些概念和其他语言中的东西做映射。&lt;/p&gt;
-&lt;p&gt;有一</summary>
-      
-    
-    
-    
-    
-    <category term="java" scheme="http://yiuterran.github.io/tags/java/"/>
-    
-    <category term="netty" scheme="http://yiuterran.github.io/tags/netty/"/>
-    
-  </entry>
   
   <entry>
     <title>golang文件操作的一个坑</title>
