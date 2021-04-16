@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yiuterran.github.io/tags/index.html</loc>
+    
+    <lastmod>2021-04-16</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yiuterran.github.io/2021/02/24/netty%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</loc>
     
     <lastmod>2021-02-24</lastmod>
@@ -318,13 +325,6 @@
   
   <url>
     <loc>http://yiuterran.github.io/categories/index.html</loc>
-    
-    <lastmod>2017-05-22</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yiuterran.github.io/tags/index.html</loc>
     
     <lastmod>2017-05-22</lastmod>
     
