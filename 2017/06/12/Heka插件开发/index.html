@@ -1,184 +1,278 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>Heka插件开发 | 无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="go,heka">
-    <meta name="description" content="学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。 概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）： 显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstas">
-<meta name="keywords" content="go,heka">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。 概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）： 显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstas">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Heka插件开发">
-<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/Heka插件开发/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。 概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）： 显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstas">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://skoo.me/assets/images/heka-overview-diagram.png">
-<meta property="og:updated_time" content="2017-06-12T16:26:16.000Z">
+<meta property="article:published_time" content="2017-06-12T15:48:37.000Z">
+<meta property="article:modified_time" content="2017-06-12T16:26:16.000Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="heka">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Heka插件开发">
-<meta name="twitter:description" content="学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的ruby插件，复杂的才需要自己写插件来处理。 概述Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）： 显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstas">
 <meta name="twitter:image" content="http://skoo.me/assets/images/heka-overview-diagram.png">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>Heka插件开发 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu" class="hide" >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">Heka插件开发</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
-</header>
-<header class="content-header post-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">Heka插件开发</h1>
-        <h5 class="subtitle">
-            
-                <time datetime="2017-06-12T15:48:37.000Z" itemprop="datePublished" class="page-time">
-  2017-06-12
-</time>
+  </div>
+</div>
 
 
-            
-        </h5>
-    </div>
-
-    
 
 
-</header>
 
 
-<div class="container body-wrap">
-    
-    <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编译步骤"><span class="post-toc-number">2.</span> <span class="post-toc-text">编译步骤</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#项目应用"><span class="post-toc-number">3.</span> <span class="post-toc-text">项目应用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#lua开发"><span class="post-toc-number">4.</span> <span class="post-toc-text">lua开发</span></a></li></ol>
-        </nav>
-    </aside>
-    
-<article id="post-Heka插件开发"
-  class="post-article article-type-post fade" itemprop="blogPost">
 
-    <div class="post-card">
-        <h1 class="post-card-title">Heka插件开发</h1>
-        <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:48:37" datetime="2017-06-12T15:48:37.000Z"  itemprop="datePublished">2017-06-12</time>
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
 
-            
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">编译步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">项目应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lua%E5%BC%80%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">lua开发</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
-            
-<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
-    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
-</span>
-
-
-            
 
         </div>
-        <div class="post-content" id="post-content" itemprop="postContent">
-            <p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Heka插件开发
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:37" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:37+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:26:16" itemprop="dateModified" datetime="2017-06-13T00:26:16+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
 <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：<br><img src="http://skoo.me/assets/images/heka-overview-diagram.png" alt="Heka结构图"></p>
 <p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
 <h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
 <li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
-<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a href="https://hekad.readthedocs.org/en/v0.10.0/installing.html" target="_blank" rel="noopener">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
+<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/installing.html">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
 <li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
 <li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
 </ol>
@@ -191,311 +285,108 @@
 <li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
 <li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
 </ol>
-<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">"/var/log/lucky"</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">'track\.json'</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">"JsonDecoder"</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">"SandboxDecoder"</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">"lua_decoders/json.lua"</span></span><br><span class="line"><span class="section">    [JsonDecoder.config]</span></span><br><span class="line">    Type = "type"</span><br><span class="line">    payload_keep = true</span><br><span class="line">    Timestamp = "@timestamp"</span><br><span class="line">    timestamp_format = "%Y-%m-%dT%H:%M:%S.%f"</span><br></pre></td></tr></table></figure></p>
+<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">&quot;/var/log/lucky&quot;</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">&#x27;track\.json&#x27;</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">&quot;JsonDecoder&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">&quot;SandboxDecoder&quot;</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">&quot;lua_decoders/json.lua&quot;</span></span><br><span class="line">    <span class="section">[JsonDecoder.config]</span></span><br><span class="line">    <span class="attr">Type</span> = <span class="string">&quot;type&quot;</span></span><br><span class="line">    <span class="attr">payload_keep</span> = <span class="literal">true</span></span><br><span class="line">    <span class="attr">Timestamp</span> = <span class="string">&quot;@timestamp&quot;</span></span><br><span class="line">    <span class="attr">timestamp_format</span> = <span class="string">&quot;%Y-%m-%dT%H:%M:%S.%f&quot;</span></span><br></pre></td></tr></table></figure>
+
 <p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
-<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface{}</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface{}</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
-<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html" target="_blank" rel="noopener">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
-<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"UserId"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"Set"</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">"Inc"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface&#123;&#125;</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface&#123;&#125;</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
+<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
+<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
 
-        </div>
-
-        <blockquote class="post-copyright">
-    <div class="content">
-        
-<span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:26:16.000Z" itemprop="dateUpdated">2017-06-13 00:26:16</time>
-</span><br>
-
-
-        
-        <a href="/2017/06/12/Heka插件开发/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/Heka插件开发/</a>
-        
-    </div>
-    <footer>
-        <a href="http://YiuTerran.github.io">
-            <img src="/img/avatar.png" alt="tryao">
-            tryao
-        </a>
-    </footer>
-</blockquote>
-
-        
-<div class="page-reward">
-    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
-</div>
-
-
-
-        <div class="post-footer">
-            
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heka/">heka</a></li></ul>
-
-
-            
-<div class="page-share-wrap">
-    
-
-<div class="page-share" id="pageShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&title=《Heka插件开发》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&title=《Heka插件开发》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Heka插件开发/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Heka插件开发》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-
-    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
-        <i class="icon icon-share-alt icon-lg"></i>
-    </a>
-</div>
-
-
-
-        </div>
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2017/06/12/Go语言学习/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">Go语言学习</h4>
-      </a>
-    </div>
-  
-
-  
-    <div class="waves-block waves-effect next">
-      <a href="/2017/06/12/jvm调优指南/" id="post-next" class="post-nav-link">
-        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">java CMS GC调优步骤</h4>
-      </a>
-    </div>
-  
-</nav>
-
-
-
+    
     
 
-
-
-
-<section class="comments" id="comments">
-    <div id="disqus_thread"></div>
-    <script>
-    var disqus_shortname = 'yiuterran';
-    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</article>
-
-<div id="reward" class="page-modal reward-lay">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <h3 class="reward-title">
-        <i class="icon icon-quote-left"></i>
-        谢谢大爷~
-        <i class="icon icon-quote-right"></i>
-    </h3>
-    <ul class="reward-items">
-        
-        <li>
-            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
-            <p>微信</p>
-        </li>
-        
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+              <a href="/tags/heka/" rel="tag"># heka</a>
+          </div>
 
         
-        <li>
-            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
-            <p>支付宝</p>
-        </li>
-        
-    </ul>
-</div>
 
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&title=《Heka插件开发》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&title=《Heka插件开发》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/Heka插件开发/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Heka插件开发》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/Heka插件开发/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACI0lEQVR42u3aQW6EMAwF0Ln/pel2pAr67YRKmMcKDQXyWPwmdj6f+Di+jt+/XF/9/qX6ls0HBgbGYxnH5VFlnA39CI7qXRgYGG9jnCXY9fn1c3oD6r0LAwMD4/rReUzn8Y2BgYHxP4G7vtzFwMDAWFmO5kvTXuzeuBbHwMB4ICOvuv//+S39DQwMjEcx7ojLJJR7JbnTUWFgYIxm7NoGUS2x5Z+mMB4MDIzRjDxG88flC85eTDd3sWFgYAxi5K3KJIh7cZwjMTAw3sDoFf1Xal/VJWt5houBgTGIkbct82niSg2/OWXEwMAYzei9stoeyHkrT8DAwJjNWA/W6jfLYz3ZNIaBgTGbkQCSJWi1zdBrhZ5excDAeBkjKd/npfzqFLD3QTEwMGYzqiGYLzL3xnG5rIaBgTGUUbih9cqkhblUyMPAwBjNyONvfStYviRudjYwMDCGMvJtFisbwnrN0cKWDgwMjNGMXbHb2xa2UubDwMB4DyOJv95QqkvQ/O2ne0YwMDBGM5Lb8klbtVW57X8FBgbGCxj5Q5Pz5Gq1rBYFLgYGxiDGUTySslp1cCuTy8/KgDAwMB7CWGlwVndk5cPqBToGBsZsRh6yyZqxGrW9wG12UDEwMB7OqJbPehu81qd65cYABgYGRjxlzJug1YYEBgYGRsKoFtRWQvaPRSwGBsZoRm/CVy3x9/5mc7kNAwPjgYxdkXdHSa7XhMDAwBjE+AHdPLJQ2DQl0wAAAABJRU5ErkJggg==" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" rel="prev" title="java CMS GC调优步骤">
+                  <i class="fa fa-chevron-left"></i> java CMS GC调优步骤
+                </a>
             </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
-
-
-
-
+            <div class="post-nav-item">
+                <a href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" rel="next" title="Go语言学习">
+                  Go语言学习 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
 
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
     });
-})();
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 

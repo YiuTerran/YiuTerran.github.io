@@ -1,177 +1,272 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>CometD源码学习[1] | 无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="cometd,jetty,java">
-    <meta name="description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
-<meta name="keywords" content="cometd,jetty,java">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CometD源码学习[1]">
-<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-06-12T16:24:33.000Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-06-12T15:47:20.000Z">
+<meta property="article:modified_time" content="2017-06-12T16:24:33.000Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="cometd">
+<meta property="article:tag" content="jetty">
+<meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CometD源码学习[1]">
-<meta name="twitter:description" content="首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。 org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这个类主">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>CometD源码学习[1] | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu" class="hide" >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">CometD源码学习[1]</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
-</header>
-<header class="content-header post-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">CometD源码学习[1]</h1>
-        <h5 class="subtitle">
-            
-                <time datetime="2017-06-12T15:47:20.000Z" itemprop="datePublished" class="page-time">
-  2017-06-12
-</time>
+  </div>
+</div>
 
 
-            
-        </h5>
-    </div>
-
-    
 
 
-</header>
 
 
-<div class="container body-wrap">
-    
-    <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#org-cometd-server-CometDServlet"><span class="post-toc-number">1.</span> <span class="post-toc-text">org.cometd.server.CometDServlet</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#org-cometd-server-BayeuxServer"><span class="post-toc-number">2.</span> <span class="post-toc-text">org.cometd.server.BayeuxServer</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#org-cometd-server-BayeuxServerImpl"><span class="post-toc-number">3.</span> <span class="post-toc-text">org.cometd.server.BayeuxServerImpl</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#dostart"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">dostart</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#createChannelIfAbsent"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">createChannelIfAbsent</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PushServlet"><span class="post-toc-number">4.</span> <span class="post-toc-text">PushServlet</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#AbstractService"><span class="post-toc-number">5.</span> <span class="post-toc-text">AbstractService</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#addService"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">addService</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#handle"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">handle</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#AbstractService-Invoker"><span class="post-toc-number">6.</span> <span class="post-toc-text">AbstractService.Invoker</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BayeuxServerImpl-HandshakeHandler"><span class="post-toc-number">7.</span> <span class="post-toc-text">BayeuxServerImpl.HandshakeHandler</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage-1"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BayeuxServerImpl-ConnectHandler"><span class="post-toc-number">8.</span> <span class="post-toc-text">BayeuxServerImpl.ConnectHandler</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage-2"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BayeuxServerImpl-SubscribeHandler"><span class="post-toc-number">9.</span> <span class="post-toc-text">BayeuxServerImpl.SubscribeHandler</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage-3"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BayeuxServerImpl-UnsubscribeHandler"><span class="post-toc-number">10.</span> <span class="post-toc-text">BayeuxServerImpl.UnsubscribeHandler</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage-4"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BayeuxServerImpl-DisconnectHandler"><span class="post-toc-number">11.</span> <span class="post-toc-text">BayeuxServerImpl.DisconnectHandler</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OnMessage-5"><span class="post-toc-number">11.1.</span> <span class="post-toc-text">OnMessage</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ServerSessionImpl"><span class="post-toc-number">12.</span> <span class="post-toc-text">ServerSessionImpl</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#flush"><span class="post-toc-number">12.1.</span> <span class="post-toc-text">flush</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#LazyTask"><span class="post-toc-number">12.2.</span> <span class="post-toc-text">LazyTask</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Setxxx"><span class="post-toc-number">12.3.</span> <span class="post-toc-text">Setxxx</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ServerSessionListener"><span class="post-toc-number">12.4.</span> <span class="post-toc-text">ServerSessionListener</span></a></li></ol></li></ol>
-        </nav>
-    </aside>
-    
-<article id="post-CometD源码学习_2"
-  class="post-article article-type-post fade" itemprop="blogPost">
 
-    <div class="post-card">
-        <h1 class="post-card-title">CometD源码学习[1]</h1>
-        <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:47:20" datetime="2017-06-12T15:47:20.000Z"  itemprop="datePublished">2017-06-12</time>
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
 
-            
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#org-cometd-server-CometDServlet"><span class="nav-number">1.</span> <span class="nav-text">org.cometd.server.CometDServlet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#org-cometd-server-BayeuxServer"><span class="nav-number">2.</span> <span class="nav-text">org.cometd.server.BayeuxServer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#org-cometd-server-BayeuxServerImpl"><span class="nav-number">3.</span> <span class="nav-text">org.cometd.server.BayeuxServerImpl</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dostart"><span class="nav-number">3.1.</span> <span class="nav-text">dostart</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#createChannelIfAbsent"><span class="nav-number">3.2.</span> <span class="nav-text">createChannelIfAbsent</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PushServlet"><span class="nav-number">4.</span> <span class="nav-text">PushServlet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractService"><span class="nav-number">5.</span> <span class="nav-text">AbstractService</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#addService"><span class="nav-number">5.1.</span> <span class="nav-text">addService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#handle"><span class="nav-number">5.2.</span> <span class="nav-text">handle</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractService-Invoker"><span class="nav-number">6.</span> <span class="nav-text">AbstractService.Invoker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage"><span class="nav-number">6.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BayeuxServerImpl-HandshakeHandler"><span class="nav-number">7.</span> <span class="nav-text">BayeuxServerImpl.HandshakeHandler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage-1"><span class="nav-number">7.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BayeuxServerImpl-ConnectHandler"><span class="nav-number">8.</span> <span class="nav-text">BayeuxServerImpl.ConnectHandler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage-2"><span class="nav-number">8.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BayeuxServerImpl-SubscribeHandler"><span class="nav-number">9.</span> <span class="nav-text">BayeuxServerImpl.SubscribeHandler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage-3"><span class="nav-number">9.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BayeuxServerImpl-UnsubscribeHandler"><span class="nav-number">10.</span> <span class="nav-text">BayeuxServerImpl.UnsubscribeHandler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage-4"><span class="nav-number">10.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BayeuxServerImpl-DisconnectHandler"><span class="nav-number">11.</span> <span class="nav-text">BayeuxServerImpl.DisconnectHandler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OnMessage-5"><span class="nav-number">11.1.</span> <span class="nav-text">OnMessage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ServerSessionImpl"><span class="nav-number">12.</span> <span class="nav-text">ServerSessionImpl</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#flush"><span class="nav-number">12.1.</span> <span class="nav-text">flush</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LazyTask"><span class="nav-number">12.2.</span> <span class="nav-text">LazyTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Setxxx"><span class="nav-number">12.3.</span> <span class="nav-text">Setxxx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServerSessionListener"><span class="nav-number">12.4.</span> <span class="nav-text">ServerSessionListener</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
-            
-<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
-    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
-</span>
-
-
-            
 
         </div>
-        <div class="post-content" id="post-content" itemprop="postContent">
-            <p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CometD源码学习[1]
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:20" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:20+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:24:33" itemprop="dateModified" datetime="2017-06-13T00:24:33+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
 <h2 id="org-cometd-server-CometDServlet"><a href="#org-cometd-server-CometDServlet" class="headerlink" title="org.cometd.server.CometDServlet"></a>org.cometd.server.CometDServlet</h2><p>在web.xml中，服务的配置顺序一般是<code>CometDServlet</code>，<code>oort</code>，<code>seti</code>和用户自定义应用的<code>Servlet</code>，我们也按这个顺序来看。显然，这个类主要用于Long-Polling模式。<br><code>init</code>中主要就是新建（如果未导出）并启动一个bayeuxServer;<br><code>service</code>中，”OPTION”请求，用于允许CORS访问，直接返回200；否则转发给transport；<br><code>destroy</code>用于生命周期中stop过程调用，依次cancelSchedule, stop bayeuxServer, remove导出的bayeuxServer.</p>
 <h2 id="org-cometd-server-BayeuxServer"><a href="#org-cometd-server-BayeuxServer" class="headerlink" title="org.cometd.server.BayeuxServer"></a>org.cometd.server.BayeuxServer</h2><p>这个接口规定了bayeux服务器需要实现的接口。值得关注的地方：</p>
 <ol>
@@ -205,7 +300,7 @@
 <h3 id="OnMessage-1"><a href="#OnMessage-1" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>handshake的时候session理论上还不存在，于是新建一个<code>ServerSession</code>，并且将HTTP的相关报头转移过来（UA），然后得到关联(<code>getAssociated</code>)的消息实体（消息可能是捎带回去的）。<br>这时候先判断<code>SecurityPolicy</code>有没有设置，如果设置了，就先判断<code>canHandshake</code>是不是成立，如果不成立，就要<code>reply.setSuccessful(false)</code>，并设置错误原因。</p>
 <p>这里有个问题，reply并没有传给<code>canHandshake</code>，但是<code>message</code>被传进去了。根据<code>ServerMessageImpl</code>的实现，<code>canHandshake</code>也可以用<code>message.getAssociated</code>里面拿到reply，然后增加想要的字段（ext）。代码显示，这里并没有往advice里面添加重连间隔（<code>interval</code>)字段。<br>【这里显示了nest class如何得到outer class的实例，直接用<code>BayeuxServerImpl.this</code>.】</p>
 <p>一切正常，<code>ServerSession</code>首先和自己握手，增加<code>ServerSession</code>（在此处<strong>通知回调</strong>，即应用程序注册的监听Session添加的方法），定义reply中的某些字段；如果<code>canHandshake</code>返回false，则返回403（handshake denied）错误；注意：如果应用程序的监听器没有设置<code>advice</code>中的<code>reconnect</code>字段，这里默认会填入<code>none</code>。</p>
-<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a href="http://docs.cometd.org/reference/bayeux_message_fields.html" target="_blank" rel="noopener">^1</a></p>
+<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a target="_blank" rel="noopener" href="http://docs.cometd.org/reference/bayeux_message_fields.html">^1</a></p>
 <h2 id="BayeuxServerImpl-ConnectHandler"><a href="#BayeuxServerImpl-ConnectHandler" class="headerlink" title="BayeuxServerImpl.ConnectHandler"></a>BayeuxServerImpl.ConnectHandler</h2><p>心跳信息处理。</p>
 <h3 id="OnMessage-2"><a href="#OnMessage-2" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>如果session未知，那就需要重新握手，返回402错误。否则对session进行续期，并返回advice，内容包括<code>timeout</code>和<code>interval</code>字段（如果没有设置，默认是不过期的）</p>
 <h2 id="BayeuxServerImpl-SubscribeHandler"><a href="#BayeuxServerImpl-SubscribeHandler" class="headerlink" title="BayeuxServerImpl.SubscribeHandler"></a>BayeuxServerImpl.SubscribeHandler</h2><p>订阅Channel处理。</p>
@@ -219,304 +314,99 @@
 <h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
 <h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
 
-        </div>
-
-        <blockquote class="post-copyright">
-    <div class="content">
-        
-<span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:24:33.000Z" itemprop="dateUpdated">2017-06-13 00:24:33</time>
-</span><br>
-
-
-        
-        <a href="/2017/06/12/CometD源码学习_2/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/</a>
-        
-    </div>
-    <footer>
-        <a href="http://YiuTerran.github.io">
-            <img src="/img/avatar.png" alt="tryao">
-            tryao
-        </a>
-    </footer>
-</blockquote>
-
-        
-<div class="page-reward">
-    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
-</div>
-
-
-
-        <div class="post-footer">
-            
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jetty/">jetty</a></li></ul>
-
-
-            
-<div class="page-share-wrap">
-    
-
-<div class="page-share" id="pageShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&title=《CometD源码学习[1]》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&title=《CometD源码学习[1]》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CometD源码学习[1]》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-
-    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
-        <i class="icon icon-share-alt icon-lg"></i>
-    </a>
-</div>
-
-
-
-        </div>
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2017/06/12/CometD源码学习_1/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">CometD源码学习[0]</h4>
-      </a>
-    </div>
-  
-
-  
-    <div class="waves-block waves-effect next">
-      <a href="/2017/06/12/cmake实践/" id="post-next" class="post-nav-link">
-        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">cmake实践</h4>
-      </a>
-    </div>
-  
-</nav>
-
-
-
+    
     
 
-
-
-
-<section class="comments" id="comments">
-    <div id="disqus_thread"></div>
-    <script>
-    var disqus_shortname = 'yiuterran';
-    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</article>
-
-<div id="reward" class="page-modal reward-lay">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <h3 class="reward-title">
-        <i class="icon icon-quote-left"></i>
-        谢谢大爷~
-        <i class="icon icon-quote-right"></i>
-    </h3>
-    <ul class="reward-items">
-        
-        <li>
-            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
-            <p>微信</p>
-        </li>
-        
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cometd/" rel="tag"># cometd</a>
+              <a href="/tags/jetty/" rel="tag"># jetty</a>
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
 
         
-        <li>
-            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
-            <p>支付宝</p>
-        </li>
-        
-    </ul>
-</div>
 
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&title=《CometD源码学习[1]》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&title=《CometD源码学习[1]》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CometD源码学习[1]》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/CometD源码学习_2/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIElEQVR42u3aS47CQAwFwLn/pRlptpDwbIeRcKpXKIKmK4uWfz8/8Xr8recnR8+fv3O0kj0vWxgYGF/LSP7m/Pn5nuffPMLnZ8PAwLgPI9n6/IpMSNe+JgwMDIzqdkmwmL8UDAwMjAmjmogmnzEwMDASRhK6Jfhrd/5ILo6BgfGFjGpj4D8/f7C/gYGB8SWMR3H1ymfXXtMv/hEDA2M1Y96erDYp85ZneR8MDIzVjDyB7A1YJE+uai1gYGDsZlRTx17xazKcEe2AgYGxlFEd9uq1IauhZJ7QYmBg3IHRSzirAWUvGe7hMTAw9jGqQVg1yZwfN0piMTAwljKql+PFeXOrYPfiVBgYGKsZk1CsOmxRHb8YldswMDAWMXpX26R8lqfBhVeMgYFxA8YksZy0DfL9C0ksBgbGOsbnxr9ydnX8602Ei4GBsY5R3bqa0F5bgDv8FQYGxmpGXuTKC2TVJ7126RsSBgbGOkYe0lWvzjzU6xX1MDAw7sDoDWP1BjKSZLgwy4aBgXFLRrW4NjlKnr5GzzEwMFYzqoWtXpmsd+02y38YGBjrGI/iyg+dNyDzq7kQGmJgYCxi5GsyOjYf0ZiEmBgYGDsYvSGJ6jVdvVjz9BgDA+M+jE9cskma2ktiD7NwDAyM2zMmgV1vmKzQkMDAwMAohn35IXpFPQwMjHsyJklsdQijWu2LUlwMDIzVjMlG1WBuPhXSBGBgYHwr4xdZ4zziFy2zsAAAAABJRU5ErkJggg==" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/" rel="prev" title="cmake实践">
+                  <i class="fa fa-chevron-left"></i> cmake实践
+                </a>
             </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
-
-
-
-
+            <div class="post-nav-item">
+                <a href="/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/" rel="next" title="CometD源码学习[0]">
+                  CometD源码学习[0] <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
 
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
     });
-})();
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 

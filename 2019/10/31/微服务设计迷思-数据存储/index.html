@@ -1,177 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>微服务设计迷思-数据存储 | 无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="db,微服务">
-    <meta name="description" content="概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。 这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：">
-<meta name="keywords" content="db,微服务">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle&#x2F;mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。 这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="微服务设计迷思-数据存储">
-<meta property="og:url" content="http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/index.html">
 <meta property="og:site_name" content="无心呢喃">
-<meta property="og:description" content="概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。 这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-31T05:16:22.947Z">
+<meta property="og:description" content="概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle&#x2F;mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。 这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-10-31T03:14:08.000Z">
+<meta property="article:modified_time" content="2019-10-31T05:16:22.947Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="db">
+<meta property="article:tag" content="微服务">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="微服务设计迷思-数据存储">
-<meta name="twitter:description" content="概述后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。 这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>微服务设计迷思-数据存储 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu" class="hide" >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">微服务设计迷思-数据存储</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
-</header>
-<header class="content-header post-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">微服务设计迷思-数据存储</h1>
-        <h5 class="subtitle">
-            
-                <time datetime="2019-10-31T03:14:08.000Z" itemprop="datePublished" class="page-time">
-  2019-10-31
-</time>
+  </div>
+</div>
 
 
-            
-        </h5>
-    </div>
-
-    
 
 
-</header>
 
 
-<div class="container body-wrap">
-    
-    <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单点时代"><span class="post-toc-number">2.</span> <span class="post-toc-text">单点时代</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分片"><span class="post-toc-number">3.</span> <span class="post-toc-text">分片</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一库一服"><span class="post-toc-number">4.</span> <span class="post-toc-text">一库一服</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分布式数据库"><span class="post-toc-number">5.</span> <span class="post-toc-text">分布式数据库</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#未来"><span class="post-toc-number">6.</span> <span class="post-toc-text">未来</span></a></li></ol>
-        </nav>
-    </aside>
-    
-<article id="post-微服务设计迷思-数据存储"
-  class="post-article article-type-post fade" itemprop="blogPost">
 
-    <div class="post-card">
-        <h1 class="post-card-title">微服务设计迷思-数据存储</h1>
-        <div class="post-meta">
-            <time class="post-time" title="2019-10-31 11:14:08" datetime="2019-10-31T03:14:08.000Z"  itemprop="datePublished">2019-10-31</time>
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
 
-            
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E7%82%B9%E6%97%B6%E4%BB%A3"><span class="nav-number">2.</span> <span class="nav-text">单点时代</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%89%87"><span class="nav-number">3.</span> <span class="nav-text">分片</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E5%BA%93%E4%B8%80%E6%9C%8D"><span class="nav-number">4.</span> <span class="nav-text">一库一服</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">5.</span> <span class="nav-text">分布式数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AA%E6%9D%A5"><span class="nav-number">6.</span> <span class="nav-text">未来</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
-            
-<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
-    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
-</span>
-
-
-            
 
         </div>
-        <div class="post-content" id="post-content" itemprop="postContent">
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。</p>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          微服务设计迷思-数据存储
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-10-31 11:14:08 / 修改时间：13:16:22" itemprop="dateCreated datePublished" datetime="2019-10-31T11:14:08+08:00">2019-10-31</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。</p>
 <p>这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：越来越庞大的访问量，和随之产生的数据量。银行证券等金融系统，最开始使用的是db2，sysbase等硬件数据库，然后是oracle这种较为成熟的单点数据库，这两年才逐渐拥抱开源，用pgsql代替oracle或是引入分布式数据库。访问量更为庞大、同时实时性也要求更高的互联网服务（很多金融系统的实时性其实很差，比如跨国swift汇款，可能要一个星期才到账。它涉及到风控等外部因素，实时性并不是第一位的。当然也有要求高的，比如股票购买。），则更为激进，在移动互联网时代就大规模引入redis、mongodb等NoSQL组件，以提高响应速度。</p>
 <h2 id="单点时代"><a href="#单点时代" class="headerlink" title="单点时代"></a>单点时代</h2><p>即使C10K时代，单点数据库一般也足够满足需求。这时候最多考虑的是HA问题，mysql等常见db都提供了副本集的设计，也有比较成熟的集群架构（比如PXC架构）。这些技术在当今也很常见，中小规模的互联网公司仍在使用。oracle自带的分区功能也可以较少单表读写压力。</p>
 <h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>稍大规模的服务，也可以根据key值进行手动的分片。虽然麻烦了一些，但是仍然够用，事务的一致性可以通过db得到保证。但是如果引入了NoSQL，如redis，不同组件之间的数据一致性和事务性无法得到保证。</p>
@@ -188,304 +276,98 @@
 <p>然而终究没有银弹，在很长一段时间内，上面的技术都会并存于世。合理的进行选型设计才是架构师应该考虑的问题。</p>
 <p>多嘴说一句，Dubbo, SpringCloud这种架构注定会过时的，它将外部组件的复杂性引入了代码，这不符合低耦合高聚集的程序设计原则，注定会被ServiceMesh替代。</p>
 
-        </div>
-
-        <blockquote class="post-copyright">
-    <div class="content">
-        
-<span class="post-time">
-    最后更新时间：<time datetime="2019-10-31T05:16:22.947Z" itemprop="dateUpdated">2019-10-31 13:16:22</time>
-</span><br>
-
-
-        
-        <a href="/2019/10/31/微服务设计迷思-数据存储/" target="_blank" rel="external">http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/</a>
-        
-    </div>
-    <footer>
-        <a href="http://YiuTerran.github.io">
-            <img src="/img/avatar.png" alt="tryao">
-            tryao
-        </a>
-    </footer>
-</blockquote>
-
-        
-<div class="page-reward">
-    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
-</div>
-
-
-
-        <div class="post-footer">
-            
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/微服务/">微服务</a></li></ul>
-
-
-            
-<div class="page-share-wrap">
-    
-
-<div class="page-share" id="pageShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&title=《微服务设计迷思-数据存储》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&title=《微服务设计迷思-数据存储》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《微服务设计迷思-数据存储》 — 无心呢喃&url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-
-    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
-        <i class="icon icon-share-alt icon-lg"></i>
-    </a>
-</div>
-
-
-
-        </div>
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2019/10/31/leaf框架代码解析和改造/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">leaf框架代码解析和改造</h4>
-      </a>
-    </div>
-  
-
-  
-    <div class="waves-block waves-effect next">
-      <a href="/2019/10/18/刷题总结/" id="post-next" class="post-nav-link">
-        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">面试刷题总结</h4>
-      </a>
-    </div>
-  
-</nav>
-
-
-
+    
     
 
-
-
-
-<section class="comments" id="comments">
-    <div id="disqus_thread"></div>
-    <script>
-    var disqus_shortname = 'yiuterran';
-    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</article>
-
-<div id="reward" class="page-modal reward-lay">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <h3 class="reward-title">
-        <i class="icon icon-quote-left"></i>
-        谢谢大爷~
-        <i class="icon icon-quote-right"></i>
-    </h3>
-    <ul class="reward-items">
-        
-        <li>
-            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
-            <p>微信</p>
-        </li>
-        
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/db/" rel="tag"># db</a>
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+          </div>
 
         
-        <li>
-            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
-            <p>支付宝</p>
-        </li>
-        
-    </ul>
-</div>
 
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&title=《微服务设计迷思-数据存储》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&title=《微服务设计迷思-数据存储》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《微服务设计迷思-数据存储》 — 无心呢喃&url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2019/10/31/微服务设计迷思-数据存储/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACu0lEQVR42u3a24ojMQwE0Pz/T8/CPg0s3amS2iQsp5/CXDw+HoiUkl+v+Pn5+/x+nX/l99evVvv3u1fP68SDh4eHN9r6/XLJH7ja9P3r5FCSn7zcIR4eHt4xXl4McvZ9AUgKw341PDw8vM/yWlKy3aSE4OHh4f2vvLwVzmMOPDw8vG/mJWHEfUZ6v1peEvKy8XDWgoeHh3dgivQ9r4/P9/Dw8PBGU/Ukus2vCzxbhKLd4uHh4R3gJdvNC0bScM+uZOU7iT4x4OHh4a157XWB2dHMtpiXkOgfg4eHh/coL2+j24sCbRSbD+eKS2B4eHh4D/GSNrR9i5+NvvLhVt6I4+Hh4Z3mnQsj2utT+YWA4Z0IPDw8vAVvn3buY9ZN4RlS8fDw8B7iRU1qTKrz42Dl1dHg4eHhPcpLGtY2G57FB22MG62Dh4eH9ygv2WIbGcx6+TbGjfB4eHh4h3ntn9lHGHlYPDtQPDw8vHO84mZWmXAk67cjrqL84OHh4X2I1xaDV/nMilO0Ezw8PLwDvPaaVHJ1IG+m85hjlVLj4eHhHeDlEW0S+Lbr5NetZsEHHh4e3mnefkCVHNmMNGzc8fDw8B7lzcKI2Zh/E+BGnwZmAzA8PDy8kpe/ibcxRLJOGzoMfwsPDw/vAG/WcOcloRj2l9Fwey0MDw8Pb89rW+HkU/+s2PyMnjcDMDw8PLzDvHbT7dv9vvzU4zo8PDy8A7z8clU7HmtLyKbrL6JePDw8vDVv08LWg6jgINoC8OZA8fDw8A7wNlednrp20DbxydHg4eHhnea1xSBpmjdXsvLViv8MHh4e3gFeGzG0380DjrZdfvMzeHh4eB/l5cOn5K1/00Dn4zE8PDy8b+a1465NRFvsBw8PD+8YbxZGJAFB217PrhFcHgoeHh7eAd4mC332gPIiMYx08fDw8La8P8WJIhYkHbtDAAAAAElFTkSuQmCC" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" rel="prev" title="面试刷题总结">
+                  <i class="fa fa-chevron-left"></i> 面试刷题总结
+                </a>
             </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
-
-
-
-
+            <div class="post-nav-item">
+                <a href="/2019/10/31/leaf%E6%A1%86%E6%9E%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90%E5%92%8C%E6%94%B9%E9%80%A0/" rel="next" title="leaf框架代码解析和改造">
+                  leaf框架代码解析和改造 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
 
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
     });
-})();
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 

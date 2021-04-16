@@ -1,177 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>erlang速记 | 无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="erlang,FP">
-    <meta name="description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
-<meta name="keywords" content="erlang,FP">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用&#x3D;作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
 <meta property="og:type" content="article">
 <meta property="og:title" content="erlang速记">
-<meta property="og:url" content="http://YiuTerran.github.io/2017/06/12/erlang速记/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2017/06/12/erlang%E9%80%9F%E8%AE%B0/index.html">
 <meta property="og:site_name" content="无心呢喃">
-<meta property="og:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-06-12T16:25:21.000Z">
+<meta property="og:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用&#x3D;作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-06-12T15:48:18.000Z">
+<meta property="article:modified_time" content="2017-06-12T16:25:21.000Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="erlang">
+<meta property="article:tag" content="FP">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="erlang速记">
-<meta name="twitter:description" content="对于学习过Haskell的人来说，学习Erlang并没有太大的难度。 语法结构 首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。 tuple用{}表示，列表用[]表示； 用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）; .表示模式终结，,用来分割参数，函数；;用来分割子句； 函数的参数个数，称为函数的目；func关键字">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2017/06/12/erlang%E9%80%9F%E8%AE%B0/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>erlang速记 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu" class="hide" >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">erlang速记</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
-</header>
-<header class="content-header post-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">erlang速记</h1>
-        <h5 class="subtitle">
-            
-                <time datetime="2017-06-12T15:48:18.000Z" itemprop="datePublished" class="page-time">
-  2017-06-12
-</time>
+  </div>
+</div>
 
 
-            
-        </h5>
-    </div>
-
-    
 
 
-</header>
 
 
-<div class="container body-wrap">
-    
-    <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语法结构"><span class="post-toc-number">1.</span> <span class="post-toc-text">语法结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#并发编程"><span class="post-toc-number">2.</span> <span class="post-toc-text">并发编程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#小结"><span class="post-toc-number">3.</span> <span class="post-toc-text">小结</span></a></li></ol>
-        </nav>
-    </aside>
-    
-<article id="post-erlang速记"
-  class="post-article article-type-post fade" itemprop="blogPost">
 
-    <div class="post-card">
-        <h1 class="post-card-title">erlang速记</h1>
-        <div class="post-meta">
-            <time class="post-time" title="2017-06-12 23:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
 
-            
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">语法结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">并发编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
-            
-<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
-    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
-</span>
-
-
-            
 
         </div>
-        <div class="post-content" id="post-content" itemprop="postContent">
-            <p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/erlang%E9%80%9F%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          erlang速记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:18" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:18+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:25:21" itemprop="dateModified" datetime="2017-06-13T00:25:21+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
 <h2 id="语法结构"><a href="#语法结构" class="headerlink" title="语法结构"></a>语法结构</h2><ol>
 <li>首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。</li>
 <li>tuple用{}表示，列表用[]表示；</li>
@@ -180,372 +274,144 @@
 <li>函数的参数个数，称为函数的目；<code>func</code>关键字用来定义匿名函数；</li>
 </ol>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure>
-<p>可以把返回值放到括号里面。</p>
-<ol>
-<li>标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；</li>
-<li>没有<code>for</code>循环，和haskell一样，使用尾递归；</li>
-<li>使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；</li>
-<li><p>列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
+<p>可以把返回值放到括号里面。<br>6. 标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；<br>7. 没有<code>for</code>循环，和haskell一样，使用尾递归；<br>8. 使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；<br>9. 列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
 <figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</span><br><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></span><br><span class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</span><br><span class="line">    [H] ++</span><br><span class="line">    qsort([X || X &lt;- T, X &gt;= H]).</span><br></pre></td></tr></table></figure>
-</li>
+<ol start="10">
 <li><p>断言，关键字<code>when</code>。使用<code>,</code>表示<code>andalso</code>语义， 使用<code>orelse</code>而不是<code>or</code>因为后者不是短路求值；</p>
 </li>
-<li>使用<code>record</code>表示字典，声明方式：<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X=#todo&#123;&#125;.</span><br><span class="line">Y=#todo&#123;status=urgent, text=<span class="string">"Fix errata in book"</span>&#125;.</span><br><span class="line">Z=Y#todo&#123;status=done&#125;.</span><br><span class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></span><br></pre></td></tr></table></figure></p>
+<li><p>使用<code>record</code>表示字典，声明方式：</p>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X=#todo&#123;&#125;.</span><br><span class="line">Y=#todo&#123;status=urgent, text=<span class="string">&quot;Fix errata in book&quot;</span>&#125;.</span><br><span class="line">Z=Y#todo&#123;status=done&#125;.</span><br><span class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></span><br></pre></td></tr></table></figure>
 <p>可以使用<code>is_record</code>做模式匹配；</p>
-<ol>
-<li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></span><br><span class="line">    odds_and_evens_acc(L, [], []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></span><br><span class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</span><br><span class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    &#123;Odds, Evens&#125;.</span><br></pre></td></tr></table></figure>
 </li>
+<li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></span><br><span class="line">    odds_and_evens_acc(L, [], []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></span><br><span class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</span><br><span class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    &#123;Odds, Evens&#125;.</span><br></pre></td></tr></table></figure></li>
 <li><p>异常的捕捉采用<code>try...catch..after...end</code>格式，非常类似java；</p>
 </li>
-<li>数字格式包括<code>2#01011</code>其中<code>#</code>前面是进制，浮点数可以用科学计数法，即<code>-2.3e+6</code>等；</li>
-<li>每个进程都有一个私有数据存储，称为进程字典，可以用<code>put</code>,<code>get</code>, <code>get_keys</code>, <code>erase</code>等函数进行操作；但是如果使用进程字典，代码就不再是没有副作用的，因此要避免使用；</li>
-<li>引用是全局唯一的Erlang值，使用<code>erlang:make_ref()</code>来创建引用；</li>
-<li>奇怪的操作符： <code>==</code>, <code>/=</code>, <code>=:=</code>全等，<code>=/=</code>不全等；数值比较会有隐式转换；<code>==</code>仅限于浮点数和整数的比较，大部分情况下，应该使用<code>=:=</code>；</li>
-<li>奇怪的排序：<code>number</code>&lt;<code>atom</code>&lt;<code>reference</code>&lt;<code>fun</code>&lt;<code>port</code>&lt;<code>pid</code>&lt;<code>tuple</code>&lt;<code>list</code>&lt;<code>binary</code>；</li>
+<li><p>数字格式包括<code>2#01011</code>其中<code>#</code>前面是进制，浮点数可以用科学计数法，即<code>-2.3e+6</code>等；</p>
+</li>
+<li><p>每个进程都有一个私有数据存储，称为进程字典，可以用<code>put</code>,<code>get</code>, <code>get_keys</code>, <code>erase</code>等函数进行操作；但是如果使用进程字典，代码就不再是没有副作用的，因此要避免使用；</p>
+</li>
+<li><p>引用是全局唯一的Erlang值，使用<code>erlang:make_ref()</code>来创建引用；</p>
+</li>
+<li><p>奇怪的操作符： <code>==</code>, <code>/=</code>, <code>=:=</code>全等，<code>=/=</code>不全等；数值比较会有隐式转换；<code>==</code>仅限于浮点数和整数的比较，大部分情况下，应该使用<code>=:=</code>；</p>
+</li>
+<li><p>奇怪的排序：<code>number</code>&lt;<code>atom</code>&lt;<code>reference</code>&lt;<code>fun</code>&lt;<code>port</code>&lt;<code>pid</code>&lt;<code>tuple</code>&lt;<code>list</code>&lt;<code>binary</code>；</p>
+</li>
 <li><p>下划线变量：仅用来声明不准备使用的变量（占位符）；或者用来调试；</p>
 </li>
 <li><p>对于大的程序，还是要使用makefile的，然而直到今天我还是不会写makefile，不过我决定抽个时间学习以下cmake的使用；使用<code>code:get_path()</code>查看搜索路径，<code>code:add_patha</code>, <code>code:add_pathz</code>用来增加新目录；</p>
 </li>
-<li>可以在<code>~/.erlang</code>下增加一些命令，当启动<code>erl</code>shell时，会先执行这里的初始化语句；当前目录下的<code>.erlang</code>会覆盖home下的执行优先级。可以使用<code>init:get_argument(home)</code>确定home的路径（for windows）；</li>
-<li>erlang需要在运行前编译，或者用<code>escript</code>命令执行而无需编译（解释器）。escript的语法与erlang本身略有不同。当然我想不到在什么情况下要写erlang脚本。。。因为erlang并不是一门好的脚本语言。python才是现在的最优选择：）</li>
+<li><p>可以在<code>~/.erlang</code>下增加一些命令，当启动<code>erl</code>shell时，会先执行这里的初始化语句；当前目录下的<code>.erlang</code>会覆盖home下的执行优先级。可以使用<code>init:get_argument(home)</code>确定home的路径（for windows）；</p>
+</li>
+<li><p>erlang需要在运行前编译，或者用<code>escript</code>命令执行而无需编译（解释器）。escript的语法与erlang本身略有不同。当然我想不到在什么情况下要写erlang脚本。。。因为erlang并不是一门好的脚本语言。python才是现在的最优选择：）</p>
+</li>
 </ol>
 <h2 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h2><ol>
 <li>和go一样，很简单的创建进程：<code>Pid=spawn(Fun)</code>；</li>
 <li>发送消息： <code>Pid ! Message</code>，异步发送。返回值是消息本身，这意味着使用<code>Pid1 ! Pid2 ! M</code>会将M发送到所有的Pid中；</li>
-<li><p><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">receive</span></span><br><span class="line">    Pattern1 [When Guard1] -&gt;</span><br><span class="line">        Expression1;</span><br><span class="line">    Pattern2 [When Guard2] -&gt;</span><br><span class="line">        Expression2;</span><br><span class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></span><br><span class="line">    Expressions</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</p>
-</li>
-<li><p>除了Pid机制外，可以采用注册进程的方式公开进程。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></span><br><span class="line"><span class="function"><span class="title">unregister</span><span class="params">(Name)</span></span></span><br><span class="line"><span class="function"><span class="title">whereis</span><span class="params">(Name)</span> -&gt;</span> Pid | undefined <span class="comment">%检测是否注册成功</span></span><br><span class="line">registered() <span class="comment">%已注册进程list</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</p>
-</li>
+<li><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">receive</span></span><br><span class="line">    Pattern1 [When Guard1] -&gt;</span><br><span class="line">        Expression1;</span><br><span class="line">    Pattern2 [When Guard2] -&gt;</span><br><span class="line">        Expression2;</span><br><span class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></span><br><span class="line">    Expressions</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></li>
+<li>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</li>
+<li>除了Pid机制外，可以采用注册进程的方式公开进程。<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></span><br><span class="line"><span class="function"><span class="title">unregister</span><span class="params">(Name)</span></span></span><br><span class="line"><span class="function"><span class="title">whereis</span><span class="params">(Name)</span> -&gt;</span> Pid | undefined <span class="comment">%检测是否注册成功</span></span><br><span class="line">registered() <span class="comment">%已注册进程list</span></span><br></pre></td></tr></table></figure></li>
+<li>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</li>
 <li>使用<code>link(Pid)</code>在两个进程之间建立联系。二者之中任意一个挂掉，另一个都会收到系统通知；</li>
 </ol>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Erlang并不难，但是OTP很难。Erlang设计很用心，目标很明确，对于分布式大型系统的构建提供了很多基础支撑。缺点是生态系统略显封闭，社区不活跃，各种第三方库支持不全。相比之下，个人更看好Go的发展，虽然后者并不是为构建大规模系统而生，但是CPS模型的并发写起来也很舒服，加上简单的语法，快速的编译过程，完善的生态链，杰出的性能，是一个很不错的工具。</p>
 <p>目前来看，Skynet+Lua就是仿制了Erlang的思想。</p>
 
-        </div>
-
-        <blockquote class="post-copyright">
-    <div class="content">
-        
-<span class="post-time">
-    最后更新时间：<time datetime="2017-06-12T16:25:21.000Z" itemprop="dateUpdated">2017-06-13 00:25:21</time>
-</span><br>
-
-
-        
-        <a href="/2017/06/12/erlang速记/" target="_blank" rel="external">http://YiuTerran.github.io/2017/06/12/erlang速记/</a>
-        
-    </div>
-    <footer>
-        <a href="http://YiuTerran.github.io">
-            <img src="/img/avatar.png" alt="tryao">
-            tryao
-        </a>
-    </footer>
-</blockquote>
-
-        
-<div class="page-reward">
-    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
-</div>
-
-
-
-        <div class="post-footer">
-            
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FP/">FP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/erlang/">erlang</a></li></ul>
-
-
-            
-<div class="page-share-wrap">
-    
-
-<div class="page-share" id="pageShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《erlang速记》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/erlang速记/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-
-    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
-        <i class="icon icon-share-alt icon-lg"></i>
-    </a>
-</div>
-
-
-
-        </div>
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2017/06/12/web开发进阶/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">web前端开发进阶</h4>
-      </a>
-    </div>
-  
-
-  
-    <div class="waves-block waves-effect next">
-      <a href="/2017/06/12/java Proxy模式/" id="post-next" class="post-nav-link">
-        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">java Proxy模式</h4>
-      </a>
-    </div>
-  
-</nav>
-
-
-
+    
     
 
-
-
-
-<section class="comments" id="comments">
-    <div id="disqus_thread"></div>
-    <script>
-    var disqus_shortname = 'yiuterran';
-    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</article>
-
-<div id="reward" class="page-modal reward-lay">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <h3 class="reward-title">
-        <i class="icon icon-quote-left"></i>
-        谢谢大爷~
-        <i class="icon icon-quote-right"></i>
-    </h3>
-    <ul class="reward-items">
-        
-        <li>
-            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
-            <p>微信</p>
-        </li>
-        
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/erlang/" rel="tag"># erlang</a>
+              <a href="/tags/FP/" rel="tag"># FP</a>
+          </div>
 
         
-        <li>
-            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
-            <p>支付宝</p>
-        </li>
-        
-    </ul>
-</div>
 
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2017/06/12/erlang速记/&title=《erlang速记》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《erlang速记》 — 无心呢喃&url=http://YiuTerran.github.io/2017/06/12/erlang速记/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2017/06/12/erlang速记/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3awWrDMBAE0Pz/T7vQUyHEmVm5gchPp+CCqqfDImn28YjH8Tuev/z9/vz7ebRzXjwwMDC+lnGcjldLTH5f++V8UzAwMO7AOC+y56XwvJjmfz3fvjdrxsDAwIinTvD50jEwMDBmBfd8cUlpnh1DMTAwMJKp84XOjpj59mFgYNyN0QYDn/z9j/kGBgbGlzCOcuQzzP7vcFUYGBhbM5LDXP49edbPY8s2KsDAwLgbI1lcXohXDp3FlRUDA2NTRlva2oawtpi2N1YMDIw7MFZaK9YDg/X2izd5LAYGxhaMvLwmJW/2JLc+GwYGxt6MvMVh9mQ2K6P5ejAwMO7DKKwXLbq90EZlGgMD4waM/HkrKcezB7WVaBMDA2NvRn6JXY8K8iaM2UUaAwNjb8Z6eU2WOAss6zYODAyMrRlJ+WujyjZTvaxRAwMDYyPGeoPXSgGdbeLLYAADA2M7Rlsc24Nj22xxPl5uBwYGxtaM2RP8rAS3m1KHDRgYGJsy8ulW2inaA2W9TRgYGDdgzCZtg8a2iBfHUAwMjK0ZeVbQPtbPLqv5g92bAyIGBsZGjKMc+XV0JYys58TAwNiasR49JofC/AEuDyeGMSoGBsbXMmZF9jNNFcX/xcDAuAEjDx1nT3LrtR8DAwOjPbrNGrna7Sie5zAwMDBGYUDehNGW2iKPxcDA2IgxCyDbC+qs+EYzY2BgbM244AK5sLj1cBQDA2Nrxg8joImHIQDYSgAAAABJRU5ErkJggg==" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/" rel="prev" title="java Proxy模式">
+                  <i class="fa fa-chevron-left"></i> java Proxy模式
+                </a>
             </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
-
-
-
-
+            <div class="post-nav-item">
+                <a href="/2017/06/12/web%E5%BC%80%E5%8F%91%E8%BF%9B%E9%98%B6/" rel="next" title="web前端开发进阶">
+                  web前端开发进阶 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
 
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
-    });
-})();
-</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
     }
   });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
 </script>
+</div>
+  </main>
 
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 

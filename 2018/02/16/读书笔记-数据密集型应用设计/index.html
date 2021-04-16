@@ -1,200 +1,295 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>读书笔记-数据密集型应用设计 | 无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="database,note">
-    <meta name="description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
-<meta name="keywords" content="database,note">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="读书笔记-数据密集型应用设计">
-<meta property="og:url" content="http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-18T11:22:43.202Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-02-16T00:49:36.000Z">
+<meta property="article:modified_time" content="2019-09-18T11:22:43.202Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="note">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="读书笔记-数据密集型应用设计">
-<meta name="twitter:description" content="本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。 基本原则我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的Data System，">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>读书笔记-数据密集型应用设计 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu" class="hide" >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">读书笔记-数据密集型应用设计</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
-</header>
-<header class="content-header post-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">读书笔记-数据密集型应用设计</h1>
-        <h5 class="subtitle">
-            
-                <time datetime="2018-02-16T00:49:36.000Z" itemprop="datePublished" class="page-time">
-  2018-02-16
-</time>
+  </div>
+</div>
 
 
-            
-        </h5>
-    </div>
-
-    
 
 
-</header>
 
 
-<div class="container body-wrap">
-    
-    <aside class="post-widget">
-        <nav class="post-toc-wrap" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本原则"><span class="post-toc-number">1.</span> <span class="post-toc-text">基本原则</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可靠性"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">可靠性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可扩展性"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">可扩展性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可维护性"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">可维护性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据模型和查询语言"><span class="post-toc-number">2.</span> <span class="post-toc-text">数据模型和查询语言</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关系型数据模型"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">关系型数据模型</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#存储和取回"><span class="post-toc-number">3.</span> <span class="post-toc-text">存储和取回</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#SSTABLE-和-LSM-TREE"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">SSTABLE 和 LSM-TREE</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#B-TREE"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">B-TREE</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#聚簇索引与非聚簇索引"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">聚簇索引与非聚簇索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多列索引"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">多列索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#全文索引"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">全文索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内存数据库"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">内存数据库</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OLTP-与-OLAP"><span class="post-toc-number">3.7.</span> <span class="post-toc-text">OLTP 与 OLAP</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#编码与迭代"><span class="post-toc-number">4.</span> <span class="post-toc-text">编码与迭代</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二进制序列化"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">二进制序列化</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JSON-XML-和二进制编码"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">JSON, XML 和二进制编码</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTP-RPC-MQ"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">HTTP, RPC, MQ</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#副本集"><span class="post-toc-number">5.</span> <span class="post-toc-text">副本集</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主从模式"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">主从模式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#副本-log-的实现原理"><span class="post-toc-number">5.1.1.</span> <span class="post-toc-text">副本 log 的实现原理</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#副本-log-的问题"><span class="post-toc-number">5.1.2.</span> <span class="post-toc-text">副本 log 的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多-leader-模式"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">多 leader 模式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#leaderless-模式"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">leaderless 模式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#版本向量"><span class="post-toc-number">5.3.1.</span> <span class="post-toc-text">版本向量</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分片"><span class="post-toc-number">6.</span> <span class="post-toc-text">分片</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#次级索引"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">次级索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#再平衡"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">再平衡</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事务"><span class="post-toc-number">7.</span> <span class="post-toc-text">事务</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原子性"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">原子性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#隔离性"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">隔离性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#写丢失"><span class="post-toc-number">7.2.1.</span> <span class="post-toc-text">写丢失</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#幻读问题"><span class="post-toc-number">7.2.2.</span> <span class="post-toc-text">幻读问题</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#序列化算法"><span class="post-toc-number">7.2.3.</span> <span class="post-toc-text">序列化算法</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分布式系统的问题"><span class="post-toc-number">8.</span> <span class="post-toc-text">分布式系统的问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#局部失败"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">局部失败</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#时序问题"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">时序问题</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#系统阻塞"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">系统阻塞</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一致性"><span class="post-toc-number">9.</span> <span class="post-toc-text">一致性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#线性一致性-Linearizability"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">线性一致性(Linearizability)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#因果一致性-causal-consistency"><span class="post-toc-number">9.2.</span> <span class="post-toc-text">因果一致性(causal consistency)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#弱一致性-weak-consistency"><span class="post-toc-number">9.3.</span> <span class="post-toc-text">弱一致性(weak consistency)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CAP-理论"><span class="post-toc-number">9.4.</span> <span class="post-toc-text">CAP 理论</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#全序广播"><span class="post-toc-number">9.5.</span> <span class="post-toc-text">全序广播</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#共识"><span class="post-toc-number">10.</span> <span class="post-toc-text">共识</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二阶段提交"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">二阶段提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#三阶段提交"><span class="post-toc-number">10.2.</span> <span class="post-toc-text">三阶段提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异构系统的分布式事务方案：XA事务"><span class="post-toc-number">10.3.</span> <span class="post-toc-text">异构系统的分布式事务方案：XA事务</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#paxos-算法"><span class="post-toc-number">10.4.</span> <span class="post-toc-text">paxos 算法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#批处理"><span class="post-toc-number">11.</span> <span class="post-toc-text">批处理</span></a></li></ol>
-        </nav>
-    </aside>
-    
-<article id="post-读书笔记-数据密集型应用设计"
-  class="post-article article-type-post fade" itemprop="blogPost">
 
-    <div class="post-card">
-        <h1 class="post-card-title">读书笔记-数据密集型应用设计</h1>
-        <div class="post-meta">
-            <time class="post-time" title="2018-02-16 08:49:36" datetime="2018-02-16T00:49:36.000Z"  itemprop="datePublished">2018-02-16</time>
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
 
-            
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E5%88%99"><span class="nav-number">1.</span> <span class="nav-text">基本原则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">可靠性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">可扩展性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">可维护性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">数据模型和查询语言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">关系型数据模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%92%8C%E5%8F%96%E5%9B%9E"><span class="nav-number">3.</span> <span class="nav-text">存储和取回</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSTABLE-%E5%92%8C-LSM-TREE"><span class="nav-number">3.1.</span> <span class="nav-text">SSTABLE 和 LSM-TREE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-TREE"><span class="nav-number">3.2.</span> <span class="nav-text">B-TREE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E4%B8%8E%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95"><span class="nav-number">3.3.</span> <span class="nav-text">聚簇索引与非聚簇索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%88%97%E7%B4%A2%E5%BC%95"><span class="nav-number">3.4.</span> <span class="nav-text">多列索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95"><span class="nav-number">3.5.</span> <span class="nav-text">全文索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.6.</span> <span class="nav-text">内存数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLTP-%E4%B8%8E-OLAP"><span class="nav-number">3.7.</span> <span class="nav-text">OLTP 与 OLAP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E4%B8%8E%E8%BF%AD%E4%BB%A3"><span class="nav-number">4.</span> <span class="nav-text">编码与迭代</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">4.1.</span> <span class="nav-text">二进制序列化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSON-XML-%E5%92%8C%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%BC%96%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">JSON, XML 和二进制编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-RPC-MQ"><span class="nav-number">4.3.</span> <span class="nav-text">HTTP, RPC, MQ</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E9%9B%86"><span class="nav-number">5.</span> <span class="nav-text">副本集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.1.</span> <span class="nav-text">主从模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC-log-%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">5.1.1.</span> <span class="nav-text">副本 log 的实现原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC-log-%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.2.</span> <span class="nav-text">副本 log 的问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A-leader-%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.2.</span> <span class="nav-text">多 leader 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#leaderless-%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.3.</span> <span class="nav-text">leaderless 模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%90%91%E9%87%8F"><span class="nav-number">5.3.1.</span> <span class="nav-text">版本向量</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%89%87"><span class="nav-number">6.</span> <span class="nav-text">分片</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AC%A1%E7%BA%A7%E7%B4%A2%E5%BC%95"><span class="nav-number">6.1.</span> <span class="nav-text">次级索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">6.2.</span> <span class="nav-text">再平衡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">7.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="nav-number">7.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%94%E7%A6%BB%E6%80%A7"><span class="nav-number">7.2.</span> <span class="nav-text">隔离性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%99%E4%B8%A2%E5%A4%B1"><span class="nav-number">7.2.1.</span> <span class="nav-text">写丢失</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%BB%E8%AF%BB%E9%97%AE%E9%A2%98"><span class="nav-number">7.2.2.</span> <span class="nav-text">幻读问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E7%AE%97%E6%B3%95"><span class="nav-number">7.2.3.</span> <span class="nav-text">序列化算法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">8.</span> <span class="nav-text">分布式系统的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%A4%B1%E8%B4%A5"><span class="nav-number">8.1.</span> <span class="nav-text">局部失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">8.2.</span> <span class="nav-text">时序问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E9%98%BB%E5%A1%9E"><span class="nav-number">8.3.</span> <span class="nav-text">系统阻塞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">9.</span> <span class="nav-text">一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E4%B8%80%E8%87%B4%E6%80%A7-Linearizability"><span class="nav-number">9.1.</span> <span class="nav-text">线性一致性(Linearizability)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%A0%E6%9E%9C%E4%B8%80%E8%87%B4%E6%80%A7-causal-consistency"><span class="nav-number">9.2.</span> <span class="nav-text">因果一致性(causal consistency)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%B1%E4%B8%80%E8%87%B4%E6%80%A7-weak-consistency"><span class="nav-number">9.3.</span> <span class="nav-text">弱一致性(weak consistency)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CAP-%E7%90%86%E8%AE%BA"><span class="nav-number">9.4.</span> <span class="nav-text">CAP 理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%BA%8F%E5%B9%BF%E6%92%AD"><span class="nav-number">9.5.</span> <span class="nav-text">全序广播</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B1%E8%AF%86"><span class="nav-number">10.</span> <span class="nav-text">共识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">10.1.</span> <span class="nav-text">二阶段提交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">10.2.</span> <span class="nav-text">三阶段提交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%9E%84%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%96%B9%E6%A1%88%EF%BC%9AXA%E4%BA%8B%E5%8A%A1"><span class="nav-number">10.3.</span> <span class="nav-text">异构系统的分布式事务方案：XA事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#paxos-%E7%AE%97%E6%B3%95"><span class="nav-number">10.4.</span> <span class="nav-text">paxos 算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%B9%E5%A4%84%E7%90%86"><span class="nav-number">11.</span> <span class="nav-text">批处理</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
-            
-<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
-    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
-</span>
-
-
-            
 
         </div>
-        <div class="post-content" id="post-content" itemprop="postContent">
-            <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          读书笔记-数据密集型应用设计
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-02-16 08:49:36" itemprop="dateCreated datePublished" datetime="2018-02-16T08:49:36+08:00">2018-02-16</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-09-18 19:22:43" itemprop="dateModified" datetime="2019-09-18T19:22:43+08:00">2019-09-18</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
 <h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的<code>Data System</code>，包括消息队列、RDBMS, NOSQL, 以及图数据库、列式数据库等等负责存储数据的组件。</p>
 <h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>考量以下几点：</p>
 <ol>
-<li>提供正常正确的功能；</li>
-<li>错误容忍性；</li>
-<li>性能；</li>
-<li>安全认证；</li>
+<li> 提供正常正确的功能；</li>
+<li> 错误容忍性；</li>
+<li> 性能；</li>
+<li> 安全认证；</li>
 </ol>
 <p>其中错误容忍性又分为硬件错误（如断电、内存不足、磁盘不足、网络断开等）和软件错误（各种软件 bug 等），以及人工错误（操作错误、输入错误等）</p>
 <h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p>当组件性能、容量无法满足需求时，组件能够通过扩展的方式满足需求，这就是所谓的可扩展性。</p>
 <p>书中举了 Twitter 的 timeline 设计作为例子，我们知道 timeline 展示的是 follower 的发布的状态，那么不考虑任何优化的情况下，设计如下：如果用关系型来描述的话，需要一个 user 表，一个用户 follow 关系表，一个 tweets 表，对于 user id 为 1 的用户，其首页的 timeline 生成是</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> t.* <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id=t.user_id <span class="keyword">where</span> f.user_id=<span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> t.<span class="operator">*</span> <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id<span class="operator">=</span>t.user_id <span class="keyword">where</span> f.user_id<span class="operator">=</span><span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at limit <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
 <p>显然 tweets 表会迅速膨胀成一个超大的表，这种设计不能满足性能的需求。采用写扩散的方案，将每个用户的 timeline 独立存储，用户新的 post 插入 tweets 表后，还要将这个 tweet 插入用户的 follower的timeline 缓存中。除了这个方案以外，还有很多其他的方法，比如使用消息队列。用户 ins/del po, follow/unfollow some one 触发事件，需要对 timeline 进行重新生成。Twitter最终采用了两种方案混合的方式。</p>
 <p>性能描述的常用指标包括：延迟、吞吐量、响应时间等。平均响应时间有时候并不能很好的描述性能，中位数响应时间更合适（一半的请求小于该时间，另一半的大于该时间）。中位数响应时间即 50%分位响应时间，如果要求的更严格，可能需要使用 95%分位响应时间等，甚至 99.9%分位。99%分位以上的又被称为尾部延迟。</p>
 <p>一般将可扩展性分为水平扩展和垂直扩展，两者可以结合起来。如果系统具有自动根据负载进行扩展的能力，这种系统是所谓的“弹性系统”。</p>
 <h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><p>这里主要指的是系统本身简单可维护，且代码清晰易改动。可维护性显然不仅仅是架构的问题，涉及到方方面面吧，比如：</p>
 <ol>
-<li>系统健康监控</li>
-<li>错误跟踪系统</li>
-<li>自动化部署</li>
-<li>完善的文档系统</li>
-<li>优雅的抽象，模块化</li>
-<li>持续迭代</li>
+<li> 系统健康监控</li>
+<li> 错误跟踪系统</li>
+<li> 自动化部署</li>
+<li> 完善的文档系统</li>
+<li> 优雅的抽象，模块化</li>
+<li> 持续迭代</li>
 </ol>
 <p>显然这些其实项目管理的内容。</p>
 <h2 id="数据模型和查询语言"><a href="#数据模型和查询语言" class="headerlink" title="数据模型和查询语言"></a>数据模型和查询语言</h2><p>常见的数据模型包括关系型数据模型，文档性数据模型，网络数据模型和图数据模型</p>
@@ -203,10 +298,10 @@
 <p>关系型数据库统一使用 sql 语言操作，sql 是一种 DML，类似 CSS。文档型、图数据库的查询语言不通用由各个实现自己定义。当然随着分布式关系型数据库的发展，sql 仍然是最重要的数据操纵语言。</p>
 <p>图数据模型比较复杂，按着一般图的概念，结点和关系构成了整张图。属性图模型的设计如下：</p>
 <ol>
-<li>一个图中会记录节点和关系</li>
-<li>关系可以用来关联两个节点</li>
-<li>节点和关系都可以拥有自己的属性</li>
-<li>可以赋予节点多个标签(类别)</li>
+<li> 一个图中会记录节点和关系</li>
+<li> 关系可以用来关联两个节点</li>
+<li> 节点和关系都可以拥有自己的属性</li>
+<li> 可以赋予节点多个标签(类别)</li>
 </ol>
 <p>在某些应用场景里（如社交网络、金融风控等多对多场景），图数据库在描述关系上具有无与伦比的优势，可以大幅简化查询设计。除了属性图外，还有其他图数据模型实现，如 Triple-Stores，将数据存为主谓宾三元组，一般是使用 SPARQL 进行查询；然后还有 RDF 数据模型，一般使用 XML 语言描述。</p>
 <h2 id="存储和取回"><a href="#存储和取回" class="headerlink" title="存储和取回"></a>存储和取回</h2><p>本章阐述了数据库底层存储和查询的原理。文中先举例了一个 KV 数据库最简单的实现，将数据存在文件中，写入就直接写在文件尾部，读取则用 tail 值（逆序查找即可）。这种直接写到文件尾部的只读文件，本质上是一种 log.</p>
@@ -246,27 +341,27 @@
 <p>主库到从库的同步可能是同步或异步的，后者会出现读出的数据是 old data 的情况。</p>
 <p>故障恢复：如果从库 down 了，重启后通过日志重新同步即可；但是如果主库 down 了，就需要重新选举一个 leader，否则整个服务就不可用了。选举的过程包括：</p>
 <ol>
-<li>认定 leader down，一般使用 timeout</li>
-<li>选举新的 leader；一般使用具有最新数据的副本当leader（共识问题）</li>
-<li>使用选举出来的新 leader</li>
+<li> 认定 leader down，一般使用 timeout</li>
+<li> 选举新的 leader；一般使用具有最新数据的副本当leader（共识问题）</li>
+<li> 使用选举出来的新 leader</li>
 </ol>
 <p>需要解决的问题：</p>
 <ol>
-<li>如果 follower 与 leader 之间的数据同步是异步进行的，old leader down 之前可能还没来得及将数据同步给其他 follower，那么新的 leader 就有丢失一部分数据。old leader 恢复后，需要成为 follower，并丢弃这部分未同步的内容；这种丢弃是很危险的，有可能出现各种问题；</li>
-<li>可能会出现两个节点都以为自己是 leader 的问题，即所谓的脑裂问题；</li>
-<li>判定服务 down 的 timeout 确定；</li>
-<li>原来的主库重新上线后，可能有冲突要解决；</li>
+<li> 如果 follower 与 leader 之间的数据同步是异步进行的，old leader down 之前可能还没来得及将数据同步给其他 follower，那么新的 leader 就有丢失一部分数据。old leader 恢复后，需要成为 follower，并丢弃这部分未同步的内容；这种丢弃是很危险的，有可能出现各种问题；</li>
+<li> 可能会出现两个节点都以为自己是 leader 的问题，即所谓的脑裂问题；</li>
+<li> 判定服务 down 的 timeout 确定；</li>
+<li> 原来的主库重新上线后，可能有冲突要解决；</li>
 </ol>
 <h4 id="副本-log-的实现原理"><a href="#副本-log-的实现原理" class="headerlink" title="副本 log 的实现原理"></a>副本 log 的实现原理</h4><p>对于关系型数据库而言，一种显而易见的实现方式是将所有写语句(CREATE, UPDATE, DELETE, ALTER)都记录到日志里，follower 依序重复执行这些语句。但是这里可能有一些问题：</p>
 <ol>
-<li>有些函数是不可能重复执行的，如 RAND(), NOW()之类的；</li>
-<li>如果依赖已经存在的数据，必须保证执行顺序，这意味着不能并发执行 log 中的语句；</li>
-<li>有副作用的语句在各个副本集中造成的副作用可能不一致；</li>
+<li> 有些函数是不可能重复执行的，如 RAND(), NOW()之类的；</li>
+<li> 如果依赖已经存在的数据，必须保证执行顺序，这意味着不能并发执行 log 中的语句；</li>
+<li> 有副作用的语句在各个副本集中造成的副作用可能不一致；</li>
 </ol>
 <p>这些问题可以通过将非确定性的语句修改为确定性的（即将 NOW()的结果记录）来解决，MySQL 则直接使用了 ROW-BASED 将行数据覆盖的方法（又称为 logic log）来解决。还可以使用 WAL 这种直接修改磁盘字节的方法来进行，这种方法最大的问题是要求所有的 follower 必须和 leader 保持同样的二进制结构（如存储引擎），这会导致无法平滑升级服务。最后还有一种基于触发器实现的同步，一般是在应用层同步数据时当作工具来使用。</p>
 <h4 id="副本-log-的问题"><a href="#副本-log-的问题" class="headerlink" title="副本 log 的问题"></a>副本 log 的问题</h4><ol>
-<li>读写一致性问题。用户写完以后立刻读，必须保证读到的是刚写的数据，但是由于从库的同步是异步的，所以可能会出问题；主从异步同步模式仅仅能保证最终一致性，而不是实时强一致；</li>
-<li>数据时序性问题。如果用户使用了一系列的读（落到不同的 follower 上），可能由于同步进度的问题，导致部分读到的是新数据，部分是旧数据；</li>
+<li> 读写一致性问题。用户写完以后立刻读，必须保证读到的是刚写的数据，但是由于从库的同步是异步的，所以可能会出问题；主从异步同步模式仅仅能保证最终一致性，而不是实时强一致；</li>
+<li> 数据时序性问题。如果用户使用了一系列的读（落到不同的 follower 上），可能由于同步进度的问题，导致部分读到的是新数据，部分是旧数据；</li>
 </ol>
 <p>解决方案：</p>
 <ol>
@@ -278,31 +373,31 @@
 <p>还有一种特殊的多 leader 模式：如果应用需要能够离线工作（如日历），但是设备没有连接上英特网，那么此时设备本地的 db 就是 leader.</p>
 <p>多主模式下，两个不同节点的事务可能都提交成功，但是db之间合并数据时可能会出现冲突。解决方案：</p>
 <ol>
-<li>避免这种情况，根据用户的 ip 地址就近选择数据中心，游戏分服就是这样解决的。但是如果用户换了地方，原来账号的体验就会比较差了。</li>
-<li>自动解决冲突：数据加入时间戳（自增 ID），使用最新的值解决冲突（即LWW，会丢数据）；或者允许用户自定义冲突解决代码，当发现冲突时自动调用这段代码；</li>
-<li>手动解决冲突：数据库记录下所有冲突，当该值被阅读时，返回所有值，提示用户手动解决冲突，CouchDB 使用该方案；</li>
+<li> 避免这种情况，根据用户的 ip 地址就近选择数据中心，游戏分服就是这样解决的。但是如果用户换了地方，原来账号的体验就会比较差了。</li>
+<li> 自动解决冲突：数据加入时间戳（自增 ID），使用最新的值解决冲突（即LWW，会丢数据）；或者允许用户自定义冲突解决代码，当发现冲突时自动调用这段代码；</li>
+<li> 手动解决冲突：数据库记录下所有冲突，当该值被阅读时，返回所有值，提示用户手动解决冲突，CouchDB 使用该方案；</li>
 </ol>
 <p>多 leader 之间同步拓扑：</p>
 <ol>
-<li>环形拓扑：每个 leader 只同步给另外一个 leader，这里要注意单节点挂掉的问题；</li>
-<li>星形拓扑：使用一个 root 节点，其他所有节点与该节点进行同步，root 节点可能挂掉；</li>
-<li>all to all，每个节点和其他所有节点拓扑，这时要注意时序问题；</li>
+<li> 环形拓扑：每个 leader 只同步给另外一个 leader，这里要注意单节点挂掉的问题；</li>
+<li> 星形拓扑：使用一个 root 节点，其他所有节点与该节点进行同步，root 节点可能挂掉；</li>
+<li> all to all，每个节点和其他所有节点拓扑，这时要注意时序问题；</li>
 </ol>
 <p>总的来说，目前多主模式在实际运行中的冲突问题还没有完美的自动化解决方案，需要根据业务场景确定策略。</p>
 <h3 id="leaderless-模式"><a href="#leaderless-模式" class="headerlink" title="leaderless 模式"></a>leaderless 模式</h3><p>这种模式没有主从，客户端的读写同时发送给所有的结点。如果有节点 down 掉，写请求会忽略挂掉的结点；当结点恢复后，会出现数据不一致的问题，客户端从多份节点数据中选取时，选取 version number 较大的数据，作为准确的数据返回。</p>
 <p>上面这种宕机情况，数据修复方案：</p>
 <ol>
-<li>客户端修复，客户端发现某个节点的数据版本落后于其他节点，那么就将最新版本的数据写入其他节点；这个的问题就是有些数据可能不怎么会被读到，数据长时间存在不一致的问题；</li>
-<li>多节点之间自动同步，异步，无特定拓扑顺序，所以可能滞后很多；</li>
+<li> 客户端修复，客户端发现某个节点的数据版本落后于其他节点，那么就将最新版本的数据写入其他节点；这个的问题就是有些数据可能不怎么会被读到，数据长时间存在不一致的问题；</li>
+<li> 多节点之间自动同步，异步，无特定拓扑顺序，所以可能滞后很多；</li>
 </ol>
 <p>多节点同时读取还有读取/写入数量，以及可信度的问题。一般而言，一共有 n 个结点，至少写入 w 个节点保证写成功，至少读取 r 个节点保证读成功，则必须有<code>w+r&gt;n</code>才能保证系统的可靠性。一般情况下，n 是一个奇数，<code>w=r=(n+1)/2</code>. 当然可以根据实际需要调整 w 和 r，以协调自己所需的性能和可靠性。</p>
 <p>显然 leaderless 模式会遇到和 multi-leader 类似的问题：时序问题、冲突问题，解决方案也类似。</p>
 <h4 id="版本向量"><a href="#版本向量" class="headerlink" title="版本向量"></a>版本向量</h4><p>一种多客户端写入时解决冲突的方案，即对客户端的每个请求创建的数据都生成一个版本号。在返回客户端时，除了原始数据外也将数据的版本号返回客户端，客户端请求的时候带着本地的最新版本号，这样就可以根据数据的版本进行自动的数据合并。</p>
 <h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>数据分片与副本集不同，是将数据进行垂直切分，也就是所谓的 sharding 技术，经常与副本技术配合使用。对于 KV 型数据库，常见的分区策略包括：</p>
 <ol>
-<li>按 key 值范围，缺点是分区可能不均匀；</li>
-<li>按 key 值的 hash 值范围，解决不均匀问题。此时要注意 hash 值必须唯一，如 md5。这会引入一个新问题：无法范围查询 key 值，因为他们不再毗邻。Cassandra 的解决方案是用联合主键，如果第一位确认，后面的还能保证都在一个 partition 上，如(user_id, timestamp)；</li>
-<li>即使使用了 hash，有时候也会遇到单点过热问题，如社交网络上某个名人的行为总会引起大的数据波动，这个只能在应用层解决了；</li>
+<li> 按 key 值范围，缺点是分区可能不均匀；</li>
+<li> 按 key 值的 hash 值范围，解决不均匀问题。此时要注意 hash 值必须唯一，如 md5。这会引入一个新问题：无法范围查询 key 值，因为他们不再毗邻。Cassandra 的解决方案是用联合主键，如果第一位确认，后面的还能保证都在一个 partition 上，如(user_id, timestamp)；</li>
+<li> 即使使用了 hash，有时候也会遇到单点过热问题，如社交网络上某个名人的行为总会引起大的数据波动，这个只能在应用层解决了；</li>
 </ol>
 <h3 id="次级索引"><a href="#次级索引" class="headerlink" title="次级索引"></a>次级索引</h3><p>对于 RDBMS，除了主键，一般还有其他索引，如果访问需要通过多个索引字段进行，分片的方式就需要斟酌了。次级索引包括：</p>
 <ol>
@@ -329,10 +424,10 @@
 <p>数据库一般默认使用 MVCC 技术实现隔离。不可重复读一般情况下没啥影响，但是如果数据库同时在进行备份，可能中间状态就丢了，大部分db的默认隔离级别是这个。</p>
 <p>使用 MVCC 将隔离级别上升为可重复读，或者说叫快照隔离（mysql默认该级别）。此时当事务开始时，会获得一个事务全局递增的唯一事务编号，而更新将会被拆分成删除+创建。这样，一个更新操作实际上产生了两个版本的数据。当一个事务开始时，做如下判定：</p>
 <ol>
-<li>首先确定当前正在进行但还未提交的事务，使用这些事务开始前的数据版本；</li>
-<li>已经 rollback 的事务，其数据修改被直接废弃；</li>
-<li>事务 ID 号大于当前事务的提交，不管事务有没有提交，忽略其提交结果；</li>
-<li>除了上诉情况以外，其他的写入可以被当前事务感知到；</li>
+<li> 首先确定当前正在进行但还未提交的事务，使用这些事务开始前的数据版本；</li>
+<li> 已经 rollback 的事务，其数据修改被直接废弃；</li>
+<li> 事务 ID 号大于当前事务的提交，不管事务有没有提交，忽略其提交结果；</li>
+<li> 除了上诉情况以外，其他的写入可以被当前事务感知到；</li>
 </ol>
 <p>这种实现对索引的使用：多个版本同个字段使用索引，使用 B 树时，update 不是直接修改 page，而是产生一个新 page，也就是<code>copy-on-write</code>。</p>
 <h4 id="写丢失"><a href="#写丢失" class="headerlink" title="写丢失"></a>写丢失</h4><p>两个事务同时写，一个的写入可能会丢失。解决方案：</p>
@@ -343,8 +438,8 @@
 </ol>
 <h4 id="幻读问题"><a href="#幻读问题" class="headerlink" title="幻读问题"></a>幻读问题</h4><p>可重复读会导致幻读，如果想要解决这个问题，只能使用串行化，这种隔离的实现方案包括：</p>
 <ol>
-<li>单线程执行所有事务，这样就自动串行化了。如 Redis、VoltDB（使用存储过程，将读写都写在一起，优化方案）；</li>
-<li>2PL，即两阶段锁。类似读写锁，如果事务对对象没有写入，就允许共享同一个对象。但是一旦开始写入，则使用排他锁进行独占；这比单独的写锁性能更好（这是显然的）；</li>
+<li> 单线程执行所有事务，这样就自动串行化了。如 Redis、VoltDB（使用存储过程，将读写都写在一起，优化方案）；</li>
+<li> 2PL，即两阶段锁。类似读写锁，如果事务对对象没有写入，就允许共享同一个对象。但是一旦开始写入，则使用排他锁进行独占；这比单独的写锁性能更好（这是显然的）；</li>
 </ol>
 <h4 id="序列化算法"><a href="#序列化算法" class="headerlink" title="序列化算法"></a>序列化算法</h4><ol>
 <li>共享锁、排他锁、读写锁；</li>
@@ -354,20 +449,20 @@
 <p>将最后两个隔离方案结合起来，就是所谓的<code>serializable snapshot isolation</code>，即 SSI，这是一个新算法（2008 年提出），在 PostgreSQL 9.1 以后使用，较有潜力。</p>
 <h2 id="分布式系统的问题"><a href="#分布式系统的问题" class="headerlink" title="分布式系统的问题"></a>分布式系统的问题</h2><h3 id="局部失败"><a href="#局部失败" class="headerlink" title="局部失败"></a>局部失败</h3><p>分布式系统某个节点挂掉引起的一系列问题。</p>
 <ol>
-<li>如果是单主集群，需要重新选举；</li>
-<li>需要考虑节点恢复后如何重新纳入集群；</li>
-<li>需要考虑如何判定节点挂掉，一般是用网络超时，但是这个值比较难以假定；</li>
-<li>考虑单节点阻塞导致的丢包问题；</li>
+<li> 如果是单主集群，需要重新选举；</li>
+<li> 需要考虑节点恢复后如何重新纳入集群；</li>
+<li> 需要考虑如何判定节点挂掉，一般是用网络超时，但是这个值比较难以假定；</li>
+<li> 考虑单节点阻塞导致的丢包问题；</li>
 </ol>
 <h3 id="时序问题"><a href="#时序问题" class="headerlink" title="时序问题"></a>时序问题</h3><p>分布式系统不同节点之间的时钟同步。</p>
 <ol>
-<li>依赖时序策略的影响，如 LWW（可以使用逻辑时钟代替墙上时钟）；</li>
-<li>NTP 同步的精确度，NTP 本身的延迟，NTP 服务本身的不可靠性；</li>
-<li>Google spanner 的时钟策略，返回一个[least, most]的时钟范围，保证准确的时间落在该范围之内；</li>
+<li> 依赖时序策略的影响，如 LWW（可以使用逻辑时钟代替墙上时钟）；</li>
+<li> NTP 同步的精确度，NTP 本身的延迟，NTP 服务本身的不可靠性；</li>
+<li> Google spanner 的时钟策略，返回一个[least, most]的时钟范围，保证准确的时间落在该范围之内；</li>
 </ol>
 <h3 id="系统阻塞"><a href="#系统阻塞" class="headerlink" title="系统阻塞"></a>系统阻塞</h3><ol>
-<li>GC 引起的 stop the world</li>
-<li>单线程阻塞</li>
+<li> GC 引起的 stop the world</li>
+<li> 单线程阻塞</li>
 </ol>
 <p>其他原因造成的系统结点卡顿，以至于其他结点访问超时，误以为该节点挂了。</p>
 <h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><h3 id="线性一致性-Linearizability"><a href="#线性一致性-Linearizability" class="headerlink" title="线性一致性(Linearizability)"></a>线性一致性(Linearizability)</h3><p>所谓线性一致性，指的是对于一个分布式系统的多个副本集，读出的结果永远都是一致的（就好像从唯一一个副本集中读出的一样）。该一致性模型是我们能实现的最强一致性模型，所以又被称为 strong consistency.这种模型假设操作具有一个全局有效时钟的时间戳，但是这个时钟仅具有有限的精确度。要求时间戳在前的进程先执行，换句话说，所有的操作都不是并发的，而是有严格的顺序的（全序）。</p>
@@ -379,11 +474,11 @@
 <p>几乎所有的分布式系统都支持因果一致性。前面讨论的事务追踪数据过期抛出失败，也就是保证了因果一致性。</p>
 <p>使用 Lamport 时间戳可以保证因果一致性，其实现原理如下：</p>
 <ol>
-<li>不同的结点各有自己的编号 n；</li>
-<li>每个结点使用自己的计数器 c；</li>
-<li>使用(c, n)表示 lamport 时间戳；</li>
-<li>客户端/node 跟踪 c 值，当 node 发现客户端请求的 c 值大于自身 c 值时，立刻将自身 c 值设为请求的 c 值（对客户端亦然）；</li>
-<li>定义当 n 相等时 c 值较小的逻辑时间较小；否则 n 值较小的逻辑时间较小；</li>
+<li> 不同的结点各有自己的编号 n；</li>
+<li> 每个结点使用自己的计数器 c；</li>
+<li> 使用(c, n)表示 lamport 时间戳；</li>
+<li> 客户端/node 跟踪 c 值，当 node 发现客户端请求的 c 值大于自身 c 值时，立刻将自身 c 值设为请求的 c 值（对客户端亦然）；</li>
+<li> 定义当 n 相等时 c 值较小的逻辑时间较小；否则 n 值较小的逻辑时间较小；</li>
 </ol>
 <p>显然 lamport 时间戳定义了一个全序的操作序列。问题在于这个顺序必须在动作执行完成后（即 node 返回后）才能确定下来，这对于某些场合不够用（比如唯一约束）。</p>
 <h3 id="弱一致性-weak-consistency"><a href="#弱一致性-weak-consistency" class="headerlink" title="弱一致性(weak consistency)"></a>弱一致性(weak consistency)</h3><p>引入同步变量 S，其仅有一个关联操作 synchronize(S)，该操作同步数据存储的所有本地拷贝。</p>
@@ -404,8 +499,8 @@
 <h2 id="共识"><a href="#共识" class="headerlink" title="共识"></a>共识</h2><p>所谓共识，指的就是最终一致性。在理论上，如果节点可能崩溃，则共识不可能达成（FLP）。不过在现实中，节点崩溃是可以探测的，所以共识还是可以达成的。</p>
 <h3 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h3><p>当客户端准备提交事务时，协调者（事务管理器）开始阶段 1：所有参与者进行预提交，根据响应，分为两种情况：</p>
 <ol>
-<li>所有节点准备完毕（使用 transaction id，完成相关写入）。进入阶段 2，开始真正的 commit；</li>
-<li>任一节点未正确响应，进入 abort;</li>
+<li> 所有节点准备完毕（使用 transaction id，完成相关写入）。进入阶段 2，开始真正的 commit；</li>
+<li> 任一节点未正确响应，进入 abort;</li>
 </ol>
 <p>显然，各节点即使准备完毕，也可能因为异常导致并未正确提交，所以该节点在未做出正确答复之前，协调者会持续询问。</p>
 <p>但是如果协调者也挂了，2PC就会卡住，必须等待协调者恢复，此时的状态称为存疑事务。</p>
@@ -423,306 +518,101 @@
 (a) 如果Proposer收到半数以上Acceptor对其发出的编号为N的Prepare请求的响应，那么它就会发送一个针对[N,V]提案的Accept请求给半数以上的Acceptor。注意：V就是收到的响应中编号最大的提案的value，如果响应中不包含任何提案，那么V就由Proposer自己决定。
 
 (b) 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要该Acceptor没有对编号大于N的Prepare请求做出过响应，它就接受该提案。
-</code></pre><h2 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h2><p>这一章介绍了一些常用的处理工具，包括unix上常见的sed、awk等小工具和map-reduce. 后续还介绍了流式数据处理需要注意的问题。</p>
+</code></pre>
+<h2 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h2><p>这一章介绍了一些常用的处理工具，包括unix上常见的sed、awk等小工具和map-reduce. 后续还介绍了流式数据处理需要注意的问题。</p>
 
-        </div>
-
-        <blockquote class="post-copyright">
-    <div class="content">
-        
-<span class="post-time">
-    最后更新时间：<time datetime="2019-09-18T11:22:43.202Z" itemprop="dateUpdated">2019-09-18 19:22:43</time>
-</span><br>
-
-
-        
-        <a href="/2018/02/16/读书笔记-数据密集型应用设计/" target="_blank" rel="external">http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/</a>
-        
-    </div>
-    <footer>
-        <a href="http://YiuTerran.github.io">
-            <img src="/img/avatar.png" alt="tryao">
-            tryao
-        </a>
-    </footer>
-</blockquote>
-
-        
-<div class="page-reward">
-    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
-</div>
-
-
-
-        <div class="post-footer">
-            
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/database/">database</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/note/">note</a></li></ul>
-
-
-            
-<div class="page-share-wrap">
-    
-
-<div class="page-share" id="pageShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《读书笔记-数据密集型应用设计》 — 无心呢喃&url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-
-    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
-        <i class="icon icon-share-alt icon-lg"></i>
-    </a>
-</div>
-
-
-
-        </div>
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2018/10/07/摄影笔记/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">摄影笔记</h4>
-      </a>
-    </div>
-  
-
-  
-    <div class="waves-block waves-effect next">
-      <a href="/2018/01/28/redis知识点总结/" id="post-next" class="post-nav-link">
-        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">redis知识点总结</h4>
-      </a>
-    </div>
-  
-</nav>
-
-
-
+    
     
 
-
-
-
-<section class="comments" id="comments">
-    <div id="disqus_thread"></div>
-    <script>
-    var disqus_shortname = 'yiuterran';
-    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</article>
-
-<div id="reward" class="page-modal reward-lay">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <h3 class="reward-title">
-        <i class="icon icon-quote-left"></i>
-        谢谢大爷~
-        <i class="icon icon-quote-right"></i>
-    </h3>
-    <ul class="reward-items">
-        
-        <li>
-            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
-            <p>微信</p>
-        </li>
-        
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/database/" rel="tag"># database</a>
+              <a href="/tags/note/" rel="tag"># note</a>
+          </div>
 
         
-        <li>
-            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
-            <p>支付宝</p>
-        </li>
-        
-    </ul>
-</div>
 
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&title=《读书笔记-数据密集型应用设计》 — 无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《读书笔记-数据密集型应用设计》 — 无心呢喃&url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/2018/02/16/读书笔记-数据密集型应用设计/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtElEQVR42u3aMXLjQAwEQP3/077kgkvEmwF2ZQXNyKWiSPaqigsP8HrFx88/x/Mn7777fLXnOybnrw48PDy8xaO/u1x+mxb8fP7zmdES4OHh4V3jzR7ieTmez2+3gdkmhIeHh/cNvLYsnm0hp8p3PDw8vG/g5a/15ysn20n+DHh4eHif5yVhxOZbP8GR5LEXsxY8PDy8+XVes03ik39f6e/h4eHhrbvqbXGctMra7Wf2nH+vg4eHh3eBl79w88dtx63yc4bPiYeHh3eB17adTkUAs6bXbMnw8PDwTvHygYCW1Da32rC43gbw8PDwjvI2pLMFcfJUxWaDh4eHd43XUtuCexgclFtIPWuAh4eHd5SXDw0kC5SU17NoOOrv4eHh4V3gtbnvbCGS4YA88I3ugoeHh3eNtwlS65d1XFLnY1XRvoeHh4d3lLeKShfxazTLELfBhmkHHh4eXsnbl62bELZ+0Y8CCzw8PLyzvDwCmIUF+XjBZhOqfzE8PDy8C7ykQbVpiW2GCYqRAjw8PLwLvFNx7as82sGsNqR4u0ng4eHhHeVtXvSz4YP27vn5eHh4eL/Fa2OCdgg1j27bIhsPDw/vM7x8yGkfSTyfczbwxcPDwzvLmxWseXPr1HjrMCLBw8PDu8Db99nbK+SfbCISPDw8vNu8trRNCuIkxp0V3/UC4eHh4V3j7cvcJITdBLjDjQcPDw/vMq8NTHNGHhy/1gceHh7ePd5PebQNsPxVno8jFMNYeHh4eBd47as2Z+fDAUkjrS2v8fDw8G7z2kBhswHky9RuDP/p7OHh4eFd4LWhQz4aNSvWTwUTeHh4eN/ASwruPBQ4NTrw9nM8PDy8L+O1S5B8az+ggIeHh/cZ3mzE6rkIzgvuPG6o62c8PDy8C7zZf/Sb8YJZEHwsnsDDw8Ob8/4ABGV9gmVk/tEAAAAASUVORK5CYII=" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/" rel="prev" title="redis知识点总结">
+                  <i class="fa fa-chevron-left"></i> redis知识点总结
+                </a>
             </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
-
-
-
-
+            <div class="post-nav-item">
+                <a href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/" rel="next" title="摄影笔记">
+                  摄影笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
 
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
     });
-})();
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 

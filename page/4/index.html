@@ -1,775 +1,1317 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    
-
-    
-
-    
-
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
 
 
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-    
-    
-    
-    <title>无心呢喃 | 个人技术类文章博客</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="blog python java js 前端 后端 全栈">
-    <meta name="keywords" content="blog python java js 前端 后端 全栈">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Mist","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="无心呢喃">
-<meta property="og:url" content="http://YiuTerran.github.io/page/4/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/page/4/index.html">
 <meta property="og:site_name" content="无心呢喃">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="blog python java js 前端 后端 全栈">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="无心呢喃">
-    
-        <link rel="alternate" type="application/atom+xml" title="无心呢喃" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+<link rel="canonical" href="http://yiuterran.github.io/page/4/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body>
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
 
-    <aside id="menu"  >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.png">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">tryao</h5>
-          <a href="mailto:yaotairan@gmail.com" title="yaotairan@gmail.com" class="mail">yaotairan@gmail.com</a>
-        </hgroup>
-      </div>
-    </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
-        
-            <li class="waves-block waves-effect">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                Archives
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                Tags
-              </a>
-            </li>
-        
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/YiuTerran" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
-        
-      </ul>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
-</aside>
 
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">无心呢喃</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
-    </div>
-</header>
-<header class="content-header index-header">
+  <div class="site-meta">
 
-    <div class="container fade-scale">
-        <h1 class="title">无心呢喃</h1>
-        <h5 class="subtitle">
-            
-                个人技术类文章博客
-            
-        </h5>
-    </div>
-
-    
-
-
-</header>
-
-<div class="container body-wrap">
-
-    <ul class="post-list">
-    
-        <li class="post-list-item fade">
-            <article id="post-jvm调优指南"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:32" datetime="2017-06-12T15:48:32.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/jvm调优指南/">java CMS GC调优步骤</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        0.增加GC相关选项：12345678910-verbose:gc-XX:+UseGCLogFileRotation-XX:NumberOfGCLogFiles=5-XX:GCLogFileSize=512K-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps-XX:+PrintTenuringDistribution...
-    
-
-        <a href="/2017/06/12/jvm调优指南/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-web开发进阶"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:23" datetime="2017-06-12T15:48:23.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/web开发进阶/">web前端开发进阶</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        目前的项目还是用backbone写控制台，说实话，快写吐了…前段时间看了一下ES6，ES7的变化，发现javascript正在变得越来越好，加上V8的给力性能，在web开发这块，js取代python指日可待。当然python丰富的第三方库决定了它在运维/科学计算/爬虫等方面的可靠性，仍然是值得推荐的第一入门语言（当然，学院派最好从lisp入手）。
-要我说，现在创业公司就应该从js全栈起步，后...
-    
-
-        <a href="/2017/06/12/web开发进阶/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/es6/">es6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-erlang速记"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:18" datetime="2017-06-12T15:48:18.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/erlang速记/">erlang速记</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        对于学习过Haskell的人来说，学习Erlang并没有太大的难度。
-语法结构
-首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。
-tuple用{}表示，列表用[]表示；
-用=作模式匹配，用|做头尾区分，用双引号表示字符串（本质是一串数字，可以用$取得字符对应的数字）;
-.表示模式终结，,用来分割参数，函数；;用来分割子句；
-函数的参数个数，称为函数的目；func...
-    
-
-        <a href="/2017/06/12/erlang速记/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FP/">FP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/erlang/">erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-java Proxy模式"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:48:04" datetime="2017-06-12T15:48:04.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/java Proxy模式/">java Proxy模式</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        java也可以使用反射生成动态代理，从而完成面向切面编程，这是spring框架的基础。由于java的第一元素只有object，所以函数处于第二阶梯，这导致在其他语言中很容易(函数是第一类的语言中）实现的动态代理，在java中就必须以对象的形式实现。
-在Python中使用getattr(object, method)可以轻易完成反射；最简单的可以这么做：123456789101112impor...
-    
-
-        <a href="/2017/06/12/java Proxy模式/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/design-pattern/">design_pattern</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/proxy/">proxy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/reflect/">reflect</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-Cometd使用笔记"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:35" datetime="2017-06-12T15:47:35.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/Cometd使用笔记/">cometd 学习文档</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remo...
-    
-
-        <a href="/2017/06/12/Cometd使用笔记/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/push/">push</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-cometd使用haproxy做负载均衡的配置指南"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:30" datetime="2017-06-12T15:47:30.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/cometd使用haproxy做负载均衡的配置指南/">cometd使用haproxy做负载均衡的配置指南</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        下载安装Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：1sudo add-apt-repository ppa:vbernat/haproxy-1.5
-然后update，install即可。(PS: 如果连add-apt-repository都不能用，先执行sudo apt-get install python-software-prope...
-    
-
-        <a href="/2017/06/12/cometd使用haproxy做负载均衡的配置指南/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/haproxy/">haproxy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/websocket/">websocket</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-CometD源码学习_1"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:25" datetime="2017-06-12T15:47:25.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/CometD源码学习_1/">CometD源码学习[0]</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        jetty生命周期Jetty的核心组件是Server和Connector，Server基于Handler容器工作，里面包括ServletHandler，SessionHandler等处理器，Server本身也继承自Handler类。Connector类用于监听连接请求；此外还有Container用来管理MBean。Jetty的Server扩展是通过实现Handler并将至注册到Server中...
-    
-
-        <a href="/2017/06/12/CometD源码学习_1/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jetty/">jetty</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-CometD源码学习_2"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:20" datetime="2017-06-12T15:47:20.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/CometD源码学习_2/">CometD源码学习[1]</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        首先学习server部分，主要包括cometd-java-server这个package，同时涉及到cometd-java-common和bayeux-api这两个package。
-org.cometd.server.CometDServlet在web.xml中，服务的配置顺序一般是CometDServlet，oort，seti和用户自定义应用的Servlet，我们也按这个顺序来看。显然，这...
-    
-
-        <a href="/2017/06/12/CometD源码学习_2/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cometd/">cometd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jetty/">jetty</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-cmake实践"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:11" datetime="2017-06-12T15:47:11.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/cmake实践/">cmake实践</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。
-初级学习材料是CMake Practice这本书.
-例子12345PROJECT(HELLO)SET(SRC_LIST main.c)MESSAGE(STATUS "This is BINARY dir" ...
-    
-
-        <a href="/2017/06/12/cmake实践/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cmake/">cmake</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-python celery组件使用"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-12 23:47:06" datetime="2017-06-12T15:47:06.000Z"  itemprop="datePublished">2017-06-12</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/12/python celery组件使用/">python celery组件使用</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        Prepareinstall:1pip install celery
-选择broker，安装，这里假设使用Redis：1apt-get install redis-server
-Configure首先认真阅读官方celery文档的get start部分，如果有时间的话，最好全部看一边…
-然后参考阅读别人的best practices，基本就可以干活了。
-几个要点
-task相关的文件，最好都是...
-    
-
-        <a href="/2017/06/12/python celery组件使用/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/celery/">celery</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-    </ul>
-
-    
-<nav id="page-nav">
-    <div class="inner">
-    <a class="extend prev" rel="prev" href="/page/3/">上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">下一页</a>
-    </div>
-</nav>
-
-
-</div>
-
-        <footer class="footer">
-    <div class="top">
-        
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
-            
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>tryao &copy; 2017 - 2020</span>
-        </p>
-    </div>
-</footer>
-
-    </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
-
-
-
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://YiuTerran.github.io/page/4/&title=无心呢喃&pic=http://YiuTerran.github.io/img/avatar.png" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://YiuTerran.github.io/page/4/&title=无心呢喃&source=" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://YiuTerran.github.io/page/4/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=无心呢喃&url=http://YiuTerran.github.io/page/4/&via=http://YiuTerran.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://YiuTerran.github.io/page/4/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABv0lEQVR42u3aQXKEMAwEQP7/6U1VrhvYkWUUkmqfOBjcXFTW2McRj9f3eH9+n3M2zuYcdwxcXNw2t7NM8u71iuXv4OLiDnKT4pXPzIm5ARcX95nca3q+9cHFxf1/3Ovy1Kfj4uI+h5s0Pwk0/+HbezVcXNwGtxOY7noeyndxcXHbpxLXBSUvTGtr/bA6Li7uCHetIUmanGrkmrdVuLi4M9wk4KgewSZf27DnwsXFvY1bPSapxqPX5bJ1/QIXF/c2bmcTkx+WJMHr5qgUFxe3wU02ItUjlupz4SAHFxd3hJsQO5ct1pqfD3NwcXEHudWIpLqtSQLWaD4uLu4It9qc9FudDb0aLi7uCHdt49J5Nw9bcXFxJ7l5YJEskIQm16WqEJji4uLewK02G9WYo/OrpyUMFxd3kJt8qHr1au1CZ/luKS4u7lZuHn+sHYiW+63qvgwXF/cG7qs4qguvlbzTt3BxcUe4u84pqkUtL3O4uLi/xc2L196LF4vv4uLiDnKrp7Kbr1gFcQkuLu4zuWsXqvIi9QGKi4v7Z7lr7U2h8OHi4g5y+83PWkuDi4v7TO5aYJrEo9XAdNcBLS4uboP7BY9ow0J4ezFnAAAAAElFTkSuQmCC" alt="微信分享二维码">
-</div>
-
-
-
-
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: false };
-
-
-
-</script>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
-            </div>
-            <time class="flex-col time">{date}</time>
-        </div>
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
     </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">java CMS GC调优步骤</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:32" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:32+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-08-31 09:47:01" itemprop="dateModified" datetime="2019-08-31T09:47:01+08:00">2019-08-31</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>0.增加GC相关选项：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
+<ol>
+<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
+<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
+<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
+<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
+<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
+<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
+<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
+<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
+<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
+<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
+<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
+<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
+<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
+<li>注意调节Survivor大小时，保持Eden大小不变；</li>
+<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
+<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
+<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
+<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
+<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
+<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
+<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
+<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
+<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
+G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
+</ol>
+<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/web%E5%BC%80%E5%8F%91%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/web%E5%BC%80%E5%8F%91%E8%BF%9B%E9%98%B6/" class="post-title-link" itemprop="url">web前端开发进阶</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:23" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:23+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 19:35:32" itemprop="dateModified" datetime="2019-03-31T19:35:32+08:00">2019-03-31</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>目前的项目还是用backbone写控制台，说实话，快写吐了…前段时间看了一下ES6，ES7的变化，发现javascript正在变得越来越好，加上V8的给力性能，在web开发这块，js取代python指日可待。当然python丰富的第三方库决定了它在运维/科学计算/爬虫等方面的可靠性，仍然是值得推荐的第一入门语言（当然，学院派最好从lisp入手）。</p>
+<p>要我说，现在创业公司就应该从js全栈起步，后台前端都用js，小活用meteor这种神器快速搭建，确定方向后再前后端分离认真设计。后端用react，再到naive，桌面段由node-webkit，大全栈一统天下。性能跟不上的模块再重构就可以直接用go/C++之类的，或者用jvm系的东西。时至今日，java的速度已经不慢（至少比一堆脚本语言快），组件多，好招人，适合迅速起步。</p>
+<p>10个人的创业团队，5个js全栈（back/front/react-naive/node-webkit），3个jvm系(android/spark/storm等)，1个object-C系（apple），1个python系（运维），感觉就够了。js必将一统天下，这也是大势所趋。虽然说没有银弹，但是有一门能解决大部分场景问题的语言，还是非常了不起的。</p>
+<p>我之前一直讨厌用js的原因无非是因为这门语言实在太糟蹋了，到了ES6，js越来越python，也可以愉悦的使用了。</p>
+<p><strong>推荐使用nesh作为交互程序进行测试，或者使用nodejs kernel for ipython</strong></p>
+<p>学习步骤：ES6-&gt;React/vue-&gt;redux/vuex-&gt;meteor，目的是熟练使用meteor搭建一些小网站满足需求。<br>然后是react native -&gt; app开发，目的是了解一下客户端技术。</p>
+<h2 id="ES6要点"><a href="#ES6要点" class="headerlink" title="ES6要点"></a>ES6要点</h2><blockquote>
+<p>参考 阮一峰的书，测试推荐使用<code>nesh -b</code></p>
+</blockquote>
+<ol>
+<li>使用<code>let</code>声明变量，而不是<code>var</code>，主要引入原因是<code>var</code>有性能问题，且作用域自动提升；使用<code>let</code>声明的变量，其表现行为与其他语言中的变量一致（如c++）；</li>
+<li>使用<code>const</code>声明常量；</li>
+<li>使用<code>...</code>进行解构。这个是FP中常用的语法，<code>python</code>中也有(<code>*</code>和<code>**</code>)；不同的是，js的解构允许默认值，如果解构失败，变量就是undefined，如果有默认值，这里就会使用默认值；默认值是惰性求值的；</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> [a, b=<span class="number">3</span>] = [<span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line"><span class="keyword">var</span> [head, ...tail] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]      <span class="comment">//这个解构只能放在最后，不如haskell中那么高级</span></span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>对象也可以解构，当然对象本身是无序的，所以解构的变量名必须和key名字一致，否则必须重新映射：</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123;<span class="attr">foo</span>: baz&#125; = &#123;<span class="attr">foo</span>: <span class="number">1</span>, <span class="attr">bar</span>: <span class="number">2</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这个功能经常用在传递函数参数上，调用方传入一个Object，接受函数可以用(<code>&#123;param1, param2&#125;</code>)直接解包，将key对应的value赋给变量；<br>5. 字符串也可以解构成字符，因为字符串本来就是字符数组（只是不可变）<br>6. Unicode支持增强，允许使用<code>\u&#123;20BB7&#125;</code>来进行UTF-16表示；使用新的<code>String.fromCharCode</code>来转换Unicode；使用新的<code>at</code>方法来取出字符；<br>7. 提供了类似python的<code>includes</code>, <code>startsWith</code>,<code>endsWith</code>方法；提供<code>repeat</code>方法快速生成字符串；提供<code>padStart</code>,<code>padEnd</code>方法填充字符串；<br>8. 终于，有官方支持的字符串模板了（泪流满面）。格式类似shell：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">`User <span class="subst">$&#123;user.name&#125;</span> is not authorized to do <span class="subst">$&#123;action&#125;</span>.`</span></span><br></pre></td></tr></table></figure>
+<p><code>$&#123;&#125;</code>内部可以进行各种运算，包括直接调用函数，这个看起来有点像bash中的引用变量；<br>9. 标签模板，允许使用函数后紧跟模板，相当于把模板中的常量和变量当做参数传入该函数；使用<code>String.raw</code>后跟模板，输出的就是别的语言中的原生字符串；<br>10. 正则表达式也有所增强，使用的时候再看吧；<br>11. <code>Number.isFinite</code>和<code>Number.isNaN</code>用来检测特殊值，和内置的区别是非数字直接返回false；<br>12. 同样，将内置的<code>parseInt</code>, <code>parseFloat</code>也变成了Number的方法；<br>13. <code>isInteger</code>用来检测是否整数，但是由于js只有浮点数，所以<code>15.0</code>就是<code>15</code>；<br>14. 用<code>Number.EPSILON</code>表示一个极小的误差范围；<br>15. 引入常量表示精度上下限；<br>16. 新增了17个Math方法；<br>17. 使用<code>**</code>表示指数运算，同python；<br>18. <code>Array.from</code>将类数组或可迭代对象转为数组；<code>Array.of</code>将一组值转换为数组；使用<code>includes</code>查找是否在数组中；<br>19. ES6会明确把数组中的空洞转为<code>undefined</code>；<br>20. ES7将引入列表推导，pythoner的最爱之一；<br>21. 函数允许默认参数；引入lambda表达式<code>=&gt;</code>，lambda表达式的this就是外界的this；ES7引入作用域绑定符号<code>::</code>用来绑定lambda的作用域；<br>22. 尾递归优化；<br>23. 可以使用<code>Object.assign</code>进行深拷贝；<br>24. Symbol用来生成独一无二的标识，可以用来当key；<br>25. Proxy可以用来给对象做代理，做一些限制；<br>26. 引入二进制数组；<br>27. 引入Set和Map，注意不能使用<code>[]</code>进行操作；<br>28. 引入<code>for..of..</code>循环，代替原来一些循环方式；注意的是在object中<code>for..of..</code>返回的是value，key仍然用<code>for..in..</code>，但是<code>Map</code>则返回的是<code>[k, v]</code>的一个数组；<br>29. 引入<code>yield</code>作为生成器；<br>30. 引入<code>Promise</code>解决异步编程问题；<br>31. 引入<code>Async</code>，作为生成器的语法糖。使用async将过程转为异步，使用<code>await</code>表示同步阻塞；这个东西是ES6最精华的部分；<br>32. 引入<code>Class</code>语法糖，更加OO. 构造函数是<code>constructor</code>，成员函数无需<code>function</code>关键字；使用<code>extends</code>进行继承；使用<code>super</code>关键字表示父类；可以扩充原生对象；方法前加星号表示生成器函数；<code>static</code>关键字表示静态函数；静态属性只能写在外面，ES7可能可以写在里面；<br>33. 装饰器。<br>34. 导入命令，格式是：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; stat, exists &#125; <span class="keyword">from</span> <span class="string">&#x27;fs&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">from</span> <span class="string">&#x27;./test&#x27;</span>; <span class="comment">//overide namespace</span></span><br><span class="line"><span class="keyword">import</span> &#123; long <span class="keyword">as</span> l &#125; <span class="keyword">from</span> <span class="string">&#x27;xx&#x27;</span>;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> xxx;</span><br><span class="line"><span class="keyword">import</span> x <span class="keyword">from</span> xxx; <span class="comment">// import default</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">let</span> firstName = <span class="string">&quot;xxx&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="vue要点"><a href="#vue要点" class="headerlink" title="vue要点"></a>vue要点</h2><p>见vue学习笔记</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/erlang%E9%80%9F%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/erlang%E9%80%9F%E8%AE%B0/" class="post-title-link" itemprop="url">erlang速记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:18" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:18+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:25:21" itemprop="dateModified" datetime="2017-06-13T00:25:21+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于学习过Haskell的人来说，学习Erlang并没有太大的难度。</p>
+<h2 id="语法结构"><a href="#语法结构" class="headerlink" title="语法结构"></a>语法结构</h2><ol>
+<li>首字母小写或者用单引号括起来的表示原子；首字母大写表示变量；原子等于原子本身。</li>
+<li>tuple用{}表示，列表用[]表示；</li>
+<li>用<code>=</code>作模式匹配，用<code>|</code>做头尾区分，用双引号表示字符串（本质是一串数字，可以用<code>$</code>取得字符对应的数字）;</li>
+<li><code>.</code>表示模式终结，<code>,</code>用来分割参数，函数；<code>;</code>用来分割子句；</li>
+<li>函数的参数个数，称为函数的目；<code>func</code>关键字用来定义匿名函数；</li>
+</ol>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">func</span><span class="params">(X, Y)</span> -&gt;</span> math:sqrt(X*X + Y*Y) <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure>
+<p>可以把返回值放到括号里面。<br>6. 标准库<code>lists</code>里面含有很多常见的函数，如<code>map</code>, <code>reduce</code>， <code>filter</code>等；<br>7. 没有<code>for</code>循环，和haskell一样，使用尾递归；<br>8. 使用<code>import</code>, <code>export</code>, <code>module</code>来导入/导出/声明模块；<br>9. 列表解析，格式是<code>[X *2 || X &lt;- L].</code></p>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([])</span> -&gt;</span> [];</span><br><span class="line"><span class="function"><span class="title">qsort</span><span class="params">([H|T])</span> -&gt;</span></span><br><span class="line">    qsort([X || X &lt;- T, X &lt; H]) ++</span><br><span class="line">    [H] ++</span><br><span class="line">    qsort([X || X &lt;- T, X &gt;= H]).</span><br></pre></td></tr></table></figure>
+<ol start="10">
+<li><p>断言，关键字<code>when</code>。使用<code>,</code>表示<code>andalso</code>语义， 使用<code>orelse</code>而不是<code>or</code>因为后者不是短路求值；</p>
 </li>
-</template>
+<li><p>使用<code>record</code>表示字典，声明方式：</p>
+<figure class="highlight erl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-record</span><span class="params">(todo, &#123;stats=reminder, who=joe, text&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>需要将其存放在<code>.hrl</code>后缀的文件中，然后使用<code>rr</code>读取。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X=#todo&#123;&#125;.</span><br><span class="line">Y=#todo&#123;status=urgent, text=<span class="string">&quot;Fix errata in book&quot;</span>&#125;.</span><br><span class="line">Z=Y#todo&#123;status=done&#125;.</span><br><span class="line">#todo&#123;who=W, text=Txt&#125; = Z <span class="comment">%模式匹配</span></span><br></pre></td></tr></table></figure>
+<p>可以使用<code>is_record</code>做模式匹配；</p>
+</li>
+<li><p><code>case xxx of Pattern1 [when Guard1] -&gt; xxx end</code></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">(L)</span> -&gt;</span></span><br><span class="line">    odds_and_evens_acc(L, [], []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([H|T], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> (H <span class="keyword">rem</span> <span class="number">2</span>) <span class="keyword">of</span></span><br><span class="line">        <span class="number">1</span> -&gt; odds_and_evens_acc(T, [H|Odds], Evens);</span><br><span class="line">        <span class="number">0</span> -&gt; odds_and_evens_acc(T, Odds, [H|Evens])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">odds_and_evens_acc</span><span class="params">([], Odds, Evens)</span> -&gt;</span></span><br><span class="line">    &#123;Odds, Evens&#125;.</span><br></pre></td></tr></table></figure></li>
+<li><p>异常的捕捉采用<code>try...catch..after...end</code>格式，非常类似java；</p>
+</li>
+<li><p>数字格式包括<code>2#01011</code>其中<code>#</code>前面是进制，浮点数可以用科学计数法，即<code>-2.3e+6</code>等；</p>
+</li>
+<li><p>每个进程都有一个私有数据存储，称为进程字典，可以用<code>put</code>,<code>get</code>, <code>get_keys</code>, <code>erase</code>等函数进行操作；但是如果使用进程字典，代码就不再是没有副作用的，因此要避免使用；</p>
+</li>
+<li><p>引用是全局唯一的Erlang值，使用<code>erlang:make_ref()</code>来创建引用；</p>
+</li>
+<li><p>奇怪的操作符： <code>==</code>, <code>/=</code>, <code>=:=</code>全等，<code>=/=</code>不全等；数值比较会有隐式转换；<code>==</code>仅限于浮点数和整数的比较，大部分情况下，应该使用<code>=:=</code>；</p>
+</li>
+<li><p>奇怪的排序：<code>number</code>&lt;<code>atom</code>&lt;<code>reference</code>&lt;<code>fun</code>&lt;<code>port</code>&lt;<code>pid</code>&lt;<code>tuple</code>&lt;<code>list</code>&lt;<code>binary</code>；</p>
+</li>
+<li><p>下划线变量：仅用来声明不准备使用的变量（占位符）；或者用来调试；</p>
+</li>
+<li><p>对于大的程序，还是要使用makefile的，然而直到今天我还是不会写makefile，不过我决定抽个时间学习以下cmake的使用；使用<code>code:get_path()</code>查看搜索路径，<code>code:add_patha</code>, <code>code:add_pathz</code>用来增加新目录；</p>
+</li>
+<li><p>可以在<code>~/.erlang</code>下增加一些命令，当启动<code>erl</code>shell时，会先执行这里的初始化语句；当前目录下的<code>.erlang</code>会覆盖home下的执行优先级。可以使用<code>init:get_argument(home)</code>确定home的路径（for windows）；</p>
+</li>
+<li><p>erlang需要在运行前编译，或者用<code>escript</code>命令执行而无需编译（解释器）。escript的语法与erlang本身略有不同。当然我想不到在什么情况下要写erlang脚本。。。因为erlang并不是一门好的脚本语言。python才是现在的最优选择：）</p>
+</li>
+</ol>
+<h2 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h2><ol>
+<li>和go一样，很简单的创建进程：<code>Pid=spawn(Fun)</code>；</li>
+<li>发送消息： <code>Pid ! Message</code>，异步发送。返回值是消息本身，这意味着使用<code>Pid1 ! Pid2 ! M</code>会将M发送到所有的Pid中；</li>
+<li><code>receive ... end</code>， 接收一个发送到当前进程的消息；格式是：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">receive</span></span><br><span class="line">    Pattern1 [When Guard1] -&gt;</span><br><span class="line">        Expression1;</span><br><span class="line">    Pattern2 [When Guard2] -&gt;</span><br><span class="line">        Expression2;</span><br><span class="line"><span class="keyword">after</span> Time -&gt;   <span class="comment">%超时</span></span><br><span class="line">    Expressions</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></li>
+<li>消息发送到进程的邮箱中，receive说白了是检查邮箱，如果消息不能匹配任何模式，则会被放到保存队列里；如果有一条消息能成功匹配，则放入保存队列里的旧消息会按着到达的先后顺序重新取出放入邮箱；如果有<code>after</code>设置，计时器到达后也会触发上述规则；</li>
+<li>除了Pid机制外，可以采用注册进程的方式公开进程。<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">register</span><span class="params">(Name, Pid)</span> %将P<span class="title">id</span>注册为N<span class="title">ame</span></span></span><br><span class="line"><span class="function"><span class="title">unregister</span><span class="params">(Name)</span></span></span><br><span class="line"><span class="function"><span class="title">whereis</span><span class="params">(Name)</span> -&gt;</span> Pid | undefined <span class="comment">%检测是否注册成功</span></span><br><span class="line">registered() <span class="comment">%已注册进程list</span></span><br></pre></td></tr></table></figure></li>
+<li>如果想要热更新代码，最好使用MFA（即带着模块名）的调用方式创建进程；</li>
+<li>使用<code>link(Pid)</code>在两个进程之间建立联系。二者之中任意一个挂掉，另一个都会收到系统通知；</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Erlang并不难，但是OTP很难。Erlang设计很用心，目标很明确，对于分布式大型系统的构建提供了很多基础支撑。缺点是生态系统略显封闭，社区不活跃，各种第三方库支持不全。相比之下，个人更看好Go的发展，虽然后者并不是为构建大规模系统而生，但是CPS模型的并发写起来也很舒服，加上简单的语法，快速的编译过程，完善的生态链，杰出的性能，是一个很不错的工具。</p>
+<p>目前来看，Skynet+Lua就是仿制了Erlang的思想。</p>
 
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
 
 
 
 
+    
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="post-block">
+  
+  
 
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">java Proxy模式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:04" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:04+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 19:30:15" itemprop="dateModified" datetime="2019-03-31T19:30:15+08:00">2019-03-31</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>java也可以使用反射生成动态代理，从而完成面向切面编程，这是spring框架的基础。<br>由于java的第一元素只有object，所以函数处于第二阶梯，这导致在其他语言中很容易(函数是第一类的语言中）实现的动态代理，在java中就必须以对象的形式实现。</p>
+<p>在Python中使用<code>getattr(object, method)</code>可以轻易完成反射；最简单的可以这么做：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._real = Real()</span><br><span class="line">        <span class="keyword">for</span> method <span class="keyword">in</span> inspect.getmembers(_real, predicate=inspect.ismethod):</span><br><span class="line">            <span class="built_in">setattr</span>(self, method[<span class="number">0</span>], self._call_real(m[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_call_real</span>(<span class="params">self, method</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_real_proxy</span>(<span class="params">*args, **kargs</span>):</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">getattr</span>(self._real, method)(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> _real_proxy</span><br></pre></td></tr></table></figure>
+
+<p>java生成动态代理的主要使用了<code>java.lang.reflect.Proxy</code>类的<code>newProxyInstance()</code>方法，其原型如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader,</span><br><span class="line">                                        Class&lt;?&gt;[] interfaces,</span><br><span class="line">                                        InvacationHandler h)throws IllegalArgumentException;</span><br></pre></td></tr></table></figure>
+<p>参数：<br>loader - 定义代理类的类加载器<br>interfaces - 代理类要实现的接口列表<br>h - 指派方法调用的调用处理程序<br>返回：<br>一个带有代理类的指定调用处理程序的代理实例，它由指定的类加载器定义，并实现指定的接口<br>抛出：<br>IllegalArgumentException - 如果违反传递到 getProxyClass 的参数上的任何限制<br>NullPointerException - 如果 interfaces 数组参数或其任何元素为 null，或如果调用处理程序 h 为 null</p>
+<p>动态代理类：在运行时生成的class，在其生成过程中，你必须提供一组接口给它，然后该class就声称实现了这些接口。可以把该class的实例当做这些接口中的任何一个来用。其实，这个Dynamic Proxy就是一个Proxy，他不会替你做任何实质性的工作。在生成它的实例时，必须提供一个Handler，由它接管实际的工作。<br>在使用动态代理类时，必须实现InvocationHandler接口。</p>
+<p><code>InvaocationHandler</code>接口必须实现的方法是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Object invoke(Object proxy,</span><br><span class="line">              Method method,</span><br><span class="line">              Object[] args)</span><br><span class="line">              throws Throwable</span><br></pre></td></tr></table></figure>
+<p>此处控制流翻转，该方法被回调，传入用户尝试调用的方法和参数，以及代理本身的实例。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">cometd 学习文档</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:35" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:35+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:22:36" itemprop="dateModified" datetime="2017-06-13T00:22:36+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ol>
+<li><p>cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote client直接连接的session时，必须先创建一个local client；</p>
+</li>
+<li><p>local client的作用在于，如果server并非简单的无条件转发信息到其他remote client，而是想要做一些server端的处理（比如仅仅发往特定的客户端），就需要一个local client。service通道都对应一个local client；</p>
+</li>
+<li><p>通道类型分为meta channel, broadcast channel和service channel，meta channel是禁止订阅的，用来处理协议的基本功能，包括/meta/handshake, /meta/connect, /meta/disconnect, /meta/subscribe, /meta/unsubscribe, /meta/publish, /meta/unsucessful；而broadcast channel类似与聊天室，服务器无条件转发来自broadcast channel的信息到所有的subscribers；service channel则类似于私聊，服务器有条件转发到指定的订阅了该服务的某一个或多个remote client；</p>
+</li>
+<li><p>server端是一个<code>BayeuxServer</code>对象，相关联的对象包括：</p>
+<ul>
+<li>transport，包括http和websocket，或其他自己实现的接口，这里用来实现bayeux的底层通信方式；</li>
+<li>channels，通道</li>
+<li>extensions，扩展用来与bayeux协议交互，是一种listener，可以用于在消息接收后、发送前等时刻对消息进行自定义处理</li>
+<li>authorization，认证机制，一般通过<code>SecurityPolicy</code>来实现；也可以通过<code>Authorizer</code>进行更细粒度（如针对某个channel）的处理；</li>
+<li>消息处理，可以通过回调（监听）对客户端发来的消息进行处理；</li>
+</ul>
+</li>
+<li><p>Listener.</p>
+<ul>
+<li>客户端对某个channel的listener，用来处理服务器发送（或转发）的message(通过<code>ClientSession.getChannel(String).addListener(ClientSessionChannel.MessageListener)</code>来添加)；此外也可以通过添加extension对消息做最初或最后的处理；</li>
+<li>Server端的Listener类似，但更加丰富，包括：<ul>
+<li>extension, 对server的或对session的</li>
+<li>channel create|destroy listener</li>
+<li>subscribe|unsubscribe channel</li>
+<li>session被remove</li>
+<li>与server的message queue交互(<code>MaxQueueListener</code>, <code>DeQueueListener</code>等)</li>
+<li>MessageListener</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>消息流动的过程：</p>
+<ol>
+<li>客户端通过client-side的channel发送消息，这些消息首先通过clientsession extension，做最后的过滤；然后通过底层的transport发往server。transport会将message转换为JSON格式，server transport接受到这些消息后，再将JSON字符串转为普通消息；</li>
+<li>消息在server侧首先通过server extension，做最初的处理，此时如果被拒绝，返回给client的错误标示该消息已被删除；</li>
+<li>消息随即被送往serversession extension，如果被拒绝，操作同上；</li>
+<li>消息被送往security policy和authorizers接受审核，如果被拒绝，返回给客户端说明未通过认证；</li>
+<li>消息被送往channel listener，服务器可以在channel listener里面对消息做任意修改；该步骤后，消息被冻结；</li>
+<li>如果是nonbroadcast channel，会随即回复一条消息给发送者，表明服务器已收到消息并且该消息不是广播消息（貌似是将消息原样返回）；</li>
+<li>如果是broadcast message，消息会通过serversession extension，然后插入server的message queue，准备发出；</li>
+<li>如果是lazy message，消息需要等待一段时间，否则消息被立即发送出去；如果消息被发往remote client，会单独开一个线程进行异步发送，后续步骤包括转换为JSON格式，通过底层的transport等，类似客户端发送消息之前的方式；如果是local client，就直接发送过去；</li>
+<li>不管是不是广播消息，消息被插入消息队列后，服务器会返回一条信息给发送者，标明发送结束；</li>
+<li>客户端接收到消息，底层的tranport将消息转回普通格式，然后依次经过client session extension, channel listener和channel subscriber；</li>
+<li>server每收到一条bayeux消息，会分配一个单独的线程进行消息处理，所有的listener都在这个单独的线程中被依序唤醒。client与server之间的连接是有限的，如果同一个连接在短时间内收到大量消息，而消息的处理过程过慢，就会导致后续消息被堵塞而无法得到及时处理。因此服务器在处理消息过程中如果有<strong>耗时处理</strong>，务必要<strong>单开线程</strong>；</li>
+</ol>
+</li>
+<li><p>消息类型：</p>
+<ul>
+<li>客户端发往server的，主要是meta消息；</li>
+<li>客户端发往指定客户端的，需要通过service通道，然后通过clientId deliver过去</li>
+<li>服务器发往客户端的，需要服务器本地起一个local client session，与服务器握手，然后在该通道publish一个消息，这个local client充当了消息的sender</li>
+<li>即使client没有subscribe一个channel，也可以在这个channel上publish message</li>
+</ul>
+</li>
+<li><p>cometd server无法保证消息被正确送往client，除非client和server都打开message acknowledgment extension，这样二者在handshake时会在ext段增加特殊属性，协商完毕后，客户端会对每一条接受到的消息做出应答；这种机制提供了一种<strong>不可靠的</strong>失败重传功能；</p>
+</li>
+<li><p>seti是oort集群时用来发送消息的一种工具，如果a想向b发送信息，但是二者连在不同的comet节点上，这时候就需要转发消息、操作clientId等。seti可以将client与其他标识进行关联，这种关联可以是一对一的，也可以是一对多的。比如说，一个userid有多个deviceid，我们可以将userid与该用户的所有device的clientId都关联起来，也可以将其deviceid和对应的clientid对应起来，这样就可以直接转发了。</p>
+</li>
+<li><p>每个oort节点仅有1个seti对象，当userid第一次与seti关联时，会向所有节点广播此消息，这样其他节点都知道如果需要向某个userid发消息，需要把消息转发给这个seti；用户断开连接或者超时被移除session，这种关联会自动取消。当一个seti中，userid关联的所有session都断开连接时，userid会解除与seti的关联，然后广播此消息。我们可以监听这两种广播消息。</p>
+</li>
+<li><p>通过seti发送消息很简单，我们只需要指定userid，seti会自动找到其所连接的comet节点，进行发送；</p>
+</li>
+<li><p>comet节点之间的数据共享。<code>OortObject</code>用于解决此问题，这是一个分布式的架构，所有节点拥有此对象，此对象存放所有节点的共享数据，每个节点只能修改属于自己的那一部分，其他的是只读的，每次修改会广播给其他节点，其他节点可以监听这种广播，并做一些自定义修改。</p>
+</li>
+<li><p>服务转发功能，如果集群各个节点提供的服务不一致，可能需要此功能用于转发服务。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">cometd使用haproxy做负载均衡的配置指南</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:30" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:30+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:22:51" itemprop="dateModified" datetime="2017-06-13T00:22:51+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat&#x2F;haproxy-1.5</span><br></pre></td></tr></table></figure>
+<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if [ -e &#x2F;etc&#x2F;default&#x2F;haproxy ]; then</span><br><span class="line">	. &#x2F;etc&#x2F;default&#x2F;haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf </code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
+<p>典型配置如下<a target="_blank" rel="noopener" href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see &#x2F;etc&#x2F;rsyslog.d&#x2F;haproxy.conf</span><br><span class="line">  chroot &#x2F;var&#x2F;lib&#x2F;haproxy</span><br><span class="line">  pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&#39;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri &#x2F;stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&#39;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET &#x2F;cometd HTTP&#x2F;1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure>
+<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
+<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
+<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local0.* &#x2F;var&#x2F;log&#x2F;haproxy&#x2F;haproxy.log</span><br></pre></td></tr></table></figure>
+<p>即可指定到具体文件。</p>
+<p>ubuntu使用rsyslog，因此对应的配置方法如下<a target="_blank" rel="noopener" href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -&#x2F;var&#x2F;log&#x2F;haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
+
+<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a target="_blank" rel="noopener" href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
+<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/" class="post-title-link" itemprop="url">CometD源码学习[0]</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:25" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:25+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:24:14" itemprop="dateModified" datetime="2017-06-13T00:24:14+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
+<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
+<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
+<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
+<blockquote>
+<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
+</blockquote>
+<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
+<ol>
+<li>创建队列线程池，用于处理请求；</li>
+<li>创建ServerSocket用于准备接受请求；</li>
+<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
+<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
+</ol>
+<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
+<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
+<ol>
+<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
+<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
+<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
+<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
+<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
+<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
+<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
+</ol>
+<p>NIO的一般工作原理用代码描述如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
+<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
+<hr>
+<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/" class="post-title-link" itemprop="url">CometD源码学习[1]</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:20" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:20+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:24:33" itemprop="dateModified" datetime="2017-06-13T00:24:33+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
+<h2 id="org-cometd-server-CometDServlet"><a href="#org-cometd-server-CometDServlet" class="headerlink" title="org.cometd.server.CometDServlet"></a>org.cometd.server.CometDServlet</h2><p>在web.xml中，服务的配置顺序一般是<code>CometDServlet</code>，<code>oort</code>，<code>seti</code>和用户自定义应用的<code>Servlet</code>，我们也按这个顺序来看。显然，这个类主要用于Long-Polling模式。<br><code>init</code>中主要就是新建（如果未导出）并启动一个bayeuxServer;<br><code>service</code>中，”OPTION”请求，用于允许CORS访问，直接返回200；否则转发给transport；<br><code>destroy</code>用于生命周期中stop过程调用，依次cancelSchedule, stop bayeuxServer, remove导出的bayeuxServer.</p>
+<h2 id="org-cometd-server-BayeuxServer"><a href="#org-cometd-server-BayeuxServer" class="headerlink" title="org.cometd.server.BayeuxServer"></a>org.cometd.server.BayeuxServer</h2><p>这个接口规定了bayeux服务器需要实现的接口。值得关注的地方：</p>
+<ol>
+<li>可监听事件：<br> a. ChannelListener用于监听add/remove Channel的事件；<br> b. SessionListener用于监听add/remove Session的事件，这个比较重要。可以通过Session建立事件来给client push 欢迎消息，通过Session removed事件来确认client断开连接。<br> c. SubscriptionListener用于监听订阅事件；</li>
+<li>extension接口:<br> extension本质是一个消息钩子，可以在rcv之初/send之末对消息做一些修改（主要是操作bayeux协议的<code>ext</code>字段），所以参数中ServerMessage都是Mutable的.这里normal message和meta message被区分开来。</li>
+</ol>
+<h2 id="org-cometd-server-BayeuxServerImpl"><a href="#org-cometd-server-BayeuxServerImpl" class="headerlink" title="org.cometd.server.BayeuxServerImpl"></a>org.cometd.server.BayeuxServerImpl</h2><p>顾名思义，bayeuxServer的实现类。<br><code>VALID</code>用了一个技巧，即字符本质上是一个short的ASCII码；<br><code>System.identityHashCode</code>用于获取对象的原始hashcode码；<br><code>SecureRandom</code>是一个强加密的随机数类；<br><code>listeners</code>, <code>extension</code>都被存放在线程安全的<code>CopyOnWriteArrayList</code>里面；<br>client_id与<code>ServerSessionImpl</code>、channel_name与<code>ServerChannelImpl</code>的映射也被存放在线程安全的<code>ConcurrentHashMap</code>里面；<br>Server支持的transport被存入<code>LinkedHashMap</code>里面，因为transport的顺序很重要，优先使用迭代中最前的，不可行时才使用后续者；<br><code>currentTransport</code>是一个<code>ThreadLocal</code>变量，因为每个线程（连接）当前的Transport肯定不一样。</p>
+<p>_scheduler是一个周期性定时器，此外是一个policy、一个JSON的server，这三个变量。</p>
+<h3 id="dostart"><a href="#dostart" class="headerlink" title="dostart"></a>dostart</h3><ol>
+<li>首先初始化Meta Channel：创建Channel并增加相关的Listener；</li>
+<li>初始化JSON服务器，这里有一个缺省的实现（<code>JettyJSONContextServer</code>），但是用户也可以通过option自定义一个实现类（通过反射，使用<code>isAssignableFrom</code>判断是否是<code>JSONContext.Server</code>的子类）；</li>
+<li>初始化transport.如果没有设置，初始化为websocket接口，否则依序初始化配置文件中指定的端口并添加到容器中；如果<code>allowedTransports</code>没有设置，默认允许所有transport，否则依序初始化配置文件中允许的且存在于transport列表中的transport；上述所有数据都被添加到公用的容器中了。</li>
+<li>启动_scheduler，执行周期性扫除(sweep)任务（每次计时任务结束后需要手动再启动定时任务），该任务会扫描所有Channel和端口以及session，扫描周期默认是997ms，可以自己设置。<br>session扫描即服务端超时机制，如果now&gt;一定时间间隔，则从服务端移除session；Channel扫描就是检测Channel的订阅数量，如果没有活动的（即已握手的session的）订阅，那么就从BayeuxServer中清除（除非设置为<code>persistent</code>）；</li>
+<li>最后是2.9新增的<code>validateMessageFields</code>用于校验消息格式。</li>
+</ol>
+<h3 id="createChannelIfAbsent"><a href="#createChannelIfAbsent" class="headerlink" title="createChannelIfAbsent"></a>createChannelIfAbsent</h3><p>创建通道，传入channel名和初始化器。<br>如果Channel name尚不存在：</p>
+<ol>
+<li>根据channel name创建<code>ChannelId</code>，然后创建一个新的<code>ServerChannelImpl</code>，后者是一个<code>ServerChannel</code>接口的实现类。注意在<code>ServerChannelImpl</code>的构造函数中，如果非broadcast channel，会被设置为persistent的；</li>
+<li>存放channel，会再次检测channel是不是已经存在（多线程检测），确认无误后，开始配置channel；使用传入的<code>initializers</code>和已注册的<code>listener</code>配置channel；</li>
+<li>初始化完毕，触发ChannelListener的Channel added事件；<br>如果Channel name已存在：<br>什么都不做，简单的给将channel的存活评估值（_sweeperPasses)重置。会再次check channel（<code>putIfAbsent</code>）是不是已存在于容器中。</li>
+</ol>
+<h2 id="PushServlet"><a href="#PushServlet" class="headerlink" title="PushServlet"></a>PushServlet</h2><p>先跳过Oort和Seti，直接看PushServlet（我们的应用程序）。<br>由于在CometDServlet里面已经导出了<code>bayeuxServer</code>，这里可以通过<code>getServletContext()</code>直接拿到Server了.<br>现在可以创建<code>SecurityPolicy</code>和<code>PushService</code>了。</p>
+<h2 id="AbstractService"><a href="#AbstractService" class="headerlink" title="AbstractService"></a>AbstractService</h2><p>顾名思义，这个类是<code>abstract</code>的，注意构造函数里面会先create一个<code>LocalSession</code>，然后自己和自己握手。这个LocalSession本子上是用于服务端主动publish消息的.<br><strong>初始化的时候可以指定线程池的大小，否则使用同步访问。</strong>显然，如果不使用线程池，那么在处理消息时如果有费时间的操作，必须新建线程。<br>这里用了一个技术，使用反射技术查看自己所处的类的<code>Modifier</code>是不是<code>public</code>的。</p>
+<h3 id="addService"><a href="#addService" class="headerlink" title="addService"></a>addService</h3><p>创建Channel后，正常流程走到这里。传入channel name和callback func name，利用反射技术进行映射。<br><code>getClass</code>拿到类，然后从当前开始逐层向上遍历直到<code>AbstractService</code>，执行以下操作：<br><code>getDeclaredMethods</code>拿到方法集合，遍历方法集合，判定名称相等且有<code>public</code>描述符，那么找到候选<code>Method</code>。<br>候选<code>Method</code>的参数必须符合固定的签名类型，这里用<code>isAssignableFrom</code>配合<code>getParameterTypes()</code>来进行判断；<br><strong>注意</strong>：这里会主动调用<code>createChannelIfAbsent</code>创建服务（这里就没机会做配置了）；</p>
+<p>创建一个<code>Invoker</code>，在并行队列里放入<code>messageName</code>和<code>Invoker</code>的映射。<br>该<code>Invoker</code>被增加为Channel的Listener.</p>
+<h3 id="handle"><a href="#handle" class="headerlink" title="handle"></a>handle</h3><p>所有消息首先经过该函数进行分发。<br>首先验证消息，创建回复并关联。调用接受的extension对消息进行扩展；从消息中取出channel，对消息进行认证(<code>Authorizer</code>)；然后依据是否是Meta消息进行不同的分发，无论是接受消息还是发送消息，最终都是调用了<code>doPublish</code>方法。</p>
+<h2 id="AbstractService-Invoker"><a href="#AbstractService-Invoker" class="headerlink" title="AbstractService.Invoker"></a>AbstractService.Invoker</h2><p><code>ServerChannel.MessageListener</code>接口的实现类。</p>
+<h3 id="OnMessage"><a href="#OnMessage" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>消息的观察者。<br>Server可以通过<code>isSeeOwnPublish</code>相关参数的配置控制是否接收自己publish的消息，然后调用(<code>invoke</code>）回到函数。如果初始化的时候传递了最大线程数，那么这里就从线程池里面拿线程然后处理消息；<strong>否则直接在当前线程里面处理消息</strong>(<code>doInvoke</code>)；<br>如果回调函数的签名中有返回值，这个值会被立刻返回(send)给client端。</p>
+<p>现在再次回到<code>BayeuxServerImpl</code>类中，<code>doStart</code>会给所有的<code>Meta</code> Channel增加Listener，这是预置的Meta handler；按着Bayeux协议约定的过程，client会首先handshake。</p>
+<h2 id="BayeuxServerImpl-HandshakeHandler"><a href="#BayeuxServerImpl-HandshakeHandler" class="headerlink" title="BayeuxServerImpl.HandshakeHandler"></a>BayeuxServerImpl.HandshakeHandler</h2><p>先看父类，<code>HandlerListener</code>是<code>ServerChannel.ServerChannelListener</code>的实现类。<br><code>isSessionUnknown</code>没啥好说的；<code>toChannelList</code>有个有趣的地方，可以用<code>Collections.singletonList</code>生成单元素列表），对某些需要传一个集合，但是实际上只要传一个元素的API很有用；</p>
+<h3 id="OnMessage-1"><a href="#OnMessage-1" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>handshake的时候session理论上还不存在，于是新建一个<code>ServerSession</code>，并且将HTTP的相关报头转移过来（UA），然后得到关联(<code>getAssociated</code>)的消息实体（消息可能是捎带回去的）。<br>这时候先判断<code>SecurityPolicy</code>有没有设置，如果设置了，就先判断<code>canHandshake</code>是不是成立，如果不成立，就要<code>reply.setSuccessful(false)</code>，并设置错误原因。</p>
+<p>这里有个问题，reply并没有传给<code>canHandshake</code>，但是<code>message</code>被传进去了。根据<code>ServerMessageImpl</code>的实现，<code>canHandshake</code>也可以用<code>message.getAssociated</code>里面拿到reply，然后增加想要的字段（ext）。代码显示，这里并没有往advice里面添加重连间隔（<code>interval</code>)字段。<br>【这里显示了nest class如何得到outer class的实例，直接用<code>BayeuxServerImpl.this</code>.】</p>
+<p>一切正常，<code>ServerSession</code>首先和自己握手，增加<code>ServerSession</code>（在此处<strong>通知回调</strong>，即应用程序注册的监听Session添加的方法），定义reply中的某些字段；如果<code>canHandshake</code>返回false，则返回403（handshake denied）错误；注意：如果应用程序的监听器没有设置<code>advice</code>中的<code>reconnect</code>字段，这里默认会填入<code>none</code>。</p>
+<p><code>reconnect</code>字段分为3种，正常是<code>retry</code>；<code>handshake</code>一般是402错误，要求重新握手；<code>none</code>就是禁止自动重连了。<a target="_blank" rel="noopener" href="http://docs.cometd.org/reference/bayeux_message_fields.html">^1</a></p>
+<h2 id="BayeuxServerImpl-ConnectHandler"><a href="#BayeuxServerImpl-ConnectHandler" class="headerlink" title="BayeuxServerImpl.ConnectHandler"></a>BayeuxServerImpl.ConnectHandler</h2><p>心跳信息处理。</p>
+<h3 id="OnMessage-2"><a href="#OnMessage-2" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>如果session未知，那就需要重新握手，返回402错误。否则对session进行续期，并返回advice，内容包括<code>timeout</code>和<code>interval</code>字段（如果没有设置，默认是不过期的）</p>
+<h2 id="BayeuxServerImpl-SubscribeHandler"><a href="#BayeuxServerImpl-SubscribeHandler" class="headerlink" title="BayeuxServerImpl.SubscribeHandler"></a>BayeuxServerImpl.SubscribeHandler</h2><p>订阅Channel处理。</p>
+<h3 id="OnMessage-3"><a href="#OnMessage-3" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>402同上。如果没有<code>subscription</code>字段或者字段不符合格式，403；如果Channel不存在，尝试创建Channel(policy的<code>canCreate</code>，以及内部Channel格式约束)，失败则403。</p>
+<h2 id="BayeuxServerImpl-UnsubscribeHandler"><a href="#BayeuxServerImpl-UnsubscribeHandler" class="headerlink" title="BayeuxServerImpl.UnsubscribeHandler"></a>BayeuxServerImpl.UnsubscribeHandler</h2><p>退订处理。</p>
+<h3 id="OnMessage-4"><a href="#OnMessage-4" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>退订只要session存在，消息格式正确，没有理由不让你退XD</p>
+<h2 id="BayeuxServerImpl-DisconnectHandler"><a href="#BayeuxServerImpl-DisconnectHandler" class="headerlink" title="BayeuxServerImpl.DisconnectHandler"></a>BayeuxServerImpl.DisconnectHandler</h2><p>断开连接处理。</p>
+<h3 id="OnMessage-5"><a href="#OnMessage-5" class="headerlink" title="OnMessage"></a>OnMessage</h3><p>session存在即可断开。<br>会激活移除session的回调（timeout=false）<br>刷新session=&gt;</p>
+<h2 id="ServerSessionImpl"><a href="#ServerSessionImpl" class="headerlink" title="ServerSessionImpl"></a>ServerSessionImpl</h2><h3 id="flush"><a href="#flush" class="headerlink" title="flush"></a>flush</h3><p>刷新session会取消上一次的lazyTask；</p>
+<h3 id="LazyTask"><a href="#LazyTask" class="headerlink" title="LazyTask"></a>LazyTask</h3><p><code>Runnable</code>子类，其<code>scheduler</code>方法最终调用<code>BayeuxServerImpl</code>中的同名方法，作为一个计划任务执行（<code>Scheduler</code>是jetty的基础工具类）。</p>
+<h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
+<h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">cmake实践</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:11" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:11+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:22:09" itemprop="dateModified" datetime="2017-06-13T00:22:09+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。</p>
+<p>初级学习材料是<a target="_blank" rel="noopener" href="http://sewm.pku.edu.cn/src/paradise/reference/CMake%20Practice.pdf">CMake Practice</a>这本书.</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">PROJECT</span>(HELLO)</span><br><span class="line"><span class="keyword">SET</span>(SRC_LIST main.c)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">&quot;This is BINARY dir&quot;</span> <span class="variable">$&#123;PROJECT_BINARY_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">&quot;This is SOURCE dir&quot;</span> <span class="variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(hello <span class="variable">$&#123;SRC_LIST&#125;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>上面是一个最简单的CMakeLists.txt示例，也很容易理解。使用<code>SET</code>命令设置变量，使用<code>MESSAGE</code>命令显示信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MESSAGE([SEND_ERROR | STATUS | FATAL_ERROR] &quot;message to display&quot;)</span><br></pre></td></tr></table></figure>
+<p>使用空格键分割参数。</p>
+<p><code>ADD_EXECUTABLE</code>添加生成的可执行文件，第一个参数是可执行文件的名字（与项目没什么关系）。</p>
+<p>一般情况下，使用<code>$&#123;&#125;</code>引用变量，但是如果在<code>IF</code>中，则默认就是一个变量名，这时候就不要再解引用了。</p>
+<p>指令是大小写无关的，参数和变量是大小写敏感的，但是一般情况下推荐使用全大写的指令。</p>
+<p>由于参数使用空格做分隔符，因此若某些参数中间含有空格（如文件名），则需要用引号包围。另外就是文件后缀可以省略，如果确定不会重复的话（推荐保留）。</p>
+<p>另外就是参数也可以用分号分割，注意前后保持一致就行。</p>
+<h3 id="外部构建"><a href="#外部构建" class="headerlink" title="外部构建"></a>外部构建</h3><p>上面的例子是内部构建，生成了一大堆中间文件，cmake官方更推荐使用外部构建。</p>
+<p>删除除了<code>CMakeLists.txt</code>和<code>main.c</code>之外的所有文件，建立一个<code>build</code>目录。然后运行<code>cmake &lt;项目路径&gt;</code>，构建的中间文件和输出的MakeFile都会出现在这个目录里，对原来的项目没有影响。唯一不同的是<code>PROJECT_BINARY_DIR</code>指向<code>build</code>目录了。</p>
+<h3 id="进一步复杂化"><a href="#进一步复杂化" class="headerlink" title="进一步复杂化"></a>进一步复杂化</h3><p>添加<code>src</code>子文件夹，将<code>main.c</code>移入。然后在其中再新建一个<code>CMakeLists.txt</code>。外部改成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PROJECT(HELLO)</span><br><span class="line">ADD_SUBDIRECTORY(src bin)</span><br></pre></td></tr></table></figure>
+<p>内部的写入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD_EXECUTABLE(hello main.c)</span><br></pre></td></tr></table></figure>
+
+<p>再在<code>build</code>文件夹下cmake，就可以<code>build/bin/</code>文件夹下生成科执行文件。</p>
+<p>可以通过修改<code>EXECUTABLE_OUTPUT_PATH</code>和<code>LIBRARY_OUTPUT_PATH</code>来修改最终输出的可执行文件或者链接库的路径。一般写在<code>ADD_EXECUTABLE</code>后面。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装使用<code>cmake -DCMAKE_INSTALL_PREFIX=&lt;dir&gt;</code>来指定安装目录。在根目录的<code>CmakeLists.txt</code>里面写入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">INSTALL(FILES COPYRIGHT README DESTINATION share&#x2F;doc&#x2F;cmake&#x2F;t2)</span><br><span class="line">INSTALL(PROGRAMS runhello.sh DESTINATION bin)</span><br><span class="line">INSTALL(DIRECTORY doc&#x2F; DESTINATION share&#x2F;doc&#x2F;cmake&#x2F;t2)</span><br></pre></td></tr></table></figure>
+<p>这里用了<code>INSTALL</code>指令，第一个参数表示写入文件类型，<code>DESTINATION</code>后面是写入的目标位置。</p>
+<p>INSTALL指令参数较多，使用时可以参考文档。</p>
+<h3 id="静态库与动态库"><a href="#静态库与动态库" class="headerlink" title="静态库与动态库"></a>静态库与动态库</h3><p>除了目录名外，与构建可执行文件的主要区别是lib文件夹中的CMakeLists.txt中加入了命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SET(LIBHELLO_SRC hello.c)</span><br><span class="line">ADD_LIBRARY(hello SHARED $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">ADD_LIBRARY(hello_static STATIC $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES OUT_NAME &quot;hello&quot;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES VERSION 1.2 SOVERSION 1)</span><br><span class="line">INSTALL(TARGETS hello hello_static</span><br><span class="line">        LIBRARY DESTINATION lib</span><br><span class="line">        ARCHIVE DESTINATION lib)</span><br><span class="line">INSTALL(FILES hello.h DESTINATION include&#x2F;hello)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>ADD_LIBRARY</code>第二个参数指出了库的类型，可以用<code>STATIC</code>参数构建静态库，<code>SHARD</code>构建动态库。</p>
+<p>由于<code>ADD_LIBRARY</code>第一个参数不能重复，所以同时生成静态库需要 <code>SET_TARGET_PROPERTIES</code>. 该命令用来设置很多目标属性，包括版本信息等。这里设置了防止同名删除库，以及版本信息。</p>
+<h3 id="使用外部共享库"><a href="#使用外部共享库" class="headerlink" title="使用外部共享库"></a>使用外部共享库</h3><p>如果依赖外部库，且该库并不存在于系统搜索路径里， 需要使用<code>INCLUDE_DIRECTORIES</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)</span><br></pre></td></tr></table></figure>
+<p>仅仅是这样还不够，上面只是指出了头文件的位置。链接库的位置需要使用<code>LINK_DIRECTORIES</code>或<code>TARGET_LINK_DIRECTORIES</code>。假设上面我们已经把库安装到<code>/usr</code>文件下，在<code>CMakeLists.txt</code>中加入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES(&#x2F;usr&#x2F;include&#x2F;hello)</span><br><span class="line">TARGET_LINK_LIBRARIES(main libhello.so)</span><br></pre></td></tr></table></figure>
+<p>即可正常编译链接通过了。</p>
+<p>也可使用<code>CMAKE_INCLUDE_PATH</code>和<code>CMAKE_LIBRARY_PATH</code>这两个特殊的环境变量为编译添加额外搜索路径。比如上面我们也可以先在bash里面<code>export CMAKE_INCLUDE_PATH=/usr/include/hello</code>，然后将上面的<code>INCLUDE_DIRECTORIES</code>变为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FIND_PATH(myHeader hello.h)</span><br><span class="line">IF(myHeader)</span><br><span class="line">INCLUDE_DIRECTORIES($&#123;myHeader&#125;)</span><br><span class="line">ENDIF(myHeader)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用变量-环境变量"><a href="#常用变量-环境变量" class="headerlink" title="常用变量/环境变量"></a>常用变量/环境变量</h3><p>使用<code>SET</code>定义的是显式定义，除此之外，一些指令可以定义隐式变量。当然还有一些内置变量。</p>
+<p>使用<code>$ENV&#123;NAME&#125;</code>来调用环境变量，设置环境变量则是<code>SET(ENV&#123;变量名&#125; 值)</code></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/python%20celery%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/python%20celery%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">python celery组件使用</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:06" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:06+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:28:14" itemprop="dateModified" datetime="2017-06-13T00:28:14+08:00">2017-06-13</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Prepare"><a href="#Prepare" class="headerlink" title="Prepare"></a>Prepare</h2><p>install:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install celery</span><br></pre></td></tr></table></figure>
+<p>选择broker，安装，这里假设使用Redis：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install redis-server</span><br></pre></td></tr></table></figure>
+<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><p>首先认真阅读<a target="_blank" rel="noopener" href="http://docs.celeryproject.org/en/latest/index.html">官方celery文档</a>的get start部分，如果有时间的话，最好全部看一边…</p>
+<p>然后参考阅读别人的<a target="_blank" rel="noopener" href="http://blog.csdn.net/orangleliu/article/details/37967433">best practices</a>，基本就可以干活了。</p>
+<h3 id="几个要点"><a href="#几个要点" class="headerlink" title="几个要点"></a>几个要点</h3><ol>
+<li>task相关的文件，最好都是用绝对导入；否则，应该在task function上面指定name；</li>
+<li>如果需要root权限执行，需要在相关文件中加入<code>platforms.C_FORCE_ROOT=True</code>，但是最好别用root；</li>
+<li>可以根据需要消除<code>pickle</code>的警告，设置<code>CELERY_ACCEPT_CONTENT=[&#39;pickle&#39;,]</code>；</li>
+<li>默认不发心跳，需要加上<code>BROKER_HEARTBEAT=10</code>，来消除心跳相关警告；</li>
+<li><h3 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h3>router是不支持通配符的，如果需要，可以自己写一个自定义Router类。下面是一个<code>celery.py</code>的例子：<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> absolute_import</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> celery <span class="keyword">import</span> Celery, platforms</span><br><span class="line"><span class="keyword">from</span> settings <span class="keyword">import</span> CELERY_BROKER</span><br><span class="line"><span class="keyword">from</span> kombu <span class="keyword">import</span> Queue, Exchange</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyRouter</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;router for tasks using wildcard&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">route_for_task</span>(<span class="params">self, task, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="keyword">if</span> task.startswith(<span class="string">&#x27;writer&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;async_writer&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;async_writer&#x27;</span>&#125;</span><br><span class="line">        <span class="keyword">elif</span> task.startswith(<span class="string">&#x27;caller&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;async_caller&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;async_caller&#x27;</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;default&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;default&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">QUEUES = (</span><br><span class="line">    Queue(<span class="string">&#x27;default&#x27;</span>, Exchange(<span class="string">&#x27;default&#x27;</span>), routing_key=<span class="string">&#x27;default&#x27;</span>),</span><br><span class="line">    Queue(<span class="string">&#x27;async_writer&#x27;</span>, Exchange(<span class="string">&#x27;async_writer&#x27;</span>),</span><br><span class="line">          routing_key=<span class="string">&#x27;async_writer&#x27;</span>),</span><br><span class="line">    Queue(<span class="string">&#x27;async_caller&#x27;</span>, Exchange(<span class="string">&#x27;async_caller&#x27;</span>),</span><br><span class="line">          routing_key=<span class="string">&#x27;async_caller&#x27;</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">platforms.C_FORCE_ROOT = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">app = Celery(<span class="string">&#x27;async&#x27;</span>,</span><br><span class="line">             broker=CELERY_BROKER,</span><br><span class="line">             include=[<span class="string">&#x27;async.writer&#x27;</span>, <span class="string">&#x27;async.caller&#x27;</span>, <span class="string">&#x27;async.checker&#x27;</span>, ])</span><br><span class="line"></span><br><span class="line">app.conf.update(CELERY_ACCEPT_CONTENT=[<span class="string">&#x27;pickle&#x27;</span>, ],</span><br><span class="line">                CELERY_IGNORE_RESULT=<span class="literal">True</span>,</span><br><span class="line">                CELERY_DISABLE_RATE_LIMITS=<span class="literal">True</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_QUEUE=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_ROUTING_KEY=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE_TYPE=<span class="string">&#x27;topic&#x27;</span>,</span><br><span class="line">                CELERY_TASK_SERIALIZER=<span class="string">&#x27;pickle&#x27;</span>,</span><br><span class="line">                CELERY_RESULT_SERIALIZER=<span class="string">&#x27;pickle&#x27;</span>,</span><br><span class="line">                BROKER_HEARTBEAT=<span class="number">10</span>,</span><br><span class="line">                CELERY_QUEUES=QUEUES,</span><br><span class="line">                CELERY_ROUTES=(MyRouter(),),</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.start()</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>官方给出的init.d脚本不是很好用，下面是一个自己写的参考：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># PushserverCore uWSGI Web Server init script</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">### BEGIN INIT INFO</span></span><br><span class="line"><span class="comment"># Provides:          PushserverCore</span></span><br><span class="line"><span class="comment"># Required-Start:    $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Required-Stop:     $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Default-Start:     2 3 4 5</span></span><br><span class="line"><span class="comment"># Default-Stop:      0 1 6</span></span><br><span class="line"><span class="comment"># Short-Description: Start PushserverCore Service for generic init daemon</span></span><br><span class="line"><span class="comment"># Description:       PushserverCore Service thrift Server backend.</span></span><br><span class="line"><span class="comment">### END INIT INFO</span></span><br><span class="line"></span><br><span class="line">NAME=<span class="string">&quot;Core Thrift Server&quot;</span></span><br><span class="line">PROJECT=PushserverCore</span><br><span class="line">PATH=/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/sbin:/bin:/usr/sbin:/usr/bin:/var/app/enabled/<span class="variable">$PROJECT</span></span><br><span class="line">DESC=<span class="string">&quot;PushserverCore&quot;</span></span><br><span class="line">APP_DIR=/var/app/enabled/<span class="variable">$PROJECT</span>/Core</span><br><span class="line">APP_PATH=<span class="variable">$APP_DIR</span>/CoreServer.py</span><br><span class="line">CELERY_LOG_PATH=/var/app/<span class="built_in">log</span>/PushserverCore/celery.log</span><br><span class="line"></span><br><span class="line">print_succ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(tput setaf 2)</span><span class="subst">$(tput bold)</span>DONE<span class="subst">$(tput sgr0)</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print_fail()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(tput setaf 1)</span><span class="subst">$(tput bold)</span>FAILED<span class="subst">$(tput sgr0)</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;stoping <span class="variable">$NAME</span>...&quot;</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        pkill -f <span class="variable">$APP_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> service is already running.&quot;</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;starting <span class="variable">$NAME</span> service...&quot;</span></span><br><span class="line">        nohup python <span class="variable">$APP_PATH</span> &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;stoping celery worker...&quot;</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1;<span class="keyword">then</span></span><br><span class="line">        pkill -f celery</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;celery is already running&quot;</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;starting celery worker...&quot;</span></span><br><span class="line">        celery -A async multi start writer <span class="built_in">caller</span> default  -Q:writer async_writer -Q:<span class="built_in">caller</span> async_caller -Q:default default -c 7 -l INFO --workdir=<span class="variable">$APP_DIR</span> --logfile=<span class="variable">$CELERY_LOG_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check_status()</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> is running&quot;</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> is not running&quot;</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;celery worker is running&quot;</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;celery worker is not running&quot;</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">. /lib/lsb/init-functions</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">	start)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Starting <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">		;;</span><br><span class="line">	stop)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Stopping <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	restart)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Restarting <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">        sleep 3</span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;Checking...&quot;</span></span><br><span class="line">        check_status</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	status)</span><br><span class="line">        check_status</span><br><span class="line">        ;;</span><br><span class="line">	*)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Usage: <span class="variable">$NAME</span> &#123;start|stop|restart|status&#125;&quot;</span> &gt;&amp;2</span><br><span class="line">		<span class="built_in">exit</span> 1</span><br><span class="line">		;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
+
+<p>重点需要关注的是celery multi start的用法，注意start后面跟的是worker的名字（取数据的worker），也可以简单的写3，然后-Q:<em>worker_name</em> <em>queue_name</em>，最后-c是实际的worker（干活的worker）的数目，-Q是给队列指定worker。例子中的语句，意思是启动3个worker，分别命名为writer, caller和default，然后启动3个队列，名字分别是async_writer, async_caller和default，每个worker分配7个进程用来干活。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 <script>
-(function() {
-    var OriginTitile = document.title, titleTime;
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            document.title = '后会有期~';
-            clearTimeout(titleTime);
-        } else {
-            document.title = '欢迎光临!';
-            titleTime = setTimeout(function() {
-                document.title = OriginTitile;
-            },2000);
-        }
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
     });
-})();
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+  
+
+
+
+
+
+
+  
+
+
 
 
 
