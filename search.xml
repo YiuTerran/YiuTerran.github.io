@@ -7,49 +7,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>CometD源码学习[0]</title>
-    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
-    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
-<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
-<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
-<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
-<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
-<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
-<blockquote>
-<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
-</blockquote>
-<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
-<ol>
-<li>创建队列线程池，用于处理请求；</li>
-<li>创建ServerSocket用于准备接受请求；</li>
-<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
-<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
-</ol>
-<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
-<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
-<ol>
-<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
-<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
-<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
-<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
-<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
-<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
-<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
-</ol>
-<p>NIO的一般工作原理用代码描述如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
-<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
-<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
-<hr>
-<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
-]]></content>
-      <tags>
-        <tag>cometd</tag>
-        <tag>jetty</tag>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CometD源码学习[1]</title>
     <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_2/</url>
     <content><![CDATA[<p>首先学习server部分，主要包括<code>cometd-java-server</code>这个package，同时涉及到<code>cometd-java-common</code>和<code>bayeux-api</code>这两个package。</p>
@@ -99,6 +56,49 @@
 <h3 id="LazyTask"><a href="#LazyTask" class="headerlink" title="LazyTask"></a>LazyTask</h3><p><code>Runnable</code>子类，其<code>scheduler</code>方法最终调用<code>BayeuxServerImpl</code>中的同名方法，作为一个计划任务执行（<code>Scheduler</code>是jetty的基础工具类）。</p>
 <h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
 <h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>jetty</tag>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CometD源码学习[0]</title>
+    <url>/2017/06/12/CometD%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0_1/</url>
+    <content><![CDATA[<h2 id="jetty生命周期"><a href="#jetty生命周期" class="headerlink" title="jetty生命周期"></a>jetty生命周期</h2><p>Jetty的核心组件是<code>Server</code>和<code>Connector</code>，<code>Server</code>基于<code>Handler</code>容器工作，里面包括<code>ServletHandler</code>，<code>SessionHandler</code>等处理器，<code>Server</code>本身也继承自<code>Handler</code>类。<code>Connector</code>类用于监听连接请求；此外还有<code>Container</code>用来管理<code>MBean</code>。<br>Jetty的Server扩展是通过实现<code>Handler</code>并将至注册到<code>Server</code>中来实现的。<br>整个Jetty的组件的生命周期管理是基于观察者模板设计的，每个组件都有个<code>Listener</code>，用来监听Jetty启动/停止过程中的事件。</p>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Jetty本身提供了两类<code>HandlerWrapper</code>和<code>ScopeHandler</code>两种<code>Handler</code>，前者是一个装饰器修饰的<code>Handler</code>，用来做委托(<code>Proxy</code>模式)，后者是一个拦截器——在调用<code>Handler</code>之前或之后做某些事情。</p>
+<h3 id="prestart"><a href="#prestart" class="headerlink" title="prestart"></a>prestart</h3><p>Jetty在启动之前会先初始化jetty的相关配置(start.ini)，然后通过自己的<code>IOC</code>(<code>XmlConfiguration</code>)将这些服务组装在一起，最后调用<code>start</code>启动这些组件。其中最重要的配置文件包括<code>jetty.xml</code>, <code>jetty-deploy.xml</code>以及<code>contexts/*.xml</code>。然后根据配置文件中的参数新建一个进程应用JVM参数（如果有<code>--exec</code>，没有的话不会再起新的进程，<code>start.ini</code>中的JVM参数就不可能重新得到应用)。</p>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>Jetty的启动入口是<code>Server</code>类或者其子类。下图是Jetty启动过程：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image011.jpg" alt="Jetty Start process"><br>在创建线程池后，Server开始依次调用已注册Handler组件的<code>Start</code>方法，直至整个调用链结束（调用链的末尾应该是用户自定义的service），这一步是初始化各组件（filter, servlet，包括用户的服务）的配置；然后启动<code>Container</code>中已注册的MBean（for JMX），最后启动<code>Connector</code>开始接受请求。</p>
+<p>Jetty作为一个轻量级web容器，不仅可以接受http协议作为web服务器，还可以与其他web应用服务器集成（如Jboss或Apache），这时候Jetty工作于AJP协议。</p>
+<h3 id="web服务器"><a href="#web服务器" class="headerlink" title="web服务器"></a>web服务器</h3><p>对于http协议，按着传统的划分方式，分为BIO（阻塞式）和NIO（非阻塞式），以及AIO（异步式），windows的IOCP是AIO。</p>
+<blockquote>
+<p>BIO是一个连接一个线程。<br>NIO是一个请求一个线程。<br>AIO是一个有效请求一个线程。</p>
+</blockquote>
+<h4 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h4><p>如果jetty工作在BIO模式（选用<code>org.eclipse.jetty.server.bi.SocketConnector</code>作为<code>Connector</code>），建立连接的步骤分为：</p>
+<ol>
+<li>创建队列线程池，用于处理请求；</li>
+<li>创建ServerSocket用于准备接受请求；</li>
+<li>创建一个或多个监听线程（Accptor)，开始监听。</li>
+<li>对于每个连接，BIO从线程池中分配一个线程进行处理；<br>时序图如下：<br><img src="http://www.ibm.com/developerworks/cn/java/j-lo-jetty/image013.jpg" alt="Connect process"></li>
+</ol>
+<p>Accptor对每个请求创建ConnectorEndPoint，后者对实际消息做出具体解析并应答。Jetty9 移除了BIO的Connecter（现在是异步的世界了…）<br>如果工作在AJP协议下，与 HTTP 方式唯一不同的地方的就是将 SocketConnector 类替换成了 Ajp13SocketConnector，即监听的协议不同而已。</p>
+<h4 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h4><p>NIO是非阻塞的，类似于linux中的<code>select</code>系统接口：</p>
+<ol>
+<li>创建N个<code>Acceptor</code>对象，每个对应一个<code>SelectSet</code>对象，用于存放已注册的socket集合；</li>
+<li>创建N个<code>Selector</code>线程用于轮询<code>SelectSet</code>(<code>select</code>)或监听<code>SelectSet</code>中的事件(<code>epoll</code>)，线程数同<code>Acceptor</code>的个数(<code>jetty.xml</code>中指定）；</li>
+<li><code>Connector</code>接受(<code>accept</code>)到请求，得到<code>Socket</code>，将之设为非阻塞，然后以轮询机制分发给<code>Acceptor</code>并返回（异步)；</li>
+<li><code>Acceptor</code>将之放入自己的<code>SelectSet</code>，并返回；</li>
+<li><code>Selector</code>检测到新的<code>Socket</code>，开始监听该<code>Socket</code>的<code>read</code>事件（<code>select</code>）；</li>
+<li>一旦有新事件到来，立刻新建<code>ConnectorEndPoint</code>，调用<code>schedule</code>方法并返回继续监听该<code>Socket</code>（异步）；</li>
+<li><code>schedule</code>方法调用线程池中的线程，进行实际的逻辑处理(<code>worker</code>)，该线程会调用<code>Server</code>的<code>handle</code>方法，这里形成<code>handle</code>的调用链（这是在server启动前注册到server中的）。</li>
+</ol>
+<p>NIO的一般工作原理用代码描述如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Selector selector = Selector.open();   <span class="comment">//实例化selector</span></span><br><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open(); <span class="comment">//实例化socket</span></span><br><span class="line">ssc.configureBlocking( <span class="keyword">false</span> );  <span class="comment">//非阻塞</span></span><br><span class="line">SelectionKey key = ssc.register( selector, SelectionKey.OP_ACCEPT ); <span class="comment">//注册事件</span></span><br><span class="line">ServerSocketChannel ss = (ServerSocketChannel)key.channel();</span><br><span class="line">SocketChannel sc = ss.accept();</span><br><span class="line">sc.configureBlocking( <span class="keyword">false</span> );</span><br><span class="line">SelectionKey newKey = sc.register( selector, SelectionKey.OP_READ );</span><br><span class="line">Set selectedKeys = selector.selectedKeys();</span><br></pre></td></tr></table></figure>
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>java7开始支持AIO，而jetty则从jetty9开始支持这一特性。AIO在linux上使用<code>epoll</code>完成，在windows上则使用IOCP（IO完成端口）完成。</p>
+<p>一般而言，AIO对应<code>Proactor</code>模式，NIO对应<code>Reactor</code>模式，两者最大的区别在于IO是由谁来完成：AIO中，由内核完成IO，然后将结果通知给用户（信号/回调函数）；NIO中，内核只是将准备好进行IO的描述符通知给用户（信号/回调函数），然后由用户自己处理IO。</p>
+<hr>
+<p>需要了解的预备知识到此结束，下一篇开始正式分析CometD源码。</p>
 ]]></content>
       <tags>
         <tag>cometd</tag>
@@ -343,74 +343,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Heka插件开发</title>
-    <url>/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/</url>
-    <content><![CDATA[<p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
-<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：<br><img src="http://skoo.me/assets/images/heka-overview-diagram.png" alt="Heka结构图"></p>
-<p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
-<h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
-<li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
-<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a href="https://hekad.readthedocs.org/en/v0.10.0/installing.html">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
-<li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
-<li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
-</ol>
-<blockquote>
-<p>使用Go1.5编译v0.10.0自带的example <code>host_filter.go</code>会提示<code>enough arguments in call to pack.Recycle</code>。查看提示的79行代码，发现<code>pack.Recycle()</code>少了个参数，传入<code>nil</code>重新编译即可。重新编译前在<code>build</code>文件夹中运行<code>make clean-heka</code>进行一次清理。</p>
-</blockquote>
-<h3 id="项目应用"><a href="#项目应用" class="headerlink" title="项目应用"></a>项目应用</h3><p>手头的项目需求如下：</p>
-<ol>
-<li>输出json形式的按行分割的log；</li>
-<li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
-<li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
-</ol>
-<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：</p>
-<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">&quot;/var/log/lucky&quot;</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">&#x27;track\.json&#x27;</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">&quot;JsonDecoder&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">&quot;SandboxDecoder&quot;</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">&quot;lua_decoders/json.lua&quot;</span></span><br><span class="line">    <span class="section">[JsonDecoder.config]</span></span><br><span class="line">    <span class="attr">Type</span> = <span class="string">&quot;type&quot;</span></span><br><span class="line">    <span class="attr">payload_keep</span> = <span class="literal">true</span></span><br><span class="line">    <span class="attr">Timestamp</span> = <span class="string">&quot;@timestamp&quot;</span></span><br><span class="line">    <span class="attr">timestamp_format</span> = <span class="string">&quot;%Y-%m-%dT%H:%M:%S.%f&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
-<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface&#123;&#125;</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface&#123;&#125;</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
-<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
-<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
-]]></content>
-      <tags>
-        <tag>go</tag>
-        <tag>heka</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Heka源码解析</title>
-    <url>/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
-<p>先看最外层的文件目录结构(0.11.0dev):</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source &#96;build.sh&#96;生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure>
-
-<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
-<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
-<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
-<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
-<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
-<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
-<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
-<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
-<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
-<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
-<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
-<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
-<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
-<p>最后，调用<code>Run</code>方法，开始运行。</p>
-<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
-<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
-<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
-<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
-<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
-]]></content>
-      <tags>
-        <tag>go</tag>
-        <tag>heka</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Go语言学习</title>
     <url>/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<p>update(2019/03/31): 移除了一些过时信息。</p>
@@ -574,6 +506,42 @@
       </tags>
   </entry>
   <entry>
+    <title>Heka插件开发</title>
+    <url>/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：<br><img src="http://skoo.me/assets/images/heka-overview-diagram.png" alt="Heka结构图"></p>
+<p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
+<h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
+<li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
+<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a href="https://hekad.readthedocs.org/en/v0.10.0/installing.html">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
+<li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
+<li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
+</ol>
+<blockquote>
+<p>使用Go1.5编译v0.10.0自带的example <code>host_filter.go</code>会提示<code>enough arguments in call to pack.Recycle</code>。查看提示的79行代码，发现<code>pack.Recycle()</code>少了个参数，传入<code>nil</code>重新编译即可。重新编译前在<code>build</code>文件夹中运行<code>make clean-heka</code>进行一次清理。</p>
+</blockquote>
+<h3 id="项目应用"><a href="#项目应用" class="headerlink" title="项目应用"></a>项目应用</h3><p>手头的项目需求如下：</p>
+<ol>
+<li>输出json形式的按行分割的log；</li>
+<li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
+<li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
+</ol>
+<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：</p>
+<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">&quot;/var/log/lucky&quot;</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">&#x27;track\.json&#x27;</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">&quot;JsonDecoder&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">&quot;SandboxDecoder&quot;</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">&quot;lua_decoders/json.lua&quot;</span></span><br><span class="line">    <span class="section">[JsonDecoder.config]</span></span><br><span class="line">    <span class="attr">Type</span> = <span class="string">&quot;type&quot;</span></span><br><span class="line">    <span class="attr">payload_keep</span> = <span class="literal">true</span></span><br><span class="line">    <span class="attr">Timestamp</span> = <span class="string">&quot;@timestamp&quot;</span></span><br><span class="line">    <span class="attr">timestamp_format</span> = <span class="string">&quot;%Y-%m-%dT%H:%M:%S.%f&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
+<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface&#123;&#125;</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface&#123;&#125;</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
+<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
+<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
+]]></content>
+      <tags>
+        <tag>go</tag>
+        <tag>heka</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SpringMvc4 Rest Api最佳实践</title>
     <url>/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
     <content><![CDATA[<p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
@@ -593,6 +561,38 @@
         <tag>Java</tag>
         <tag>SpringMVC</tag>
         <tag>Web</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Heka源码解析</title>
+    <url>/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
+<p>先看最外层的文件目录结构(0.11.0dev):</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source &#96;build.sh&#96;生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure>
+
+<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
+<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
+<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
+<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
+<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
+<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
+<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
+<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
+<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
+<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
+<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
+<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
+<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
+<p>最后，调用<code>Run</code>方法，开始运行。</p>
+<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
+<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
+<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
+<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
+<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
+]]></content>
+      <tags>
+        <tag>go</tag>
+        <tag>heka</tag>
       </tags>
   </entry>
   <entry>
@@ -635,39 +635,6 @@
 ]]></content>
       <tags>
         <tag>flowable</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>cometd使用haproxy做负载均衡的配置指南</title>
-    <url>/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</url>
-    <content><![CDATA[<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat&#x2F;haproxy-1.5</span><br></pre></td></tr></table></figure>
-<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if [ -e &#x2F;etc&#x2F;default&#x2F;haproxy ]; then</span><br><span class="line">	. &#x2F;etc&#x2F;default&#x2F;haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf </code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
-<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see &#x2F;etc&#x2F;rsyslog.d&#x2F;haproxy.conf</span><br><span class="line">  chroot &#x2F;var&#x2F;lib&#x2F;haproxy</span><br><span class="line">  pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&#39;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri &#x2F;stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&#39;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET &#x2F;cometd HTTP&#x2F;1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure>
-<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
-<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
-<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
-<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">local0.* &#x2F;var&#x2F;log&#x2F;haproxy&#x2F;haproxy.log</span><br></pre></td></tr></table></figure>
-<p>即可指定到具体文件。</p>
-<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -&#x2F;var&#x2F;log&#x2F;haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
-
-<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
-<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
-]]></content>
-      <tags>
-        <tag>cometd</tag>
-        <tag>haproxy</tag>
-        <tag>websocket</tag>
       </tags>
   </entry>
   <entry>
@@ -715,6 +682,39 @@
 ]]></content>
       <tags>
         <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cometd使用haproxy做负载均衡的配置指南</title>
+    <url>/2017/06/12/cometd%E4%BD%BF%E7%94%A8haproxy%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>Ubuntu14.04直接用apt安装就是最新的稳定版，其他旧版本Ubuntu需要使用ppa获得：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo add-apt-repository ppa:vbernat&#x2F;haproxy-1.5</span><br></pre></td></tr></table></figure>
+<p>然后update，install即可。<br>(PS: 如果连<code>add-apt-repository</code>都不能用，先执行<code>sudo apt-get install python-software-properties</code>）</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>理论上直接用<code>sudo service haproxy start|stop|restart|status|reload</code>就可以，不过ubuntu直接安装后这个命令是没法用的…需要编辑<code>/etc/init.d/haproxy</code>，然后把<code>ENABLED=0</code>改成<code>ENABLED=1</code>，然后删除</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if [ -e &#x2F;etc&#x2F;default&#x2F;haproxy ]; then</span><br><span class="line">	. &#x2F;etc&#x2F;default&#x2F;haproxy</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>这几行。当然，也可以直接使用<code>sudo haproxy -f /etc/haproxy/haproxy.conf </code>来启动，加上<code>-d</code>参数可以在前台运行调试。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>如果同时使用两种transport(websocket和http)，需要注意long-polling的session保持问题。如果只使用websocket，需要注意的只有timeout的设置问题。</p>
+<p>典型配置如下<a href="http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/">^1</a>，默认路径为<code>/etc/haproxy/haproxy.conf</code>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">global</span><br><span class="line">  log 127.0.0.1 local0  #see &#x2F;etc&#x2F;rsyslog.d&#x2F;haproxy.conf</span><br><span class="line">  chroot &#x2F;var&#x2F;lib&#x2F;haproxy</span><br><span class="line">  pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  daemon        #run as service</span><br><span class="line">  nbproc 1      #only one instance allowed</span><br><span class="line">  maxconn 120000</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  log global</span><br><span class="line">  option httplog        #log http info</span><br><span class="line">  option  http-server-close     #Don&#39;t keepalive between haproxy and server</span><br><span class="line">  option  redispatch    #if health check failed, dispath new server</span><br><span class="line">  option  forwardfor    #for server get Ip of client</span><br><span class="line">  retries 3             #connect to server fail max times before redispatch</span><br><span class="line">  timeout connect 10s   #timeout tcp connection between haproxy and backend servers</span><br><span class="line">  timeout client 50s    #timeout client inactivity</span><br><span class="line">  timeout server 50s    #timeout for server to process the request</span><br><span class="line">  timeout queue 30s     #timeout for request in queue when server reach max connection</span><br><span class="line">  timeout http-keep-alive 2s</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  default-server inter 5s rise 2 fall 3</span><br><span class="line">  stats uri &#x2F;stats</span><br><span class="line">  stats refresh 10s</span><br><span class="line">  stats auth baina:P@55word</span><br><span class="line"></span><br><span class="line">frontend ft_web</span><br><span class="line">  bind *:80</span><br><span class="line">  timeout client 10m</span><br><span class="line">  timeout client-fin 5s</span><br><span class="line">  maxconn 120000</span><br><span class="line">  option  http-pretend-keepalive        #without this, handshake can&#39;t be established</span><br><span class="line">  default_backend cometd</span><br><span class="line"></span><br><span class="line">backend cometd</span><br><span class="line">  timeout server 10m</span><br><span class="line">  timeout tunnel 10m</span><br><span class="line">  balance roundrobin</span><br><span class="line">#  balance source</span><br><span class="line">  option httpchk GET &#x2F;cometd HTTP&#x2F;1.1\r\nHost:\ \r\nConnection:\ upgrade\r\nUpgrade:\ websocket</span><br><span class="line">  http-check expect status 101</span><br><span class="line">  cookie SERVERID insert</span><br><span class="line"></span><br><span class="line">  appsession SERVERID len 25 timeout 15m        #for Long-polling keep session</span><br><span class="line"></span><br><span class="line">server bayuex-srv1 10.232.2.118:80 maxconn 40000 weight 10 cookie bayuex-srv1 check</span><br><span class="line">server bayeux-srv2 10.235.30.6:80 maxconn 40000 weight 10 cookie bayeux-srv2 check</span><br><span class="line">server bayeux-srv3 10.45.160.213:80 maxconn 40000 weight 10 cookie bayexu-srv3 check</span><br></pre></td></tr></table></figure>
+<p>存活检测通过<code>httpchk</code>选项来完成，cometd要求必须使用http1.1，因此header中必须要有Host，这里留空。</p>
+<p>这里通过插入cookie来满足long polling的session保持需求，这要求client每次post都必须携带server发给client的cookie。当然这个问题也可以通过<code>balance source</code> hash ip来解决，但是后者可能会导致负载均衡度不高。</p>
+<p><strong>注意</strong>，如果使用long polling，切记加上<code>option http-pretend-keepalive</code>，不然server会把<code>Connection: close</code>发给client，握手直接被终结.</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>上述配置中，<code>log 127.0.0.1 local0</code>这句是用来配置log的，如果使用syslog，在<code>/etc/syslog.conf</code>中添加</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">local0.* &#x2F;var&#x2F;log&#x2F;haproxy&#x2F;haproxy.log</span><br></pre></td></tr></table></figure>
+<p>即可指定到具体文件。</p>
+<p>ubuntu使用rsyslog，因此对应的配置方法如下<a href="http://blog.hintcafe.com/post/33689067443/haproxy-logging-with-rsyslog-on-linux">^2</a>，默认路径<code>/etc/rsyslog.d/haproxy.conf</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ModLoad imudp</span><br><span class="line">$UDPServerRun 514</span><br><span class="line">$template Haproxy,&quot;%msg%\n&quot;</span><br><span class="line">local0.* -&#x2F;var&#x2F;log&#x2F;haproxy.log;Haproxy</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
+
+<p><strong>为使配置生效，请将文件名改为49-haproxy.conf</strong><br>日志的格式<a href="http://www.rsyslog.com/doc/rsyslog_conf_templates.html">^3</a>可以通过配置<code>$template</code>参数来完成，这里写了最简单的一种输出格式。</p>
+<p>日志滚动通过配置<code>/etc/logrotate.d/haproxy</code>来实现，默认有一个按日滚动的策略，一般够用了。<br>其格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;var&#x2F;log&#x2F;haproxy.log &#123;</span><br><span class="line">    daily       #按日滚动</span><br><span class="line">    rotate 10   #保留10个</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    postrotate</span><br><span class="line">        invoke-rc.d rsyslog rotate &gt;&#x2F;dev&#x2F;null 2&gt;&amp;1 || true</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>##DDOS防范<br>haproxy可以用来做ddos防范，具体可参见：<br><a href="http://blog.sina.com.cn/s/blog_704836f40101f4qh.html">http://blog.sina.com.cn/s/blog_704836f40101f4qh.html</a></p>
+]]></content>
+      <tags>
+        <tag>cometd</tag>
+        <tag>haproxy</tag>
+        <tag>websocket</tag>
       </tags>
   </entry>
   <entry>
@@ -835,28 +835,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>java Proxy模式</title>
-    <url>/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<p>java也可以使用反射生成动态代理，从而完成面向切面编程，这是spring框架的基础。<br>由于java的第一元素只有object，所以函数处于第二阶梯，这导致在其他语言中很容易(函数是第一类的语言中）实现的动态代理，在java中就必须以对象的形式实现。</p>
-<p>在Python中使用<code>getattr(object, method)</code>可以轻易完成反射；最简单的可以这么做：</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._real = Real()</span><br><span class="line">        <span class="keyword">for</span> method <span class="keyword">in</span> inspect.getmembers(_real, predicate=inspect.ismethod):</span><br><span class="line">            <span class="built_in">setattr</span>(self, method[<span class="number">0</span>], self._call_real(m[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_call_real</span>(<span class="params">self, method</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_real_proxy</span>(<span class="params">*args, **kargs</span>):</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">getattr</span>(self._real, method)(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> _real_proxy</span><br></pre></td></tr></table></figure>
-
-<p>java生成动态代理的主要使用了<code>java.lang.reflect.Proxy</code>类的<code>newProxyInstance()</code>方法，其原型如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader,</span><br><span class="line">                                        Class&lt;?&gt;[] interfaces,</span><br><span class="line">                                        InvacationHandler h)throws IllegalArgumentException;</span><br></pre></td></tr></table></figure>
-<p>参数：<br>loader - 定义代理类的类加载器<br>interfaces - 代理类要实现的接口列表<br>h - 指派方法调用的调用处理程序<br>返回：<br>一个带有代理类的指定调用处理程序的代理实例，它由指定的类加载器定义，并实现指定的接口<br>抛出：<br>IllegalArgumentException - 如果违反传递到 getProxyClass 的参数上的任何限制<br>NullPointerException - 如果 interfaces 数组参数或其任何元素为 null，或如果调用处理程序 h 为 null</p>
-<p>动态代理类：在运行时生成的class，在其生成过程中，你必须提供一组接口给它，然后该class就声称实现了这些接口。可以把该class的实例当做这些接口中的任何一个来用。其实，这个Dynamic Proxy就是一个Proxy，他不会替你做任何实质性的工作。在生成它的实例时，必须提供一个Handler，由它接管实际的工作。<br>在使用动态代理类时，必须实现InvocationHandler接口。</p>
-<p><code>InvaocationHandler</code>接口必须实现的方法是</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Object invoke(Object proxy,</span><br><span class="line">              Method method,</span><br><span class="line">              Object[] args)</span><br><span class="line">              throws Throwable</span><br></pre></td></tr></table></figure>
-<p>此处控制流翻转，该方法被回调，传入用户尝试调用的方法和参数，以及代理本身的实例。</p>
-]]></content>
-      <tags>
-        <tag>java</tag>
-        <tag>design_pattern</tag>
-        <tag>proxy</tag>
-        <tag>reflect</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>java web基础学习</title>
     <url>/2017/06/12/java%20web%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<p>做java项目有两个月了，一直忙着修复业务上的东西，java的web基础这块没怎么看。最近在coding时涉及底层较多，必须抽时间看看底层的一些东西了。</p>
@@ -950,6 +928,28 @@
       </tags>
   </entry>
   <entry>
+    <title>java Proxy模式</title>
+    <url>/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p>java也可以使用反射生成动态代理，从而完成面向切面编程，这是spring框架的基础。<br>由于java的第一元素只有object，所以函数处于第二阶梯，这导致在其他语言中很容易(函数是第一类的语言中）实现的动态代理，在java中就必须以对象的形式实现。</p>
+<p>在Python中使用<code>getattr(object, method)</code>可以轻易完成反射；最简单的可以这么做：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._real = Real()</span><br><span class="line">        <span class="keyword">for</span> method <span class="keyword">in</span> inspect.getmembers(_real, predicate=inspect.ismethod):</span><br><span class="line">            <span class="built_in">setattr</span>(self, method[<span class="number">0</span>], self._call_real(m[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_call_real</span>(<span class="params">self, method</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_real_proxy</span>(<span class="params">*args, **kargs</span>):</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">getattr</span>(self._real, method)(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> _real_proxy</span><br></pre></td></tr></table></figure>
+
+<p>java生成动态代理的主要使用了<code>java.lang.reflect.Proxy</code>类的<code>newProxyInstance()</code>方法，其原型如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader,</span><br><span class="line">                                        Class&lt;?&gt;[] interfaces,</span><br><span class="line">                                        InvacationHandler h)throws IllegalArgumentException;</span><br></pre></td></tr></table></figure>
+<p>参数：<br>loader - 定义代理类的类加载器<br>interfaces - 代理类要实现的接口列表<br>h - 指派方法调用的调用处理程序<br>返回：<br>一个带有代理类的指定调用处理程序的代理实例，它由指定的类加载器定义，并实现指定的接口<br>抛出：<br>IllegalArgumentException - 如果违反传递到 getProxyClass 的参数上的任何限制<br>NullPointerException - 如果 interfaces 数组参数或其任何元素为 null，或如果调用处理程序 h 为 null</p>
+<p>动态代理类：在运行时生成的class，在其生成过程中，你必须提供一组接口给它，然后该class就声称实现了这些接口。可以把该class的实例当做这些接口中的任何一个来用。其实，这个Dynamic Proxy就是一个Proxy，他不会替你做任何实质性的工作。在生成它的实例时，必须提供一个Handler，由它接管实际的工作。<br>在使用动态代理类时，必须实现InvocationHandler接口。</p>
+<p><code>InvaocationHandler</code>接口必须实现的方法是</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Object invoke(Object proxy,</span><br><span class="line">              Method method,</span><br><span class="line">              Object[] args)</span><br><span class="line">              throws Throwable</span><br></pre></td></tr></table></figure>
+<p>此处控制流翻转，该方法被回调，传入用户尝试调用的方法和参数，以及代理本身的实例。</p>
+]]></content>
+      <tags>
+        <tag>java</tag>
+        <tag>design_pattern</tag>
+        <tag>proxy</tag>
+        <tag>reflect</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java并发编程实战读书笔记</title>
     <url>/2017/06/12/java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<p>并发编程实际上极其复杂，有很多绝对值得去看的建议。</p>
@@ -988,45 +988,6 @@
         <tag>java</tag>
         <tag>base</tag>
         <tag>concurrent</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>java CMS GC调优步骤</title>
-    <url>/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</url>
-    <content><![CDATA[<p>0.增加GC相关选项：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
-<ol>
-<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
-<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
-<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
-<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
-<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
-<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
-<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
-<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
-<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
-<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
-<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
-<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
-<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
-<li>注意调节Survivor大小时，保持Eden大小不变；</li>
-<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
-<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
-<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
-<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
-<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
-<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
-<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
-<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
-<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
-G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
-</ol>
-<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
-]]></content>
-      <tags>
-        <tag>java</tag>
-        <tag>gc</tag>
-        <tag>jvm</tag>
       </tags>
   </entry>
   <entry>
@@ -1139,6 +1100,45 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
         <tag>java</tag>
         <tag>web</tag>
         <tag>jeesite</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>java CMS GC调优步骤</title>
+    <url>/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<p>0.增加GC相关选项：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
+<ol>
+<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
+<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
+<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
+<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
+<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
+<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
+<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
+<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
+<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
+<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
+<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
+<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
+<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
+<li>注意调节Survivor大小时，保持Eden大小不变；</li>
+<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
+<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
+<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
+<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
+<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
+<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
+<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
+<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
+<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
+G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
+</ol>
+<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
+]]></content>
+      <tags>
+        <tag>java</tag>
+        <tag>gc</tag>
+        <tag>jvm</tag>
       </tags>
   </entry>
   <entry>
@@ -1812,6 +1812,42 @@ ZERO_DIVIDE            零被整除
       </tags>
   </entry>
   <entry>
+    <title>报表打印(pdf)技术选型</title>
+    <url>/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/</url>
+    <content><![CDATA[<p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
+]]></content>
+      <tags>
+        <tag>python</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>摄影笔记</title>
     <url>/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
@@ -1857,42 +1893,6 @@ ZERO_DIVIDE            零被整除
 ]]></content>
       <tags>
         <tag>摄影</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>报表打印(pdf)技术选型</title>
-    <url>/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/</url>
-    <content><![CDATA[<p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
-<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
-<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
-<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
-<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
-<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
-<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
-<li>使用<code>jsPDF</code>，不支持中文。</li>
-<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
-</ol>
-<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
-<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
-
-<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
-<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
-<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
-<ol>
-<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
-<li>HTML需要声明为utf8编码；</li>
-<li>不要对文件使用中文名称；</li>
-<li>渲染的时候有些参数需要设置，如下：</li>
-</ol>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
-<p>pdfkit渲染速度超快，非常👍</p>
-]]></content>
-      <tags>
-        <tag>python</tag>
-        <tag>js</tag>
       </tags>
   </entry>
   <entry>
