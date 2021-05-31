@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">56</span>
+        <span class="site-state-item-count">57</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,117 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/" class="post-title-link" itemprop="url">报表打印(pdf)技术选型</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-07-07 00:21:00" itemprop="dateCreated datePublished" datetime="2017-07-07T00:21:00+08:00">2017-07-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-07-10 13:32:38" itemprop="dateModified" datetime="2017-07-10T13:32:38+08:00">2017-07-10</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/07/07/%E6%8A%A5%E8%A1%A8%E6%89%93%E5%8D%B0-pdf-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/07/报表打印-pdf-技术选型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>做的外包项目有这个需求：输出PDF格式的单据，稍微调研了一下实现方式，做个汇总。</p>
+<p>首先吐槽一下…做外包还是尽量用成熟技术，下次再做管理平台的需求，还是flask-admin配上JQuery上吧。这次用vue+elementUI，写的倒是挺爽，关键时候找不到组件还要自己造轮子，效率堪忧_(:зゝ∠)_</p>
+<h2 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h2><p>Python这边用ReportLab比较多，稍微研究了一下发现过于复杂。利用xml定义了一套新的语法，叫RML，如果要写的话，先要学习一遍这个东西，成本太高。而且像这种学完基本不怎么用的东西，很快就忘了…不建议使用。</p>
+<p>使用<code>pdfkit</code>，这玩意儿底层调用了<code>wkhtmltopdf</code>，看名字也知道使用html转pdf.</p>
+<p><code>Sphinx</code>本质上是调用$\TeX$来渲染成PDF，依赖项比较复杂，但是控制粒度非常好（毕竟是标准）。</p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><ol>
+<li>使用HTML做普通排版，然后调用<code>print.js</code>. 结果：效果很差，样式丢失严重。</li>
+<li>使用<code>jsPDF</code>，不支持中文。</li>
+<li>使用<code>pdfmake</code>，嵌入中文字体后，生成要求的内容，然后就可以直接调用接口，很爽…生成内容直接用JS内置的数据结构就可以完成。使用起来最简单，但是：嵌入字体后资源文件太大（至少2M+），除非使用TTF裁剪，不然浏览影响很大；其次：浏览器兼容性不好，用起来很受限。我本来尝试了一番，最后还是放弃了。不过不得不说的是，如果使用nodejs作为服务器的话，选这个方案很好。</li>
+</ol>
+<h2 id="pdfkit"><a href="#pdfkit" class="headerlink" title="pdfkit"></a>pdfkit</h2><p>最终选型使用pdfkit方案。</p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><p>主要依赖<code>wkhtmltopdf</code>这个二进制文件。注意，如果使用的是<code>ubuntu16.04</code>，请不要直接使用ubuntu源里面的该文件，源里面是without qt patched的，需要自己下载安装，<a href="!https://stackoverflow.com/questions/37765698/unable-to-install-wkhtmltopdf-with-patched-qt-in-ubuntu-16-04">具体步骤</a>是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxrender1 fontconfig xvfb</span><br><span class="line">wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -P /tmp/</span><br><span class="line"><span class="built_in">cd</span> /opt/</span><br><span class="line">sudo tar xf /tmp/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz</span><br><span class="line">sudo ln -s /opt/wkhtmltox/bin/wkhtmltopdf /usr/<span class="built_in">local</span>/bin/wkhtmltopdf</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>pip install pdfkit</code>安装Python这边的依赖即可。</p>
+<p>如果是Linux服务器，记得安装中文字体，使用文泉驿正黑即可(wqy).</p>
+<h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p>几个要点：</p>
+<ol>
+<li>报表的HTML文件最好不要依赖外部css，全部直接内嵌在文件中比较方便；</li>
+<li>HTML需要声明为utf8编码；</li>
+<li>不要对文件使用中文名称；</li>
+<li>渲染的时候有些参数需要设置，如下：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pdfkit.from_string(page, outfile, options=&#123;</span><br><span class="line">    <span class="string">&#x27;page-size&#x27;</span>: <span class="string">&#x27;A4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-top&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-right&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-left&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;margin-bottom&#x27;</span>: <span class="string">&#x27;0.75in&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;encoding&#x27;</span>: <span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;no-outline&#x27;</span>: <span class="literal">None</span>,</span><br><span class="line">    <span class="comment"># &#x27;zoom&#x27;: 1.5,  # when run on mac</span></span><br><span class="line">    <span class="comment"># &#x27;dpi&#x27;: 250</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
+<p>pdfkit渲染速度超快，非常👍</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1460,119 +1571,6 @@ ZERO_DIVIDE            零被整除
 <h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">java CMS GC调优步骤</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-06-12 23:48:32" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:32+08:00">2017-06-12</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-08-31 09:47:01" itemprop="dateModified" datetime="2019-08-31T09:47:01+08:00">2019-08-31</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/06/12/jvm%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/jvm调优指南/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>0.增加GC相关选项：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-verbose:gc</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line">-XX:NumberOfGCLogFiles&#x3D;5</span><br><span class="line">-XX:GCLogFileSize&#x3D;512K</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line">-Xloggc:&#x2F;var&#x2F;app&#x2F;log&#x2F;Push-server&#x2F;gc.log</span><br></pre></td></tr></table></figure>
-<ol>
-<li>如果不能确定所需内存，使用自动jvm自动调优；</li>
-<li>大致确定所需内存后，使用-Xmx -Xms设置堆大小；</li>
-<li>观察GC log确定FullGC后剩余堆大小（即为活跃数据大小）；</li>
-<li>整个堆大小宜为老年代活跃数据大小的3-4倍；</li>
-<li>永久带大小应该比永久带活跃数据大1.2~1.5倍；</li>
-<li>新生代空间应该为老年代空间活跃数据的1~1.5倍；</li>
-<li>通过top命令观察栈占用空间、直接内存占用空间，决定所需机器内存大小；</li>
-<li>新生代大小决定了Minor GC的周期和时长，缩短新生代大小可以减少停顿时长，但是增加了GC频率；在调整新生代大小时，尽量保持老年代大小不变；</li>
-<li>老年代大小不应该小于活跃数据的1.5倍；新生代空间至少为java堆大小的10%；增加堆大小时，注意不要超过可用物理内存数；</li>
-<li>从throughput收集器迁移到CMS时，需要将老年代空间增加20%~30%；</li>
-<li>新生代分为Eden和Survivor两部分，Survivor可以通过<code>-XX:SurvivorRatio=xx</code>来控制，对应的大小为<code>-Xmn&lt;value&gt;/(ratio+2)</code>；</li>
-<li>通过<code>-XX:MaxTenuringThreshold=&lt;n&gt;</code>来指定晋升阈值（年龄），n为0~15之间；</li>
-<li>期望Survivor空间为剩余总存活对象大小的2倍(age=1；</li>
-<li>注意调节Survivor大小时，保持Eden大小不变；</li>
-<li>如果Survivor空间足够大，且对象大部分并未到达老年代，那么就可以将晋升年纪指定的足够大（15）。在Eden与Survivor之间复制和CMS老年代空间压缩之间，我们宁愿选择前者；</li>
-<li>CMS必须能以对象从新生代提升到老年代的同等速度对老年代中的对象进行收集，否则，就会失速；</li>
-<li>如果观察到’concurrent mode failures’，意味着失速已经发生，必须减少<code>-XX:CMSInitiatingOccupancyFraction=&lt;percent&gt;</code>的值；</li>
-<li>使用上述选项的同时，最好同时使用<code>-XX:+UseCMSInitiatingOccupancyOnly</code>，强制使用该比例,该比例的大小应该大于老年代占用空间和活跃数据大小之比，一般而言<code>老年代大小*该比例&gt;1.5*老年代活跃数据大小</code>；</li>
-<li>使用<code>-XX:+ExplicitGCInvokesConcurrentAndUnloadsCloasses</code>可以使用CMS进行显式垃圾回收（<code>System.gc()</code>)；通过<code>-XX:+DisableExplicitGC</code>关闭显示垃圾回收（慎用）；</li>
-<li>使用<code>-XX:+CMSClassUnloadingEnabled</code>打开永久带垃圾回收，使用<code>-XX:+CMSPermGenSweepingEnabled</code>打开CMS对永久带的扫描；使用<code>-XX:CMSInitiatingPermOccupancyFraction=&lt;perscent&gt;</code>激活回收比例阈值；</li>
-<li>使用<code>-XX:ParallelGCThreads=&lt;n&gt;</code>控制扫描线程数；使用<code>-XX:+CMSScavengeBeforeRemark</code>强制重新标记前进行一次MinorGC；如果由大量的引用对象或可终结对象要处理，使用<code>-XX:+ParallelRefProcEnabled</code>；</li>
-<li>CMS包括Minor GC所带来的开销应该小于10%；</li>
-<li>如果缺少长时间调优的条件，安全起见，可以使用G1，1.8以后G1已经稳定，仅设置如下参数即可：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-d64</span><br><span class="line">-Xmx5g</span><br><span class="line">-Xms5g</span><br><span class="line">-XX:PermSize&#x3D;100m</span><br><span class="line">-XX:MaxPermSize&#x3D;100m</span><br><span class="line">-XX:MaxDirectMemorySize&#x3D;1g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis&#x3D;80</span><br></pre></td></tr></table></figure>
-G1不必明确设置新生代大小，其自动调优也十分可靠，对于停顿时间往往在长时间运行后可以达到预期效果；对吞吐量优先的应用，可能不是那么明显。</li>
-</ol>
-<p>实际上除了Java以外，其他语言很少考虑虚拟机优化问题，这也不应该是普通程序员需要关心的问题，只能说明Java本身不够成熟。从Java9开始，大部分程序员已经无需关心JVM优化的问题。如果面试遇到了，基本属于面试官自己造火箭的原因。</p>
 
       
     </div>

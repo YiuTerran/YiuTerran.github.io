@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="现阶段的网络编程，更推荐使用golang而不是java，但是netty这个事件驱动的框架，在Java技术栈里面也算必须掌握的内容。在熟悉go的leaf框架后，再回头来看netty，它的很多概念就不言自明了。 事件循环首先回忆我们在leaf中是如何写一个Module的，我们定义接口如下： 1234567type Module interface &amp;#123;	Name() string	OnInit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="netty编程要点">
+<meta property="og:url" content="http://yiuterran.github.io/2021/05/31/netty%E7%BC%96%E7%A8%8B%E8%A6%81%E7%82%B9/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="现阶段的网络编程，更推荐使用golang而不是java，但是netty这个事件驱动的框架，在Java技术栈里面也算必须掌握的内容。在熟悉go的leaf框架后，再回头来看netty，它的很多概念就不言自明了。 事件循环首先回忆我们在leaf中是如何写一个Module的，我们定义接口如下： 1234567type Module interface &amp;#123;	Name() string	OnInit">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-31T02:46:48.000Z">
+<meta property="article:modified_time" content="2021-05-31T08:38:21.167Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="netty">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2021/05/31/netty%E7%BC%96%E7%A8%8B%E8%A6%81%E7%82%B9/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>netty编程要点 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF"><span class="nav-number">1.</span> <span class="nav-text">事件循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E8%BF%9E%E6%8E%A5"><span class="nav-number">2.</span> <span class="nav-text">抽象连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%85"><span class="nav-number">3.</span> <span class="nav-text">数据分包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">4.</span> <span class="nav-text">连接上下文</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">数据写入连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E5%90%88springboot%E4%BD%BF%E7%94%A8%E7%9A%84%E6%80%9D%E8%B7%AF"><span class="nav-number">6.</span> <span class="nav-text">结合springboot使用的思路</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/05/31/netty%E7%BC%96%E7%A8%8B%E8%A6%81%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          netty编程要点
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-05-31 10:46:48 / 修改时间：16:38:21" itemprop="dateCreated datePublished" datetime="2021-05-31T10:46:48+08:00">2021-05-31</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/05/31/netty%E7%BC%96%E7%A8%8B%E8%A6%81%E7%82%B9/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/05/31/netty编程要点/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>现阶段的网络编程，更推荐使用golang而不是java，但是netty这个事件驱动的框架，在Java技术栈里面也算必须掌握的内容。在熟悉go的<code>leaf</code>框架后，再回头来看netty，它的很多概念就不言自明了。</p>
+<h2 id="事件循环"><a href="#事件循环" class="headerlink" title="事件循环"></a>事件循环</h2><p>首先回忆我们在leaf中是如何写一个<code>Module</code>的，我们定义接口如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Module <span class="keyword">interface</span> &#123;</span><br><span class="line">	Name() <span class="keyword">string</span></span><br><span class="line">	OnInit()</span><br><span class="line">	OnDestroy()</span><br><span class="line">	Run(closeSig <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line">	RPCServer() *chanrpc.Server <span class="comment">//如果module可以接受外来的指令，则必须有一个chanrpc server，否则返回nil即可</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>显然一个模块拥有名称，生命周期管理的回调，<code>Run</code>就是启动事件循环，通过<code>RPCServer()</code>返回的结果进行模块间的事件传递通信。<code>chanrpc.Server</code>支持通过事件标示进行消息路由，最后发送到成员<code>chan *CallInfo</code>这个管道里，在<code>Run</code>中通过<code>for..select</code>从该管道中循环取出事件进行处理即可。</p>
+<p>那么在netty中，我们定义一个事件循环为<code>EventLoopGroup</code>。需要有一个<code>Channel</code>来接受各种消息并注册回调函数，即<code>ChannelHandler</code>.使用<code>Bootstrap</code>容器类将eventloop和channel连接起来，就启动了一个模块。如果是我方作为客户端，只需要启动一个<code>EventLoopGroup</code>即可。</p>
+<h2 id="抽象连接"><a href="#抽象连接" class="headerlink" title="抽象连接"></a>抽象连接</h2><p>在<code>leaf</code>中一个连接被抽象为一个接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Conn <span class="keyword">interface</span> &#123;</span><br><span class="line">	ReadMsg() ([]<span class="keyword">byte</span>, error)</span><br><span class="line">	WriteMsg(args ...[]<span class="keyword">byte</span>) error</span><br><span class="line">	LocalAddr() net.Addr</span><br><span class="line">	RemoteAddr() net.Addr</span><br><span class="line">	Close()</span><br><span class="line">	Destroy()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不同协议实现该接口，并提供一个函数将<code>Conn</code>转变为<code>Agent</code>，然后再单独的协程里运行Agent:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Agent <span class="keyword">interface</span> &#123;</span><br><span class="line">	Run()</span><br><span class="line">	OnClose()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即每个连接agent都运行在<strong>单独的协程</strong>里。</p>
+<p>netty这里没法让每个连接在单独的线程里跑（线程太重），因为采用的是传统的池化处理方式。<code>EventLoop</code>在创建时实际创建了一个线程池，因此多个Channel实际上可能会公用同一个线程。</p>
+<p>连接建立后，Channel会自动创建一个线程安全的<code>ChannelPipeline</code>，然后调用<code>Bootstrap</code>上面绑定<code>ChannelInitializer</code>将需要的<code>ChannelHandler</code>依次加到这个<code>ChannelPipeline</code>里，每个回调的<code>channelRead0</code>里要调用<code>sendUpstream(event)</code>向下传递消息。</p>
+<p>如果可以保证<code>ChannelHandler</code>是线程安全的，就用<code>@Sharable</code>注解该类，此时所有的连接可都共享同一个实例（pipeline直接添加这个单例），否则每个连接应new一个Handler添加到pipeline里。</p>
+<h2 id="数据分包"><a href="#数据分包" class="headerlink" title="数据分包"></a>数据分包</h2><p>一般都是直接扩展<code>FrameDecoder</code>，实现分包逻辑:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">decode</span><span class="params">(ChannelHandlerContext cxt, Channel channel, ChannelBuffer channelBuffer)</span> <span class="keyword">throws</span> Exception</span></span><br></pre></td></tr></table></figure>
+
+<p>重载上述方法，返回null表示没有取到有意义的帧，否则表示解析正确的帧。</p>
+<p>和leaf的设计不同，这里一般习惯在这里直接反序列化到具体的对象。</p>
+<p>如果是非连接的（UDP等）或者websocket这种自带消息分割的，可以直接扩展<code>ByteToMessageDecoder</code>将字节流转换成为POJO.</p>
+<h2 id="连接上下文"><a href="#连接上下文" class="headerlink" title="连接上下文"></a>连接上下文</h2><p>每个channel自带了一个线程安全的方法设置上下文，即</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx.channel().attr(<span class="string">&quot;k&quot;</span>).set(<span class="string">&quot;v&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>直接设置kv属性即可，value是一个Object。</p>
+<h2 id="数据写入连接"><a href="#数据写入连接" class="headerlink" title="数据写入连接"></a>数据写入连接</h2><p>反向的一波儿操作，当调用<code>ctx.getChannel().write()</code>时触发，需要注意这个调用顺序跟addLast是反着来的。</p>
+<p>所以习惯上，添加的时候先加decoder，后面跟着对应的encoder. 如：</p>
+<ol>
+<li>将字节流转换成帧(Bytebuf)的decoder；</li>
+<li>将帧数据转换成字节流的encoder;</li>
+<li>将帧反序列化到POJO的decoder;</li>
+<li>将POJO序列化的encoder;</li>
+<li>业务逻辑handler1（如写日志）；</li>
+<li>业务逻辑handler2（正常逻辑）；</li>
+</ol>
+<p>这些handler都是<code>ChannelInboundHandlerAdapter</code>或者<code>ChannelOutboundHandlerAdapter</code>的子类。</p>
+<h2 id="结合springboot使用的思路"><a href="#结合springboot使用的思路" class="headerlink" title="结合springboot使用的思路"></a>结合springboot使用的思路</h2><p>现在我们要写一个网关程序，它会与设备使用各种各样的协议进行通信，并接受应用层（其他服务）下达的命令转发给设备。</p>
+<p>首先每个通信协议对应一个Bean，类似上文中Leaf的<code>Module</code>，Bean的名称采用设备<code>品牌-类型-驱动</code>，并实现一个<code>call(reqId, args…)</code>的方法。对于长连接通信，显然bean里面需要保存设备id与channel的映射（并在断开连接时清理）。</p>
+<p>注意这个设计里，call的执行线程是与应用层通信的bean所在的线程，和实际通信的线程可能并不一样。不过channel.write本身是线程安全的。当应用层发送命令时，通过目标设备的<code>品牌-类型-驱动</code>找到对应的bean，然后调用call发送命令即可。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/netty/" rel="tag"># netty</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/" rel="prev" title="golang文件操作的一个坑">
+                  <i class="fa fa-chevron-left"></i> golang文件操作的一个坑
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yiuterran.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yiuterran.github.io/2021/05/31/netty%E7%BC%96%E7%A8%8B%E8%A6%81%E7%82%B9/";
+    this.page.identifier = "2021/05/31/netty编程要点/";
+    this.page.title = "netty编程要点";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yiuterran.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>
