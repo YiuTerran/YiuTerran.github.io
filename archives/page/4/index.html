@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-count">58</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,356 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">Go语言学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:42" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:42+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 19:10:34" itemprop="dateModified" datetime="2019-03-31T19:10:34+08:00">2019-03-31</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/Go%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/Go语言学习/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>update(2019/03/31): 移除了一些过时信息。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ol>
+<li>安装 GoLang，直接用官网的安装指南就行；</li>
+<li><s>设置环境变量<code>GOPATH</code>，这个是用默认包的存放位置，用<code>go get</code>安装的包会存放在这个位置。在<code>~/.zshrc</code>或<code>~/.bashrc</code>里面加入<code>export GOPATH=~/.go</code>，然后在<code>PATH</code>里面加入<code>GOPATH/bin</code>即可</s>；go1.10之后，已经不用手动设置<code>GOPATH</code>；</li>
+<li>如果是项目的依赖，最好不要放入全局系统。使用1.11后加入的<code>go mod</code>；</li>
+<li>设置代理。<code>go get</code>命令下载必定被墙，使用<code>git config --global http.proxy &quot;xxxx:oooo&quot;</code>设置代理方可使用，也可以使用<code>http_proxy=xxxx:oooo go get</code>这个格式，或者在 bashrc 里面加个<code>alias</code>；在项目里的<code>go.mod</code>中使用<code>replace</code>也可以；</li>
+<li>IDE：推荐vscode+go，或者 gogland，后者付费；</li>
+<li>官方教程，建议下载到本地运行，速度更快；</li>
+<li>交互式命令行：<code>gore</code>(<code>go get -u github.com/motemen/gore</code>)；</li>
+<li>可以使用<code>https://play.golang.org/</code>跑一些短小的程序测试；</li>
+</ol>
+<h2 id="基础部分"><a href="#基础部分" class="headerlink" title="基础部分"></a>基础部分</h2><h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><h4 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h4><ol>
+<li>打头的<code>package xxx</code>，类似 java，<code>import</code>可以用括号打包；</li>
+<li>类型在变量名后，这种奇特的声明方式虽然有篇 blog 来解释，但总而言之是扯淡的；</li>
+<li>连续多个变量同类型可省略前面的只保留最后一个；</li>
+<li>类似 python 的多值返回（但是 python 本质是一个 tuple)，如果给返回值命名了，就不必在函数体中声明这些变量；</li>
+<li><code>var name int</code>是典型的声明变量格式，自动推导类型的语法是<code>name := 0</code>（但是这个语法只能在函数体里面用，外面必须用<code>var</code>声明）。可以在一行给多个变量赋值（类似 python 的解包）；</li>
+<li>基本类型，和 c++类似，包括<code>bool</code>, <code>int</code>, <code>uint</code>, <code>byte</code>(<code>uint8</code>),<code>rune</code>(<code>int32</code>), <code>float32</code>, <code>float64</code>, <code>uintptr</code>, <code>complex64</code>, <code>complex128</code>, <code>string</code>，注意么有<code>double</code>，类似其他 GC 语言，所有类型会被自动化初始化；</li>
+<li>Go 没有隐式类型转换，所有类型之间必须显式转换。注意<code>int</code>和<code>string</code>之间不能互转，可以用<code>strconv</code>中的<code>Itoa</code>和<code>Atoi</code>来完成（非常烦躁的设定）；</li>
+<li>常量使用<code>const</code>关键字声明，常量只能是基础类型，且不能用<code>:=</code>声明。常量的实际类型由上下文决定，数值常量本身是高精度的；</li>
+<li> 和 C 语言一样，单引号表示字符(byte)，双引号表示字符串。<code>string</code>可以转换成一个<code>rune</code>数组，或者<code>byte</code>数组，取决于你对字符串的解释（字节流还是文本）。</li>
+</ol>
+<hr>
+<h4 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h4><ol>
+<li>循环只有<code>for</code>语句，且不需要括号（其他语句也都不需要），基本格式还是类似 c 的<code>for i := 0; i &lt; 10; ++i</code>，这种，后面必须跟大括号，且大括号必须和<code>for</code>在同一行…</li>
+<li>如果省略前后前后的分号，<code>for</code>就成了<code>while</code>；如果全部省略，裸的<code>for</code>代表死循环；</li>
+<li>if 类似，不要括号，花括号必须；而且 if 也可以在分号前声明一个变量，作用域仅限于花括号以及后面跟着的<code>else</code>里面；</li>
+<li><code>switch</code>语句，好吧，和上面也类似。有个有趣的地方是，默认自动终止，除非使用<code>fallthrough</code>，和 C 中的默认自动向下，除非手动<code>break</code>相反；<code>switch</code>也可以直接用空语句，条件比较复杂时使用可以让代码看起来更加整洁；</li>
+<li><code>defer</code>语句，这是 Go 的特色语句了。<code>defer</code>是在函数返回后再执行，其本质是压栈，所以弹出顺序与<code>defer</code>的顺序相反；</li>
+</ol>
+<hr>
+<h4 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h4><ol>
+<li>虽然 Go 是一门 GC 语言，但是仍然拥有指针。<code>*T</code>表示指向类型<code>T</code>的指针，取地址仍然使用<code>&amp;</code>。不过与 C 不一样的是，不允许指针运算；</li>
+<li>和 C 一样，拥有<code>struct</code>，而且蛋疼的是，也只能拥有字段（和 C 一样，POD）。结构体通过指针访问字段也是使用<code>.</code>符号（没有了<code>-&gt;</code>符号）；</li>
+<li>使用<code>&#123;&#125;</code>进行结构体初始化，如</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Point <span class="keyword">struct</span> &#123;</span><br><span class="line">    X, Y <span class="keyword">float32</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    a = Point&#123;X: <span class="number">10</span>&#125;</span><br><span class="line">    b = Point&#123;<span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    c = Point&#123;&#125;</span><br><span class="line">    p = &amp;Point&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">)</span><br><span class="line">fmt.Println(p.X)</span><br></pre></td></tr></table></figure>
+
+<p>虽然感觉有点奇怪，不过和 C++11 后的初始化列表其实挺像的。</p>
+<hr>
+<h4 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h4><ol>
+<li>声明方式： <code>var a [10]int</code>，这语法也是醉了。和 C 一样，数组不能动态扩张；</li>
+<li>使用<code>slice</code>代替数组，声明方式： <code>a = make([]int, 0, 5)</code>，第二个参数表示长度(len)，第三个参数表示容量(cap)。类似 python 中的<code>list</code>，可以切片；注意，如果仅仅声明<code>var []a</code>那么<code>a==nil</code>是成立的；</li>
+<li><code>make</code>关键字只能用来生成系统内置的一些对象，如 slice, map, chan；由于go不支持泛型，只有内置的这几个结构可以用泛型（很奇葩）。</li>
+<li>go 的切片有一些匪夷所思的问题，因为切片得到的并不是新的对象，而是原来对象的指针；</li>
+<li>可以通过<code>append</code>往 slice 中添加元素，类似 C++中的<code>vector</code>可以自动扩展长度。注意append会返回slice的指针，这个值和原来的不一定一致；</li>
+<li><code>range</code>关键字（注意这货不是函数。。）用来对<code>slice</code>进行循环，格式是<code>for i, v := range a</code>;</li>
+</ol>
+<hr>
+<h4 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h4><ol>
+<li><code>map</code>现在也是新兴语言的标配了，<code>map</code>和<code>slice</code>一样，必须通过<code>make</code>创建，语法是<code>m := make(map[string]int)</code>,<code>[]</code>中的是键的类型，后面跟着的是值的类型。初始化语法神马的和 struct 类似；</li>
+<li>删除元素使用<code>delete</code>关键字；检测存在使用双赋值：<code>a, ok = m[&#39;test&#39;]</code>，如果存在则 ok 为<code>true</code>，否则为<code>false</code>；</li>
+</ol>
+<hr>
+<h4 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h4><ol>
+<li>函数被提到第一公民的位置，和 javascript 里面的语法很像，当然，除了强类型声明很麻烦以外；</li>
+<li>函数的闭包与 js 类似，内嵌函数引用的是各自的闭包（其实有点像 C 中的<code>static</code>局部变量）；</li>
+</ol>
+<hr>
+<h4 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h4><ol>
+<li>虽然 Go 里面没有类，但是可以声明 struct 关联的方法，虽然语法非常别扭…例如（接着上面的<code>Point</code>）</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p1 *Point)</span> <span class="title">distance</span><span class="params">(p2 *Point)</span> <span class="title">int</span></span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法接受者位置在<code>func</code>关键字和函数名之间，呃，其实和 C++的外置方法声明还是有点像的…</p>
+<ol start="2">
+<li>值得注意的是，不仅仅是 struct，可以通过这种声明向本包内任意非内置类型注入方法，甚至可以通过<code>type</code>声明别称后向别称的内置类型进行注入；</li>
+<li>方法接受者可以是指针，也可以不是，当然只有指针才能改变元素的实际值；</li>
+</ol>
+<hr>
+<h4 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h4><ol>
+<li><code>struct</code>从语法上来讲和 C 基本是一样的；</li>
+<li>可以在字段后面添加字符串，表示<code>tag</code>，在反射的时候用；</li>
+<li>可以在结构体内塞入另一个结构体（或其指针），组合优先于继承；</li>
+</ol>
+<hr>
+<h4 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h4><ol>
+<li>虽然没有类，但是由接口。关键字<code>interface</code>声明一种接口：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Flyable <span class="keyword">interface</span>&#123;</span><br><span class="line">    Fly();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面<code>Flyable</code>声明了一个接口，拥有<code>Fly</code>方法. 这样后面假设我给<code>pig</code>加上<code>fly</code>方法，那么变量<code>var item Flyable</code>就可以被赋值为<code>item = &amp;pig&#123;&#125;</code><br>这里值得注意的是，这里的接口实现本质是隐式的（非侵入式的），或者可以说是<code>duckable</code>的，pythoner 对此应该深有理解：）</p>
+<ol start="2">
+<li><code>Stringers</code>是一个常见的接口，类似 python 中的<code>__str__</code>或者 java 中的<code>toString</code>，它只需要实现<code>String</code>方法；</li>
+<li>Go 里面没有异常，仍然使用错误。<code>error</code>是一个接口，只有一个方法<code>Error() string</code>，通常函数会返回一个<code>error</code>，放在第二个位置，如果其不为<code>nil</code>则说明出了错误；</li>
+<li>其他常见接口包括<code>io.Reader</code>，表示从数据流结尾读取；<code>http.Handler</code>表示处理 HTTP 请求的服务器；<code>image.Image</code>表明一个图像的接口；</li>
+<li>接口可以通过接口来组合</li>
+</ol>
+<hr>
+<h4 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h4><ol>
+<li><code>goroutine</code>是 Go 运行时的轻量级线程（协程），在方法名前加<code>go</code>就在另一个线程中同步执行了；</li>
+<li><code>channel</code>是有类型的管道，可以使用<code>&lt;-</code>操作符对其发送或接受值，使用<code>make(chan int， 100)</code>创建一个<code>int</code>的<code>channel</code>，第二个参数表示缓冲区长度，也可以不带，表示完全无缓冲；</li>
+<li><code>&lt;-chan</code>和<code>chan&lt;-</code>分别表示只读和只写的 chan，后面跟着管道中的数据类型，如<code>a &lt;-chan *int</code>表示只读的整数指针通道；</li>
+<li><code>close</code>一个<code>channel</code>表示不再发送数据（只有发送者可以关闭），向已经<code>close</code>的<code>channel</code>发送数据会引起<code>panic</code>。使用<code>range</code>则表示从<code>channel</code>中源源不断的接受数据直到被关闭；</li>
+<li><code>select</code>语句使得一个 goroutine 在多个通讯操作上等待，阻塞直到某个分支可行，例如：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// var a, b chan int</span></span><br><span class="line"><span class="keyword">select</span>&#123;</span><br><span class="line">    <span class="keyword">case</span> x &lt;- a:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">case</span> &lt;- b:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当所有分支都不可行时，执行<code>default</code>语句；</p>
+<ol start="5">
+<li><code>sync.Mutex</code>提供了互斥锁，包括<code>Lock</code>和<code>Unlock</code>两个方法，可以使用<code>defer</code>语句保证锁一定会被释放；</li>
+<li>Go 与 Erlang 的并发模型分别是 CPS 和 Actor，但是 Go 的 channel 里面可以传递指针，这和 Erlang 的变量不可更改有着根本性质的区别。</li>
+</ol>
+<hr>
+<p>至此，基础部分结束。</p>
+<hr>
+<h2 id="进阶部分"><a href="#进阶部分" class="headerlink" title="进阶部分"></a>进阶部分</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ol>
+<li><s>前面导出了<code>GOPATH</code>环境变量，这个路径就是实际的工作空间。从结论来看，Go 提倡将所有 Go 语言项目放入同一个工作路径，这是很不好的；</li>
+<li>如果使用过<code>go get</code>命令，那么<code>GOPATH</code>下会自动创建<code>bin</code>, <code>pkg</code>和<code>src</code>三个文件夹，源码存放在<code>src</code>之下，<code>import</code>本地包时，就是从这一层开始的。<code>go get</code>无法控制依赖的版本（垃圾）；</s></li>
+<li><code>go install</code>会生成输出文件（可执行或者库），<code>go build</code>则仅编译；</li>
+</ol>
+<h3 id="使用技巧"><a href="#使用技巧" class="headerlink" title="使用技巧"></a>使用技巧</h3><ol>
+<li>Go 自带了一个工具<code>go fmt</code>用来对代码进行格式化；</li>
+<li>注释的格式和 C++一致。使用<code>godoc</code>生成文档，类似 python 的 docstring，但是约定更加简单：对类型、变量、常量、函数或者包的注释，在其定义前编写普通的注释即可，不要插入空行。Godoc 将会把这些注释识别为对其后的内容的文档。</li>
+<li>与顶级定义不相邻的注释，会被 godoc 的输出忽略，但有一个意外。以“BUG(who)”开头的顶级注释会被识别为已知的 bug，会被包含在包文档的“Bugs”部分。</li>
+<li><code>getter</code>没有必要用<code>Get</code>开头，直接大写首字母就行，<code>setter</code>还可以留着<code>Set</code>；</li>
+<li>Go 习惯使用驼峰式写法，而不是下划线；</li>
+<li>Go 其实是需要分号的，但是分号是自动插入的。这造成了一些非常奇怪的约定。例如左大括号必须放在一行末尾…</li>
+<li><code>new</code>用来分配内存，并且填 0，返回指向对象的指针，程序可以利用这些指针进行手动初始化；<code>make</code>则只能用来创建内置类型(slice, map 和 channel)，返回的是对象本身，而不是指针；</li>
+<li><code>array</code>是一种对象，和它的大小相关；array 名并不是指针（和 C 不同）；</li>
+<li><code>print</code>语系和 C 中基本一致, <code>%v</code>可以拿到值，<code>%T</code>可以拿到类型；</li>
+<li><code>interface &#123;&#125;</code>相当于 C 中的<code>void *</code>可以被转化为任意类型，一种常见的反射方式是使用<code>v.(type)</code>，这被称作<code>type assertion</code>. 比如<code>str, ok = v.(string)</code>，返回的就是 string 类型；另外可以在<code>switch</code>语句里面用<code>x.(type)</code>，然后再<code>case</code>里面判断类型；</li>
+<li><code>import</code>后必须使用，否则会报错（傻逼设定。。），可以用<code>import _ &quot;fmt&quot;</code>的方法导入但不使用，或者用<code>_</code>赋值；另外就是可以直接导入包内全部方法，使用<code>import * &quot;fmt&quot;</code>；</li>
+<li>可以通过往<code>struct</code>里面塞匿名字段（另一个 struct，或其指针）来达到继承的目的，虽然看起来很奇怪就是了。注意的是，这本质上只是一种语法糖。外围的同名元素会覆盖继承（内嵌）的；同样，也可以往<code>interface</code>里面塞一个别的<code>interface</code>达到继承接口的目的；</li>
+<li><code>panic</code>和<code>recover</code>是最后手段；</li>
+</ol>
+<h3 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h3><ol>
+<li>使用<code>reflect</code>包来进行反射；</li>
+<li>golang 里面每个值都有<code>Type</code>和<code>Value</code>，这是因为所有值都是<code>interface&#123;&#125;</code>的实现者，而后者实际上是一个空类型，所以需要<code>Type</code>和<code>Value</code>用于反射。这也就对应着<code>reflect.Type</code>和<code>reflect.Value</code>，也对应着<code>%T</code>和<code>%v</code>，也对应着<code>reflect.TypeOf()</code>和<code>reflect.ValueOf</code>；</li>
+<li><code>reflect.Type</code>和<code>reflect.Value</code>并不是并列的（并不能顾名思义）；而是一种包含关系，<code>reflect.Value</code>是一个&lt;Type, Value&gt;的二元组，<code>reflect.ValueOf(x).Type</code>与<code>reflect.TypeOf(x)</code>是一致的，返回的是静态类型；<code>reflect.ValueOf(x).Kind</code>可以返回一个常量定义的类型（如<code>reflect.Float64</code>)，这是一个底层类型。</li>
+<li>可以从<code>reflect.ValueOf(x).Interface()</code>还原接口值，后续跟随类型断言等；输出<code>reflect.Value</code>的正确方法是将其先转为<code>interface&#123;&#125;</code>；</li>
+<li><code>reflect.ValueOf(x).SetXXX</code>的前提是 x 是可修改的(<code>CanSet</code>)，借助指针来修改的方法是：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> x <span class="keyword">float64</span> = <span class="number">1.1</span></span><br><span class="line">p := reflect.ValueOf(&amp;x)</span><br><span class="line">v := p.Elem()</span><br><span class="line">v.CanSet() == <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="陷阱"><a href="#陷阱" class="headerlink" title="陷阱"></a>陷阱</h3><ol>
+<li>在循环中创建goroutine需要注意变量的传递。如:</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">    &#125;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实际上可能输出了10个9，这是由于<code>go</code>创建的协程不会马上运行，当启动的时候i已经迭代到9了。正确的做法是不要直接使用闭包外的变量，而要进行传值。即：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(x)</span></span>&#123;</span><br><span class="line">        fmt.Println(x)</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;(i)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>nil与interface</li>
+</ol>
+<p>如果一个函数如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> IAdder <span class="keyword">interface</span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">Add</span><span class="params">(x <span class="keyword">int</span>)</span><span class="title">int</span></span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> Ex <span class="keyword">struct</span>&#123;</span><br><span class="line">    X <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e Ex)</span> <span class="title">Add</span> <span class="params">(x <span class="keyword">int</span>)</span><span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.X + x</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span><span class="params">(x <span class="keyword">int</span>)</span><span class="title">Ex</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> y Ex</span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">10</span>&#123;</span><br><span class="line">        y = <span class="literal">nil</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        y = &amp;Ex&#123;x&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> y</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> IAdder ia</span><br><span class="line">    ia = test(<span class="number">100</span>)</span><br><span class="line">    fmt.Printf(ia == <span class="literal">nil</span>)  <span class="comment">//这里输出是false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的原因是<code>interface</code>本质上是一个值，他有两个部分Type和Value，只有两者都是nil的时候，这个值才是nil。所以interface不能直接与nil做比较。一个方法是直接在<code>test</code>中返回<code>IAdder</code>，还有个方法是先拿到值，判断nil后再复制给接口。或者，在test中加入<code>error</code>返回值，通过那个做判断也行。每当拿interface和nil值作比较的时候，心里都要警惕。</p>
+<ol start="3">
+<li>深浅拷贝</li>
+</ol>
+<p>这个其实是和C语言中一样的，如果我们令<code>A := B</code>，B是一个指针，那么A只是做了浅拷贝，但是如果B是一个struct，那么A就做了深拷贝（但是B中的指针仍然还是指针）。</p>
+<p>另外需要注意的是，go中内置的slice, map和chan本质上都是指针。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" class="post-title-link" itemprop="url">Heka插件开发</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:37" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:37+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:26:16" itemprop="dateModified" datetime="2017-06-13T00:26:16+08:00">2017-06-13</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/Heka%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/Heka插件开发/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>学习Go主要是为了开发heka的插件，heka和logstash不一样，插件多半还是靠自己开发。而logstash大部分情况下只需要使用自带的插件，简单的自定义处理只需用自带的<code>ruby</code>插件，复杂的才需要自己写插件来处理。</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Heka是一个基于插件的日志处理系统，其基本结构如下（图片来自网络）：<br><img src="http://skoo.me/assets/images/heka-overview-diagram.png" alt="Heka结构图"></p>
+<p>显然这是一个流式处理系统，从输入流到输出流之间经过一系列的处理。其流程被抽象成几个类似与logstash的步骤，包括分割；解码；过滤；编码；输出。</p>
+<h3 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h3><ol>
+<li>使用<code>go get github.com/mozilla-services/heka</code>(自备梯子)下载heka项目；</li>
+<li>到<code>$GOPATH/github.com/mozilla-services/heka</code>下，先用<code>git checkout v0.10.0</code>切换到最新的<code>0.10.0</code>稳定版，然后再<code>source build.sh</code>进行编译，系统依赖参见<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/installing.html">官方文档</a>。编译过程中会去线上下载一些go的依赖，所以仍然注意要备好梯子…</li>
+<li>第一次编译时间较长，尤其是网速不给力的时候，你可以去喝杯咖啡…编译完成后可以使用<code>ctest</code>来测试一下。令人尴尬的是使用go1.5测试失败…貌似有些bug；</li>
+<li>官方给出了一个插件的example，就在<code>heka/examples</code>文件夹下。使用方法：在<code>heka/</code>下新建<code>externals/host_filter</code>文件夹，然后将<code>examples/host_filter.go</code>复制到该文件夹下，最后在<code>heka/cmake/plugin_loader.cmake</code>中添加<code>add_external_plugin(git http://xxx/host_filter :local)</code>，最后重新编译项目，就会得到包含插件<code>host_filter</code>的二进制文件<code>hekad</code>；</li>
+</ol>
+<blockquote>
+<p>使用Go1.5编译v0.10.0自带的example <code>host_filter.go</code>会提示<code>enough arguments in call to pack.Recycle</code>。查看提示的79行代码，发现<code>pack.Recycle()</code>少了个参数，传入<code>nil</code>重新编译即可。重新编译前在<code>build</code>文件夹中运行<code>make clean-heka</code>进行一次清理。</p>
+</blockquote>
+<h3 id="项目应用"><a href="#项目应用" class="headerlink" title="项目应用"></a>项目应用</h3><p>手头的项目需求如下：</p>
+<ol>
+<li>输出json形式的按行分割的log；</li>
+<li>json中有<code>type</code>字段，根据type的不同生成不同的<code>map</code>，但最后被送到同一个output插件中；</li>
+<li>output到mongo中，每个数据需要存在两个表中，分别是按日统计的累加表和总的累加表，以便统计按日数据和总体趋势数据；</li>
+</ol>
+<p>根据上述描述，应该使用<code>LogstreamerInput</code>引入输入，spliter使用默认的<code>token_spliter</code>按行进行分割即可，decoder使用<code>json decoder</code>，参考配置：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[LogstreamerInput]</span></span><br><span class="line"><span class="attr">log_directory</span> = <span class="string">&quot;/var/log/lucky&quot;</span></span><br><span class="line"><span class="attr">file_match</span> = <span class="string">&#x27;track\.json&#x27;</span></span><br><span class="line"><span class="attr">decoder</span> = <span class="string">&quot;JsonDecoder&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[JsonDecoder]</span></span><br><span class="line"><span class="attr">type</span> = <span class="string">&quot;SandboxDecoder&quot;</span></span><br><span class="line"><span class="attr">filename</span> = <span class="string">&quot;lua_decoders/json.lua&quot;</span></span><br><span class="line">    <span class="section">[JsonDecoder.config]</span></span><br><span class="line">    <span class="attr">Type</span> = <span class="string">&quot;type&quot;</span></span><br><span class="line">    <span class="attr">payload_keep</span> = <span class="literal">true</span></span><br><span class="line">    <span class="attr">Timestamp</span> = <span class="string">&quot;@timestamp&quot;</span></span><br><span class="line">    <span class="attr">timestamp_format</span> = <span class="string">&quot;%Y-%m-%dT%H:%M:%S.%f&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我现在需要编写一个自定义的filter和一个output插件。filter的格式可以参考<code>host_filter</code>里面的例子， output则可以参考plugin里面的<code>elasticserach.go</code>。</p>
+<p>实际在编写过程中发现，如果log的格式是json，使用go做解析非常费劲。Json比较适合动态语言，对于静态的Go，只能通过<code>map[string]interface&#123;&#125;</code>这种做映射和强制转换。而<code>Message.Fields</code>是一个<code>*[]Field</code>，这意味着Json被映射成了一个数组，由于这里是业务日志分析，有很多数据结构不同的日志输出，如果使用默认的这种数组遍历的filter方式，写起来非常麻烦。所以我把payload仍然保留，然后使用<code>encoding/json</code>将payload解析成一个<code>map[string]interface&#123;&#125;</code>，这样虽然仍然很麻烦，但是工作量已经减轻不少。</p>
+<p>mongo和redis在go中已经有成熟的库，直接引用即可。个人的工作量就是自定义解析过程，其实不难，就是动态语言写久了再写静态语言感觉有点繁琐。官方有<a target="_blank" rel="noopener" href="https://hekad.readthedocs.org/en/v0.10.0/developing/plugin.html">插件开发指导</a>，仔细阅读一遍，然后再参考里面已有的plugin，就可以动手写了。注意现在（刚发布）example的<code>host_filter</code>和0.10.0有些标准不和，可能随后才会更新。</p>
+<h3 id="lua开发"><a href="#lua开发" class="headerlink" title="lua开发"></a>lua开发</h3><p>使用lua解析json显然更加得心应手。最后我自己写了一个decoder，将数据解析为</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;UserId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;Set&quot;</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">&quot;Inc&quot;</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，在Go文件中仅仅需要把对应的数据直接更新到mongo中，而无需一层层的分析数据。大大减轻了工作量。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1154,230 +1504,6 @@ G1不必明确设置新生代大小，其自动调优也十分可靠，对于停
 <h3 id="LazyTask"><a href="#LazyTask" class="headerlink" title="LazyTask"></a>LazyTask</h3><p><code>Runnable</code>子类，其<code>scheduler</code>方法最终调用<code>BayeuxServerImpl</code>中的同名方法，作为一个计划任务执行（<code>Scheduler</code>是jetty的基础工具类）。</p>
 <h3 id="Setxxx"><a href="#Setxxx" class="headerlink" title="Setxxx"></a>Setxxx</h3><p>可以设置的包括：<br>Interval<br>timeout</p>
 <h3 id="ServerSessionListener"><a href="#ServerSessionListener" class="headerlink" title="ServerSessionListener"></a>ServerSessionListener</h3><p>可以监听的事件包括：<br><code>RemoveListener</code>=&gt;移除Session时通知<br><code>MessageListener</code>=&gt;有消息时通知<br><code>QueueListener</code>=&gt;消息被加入队列时通知<br><code>DeQueueListener</code>=&gt;消息出列时通知<br><code>MaxQueueListener</code>=&gt;队列满时通知</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">cmake实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-06-12 23:47:11" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:11+08:00">2017-06-12</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2017-06-13 00:22:09" itemprop="dateModified" datetime="2017-06-13T00:22:09+08:00">2017-06-13</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/06/12/cmake%E5%AE%9E%E8%B7%B5/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/cmake实践/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>heka使用了cmake进行构建，cmake是目前最好的大型项目构建工具（比autoconf之类的都要好），有很强的学习价值。另外JetBrain的CLion也是用cmake进行构建的。</p>
-<p>初级学习材料是<a target="_blank" rel="noopener" href="http://sewm.pku.edu.cn/src/paradise/reference/CMake%20Practice.pdf">CMake Practice</a>这本书.</p>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">PROJECT</span>(HELLO)</span><br><span class="line"><span class="keyword">SET</span>(SRC_LIST main.c)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">&quot;This is BINARY dir&quot;</span> <span class="variable">$&#123;PROJECT_BINARY_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">MESSAGE</span>(STATUS <span class="string">&quot;This is SOURCE dir&quot;</span> <span class="variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>)</span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(hello <span class="variable">$&#123;SRC_LIST&#125;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>上面是一个最简单的CMakeLists.txt示例，也很容易理解。使用<code>SET</code>命令设置变量，使用<code>MESSAGE</code>命令显示信息：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MESSAGE([SEND_ERROR | STATUS | FATAL_ERROR] &quot;message to display&quot;)</span><br></pre></td></tr></table></figure>
-<p>使用空格键分割参数。</p>
-<p><code>ADD_EXECUTABLE</code>添加生成的可执行文件，第一个参数是可执行文件的名字（与项目没什么关系）。</p>
-<p>一般情况下，使用<code>$&#123;&#125;</code>引用变量，但是如果在<code>IF</code>中，则默认就是一个变量名，这时候就不要再解引用了。</p>
-<p>指令是大小写无关的，参数和变量是大小写敏感的，但是一般情况下推荐使用全大写的指令。</p>
-<p>由于参数使用空格做分隔符，因此若某些参数中间含有空格（如文件名），则需要用引号包围。另外就是文件后缀可以省略，如果确定不会重复的话（推荐保留）。</p>
-<p>另外就是参数也可以用分号分割，注意前后保持一致就行。</p>
-<h3 id="外部构建"><a href="#外部构建" class="headerlink" title="外部构建"></a>外部构建</h3><p>上面的例子是内部构建，生成了一大堆中间文件，cmake官方更推荐使用外部构建。</p>
-<p>删除除了<code>CMakeLists.txt</code>和<code>main.c</code>之外的所有文件，建立一个<code>build</code>目录。然后运行<code>cmake &lt;项目路径&gt;</code>，构建的中间文件和输出的MakeFile都会出现在这个目录里，对原来的项目没有影响。唯一不同的是<code>PROJECT_BINARY_DIR</code>指向<code>build</code>目录了。</p>
-<h3 id="进一步复杂化"><a href="#进一步复杂化" class="headerlink" title="进一步复杂化"></a>进一步复杂化</h3><p>添加<code>src</code>子文件夹，将<code>main.c</code>移入。然后在其中再新建一个<code>CMakeLists.txt</code>。外部改成：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PROJECT(HELLO)</span><br><span class="line">ADD_SUBDIRECTORY(src bin)</span><br></pre></td></tr></table></figure>
-<p>内部的写入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD_EXECUTABLE(hello main.c)</span><br></pre></td></tr></table></figure>
-
-<p>再在<code>build</code>文件夹下cmake，就可以<code>build/bin/</code>文件夹下生成科执行文件。</p>
-<p>可以通过修改<code>EXECUTABLE_OUTPUT_PATH</code>和<code>LIBRARY_OUTPUT_PATH</code>来修改最终输出的可执行文件或者链接库的路径。一般写在<code>ADD_EXECUTABLE</code>后面。</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装使用<code>cmake -DCMAKE_INSTALL_PREFIX=&lt;dir&gt;</code>来指定安装目录。在根目录的<code>CmakeLists.txt</code>里面写入</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">INSTALL(FILES COPYRIGHT README DESTINATION share&#x2F;doc&#x2F;cmake&#x2F;t2)</span><br><span class="line">INSTALL(PROGRAMS runhello.sh DESTINATION bin)</span><br><span class="line">INSTALL(DIRECTORY doc&#x2F; DESTINATION share&#x2F;doc&#x2F;cmake&#x2F;t2)</span><br></pre></td></tr></table></figure>
-<p>这里用了<code>INSTALL</code>指令，第一个参数表示写入文件类型，<code>DESTINATION</code>后面是写入的目标位置。</p>
-<p>INSTALL指令参数较多，使用时可以参考文档。</p>
-<h3 id="静态库与动态库"><a href="#静态库与动态库" class="headerlink" title="静态库与动态库"></a>静态库与动态库</h3><p>除了目录名外，与构建可执行文件的主要区别是lib文件夹中的CMakeLists.txt中加入了命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SET(LIBHELLO_SRC hello.c)</span><br><span class="line">ADD_LIBRARY(hello SHARED $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">ADD_LIBRARY(hello_static STATIC $&#123;LIBHELLO_SRC&#125;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES OUT_NAME &quot;hello&quot;)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello_static PROPERTIES CLEAN_DIRECT_OUPUT 1)</span><br><span class="line">SET_TARGET_PROPERTIES(hello PROPERTIES VERSION 1.2 SOVERSION 1)</span><br><span class="line">INSTALL(TARGETS hello hello_static</span><br><span class="line">        LIBRARY DESTINATION lib</span><br><span class="line">        ARCHIVE DESTINATION lib)</span><br><span class="line">INSTALL(FILES hello.h DESTINATION include&#x2F;hello)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><code>ADD_LIBRARY</code>第二个参数指出了库的类型，可以用<code>STATIC</code>参数构建静态库，<code>SHARD</code>构建动态库。</p>
-<p>由于<code>ADD_LIBRARY</code>第一个参数不能重复，所以同时生成静态库需要 <code>SET_TARGET_PROPERTIES</code>. 该命令用来设置很多目标属性，包括版本信息等。这里设置了防止同名删除库，以及版本信息。</p>
-<h3 id="使用外部共享库"><a href="#使用外部共享库" class="headerlink" title="使用外部共享库"></a>使用外部共享库</h3><p>如果依赖外部库，且该库并不存在于系统搜索路径里， 需要使用<code>INCLUDE_DIRECTORIES</code>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)</span><br></pre></td></tr></table></figure>
-<p>仅仅是这样还不够，上面只是指出了头文件的位置。链接库的位置需要使用<code>LINK_DIRECTORIES</code>或<code>TARGET_LINK_DIRECTORIES</code>。假设上面我们已经把库安装到<code>/usr</code>文件下，在<code>CMakeLists.txt</code>中加入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES(&#x2F;usr&#x2F;include&#x2F;hello)</span><br><span class="line">TARGET_LINK_LIBRARIES(main libhello.so)</span><br></pre></td></tr></table></figure>
-<p>即可正常编译链接通过了。</p>
-<p>也可使用<code>CMAKE_INCLUDE_PATH</code>和<code>CMAKE_LIBRARY_PATH</code>这两个特殊的环境变量为编译添加额外搜索路径。比如上面我们也可以先在bash里面<code>export CMAKE_INCLUDE_PATH=/usr/include/hello</code>，然后将上面的<code>INCLUDE_DIRECTORIES</code>变为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FIND_PATH(myHeader hello.h)</span><br><span class="line">IF(myHeader)</span><br><span class="line">INCLUDE_DIRECTORIES($&#123;myHeader&#125;)</span><br><span class="line">ENDIF(myHeader)</span><br></pre></td></tr></table></figure>
-
-<h3 id="常用变量-环境变量"><a href="#常用变量-环境变量" class="headerlink" title="常用变量/环境变量"></a>常用变量/环境变量</h3><p>使用<code>SET</code>定义的是显式定义，除此之外，一些指令可以定义隐式变量。当然还有一些内置变量。</p>
-<p>使用<code>$ENV&#123;NAME&#125;</code>来调用环境变量，设置环境变量则是<code>SET(ENV&#123;变量名&#125; 值)</code></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/python%20celery%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/06/12/python%20celery%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">python celery组件使用</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-06-12 23:47:06" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:06+08:00">2017-06-12</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2017-06-13 00:28:14" itemprop="dateModified" datetime="2017-06-13T00:28:14+08:00">2017-06-13</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/06/12/python%20celery%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/python celery组件使用/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="Prepare"><a href="#Prepare" class="headerlink" title="Prepare"></a>Prepare</h2><p>install:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install celery</span><br></pre></td></tr></table></figure>
-<p>选择broker，安装，这里假设使用Redis：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install redis-server</span><br></pre></td></tr></table></figure>
-<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><p>首先认真阅读<a target="_blank" rel="noopener" href="http://docs.celeryproject.org/en/latest/index.html">官方celery文档</a>的get start部分，如果有时间的话，最好全部看一边…</p>
-<p>然后参考阅读别人的<a target="_blank" rel="noopener" href="http://blog.csdn.net/orangleliu/article/details/37967433">best practices</a>，基本就可以干活了。</p>
-<h3 id="几个要点"><a href="#几个要点" class="headerlink" title="几个要点"></a>几个要点</h3><ol>
-<li>task相关的文件，最好都是用绝对导入；否则，应该在task function上面指定name；</li>
-<li>如果需要root权限执行，需要在相关文件中加入<code>platforms.C_FORCE_ROOT=True</code>，但是最好别用root；</li>
-<li>可以根据需要消除<code>pickle</code>的警告，设置<code>CELERY_ACCEPT_CONTENT=[&#39;pickle&#39;,]</code>；</li>
-<li>默认不发心跳，需要加上<code>BROKER_HEARTBEAT=10</code>，来消除心跳相关警告；</li>
-<li><h3 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h3>router是不支持通配符的，如果需要，可以自己写一个自定义Router类。下面是一个<code>celery.py</code>的例子：<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> absolute_import</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> celery <span class="keyword">import</span> Celery, platforms</span><br><span class="line"><span class="keyword">from</span> settings <span class="keyword">import</span> CELERY_BROKER</span><br><span class="line"><span class="keyword">from</span> kombu <span class="keyword">import</span> Queue, Exchange</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyRouter</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;router for tasks using wildcard&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">route_for_task</span>(<span class="params">self, task, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="keyword">if</span> task.startswith(<span class="string">&#x27;writer&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;async_writer&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;async_writer&#x27;</span>&#125;</span><br><span class="line">        <span class="keyword">elif</span> task.startswith(<span class="string">&#x27;caller&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;async_caller&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;async_caller&#x27;</span>&#125;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&#x27;queue&#x27;</span>: <span class="string">&#x27;default&#x27;</span>, <span class="string">&#x27;routing_key&#x27;</span>: <span class="string">&#x27;default&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">QUEUES = (</span><br><span class="line">    Queue(<span class="string">&#x27;default&#x27;</span>, Exchange(<span class="string">&#x27;default&#x27;</span>), routing_key=<span class="string">&#x27;default&#x27;</span>),</span><br><span class="line">    Queue(<span class="string">&#x27;async_writer&#x27;</span>, Exchange(<span class="string">&#x27;async_writer&#x27;</span>),</span><br><span class="line">          routing_key=<span class="string">&#x27;async_writer&#x27;</span>),</span><br><span class="line">    Queue(<span class="string">&#x27;async_caller&#x27;</span>, Exchange(<span class="string">&#x27;async_caller&#x27;</span>),</span><br><span class="line">          routing_key=<span class="string">&#x27;async_caller&#x27;</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">platforms.C_FORCE_ROOT = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">app = Celery(<span class="string">&#x27;async&#x27;</span>,</span><br><span class="line">             broker=CELERY_BROKER,</span><br><span class="line">             include=[<span class="string">&#x27;async.writer&#x27;</span>, <span class="string">&#x27;async.caller&#x27;</span>, <span class="string">&#x27;async.checker&#x27;</span>, ])</span><br><span class="line"></span><br><span class="line">app.conf.update(CELERY_ACCEPT_CONTENT=[<span class="string">&#x27;pickle&#x27;</span>, ],</span><br><span class="line">                CELERY_IGNORE_RESULT=<span class="literal">True</span>,</span><br><span class="line">                CELERY_DISABLE_RATE_LIMITS=<span class="literal">True</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_QUEUE=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_ROUTING_KEY=<span class="string">&#x27;default&#x27;</span>,</span><br><span class="line">                CELERY_DEFAULT_EXCHANGE_TYPE=<span class="string">&#x27;topic&#x27;</span>,</span><br><span class="line">                CELERY_TASK_SERIALIZER=<span class="string">&#x27;pickle&#x27;</span>,</span><br><span class="line">                CELERY_RESULT_SERIALIZER=<span class="string">&#x27;pickle&#x27;</span>,</span><br><span class="line">                BROKER_HEARTBEAT=<span class="number">10</span>,</span><br><span class="line">                CELERY_QUEUES=QUEUES,</span><br><span class="line">                CELERY_ROUTES=(MyRouter(),),</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.start()</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>官方给出的init.d脚本不是很好用，下面是一个自己写的参考：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># PushserverCore uWSGI Web Server init script</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">### BEGIN INIT INFO</span></span><br><span class="line"><span class="comment"># Provides:          PushserverCore</span></span><br><span class="line"><span class="comment"># Required-Start:    $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Required-Stop:     $remote_fs $remote_fs $network $syslog</span></span><br><span class="line"><span class="comment"># Default-Start:     2 3 4 5</span></span><br><span class="line"><span class="comment"># Default-Stop:      0 1 6</span></span><br><span class="line"><span class="comment"># Short-Description: Start PushserverCore Service for generic init daemon</span></span><br><span class="line"><span class="comment"># Description:       PushserverCore Service thrift Server backend.</span></span><br><span class="line"><span class="comment">### END INIT INFO</span></span><br><span class="line"></span><br><span class="line">NAME=<span class="string">&quot;Core Thrift Server&quot;</span></span><br><span class="line">PROJECT=PushserverCore</span><br><span class="line">PATH=/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/sbin:/bin:/usr/sbin:/usr/bin:/var/app/enabled/<span class="variable">$PROJECT</span></span><br><span class="line">DESC=<span class="string">&quot;PushserverCore&quot;</span></span><br><span class="line">APP_DIR=/var/app/enabled/<span class="variable">$PROJECT</span>/Core</span><br><span class="line">APP_PATH=<span class="variable">$APP_DIR</span>/CoreServer.py</span><br><span class="line">CELERY_LOG_PATH=/var/app/<span class="built_in">log</span>/PushserverCore/celery.log</span><br><span class="line"></span><br><span class="line">print_succ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(tput setaf 2)</span><span class="subst">$(tput bold)</span>DONE<span class="subst">$(tput sgr0)</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print_fail()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(tput setaf 1)</span><span class="subst">$(tput bold)</span>FAILED<span class="subst">$(tput sgr0)</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;stoping <span class="variable">$NAME</span>...&quot;</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        pkill -f <span class="variable">$APP_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_service()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> service is already running.&quot;</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;starting <span class="variable">$NAME</span> service...&quot;</span></span><br><span class="line">        nohup python <span class="variable">$APP_PATH</span> &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stop_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;stoping celery worker...&quot;</span></span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1;<span class="keyword">then</span></span><br><span class="line">        pkill -f celery</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    print_succ</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">start_worker()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;celery is already running&quot;</span></span><br><span class="line">        <span class="built_in">return</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;starting celery worker...&quot;</span></span><br><span class="line">        celery -A async multi start writer <span class="built_in">caller</span> default  -Q:writer async_writer -Q:<span class="built_in">caller</span> async_caller -Q:default default -c 7 -l INFO --workdir=<span class="variable">$APP_DIR</span> --logfile=<span class="variable">$CELERY_LOG_PATH</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    sleep 3</span><br><span class="line">    <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        print_succ</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        print_fail</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check_status()</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">if</span> pgrep -f <span class="variable">$APP_PATH</span> &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> is running&quot;</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$NAME</span> is not running&quot;</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> pgrep -f celery &gt; /dev/null 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;celery worker is running&quot;</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       <span class="built_in">echo</span> <span class="string">&quot;celery worker is not running&quot;</span></span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">. /lib/lsb/init-functions</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">	start)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Starting <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">		;;</span><br><span class="line">	stop)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Stopping <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	restart)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Restarting <span class="variable">$DESC</span>...&quot;</span></span><br><span class="line">		stop_service</span><br><span class="line">		stop_worker</span><br><span class="line">        sleep 3</span><br><span class="line">		start_service</span><br><span class="line">        start_worker</span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;Checking...&quot;</span></span><br><span class="line">        check_status</span><br><span class="line">		;;</span><br><span class="line"></span><br><span class="line">	status)</span><br><span class="line">        check_status</span><br><span class="line">        ;;</span><br><span class="line">	*)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;Usage: <span class="variable">$NAME</span> &#123;start|stop|restart|status&#125;&quot;</span> &gt;&amp;2</span><br><span class="line">		<span class="built_in">exit</span> 1</span><br><span class="line">		;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
-
-<p>重点需要关注的是celery multi start的用法，注意start后面跟的是worker的名字（取数据的worker），也可以简单的写3，然后-Q:<em>worker_name</em> <em>queue_name</em>，最后-c是实际的worker（干活的worker）的数目，-Q是给队列指定worker。例子中的语句，意思是启动3个worker，分别命名为writer, caller和default，然后启动3个队列，名字分别是async_writer, async_caller和default，每个worker分配7个进程用来干活。</p>
 
       
     </div>

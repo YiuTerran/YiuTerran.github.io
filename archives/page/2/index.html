@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-count">58</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,220 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/" class="post-title-link" itemprop="url">当代编程语言简评</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-11-09 13:48:16 / 修改时间：17:18:02" itemprop="dateCreated datePublished" datetime="2019-11-09T13:48:16+08:00">2019-11-09</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/11/09/%E5%BD%93%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%AE%80%E8%AF%84/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/09/当代编程语言简评/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>著名大喷子王垠最喜欢点评各种语言的优缺点（当然基本上都是缺点居多），作为技术人也写一篇东西表达一下自己的看法。</p>
+<h3 id="原初"><a href="#原初" class="headerlink" title="原初"></a>原初</h3><p>C和Lisp是流行至今的最古老的两门编程语言，从一开始就走向了不同的道路。</p>
+<p>C：高效、简洁，直接操控内存和cpu，面向机器<br>Lisp：抽象，强大，但是效率不高，gc语言，面向业务</p>
+<p>从这时候开始，语言演化就是在这两门语言的基础上取长补短</p>
+<h3 id="C-gt-ObjectC-C-gt-Rust"><a href="#C-gt-ObjectC-C-gt-Rust" class="headerlink" title="C -&gt; ObjectC/C++ -&gt; Rust"></a>C -&gt; ObjectC/C++ -&gt; Rust</h3><p>C++完全兼容C90，这是它成功的原因，也是它失败的原因。</p>
+<p>C++最开始就是C with class，随着OO的流行，C语言抽象能力不足的问题越来越明显。于是C++之父往里面塞入了类，以及随之而来的各种概念。后来，又加了模版，于是才有了STL。</p>
+<p>C++非常复杂，包含了各种流行的编程范式。抽象能力得到了巨大的补充，但是并没有引入GC，仍然坚持zero-cost abstraction。虽然后来在C++11中引入了智能指针，但是已经有一些积重难返的感觉了。</p>
+<p>OC也是C的超集，设计的更加不爽了，苹果自己也想要用Swift替代之。</p>
+<p>Rust也坚持零成本抽象，但是它另辟蹊径，从语言和编译器层面上试图解决内存问题，引入了生命周期、各类指针等各种复杂的设计。Rust有现代语言完善的包管理系统，这是比C++好的地方，但是它试图解决问题的手段有些奇怪，有时候有一些因噎废食的感觉。这也是我不太看好Rust流行的原因。真正的高手，用Modern C++就够了。</p>
+<h3 id="Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin"><a href="#Smalltalk-gt-C-Java-gt-Scala-gt-Kotlin" class="headerlink" title="Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin"></a>Smalltalk -&gt; C#/Java -&gt; Scala -&gt; Kotlin</h3><p>和C同时期的OO语言，最出名的是Smalltalk（lisp并不是OO语言，它可以抽象出一切，Smalltalk的诞生也是受了lisp的影响）。Java的创造者受够了C++的复杂，决定另起炉灶融合Smalltalk和C++的长处，做出一门新语言。</p>
+<p>Java是工业界长时间以来最流行的语言，虽然C#改进了Java，并引入了linq等方便至极的语法，但是.net core开源的太迟了。</p>
+<p>Java太OO了，这是它成功的地方，也是它失败的地方。Java的流行导致所谓设计模式的泛滥，Java的抽象能力过于局限于OO，导致很多本来很简单的东西写起来复杂无比，Spring这类框架的流行本质上就是在弥补Java语言的缺陷。</p>
+<p>Java7以前的Java足够简单，这为业界量产初级程序员打下了良好的基础。</p>
+<p>Scala是一门学术语言，类似C++，它过于复杂，所以不可能得到流行。Kotlin就好得多，它语言特性优越，并且积极演变。唯一的问题是，它必须运行在jvm上，那到头来你还是承受Java的历史遗留问题。</p>
+<h3 id="Python-Perl-Ruby-Javascript"><a href="#Python-Perl-Ruby-Javascript" class="headerlink" title="Python/Perl/Ruby/Javascript"></a>Python/Perl/Ruby/Javascript</h3><p>虽然动态语言当初走的是完全不同的道路，到最后也慢慢引入类型化，比如Python3也开始支持类型注解，毕竟编译器还是能帮上很多忙的。</p>
+<p>动态语言在开发速度上无与伦比，所以更适合用来搭原型，写脚本。对于I/O密集型工程，也可以选择他们快速开发。</p>
+<p>JS的流行是一个历史上的错误，别的没啥好说的了…</p>
+<h3 id="Erlang-Go-Swift"><a href="#Erlang-Go-Swift" class="headerlink" title="Erlang/Go/Swift"></a>Erlang/Go/Swift</h3><p>Erlang是一门分布式设计语言，它纯粹为了解决工程问题而生，它正确而强大。但是，它的生态不够开放，语法也略显怪异，效率上也不是很尽如人意，所以最终未能大规模流行。</p>
+<p>Go在分布式上做的没有Erlang那么激进，netchan这玩意儿最终还是没有内置到语言里。不过Go的优势是足够快，足够简单。</p>
+<p>Swift目前还是主要用作客户端开发，但是已经开源。啥时候引入async/await以后，也可以用来做服务端开发，可惜没有生态。</p>
+<h3 id="Haskell-OCaml-F"><a href="#Haskell-OCaml-F" class="headerlink" title="Haskell/OCaml/F#"></a>Haskell/OCaml/F#</h3><p>函数式编程语言过于学院派，有一种学之则生，用之则死的感觉，如同Lisp一般。</p>
+<p>不过，他们有一种数学美。</p>
+<h3 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h3><p>PHP没啥好说的，在HTML里面写代码决定了这玩意儿的用处太受限了。如果不是Facebook抱残守缺，早就应该被淘汰了。</p>
+<h3 id="最好的语言"><a href="#最好的语言" class="headerlink" title="最好的语言"></a>最好的语言</h3><p>后端来说，目前就是Java，但是Go2有希望超越。</p>
+<p>顺便说一句，我可不喜欢Java了，我宁愿选Go1。</p>
+<h3 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h3><p>历史并不能给人们以教训，人们总是犯同样的错误。</p>
+<p>C++引入模版，Java和.NET都是半路引入泛型，Go却还要重滔覆辙。C++开始就用异常代替了错误码，Go非要到Go2再还这些技术债，这是何苦。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/" class="post-title-link" itemprop="url">并发编程模型浅谈</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-11-02 09:03:43 / 修改时间：12:07:25" itemprop="dateCreated datePublished" datetime="2019-11-02T09:03:43+08:00">2019-11-02</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/11/02/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%B5%85%E8%B0%88/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/02/并发编程模型浅谈/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>当我们设计一个业务模型的代码架构时，不同语言的选择对我们的思维有很大的影响。本文根据个人经验，以设计斗地主服务器为例，试图总结一下其中的区别。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>主流设计语言中，C/C++甚至没有线程的概念，全靠调用操作系统自己的接口；Python由于GIL的原因，多线程效率十分底下，一般采用多进程模型；Java是最早采用多线程模型的语言；Erlang是内置Actor模型；Golang是内置CSP模型。值得注意的是，对操作系统而言，最底层的就是线程（不过Windows有内置的Fiber），所以协程（coroutine）在任何语言中其实都可以自己实现，多个协程共同运行在同一个线程中。</p>
+<h2 id="多进程设计"><a href="#多进程设计" class="headerlink" title="多进程设计"></a>多进程设计</h2><p>如果选用Python作为目标任务的编程语言，显然应该采用多进程模型，在进程内部可以使用协程来加快速度。比如我们用Tornado来完成这个游戏：</p>
+<ol>
+<li>首先可以设计一个路由服务（HTTP服务），完成用户身份校验后，根据负载均衡算法随机分配一个实例，将websocket监听地址返回给客户端。并将这个分配地址记录下来，供用户断线重连使用；</li>
+<li>Tornado是单进程单线程模型，这里主要完成游戏逻辑。一个新用户加入后，游戏服在内存中遍历有空闲的房间，将用户加入其中。每个房间有自己的id，游戏逻辑本身靠用户动作来驱动，即通过用户动作来修改房间上下文，直到游戏结束；同时游戏可以使用ioloop的定时器来定义超时，代替用户驱动游戏；</li>
+<li>到游戏结算时，需要入库，可以通过线程池的方法避免阻塞，或者用async-http在路由层完成入库操作。</li>
+</ol>
+<h3 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h3><p>上述过程中，可以把路由和Tornado设计到一起，使用类似prefork的方案，在路由进程中启动tornado的进程池，这种情况下可以使用python内置的多进程通信组件（multiprocessing包里面的）。不过这个设计显然不是很好，不符合现在微服务的设计理念。</p>
+<p>将路由和Tornado作为独立的服务，二者之间的进程通信可以用socket（有应答），或者mq等中间件（无应答），同时也将监听的handler加入ioloop的主循环中。</p>
+<p>注意独立进程之间可能存在数据不一致问题，单节点挂掉的话需要考虑如何处理。</p>
+<h2 id="多线程设计"><a href="#多线程设计" class="headerlink" title="多线程设计"></a>多线程设计</h2><p>以Java的Netty为例。其实和多进程差不多，不过这时候路由和游戏本身肯定是在一个进程里作为一个整体的服务了，那么假设这里通过dns进行负载均衡，用户随机连接到一台服务器上。可以通过redis的setnx这种类分布式锁的机制保证用户断线重连到同一台机器。</p>
+<ol>
+<li>一个单独的线程作为路由服务，将用户分配到不同房间；</li>
+<li>建立房间游戏逻辑线程池。这个线程池可以用netty的，也可以用jdk的。不过棋牌类游戏需要使用大量定时器，所以一般还是用netty的。netty的I/O线程和业务线程在这里是分开的，避免相互阻塞；</li>
+<li>只要保证同一个房间的游戏逻辑总是被同一个线程处理，即可达到无锁编程的目的；</li>
+</ol>
+<h3 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>线程间通信的可靠性显然比进程间强了许多，基本无需考虑数据不一致问题。</p>
+<p>一般使用语言自带的组件来完成线程间通信，比如Future/Promise（有应答），或者直接submit到对应的线程（无应答）。耗时任务一般采用线程池的方法来避免阻塞。</p>
+<h2 id="协程设计"><a href="#协程设计" class="headerlink" title="协程设计"></a>协程设计</h2><p>以Go为例。这里就简单多了：</p>
+<ol>
+<li>一个单独的协程完成路由服务；</li>
+<li>每个房间一个单独的协程完成无锁游戏逻辑计算；</li>
+<li>耗时任务单开协程处理，随用随销毁；</li>
+<li>协程间通过channel通信；</li>
+</ol>
+<h2 id="联系与区别"><a href="#联系与区别" class="headerlink" title="联系与区别"></a>联系与区别</h2><p>按着上面这些分析，其实他们的设计思路大体上是一样的。通过IO多路复用，使用尽量少的系统资源完成更多的任务，通过使同一个房间在同一个线程/协程里，尽量达到无锁编程的目的。</p>
+<p>但是由于操作系统的一个基本运行单位是进程，多进程设计其实就是分布式设计。因此多进程需要更多考虑的到数据一致性的问题，进程间通信的代价昂贵。多线程编程和协程其实差不多，但是协程的代价更低，因此可以每个房间一个协程但不能每个房间一个线程。同样，某些耗时的任务协程可以随时开一个新的，用完再销毁。但是线程不行，这么操作的代价有点大，一般需要做一个池化处理。换句话来说，线程编程要更有总体规划一些，要更加精细的设计，因为一个进程最多有几千个线程，但是却可以有上百万个协程。所以Java这边还是建议把耗时操作封装成类，内部使用池化，同时类对外提供阻塞应答和异步调用等常用通信方式。</p>
+<p>同时需要注意的是，IO操作还要关心外部资源的限制。比如MySQL读写，并发量不大的时候，可以随时开一个线程去读。但是并发量有限的情况下，就要池化以限制资源（在Go里面可以通过Channel扇入扇出来限制）。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实道理是相通的，上面的思路其实也大同小异，但是具体到代码的书写难度上，肯定是依次递减的。协程编程的时代早已到来，这也是为啥Go能这么快速流行的一个原因。但是go的channel并不能跨进程通信，所以实际上来说，Erlang这门古早的语言，才是集群设计最终的答案。</p>
+<p>注意不管是哪种方案，都有data race的情况，这取决于你对业务的设计和架构。并发编程虽然比以前简单了很多，但是没想清楚的时候，还是很容易出问题的（而且很难调试）。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1295,277 +1509,6 @@
 <h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
 <p>过期删除使用惰性策略+定期删除。</p>
 <p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/" class="post-title-link" itemprop="url">面试复习纪要.md</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-01-25 12:21:36" itemprop="dateCreated datePublished" datetime="2018-01-25T12:21:36+08:00">2018-01-25</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-10-19 12:33:28" itemprop="dateModified" datetime="2019-10-19T12:33:28+08:00">2019-10-19</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2018/01/25/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/25/面试复习/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>到 30 岁了，突然发现自己还是对编程理解的很浅，在此梳理一下技术栈，并准备新年的面试。</p>
-<p>作为一个服务器开发工程师，涉及的技术相当之多，部分角度的深入理解需要花费大量时间，因此到最后一般是精通某个/几个方向，并对其他方向也有涉猎。</p>
-<h2 id="必备知识"><a href="#必备知识" class="headerlink" title="必备知识"></a>必备知识</h2><ol>
-<li><p>基本数学知识。包括：数据结构、算法；</p>
-</li>
-<li><p>web 相关技术。对于一般以业务为主的公司，这个就是吃饭的本事。细分如下：</p>
-<ul>
-<li>通信相关基础知识，如Http，TCP，UDP，Socket编程等；</li>
-<li>一门编程语言，一个或多个 web 框架。如 PHP + Laraval, Python + Flask, Ruby On Rails, Java + Spring 等；</li>
-<li>理解框架底层原理，如select，epoll或者Java的NIO等设计机制；理解CSP和Actor并发模型；理解大并发下常见的优化策略；</li>
-<li>RDMS，不管是 oracle、mysql 或者 postgresql，除了基本的使用增删改查以外，还要了解常见的优化措施。随着 NewSQL 的兴起，大量分布式云数据库开始出现，如 TiDB, RedShift 和 HyriaDB 等.</li>
-<li>NoSQL，如 Redis，MongoDB 或者 cassandra；</li>
-<li>此外还有内存数据库，其使用和 rdms 基本一致，如 Apache ignite；</li>
-<li>以上数据库针对不同场景和数据量级，做不同的技术选型；</li>
-<li>Linux 的常见使用，运维方向的一些基础知识（Python 和 shell 是必备技能）；</li>
-<li>常见应用层协议：http, https, websocket，rpc</li>
-</ul>
-</li>
-<li><p>分布式相关技术。随着业务的扩展，后端架构的复杂度会指数级上升，单机的性能无法满足业务需求，必须引入分布式系统。</p>
-<ul>
-<li>基本理论。分布式系统非常复杂，必须熟读相关理论，如 CAP，Paxos 等，知道常见的问题和解决方案；</li>
-<li>常见组件，如 docker, etcd等，各自的使用场景和原理；</li>
-<li>常见框架，如 Spring Cloud 以及最新的 Service Mesh 的实现;</li>
-</ul>
-</li>
-<li><p>测试/运维相关技术。如果在小公司，一个后端开发一般同时担任部分运维和测试的职责。</p>
-<ul>
-<li>版本控制相关，严格来说正确使用 git/svn 是所有开发的基本能力；</li>
-<li>自动构建，快速部署。Docker 相关技术；</li>
-<li>线上监控，告警系统；</li>
-<li>自动化测试系统；</li>
-</ul>
-</li>
-<li><p>大数据相关技术。所谓大数据，其实本质上就是 OLAP，由于数据量过大，rdms 已经无法承载对应的数据量和性能需求。</p>
-<ul>
-<li>数据收集：如 flame 等；</li>
-<li>数据存储，如 HBASE，hive 等；</li>
-<li>数据分析：如 spark、Hadoop 等；</li>
-</ul>
-</li>
-<li><p>扯淡的人工智能。 对于大部分公司而言，人工智能是不应被涉足的领域。</p>
-</li>
-</ol>
-<h2 id="深入领域"><a href="#深入领域" class="headerlink" title="深入领域"></a>深入领域</h2><ol>
-<li>整体架构</li>
-</ol>
-<h3 id="并发模型"><a href="#并发模型" class="headerlink" title="并发模型"></a>并发模型</h3><p>目前web架构，单体应用的并发模型，perfork是典型的多进程思路，一个master进程用于接受并分配请求，fork出的worker进程用于处理实际的请求；而Java的BIO是典型的多线程思路；Go对每个连接启用一个goroutine，是典型的多协程思路。</p>
-<p>perfork的worker进程可以用epoll等同时处理多个请求，这是I/O多路复用。Java的NIO也是类似的思路，本质是用事件机制达到更好的cpu利用率，同时加大负载能力。Nginx，uwsgi都是perfork架构的，由于python的GIL问题，uwsgi的worker一般只有一个线程。当然python还有tornado这种框架，也是用event loop的方式实现i/o多路复用。或者说，协程的方式。</p>
-<p>对于异步编程，业界最流行的是async/await其实就是协程模型，协程本质是用户态下的线程，用户可以自己手动切换上下文进行让渡(await即可）；相比之下，goroutine的调度更加简单，因为他是有栈协程，一旦发生IO阻塞，调度器会自行切换协程，用户在编写代码的时候无需关心这一点（当然也可以自己手动切换，用channel阻塞即可）。在和已有第三方组件的对接上，有栈协程可以吊打promise，因为它就是正常的写阻塞代码就行，而async/await会污染所有相关代码，比较麻烦。</p>
-<p>对于Java，默认的BIO就是传统的多线程模型，比如web服务器就是简单的一个请求一个线程，发生IO事件的时候线程也要阻塞等待，浪费cpu；NIO就是收到事件通知（数据就绪）才开始IO（阻塞），也就是io多路复用；AIO就更牛逼了，系统直接告诉你读完了，调你的回调就行。可惜AIO需要操作系统支持，目前只有Windows上的IOCP可以满足这个条件，所以一般不讨论。</p>
-<p>此外，linux2.6以前i/o多路复用使用select，之后使用epoll. 2.6以前accept存在惊群问题，之后内核只会唤醒等待队列上任一个进程。但是epoll也存在惊群问题，多个worker在事件抵达的时候会被同时唤醒。直到linux3.9加入SO_REUSEPORT特性，允许多个进程监听同一端口，将listen从master进程移入worker进程，这个问题才得到解决。</p>
-<h3 id="单体架构"><a href="#单体架构" class="headerlink" title="单体架构"></a>单体架构</h3><p>经典的MVC结构。旧时代里，asp/jsp/php以及集大成者的ror都是mvc结构，前后端不分离，直接由服务器渲染出页面。ror之所以流行，是因为其约定大于配置的设计大幅度简化了开发流程，SpringBoot相对于SpringMVC其实只是引入了这一思想进行简化。</p>
-<p>自从前端工程化以来，前后端基本分离，后端仅仅提供API接口，这时候的单体应用更加简单。随着服务规模的越发庞大，单体后端承担的职能越来越多，需要对服务进行拆分以减少体积和维护难度。</p>
-<h3 id="SOA和微服务"><a href="#SOA和微服务" class="headerlink" title="SOA和微服务"></a>SOA和微服务</h3><p>微服务其实只是对SOA做了更细粒度的优化。拆分服务引来的问题包括：服务间通信和分布式事务。服务间通信可以通过一个集中的渠道，即所谓的通信总线（API网关）；也可以直接相互通信。使用HTTP的话，直接用DNS和Nginx就可以做API网关了；使用rpc的话，比如grpc也提供了生成API网关的方法。</p>
-<p>微服务还引入了服务熔断、配置分发、服务发现等组件，这些也是需要关注的。</p>
-<h3 id="Spring-Cloud和Service-Mesh"><a href="#Spring-Cloud和Service-Mesh" class="headerlink" title="Spring Cloud和Service Mesh"></a>Spring Cloud和Service Mesh</h3><p>这是两种不同的微服务思路，前者是一个框架，由各种组件构成，应用代码里明确知道这些组件的存在并需要进行处理；后者是外挂式的组件，代码对组件是无感知的，比如连接集群和连接单点都是通过proxy，代码不关心自己连的是什么。一个简单的例子，mysql分库分片可以用proxy来完成，也可以在代码里写死。显然service mesh更符合低耦合的思路，也是微服务真正的未来。</p>
-<ol>
-<li>编程语言</li>
-</ol>
-<p>虽然理论上来说，通用设计语言可以完成的事情都是一致的，不过各语言的特性和历史的沉淀导致了如今的情况是这样的：</p>
-<pre><code>* 前端领域js独占鳌头，es6以后js语言基本完善了；当然强类型的TS也有它的优势；
-* 后端领域Java占了半壁江山，这不是因为Java多么牛逼，完全是历史的沉淀导致。Java至今没有协程支持（project loom遥遥无期），编写繁琐，很多人讨厌。Go是冉冉上升的另一个明星，简单的语法、快速的开发速度、强有力的并发模型；当然缺点是不支持泛型和繁琐的错误处理。Go2会解决这些问题，希望早点来到。除了这两个以外，其他的语言在服务端领域基本上都会被淘汰，比如Python其实更适合做快速原型，所以更适合非工程人士，当然拿来写个脚本也是极好的；
-* 大数据领域基本还是Java/Scala的天下，当然基本也支持python了。个人感觉Scala过于复杂了，还是尽量灭了吧；
-* 高性能领域仍然是C/C++的天下，Rust也开始逐渐普及。不过Rust还是有很多坑，且门槛太高，短时间内个人不再看好；
-* 客户端领域语言就比较复杂了。Windows还是C#的天下，Android则是Java和Kotlin，苹果的是swift和oc；新兴框架中，flutter的dart也是很重要的；
-</code></pre>
-<p>总结来说，当前后端开发应该掌握的语言包括：Bash/C/C++/Java/Python和Go，可以学习的语言包括Rust. php/nodejs/ruby的存在完全是历史意义上的，基本没有存在价值。在通信协议上，HTTP1/2/3都会逐渐流行，websocket的效率则更高。grpc是over http2的，这个设计很蛋疼，很多时候不如自己rpc over websocket实用。</p>
-<ol>
-<li>常用框架源码</li>
-</ol>
-<ul>
-<li>python的常用框架：django/flask/tornado/greenlet/celery/sqlalchemy</li>
-<li>java的常用框架：spring/springMVC/springBoot/springCloud/Netty</li>
-<li>go的常用框架：gin/fasthttp</li>
-</ul>
-<ol>
-<li>常用组件源码</li>
-</ol>
-<ul>
-<li>db级别的估计只能看看sqlite了</li>
-<li>mq可以研究一下zeromq、kafka和rabbitmq</li>
-<li>各类分布式相关组件</li>
-</ul>
-<ol start="2">
-<li>数据库优化</li>
-</ol>
-<ul>
-<li>mysql通过执行计划、慢查询日志进行优化，各类索引添加等</li>
-<li>redis使用优化，事务粒度，数据结构，pipeline等</li>
-<li>es优化，JVM参数，分词，shard设置等</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">SpringMvc4 Rest Api最佳实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-07-16 10:33:34" itemprop="dateCreated datePublished" datetime="2017-07-16T10:33:34+08:00">2017-07-16</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-08-29 10:25:44" itemprop="dateModified" datetime="2019-08-29T10:25:44+08:00">2019-08-29</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/07/16/SpringMvc4-Rest-Api%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/16/SpringMvc4-Rest-Api最佳实践/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>因为项目的需求更改，部分API与JSP之间的交互方式由直接渲染改成ajax，所以需要调研SpringMVC在Rest上最佳实践。下面是汇总的内容，参考了网上的一些文章。</p>
-<h2 id="所谓IOC"><a href="#所谓IOC" class="headerlink" title="所谓IOC"></a>所谓IOC</h2><p>Spring最常提起的是AOP和IOC两大作用，他们主要解决了……Emmm，Java语言设计的问题。由于Java是Pure OO语言，很多时候写起来非常繁琐。Spring IOC一个大工厂，在配置文件或者代码里把类注册成Bean（可以指定构造函数的参数和bean的id等），然后框架再把这些Bean注入到<code>@Autowired</code>(按类型注入)，<code>@Resource</code>(按名称)等注解的变量（也可以使用XML配置的方式注入）。</p>
-<p>默认情况下，注册的都是一个单例，spring每次创建新对象时都使用同一个对象。也可以在xml中配置为<code>prototype</code>，这时候就是每次new一个新的对象了。另外spring mvc另外加了两个生命周期：session和request，分别表示为单次请求和session有效期内的对象。使用<code>@Scope</code>修改生命周期（作用域）。</p>
-<p>可以使用<code>@PostConstruct</code>和<code>@PreDestroy</code>注册两个回调方法，在spring实例化Bean（并装配）后回调对象对应的方法。</p>
-<p>一般使用<code>@Component</code>注册bean，<code>@Service</code>, <code>@Controller</code>和<code>@Repository</code>都是其别名。</p>
-<p>此外，还可以使用配置类(<code>@Configuration</code>)代替xml注册bean(<code>@Bean</code>)，在其注解的方法内进行恰当的初始化，并返回一个对象注册为Bean. <code>@Configuration</code>具有<code>@Component</code>的作用，在类里面也可以直接注入。但是如果想要引用其他配置类的Bean，需要使用<code>@import</code>.</p>
-<h2 id="所谓AOP"><a href="#所谓AOP" class="headerlink" title="所谓AOP"></a>所谓AOP</h2><p>可以简单理解为python中的装饰器…由于Java语法不支持装饰器，想要完成类似装饰器的用法，只能通过反射。比如，先声明一个类，完成主要的工作，称为target. 再通过一个类实现<code>org.springframework.aop.MethodBeforeAdvice</code>，其参数中捕获target的参数完成前置工作。最后通过spring的<code>ProxyFactory</code>生成代理工厂，设置target并添加advice，最后用代理工厂生成实例。</p>
-<p>需要注意的是，Java本身的动态代理是基于接口的。对于没有实现任何接口的类，只能通过CGLIB通过继承进行代理，但是后者显然不支持final类。spring在生成对象时会优先选择JDK代理，不行再尝试CGLIB代理。</p>
-<p>当然，除了在代码中使用，也可以用xml配置（实际上Java很多代码都可以通过xml实现，这也是非常惹人生厌的地方）。</p>
-<p>最后，还可以用一种特殊的声明方式：<code>AspectJ</code>。这种方式的好处是，对方法的调用者而言，这种增强是透明的。也就是说，他可以直接用<code>getBean(target)</code>来获取bean实例，然后在调用方法的时候，实际上调用的是代理增强后的方法。也就是说，更加解耦。</p>
-<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a>分层</h2><p>顾名思义，就是传统的MVC。model层就是一般的POJO(DO)，DAO层一般用mybatis，service层用<code>@Service</code>注册，view层用<code>@RestController</code>注册rest api，用<code>@RequestMapping</code>绑定路由。使用<code>@PathVaribale</code>取url中的参数，用<code>@RequestHeader</code>取header中的数据，用<code>@CookieValue</code>取cookie中的数据，用<code>@RequestBody</code>将json转为object，用<code>@ResponseBody</code>将返回值转为json.</p>
-<p>参数有效性检测一般用<code>JSR-303</code>，使用<code>@NotNull</code>、<code>@Max</code>, <code>@Min</code>, <code>@Length</code>等注解，使用<code>@Valid</code>配合上面的<code>@RequestBody</code>一次性完成检测和转换。</p>
 
       
     </div>
