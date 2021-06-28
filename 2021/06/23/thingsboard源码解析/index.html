@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="看的源码是最新的3.2 release版本，目前支持的最低JDK版本是11. 如果本地默认jdk是8的话，可以用jenv标记成11. 项目使用了lombok插件，构建系统为Gradle混合maven，通信使用了Protobuf，相关知识可以先自行补完。 另外，请一定要首先阅读thingsboard官方文档中key concepts这一节，明白它的抽象模型。 准备工作首先IDE需要安装lombok和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="thingsboard源码解析">
+<meta property="og:url" content="http://yiuterran.github.io/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="看的源码是最新的3.2 release版本，目前支持的最低JDK版本是11. 如果本地默认jdk是8的话，可以用jenv标记成11. 项目使用了lombok插件，构建系统为Gradle混合maven，通信使用了Protobuf，相关知识可以先自行补完。 另外，请一定要首先阅读thingsboard官方文档中key concepts这一节，明白它的抽象模型。 准备工作首先IDE需要安装lombok和">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-23T07:11:28.000Z">
+<meta property="article:modified_time" content="2021-06-28T06:54:03.312Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="thingsboard">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>thingsboard源码解析 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E4%BD%93%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">主体结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#actor%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">actor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91"><span class="nav-number">2.2.</span> <span class="nav-text">设备数据处理逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1-msa-%E9%83%A8%E7%BD%B2"><span class="nav-number">2.3.</span> <span class="nav-text">微服务(msa)部署</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          thingsboard源码解析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-23 15:11:28" itemprop="dateCreated datePublished" datetime="2021-06-23T15:11:28+08:00">2021-06-23</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-06-28 14:54:03" itemprop="dateModified" datetime="2021-06-28T14:54:03+08:00">2021-06-28</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/06/23/thingsboard源码解析/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>看的源码是最新的3.2 release版本，目前支持的最低JDK版本是11. 如果本地默认jdk是8的话，可以用<code>jenv</code>标记成11.</p>
+<p>项目使用了lombok插件，构建系统为Gradle混合maven，通信使用了Protobuf，相关知识可以先自行补完。</p>
+<p>另外，请一定要首先阅读<a target="_blank" rel="noopener" href="https://thingsboard.io/docs/user-guide/entities-and-relations/">thingsboard官方文档</a>中<strong>key concepts</strong>这一节，明白它的抽象模型。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先IDE需要安装lombok和Protobuf相关插件，有个proto文件生成的java代码过大(<code>TransportProtos</code>)，默认是不会解析的。需要编辑ide的属性(Help-Edit Custom Properties)，加入<code>idea.max.intellisense.filesize=3000</code>，将上限提高到3M.</p>
+<p>先在本地编译一下代码：<code>mvn clean install -Dmaven.test.skip=true</code>.</p>
+<p>如果在编译过程中提示找不到Gradle，检查全局maven的<code>settings.xml</code>，参考配置如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirrors</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-central<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-central<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/central<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-jcenter<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>jcenter<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-jcenter<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/jcenter<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-google<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>google<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-google<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/google<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-gradle<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>gradle-plugin<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-gradle<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/gradle-plugin<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-spring<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>spring<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-spring<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/spring<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-spring-plugin<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>spring-plugin<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-spring-plugin<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/spring-plugin<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-grails-core<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>grails-core<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-grails-core<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/grails-core<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyun-apache-snapshots<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>apache snapshots<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun-apache-snapshots<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/nexus/content/repositories/apache-snapshots<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里将大部分常用的仓库替换成阿里的代理，正常的话，就可以编译成功了。</p>
+<h2 id="主体结构"><a href="#主体结构" class="headerlink" title="主体结构"></a>主体结构</h2><p>根目录下分为以下几个文件夹：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">├── application # 主服务，单体部署时该服务就是最后跑的jar包</span><br><span class="line">├── common # 通用组件</span><br><span class="line">├── dao # 数据库dao层</span><br><span class="line">├── docker # 容器化部署所需要的docker配置文件和各种脚本</span><br><span class="line">├── img # logo文件夹</span><br><span class="line">├── k8s # k8s部署需要的配置文件和脚本</span><br><span class="line">├── msa # 微服务部署需要的maven子项目</span><br><span class="line">├── netty-mqtt # 使用netty实现的mqttv3服务器</span><br><span class="line">├── packaging # Gradle打包脚本，用于将前后端打包成rpm&#x2F;deb包</span><br><span class="line">├── rest-client # 测试用的rest客户端（可以忽略）</span><br><span class="line">├── rule-engine # 规则引擎</span><br><span class="line">├── tools # 一个迁移pg数据到timescaledb的工具</span><br><span class="line">├── transport # msa部署时独立的接入层服务</span><br><span class="line">└── ui-ngx # 前端项目，基于angular</span><br></pre></td></tr></table></figure>
+
+<p>其中netty-mqtt这个库应该是fork了<a target="_blank" rel="noopener" href="https://github.com/jeffreykog/netty-mqtt%E8%BF%99%E4%B8%AA%E5%BA%93%EF%BC%8C%E7%AE%80%E5%8D%95%E6%94%B9%E4%BA%86%E4%B8%80%E4%BA%9B%E4%BB%A3%E7%A0%81%E3%80%82">https://github.com/jeffreykog/netty-mqtt这个库，简单改了一些代码。</a></p>
+<p>顶级transport文件夹下其实没有业务代码，只是一个独立的springboot application。真正的业务代码在<code>common/transport</code>下，通过<code>pom.xml</code>和 <code>ComponentScan</code>将对应的包加到依赖里，并随着springboot启动而自启动。</p>
+<h3 id="actor模型"><a href="#actor模型" class="headerlink" title="actor模型"></a>actor模型</h3><p>首先要看一下这里tb自己实现的actor模型（替换掉原来的akka），在<code>common/actor</code>这里。actor模型是规则引擎的基础，规则链上每一个结点都是一个actor，显然这里如果用go的话，每个做一个goroutine就行；actor这里是创建了各类消息的一堆线程池。</p>
+<p>自己写结点只需要用<code>@RuleNode</code>注解，然后实现<code>TbNode</code>接口就行。</p>
+<p>actor服务的入口在application下的<code>DefaultActorService</code>，这里初始化了整个actor系统。</p>
+<p><code>DefaultTbRuleEngineConsumerService</code>和<code>DefaultTbCoreConsumerService</code>是调用actor的入口，<code>AbstractConsumerService.onApplicationEvent</code>这里会在服务启动完毕之后拉起所有的消息队列consumer.</p>
+<h3 id="设备数据处理逻辑"><a href="#设备数据处理逻辑" class="headerlink" title="设备数据处理逻辑"></a>设备数据处理逻辑</h3><p>接入层的代码处理逻辑其实差不多，只是支持的协议不一样。</p>
+<p>查看mqtt的<code>MqttTransportHandler</code>中的<code>processMqttMsg</code>-&gt;<code>processPublish</code>-&gt;<code>processDevicePublish</code>，处理代码定位到<code>DefaultTransportService.process</code>中：</p>
+<ul>
+<li>处理消息时调用了<code>DefaultTransportService.process(deviceSessionCtx.getSessionInfo(), postTelemetryMsg, getPubAckCallback(ctx, msgId, postTelemetryMsg))</code>，这里创建了包装消息TbMsg；</li>
+<li><code>getPubAckCallback</code>显然传入了个处理ack的回调函数，正常才会ack，异常就直接disconnect了。另外process代码中有流量控制（基于bucket4j的令牌桶）；</li>
+<li>然后调用<code>sendToRuleEngine(tenantId, deviceId, sessionInfo, json, metaData, SessionMsgType.POST_TELEMETRY_REQUEST, packCallback)</code>将消息发往规则引擎；注意这里除了遥测数据外，有些数据调用的是<code>sendToDeviceActor</code>，将数据发往core；</li>
+<li><code>packCallback</code>在原来callback的基础上wrapper了一些信息，最后调用实际MQ的send实现；</li>
+<li>假设用的是kafka，这里就是调用<code>TbKafkaProducerTemplate.send</code>将数据放入消息队列，消息的类型是<code>TbProtoQueueMsg&lt;ToRuleEngineMsg&gt;</code>；</li>
+<li>查看thingsboard.yml，可以看到默认的ack设置是all，所以发送端没有exception才会ack，有异常就直接断开连接了；</li>
+</ul>
+<p>所以从发送端来看，接受mqtt消息-&gt;pub到kafka-&gt;wait ack-&gt; ack mqtt的逻辑没有问题，在这里<strong>消息不会丢失</strong>。</p>
+<p>下面看消费端的逻辑：</p>
+<p>消费端的入口比较难找，倒着来看，先找存储到db的代码，最后发现相关逻辑就在于<code>DefaultTelemetrySubscriptionService.saveAndNotify</code>这个方法里。调用方是<code>TbMsgTimeseriesNode.onMsg</code>，因此这里应用了上文所说的actor模型，即存储也是通过规则引擎完成的。</p>
+<p>根据actor模型的入口<code>DefaultTbRuleEngineConsumerService</code>，查看<code>launchConsumer</code>的代码，可以看到这里取出了发送端入列的<code>TbProtoQueueMsg&lt;ToRuleEngineMsg&gt;</code>，然后调用<code>forwardToRuleEngineActor</code>将消息转发给规则引擎。callback在这里被创建，实际调用<code>TbMsgPackProcessingContext</code>的callback，查看实现发现核心逻辑在<code>submitStrategy</code>的callback，而这提交策略来自于<code>ruleEngineSettings.queues</code>，需要查看配置文件<code>thingsboard.yaml</code>里面的<code>queue.rule-engine.queues</code>，这里面根据队列的名称有不同的提交策略。</p>
+<p>查看提交策略相关代码，会发现队列名字取决于设备本身的<code>deviceProfile</code>。查看<a target="_blank" rel="noopener" href="https://thingsboard.io/docs/user-guide/device-profiles/">官方文档</a>，会发现默认队列都是Main，此时提交策略是<code>BURST</code>，查看其实现代码，会发现<code>doOnSuccess</code>啥也没做。那么消费端的确认在哪里呢，回到<code>DefaultTbRuleEngineConsumerService</code>，会发现在这里直接就调用<code>consumer.commit()</code>了，并没有等待规则链调用完毕再进行消费确认。</p>
+<p>所以<strong>消息的丢失是因为消费端并未等待真正落地才commit offset</strong>，而是转发给规则引擎后就立刻提交了。</p>
+<p><strong>FIXME</strong>：存储到db层不应该走规则引擎，而是直接存储完成后再触发规则引擎。不过这种设计要考虑如何让应用层自定义数据验证、清洗的逻辑。</p>
+<p>其他设备相关的逻辑，比如设备连接/断开，设备命令等，也是类似的抽象成各种事件，最后使用规则引擎来处理。</p>
+<h3 id="微服务-msa-部署"><a href="#微服务-msa-部署" class="headerlink" title="微服务(msa)部署"></a>微服务(msa)部署</h3><p>从上面可以看出，tb的核心就是<strong>规则引擎</strong>，主要逻辑就是由规则引擎和接入层构成，存储只是规则引擎的一个节点。</p>
+<p>msa这块，tb最开始作为单体服务设计，后面就是把这个单体服务拆分成msa.可以看<a target="_blank" rel="noopener" href="https://thingsboard.io/docs/reference/msa/">官方架构文档</a>明白大概设计。</p>
+<p>查看docker-compose文件，可以看到大致分为以下几个服务：</p>
+<ul>
+<li><p>zookeeper. kafka依赖，thingsboard节点服务发现；</p>
+</li>
+<li><p>Kafka. 通信依赖；</p>
+</li>
+<li><p>redis. 缓存；</p>
+</li>
+<li><p>tb-js-executor. 独立的js解释器，基于node.js；单体部署的时候，用的是嵌入式js执行器；</p>
+</li>
+<li><p>主服务. 包括：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://thingsboard.io/docs/reference/rest-api/">REST API</a> calls;</li>
+<li>WebSocket <a target="_blank" rel="noopener" href="https://thingsboard.io/docs/user-guide/telemetry/#websocket-api">subscriptions</a> on entity telemetry and attribute changes;</li>
+<li>Processing messages via <a target="_blank" rel="noopener" href="https://thingsboard.io/docs/user-guide/rule-engine-2-0/re-getting-started/">rule engine</a>;</li>
+<li>Monitoring device <a target="_blank" rel="noopener" href="https://thingsboard.io/docs/user-guide/device-connectivity-status/">connectivity state</a> (active/inactive).</li>
+</ul>
+<p>后续版本会把规则引擎移出去作为一个独立的服务。</p>
+</li>
+<li><p>前端web-ui服务；</p>
+</li>
+<li><p>接入层独立服务(mqtt/http/coap)；</p>
+</li>
+</ul>
+<p>可以看到各独立服务和单体的时候的区别就是加了个独立的入口，使得bean在不同的进程中运行而已。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/thingsboard/" rel="tag"># thingsboard</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/06/21/thingsboard%E5%8E%8B%E6%B5%8B%E6%8A%A5%E5%91%8A/" rel="prev" title="thingsboard压测报告">
+                  <i class="fa fa-chevron-left"></i> thingsboard压测报告
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/23/gradle%E9%80%9F%E6%88%90/" rel="next" title="gradle速成">
+                  gradle速成 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yiuterran.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yiuterran.github.io/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/";
+    this.page.identifier = "2021/06/23/thingsboard源码解析/";
+    this.page.title = "thingsboard源码解析";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yiuterran.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

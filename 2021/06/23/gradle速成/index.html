@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="groovy语法简介先装个groovy，brew install groovy，然后groovysh进入命令行。注意dock里面会出现一个图标，这点比较蛋疼。  语法其实蛮类似js，但是是强类型，用def声明变量支持类型推断，也可以直接声明类型；  内置List[]和Map[:]，Map用索引操作符和dot效果一致。使用&lt;&lt;向List&#x2F;Map中append元素；  支持闭包，直接用de">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gradle速成">
+<meta property="og:url" content="http://yiuterran.github.io/2021/06/23/gradle%E9%80%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="groovy语法简介先装个groovy，brew install groovy，然后groovysh进入命令行。注意dock里面会出现一个图标，这点比较蛋疼。  语法其实蛮类似js，但是是强类型，用def声明变量支持类型推断，也可以直接声明类型；  内置List[]和Map[:]，Map用索引操作符和dot效果一致。使用&lt;&lt;向List&#x2F;Map中append元素；  支持闭包，直接用de">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-23T07:55:14.000Z">
+<meta property="article:modified_time" content="2021-06-24T02:11:27.791Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="gradle">
+<meta property="article:tag" content="groovy">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2021/06/23/gradle%E9%80%9F%E6%88%90/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>gradle速成 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#groovy%E8%AF%AD%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">groovy语法简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gradle%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">gradle基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#java%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">java构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gradle%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">gradle配置项</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/06/23/gradle%E9%80%9F%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gradle速成
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-23 15:55:14" itemprop="dateCreated datePublished" datetime="2021-06-23T15:55:14+08:00">2021-06-23</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-06-24 10:11:27" itemprop="dateModified" datetime="2021-06-24T10:11:27+08:00">2021-06-24</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/06/23/gradle%E9%80%9F%E6%88%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/06/23/gradle速成/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="groovy语法简介"><a href="#groovy语法简介" class="headerlink" title="groovy语法简介"></a>groovy语法简介</h2><p>先装个groovy，<code>brew install groovy</code>，然后<code>groovysh</code>进入命令行。注意dock里面会出现一个图标，这点比较蛋疼。</p>
+<ul>
+<li><p>语法其实蛮类似js，但是是强类型，用<code>def</code>声明变量支持类型推断，也可以直接声明类型；</p>
+</li>
+<li><p>内置List<code>[]</code>和Map<code>[:]</code>，Map用索引操作符和dot效果一致。使用<code>&lt;&lt;</code>向List/Map中append元素；</p>
+</li>
+<li><p>支持闭包，直接用<code>def a = &#123;k-&gt; println k&#125;</code>声明，隐藏参数<code>it</code>. </p>
+</li>
+<li><p>支持类似bash的字符串格式化，即<code>$&#123;var&#125;</code>;支持三引号的多行字符串；单双引号使用类似bash；</p>
+</li>
+<li><p>支持范围赋值<code>1..5</code>，支持直接写出正则（类似js），用 <code>=~</code>判断match；</p>
+</li>
+<li><p>类默认public；<strong>顶级表达式支持省略括号</strong>；</p>
+</li>
+<li><p>支持属性，可以直接赋值，但是也会隐式生成getter和setter以便和java保持兼容;</p>
+</li>
+<li><p>支持命名参数，默认构造函数可以直接通过命名赋值；</p>
+</li>
+<li><p>多属性赋值支持with语法；</p>
+</li>
+<li><p>支持<code>?</code>非空判断，支持直接用<code>==</code>判断等于，判断同一个对象用<code>is</code>；</p>
+</li>
+<li><p>更强的switch（类似模式匹配）；</p>
+</li>
+<li><p>True/False的判断类似python；</p>
+</li>
+<li><p>groovy的方法重载，命中优先的是运行时类型（而不是声明时类型）；</p>
+</li>
+</ul>
+<h2 id="gradle基本概念"><a href="#gradle基本概念" class="headerlink" title="gradle基本概念"></a>gradle基本概念</h2><ol>
+<li>projects和tasks，范围概念，从<code>&lt;&lt;</code>语法来看，tasks显然是一个List，可以通过<code>doFirst</code>和<code>doLast</code>在头部和尾部插入任务；</li>
+<li>task可以配置type，相当于父类；</li>
+<li>task里面写具体的groovy代码，执行具体的业务；</li>
+<li>可以动态创建task；</li>
+<li>task可以被跳过，使用<code>onlyIf</code>或者抛出<code>StopExecutionException</code>，或者将task的<code>enabled</code>属性设为false；</li>
+<li>定义任务的inputs和outputs属性，Gradle会通过快照对比，确定该任务是否需要执行。一个例子是C++的单文件编译，如果代码没有修改的话，就不需要再编译了。合理设置会大幅提升编译速度；</li>
+<li>可以用<code>finalizedBy</code>来指定finally任务；</li>
+<li><code>file</code>函数总是相对于Gradle文件的路径，</li>
+<li>Gradle的运行有配置阶段和执行阶段，可以加入对应的hook函数；</li>
+<li>任务之间用<code>dependsOn</code>声明依赖，也可以用<code>taskA.mustRunAfter taskB</code>之类的声明强依赖；</li>
+<li>可以直接声明函数供其他调用；</li>
+</ol>
+<h2 id="java构建"><a href="#java构建" class="headerlink" title="java构建"></a>java构建</h2><p>Gradle是一个配置工具，可以用来编译打包各种类型的项目。如果要用来搞java，就加入<code>apply plugin: &#39;java&#39;</code>引入java插件，它会自动引入各种task。比如使用<code>gradle build</code>跑编译。</p>
+<p>源文件路径：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sourceSets&#123;</span><br><span class="line">    <span class="comment">//修改默认目录，下面还是和默认位置一样，如需配置其他目录修改即可</span></span><br><span class="line">    main&#123;</span><br><span class="line">        java&#123;</span><br><span class="line">            srcDir <span class="string">&#x27;src/java&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">        resources&#123;</span><br><span class="line">            srcDir <span class="string">&#x27;src/resources&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>依赖，指明maven中央仓库：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后加入依赖：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile <span class="attr">group:</span> <span class="string">&#x27;commons-collections&#x27;</span>, <span class="attr">name:</span> <span class="string">&#x27;commons-collections&#x27;</span>, <span class="attr">version:</span> <span class="string">&#x27;3.2&#x27;</span></span><br><span class="line">    testCompile <span class="attr">group:</span> <span class="string">&#x27;junit&#x27;</span>, <span class="attr">name:</span> <span class="string">&#x27;junit&#x27;</span>, <span class="attr">version:</span> <span class="string">&#x27;4.+&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后是编译task、测试task和打包task。</p>
+<h2 id="gradle配置项"><a href="#gradle配置项" class="headerlink" title="gradle配置项"></a>gradle配置项</h2><p>类似<code>pom.xml</code>，Gradle有个<code>build.gradle</code>的配置文件。</p>
+<p>gradle这个项目严格来说做的<strong>很差</strong>，各版本之间兼容性不佳，所以最好直接看需要使用版本的官方文档，网上的教程极可能不适合你在用的版本。</p>
+<p>这玩意儿很难不让人想起前端领域的webpack.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/gradle/" rel="tag"># gradle</a>
+              <a href="/tags/groovy/" rel="tag"># groovy</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/06/23/thingsboard%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" rel="prev" title="thingsboard源码解析">
+                  <i class="fa fa-chevron-left"></i> thingsboard源码解析
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yiuterran.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yiuterran.github.io/2021/06/23/gradle%E9%80%9F%E6%88%90/";
+    this.page.identifier = "2021/06/23/gradle速成/";
+    this.page.title = "gradle速成";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yiuterran.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>
