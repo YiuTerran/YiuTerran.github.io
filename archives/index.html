@@ -250,7 +250,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-06-30 09:39:48" itemprop="dateModified" datetime="2021-06-30T09:39:48+08:00">2021-06-30</time>
+        <time title="修改时间：2021-06-30 09:50:17" itemprop="dateModified" datetime="2021-06-30T09:50:17+08:00">2021-06-30</time>
       </span>
 
   
@@ -632,7 +632,7 @@
 <p>事件上报同样由专门的模块实现，其他模块调用该模块的<code>call</code>来上报事件。为了防止数据丢失，必须保证数据放入kafka(ack all)后，再对设备端发ack. 当然设备端必须有重发机制，否则无论如何设备数据都可能丢失。</p>
 <p>如果简化设计，可以使用kafka全异步通信，将所有Event和Command都是通过kafka来传递。<strong>以下会按全异步设计来写具体方案</strong>，同步设计只需要用上面的<code>result</code>进行转换，也可以在平台外面wrapper一层同步的HTTP/RPC接口。</p>
 <p>接入层架构图如下：</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1grz1db2z9nj31fq0tin17.jpg" alt="image-20210629124333450"></p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gs01yzlpaaj31fq0ragpz.jpg" alt="image-20210630095010872"></p>
 <p>这里标准MQTT还是选择用emqx作为broker，thingsboard内置的mqtt服务与thingsboard平台深度绑定，不建议使用。</p>
 <p>接入层可以任意水平扩展，但是如果设备与服务端使用的是长连接，此时如果想要给设备发送命令，就必须知道设备实际连接到哪个结点了。下文会在<strong>设备状态维护</strong>里谈到该问题的解决方案。</p>
 <h3 id="接入模块作为客户端"><a href="#接入模块作为客户端" class="headerlink" title="接入模块作为客户端"></a>接入模块作为客户端</h3><p>理想情况下，接入模块应该是作为服务端，设备主动向平台发送数据。但是实际上设备很多时候连接了厂商的中控平台或者云平台。此时连接模块只能作为客户端，主动向中间平台请求数据。</p>
