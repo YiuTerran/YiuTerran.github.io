@@ -30,13 +30,13 @@
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="概述目前设计的物联网平台（以下简称平台）主要负责以下事宜：  设备管理。设备模型抽象、相关数据维护； 设备接入。即所有设备的连接工作； 设备事件上报。设备事件接收-&gt;清洗-&gt;进入MQ的通用流程； 平台命令下发。提供接口给应用平台，后者可以给设备下命令； 设备状态维护。在离线、活跃、不活跃等状态； [可选]规则引擎。提供通用抽象功能，允许应用平台创建规则触发某些预定义动作。比如温度&amp;gt">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gs01yzlpaaj31fq0ragpz.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gs2bfhy91vj31gi0rejvv.jpg">
 <meta property="article:published_time" content="2021-06-28T07:42:28.000Z">
-<meta property="article:modified_time" content="2021-06-30T01:50:17.552Z">
+<meta property="article:modified_time" content="2021-07-02T01:37:51.461Z">
 <meta property="article:author" content="tryao">
 <meta property="article:tag" content="iot">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gs01yzlpaaj31fq0ragpz.jpg">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNgy1gs2bfhy91vj31gi0rejvv.jpg">
 
 
 <link rel="canonical" href="http://yiuterran.github.io/2021/06/28/iot%E6%8E%A5%E5%85%A5%E5%B9%B3%E5%8F%B0%E8%90%BD%E5%9C%B0%E6%96%B9%E6%A1%88/">
@@ -165,7 +165,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B%E6%8A%BD%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">设备模型抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%9E%8B%E7%AE%A1%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">设备类型管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E5%93%81%E7%89%8C%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">设备品牌管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%81%E7%89%8C%E5%9E%8B%E5%8F%B7%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">品牌型号管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E9%A9%B1%E5%8A%A8%E7%AE%A1%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">连接驱动管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A9%B1%E5%8A%A8%E5%85%B3%E8%81%94%E7%AE%A1%E7%90%86"><span class="nav-number">2.5.</span> <span class="nav-text">驱动关联管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A9%B1%E5%8A%A8%E5%8F%82%E6%95%B0%E7%AE%A1%E7%90%86"><span class="nav-number">2.6.</span> <span class="nav-text">驱动参数管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E4%BA%8B%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-number">2.7.</span> <span class="nav-text">设备事件管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E5%91%BD%E4%BB%A4%E7%AE%A1%E7%90%86"><span class="nav-number">2.8.</span> <span class="nav-text">设备命令管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6-%E5%91%BD%E4%BB%A4%E5%85%B3%E8%81%94%E7%AE%A1%E7%90%86"><span class="nav-number">2.9.</span> <span class="nav-text">事件&#x2F;命令关联管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E7%BC%98%E7%BD%91%E5%85%B3%E7%AE%A1%E7%90%86"><span class="nav-number">2.10.</span> <span class="nav-text">边缘网关管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E4%BA%A7%E7%AE%A1%E7%90%86"><span class="nav-number">2.11.</span> <span class="nav-text">资产管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5"><span class="nav-number">3.</span> <span class="nav-text">设备接入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%85%A5%E6%A8%A1%E5%9D%97%E4%BD%9C%E4%B8%BA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">3.1.</span> <span class="nav-text">接入模块作为客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BA%A4%E4%BA%92"><span class="nav-number">4.</span> <span class="nav-text">数据交互</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E4%BA%8B%E4%BB%B6%E4%B8%8A%E6%8A%A5"><span class="nav-number">4.1.</span> <span class="nav-text">设备事件上报</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81%E7%BB%B4%E6%8A%A4"><span class="nav-number">4.2.</span> <span class="nav-text">设备连接状态维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%91%BD%E4%BB%A4%E4%B8%8B%E5%8F%91"><span class="nav-number">4.3.</span> <span class="nav-text">应用命令下发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E9%85%8D%E7%BD%AE%E5%8F%98%E6%9B%B4"><span class="nav-number">4.4.</span> <span class="nav-text">运行时配置变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E4%BA%91%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">4.5.</span> <span class="nav-text">边云数据同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.6.</span> <span class="nav-text">微服务设计汇总</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.</span> <span class="nav-text">组件使用汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kafka%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.1.</span> <span class="nav-text">kafka相关设计汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redis%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.2.</span> <span class="nav-text">redis相关设计汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mqtt%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.3.</span> <span class="nav-text">mqtt设计汇总</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E"><span class="nav-number">5.</span> <span class="nav-text">规则引擎</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%9B%B8%E5%85%B3%E5%B9%B3%E5%8F%B0"><span class="nav-number">6.</span> <span class="nav-text">其他相关平台</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B%E6%8A%BD%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">设备模型抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%9E%8B%E7%AE%A1%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">设备类型管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E5%93%81%E7%89%8C%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">设备品牌管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%81%E7%89%8C%E5%9E%8B%E5%8F%B7%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">品牌型号管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%8D%8F%E8%AE%AE%E7%AE%A1%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">连接协议管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E5%85%B3%E8%81%94%E7%AE%A1%E7%90%86"><span class="nav-number">2.5.</span> <span class="nav-text">协议关联管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E5%8F%82%E6%95%B0%E7%AE%A1%E7%90%86"><span class="nav-number">2.6.</span> <span class="nav-text">协议参数管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E4%BA%8B%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-number">2.7.</span> <span class="nav-text">设备事件管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E5%91%BD%E4%BB%A4%E7%AE%A1%E7%90%86"><span class="nav-number">2.8.</span> <span class="nav-text">设备命令管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6-%E5%91%BD%E4%BB%A4%E5%85%B3%E8%81%94%E7%AE%A1%E7%90%86"><span class="nav-number">2.9.</span> <span class="nav-text">事件&#x2F;命令关联管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E7%BC%98%E7%BD%91%E5%85%B3%E7%AE%A1%E7%90%86"><span class="nav-number">2.10.</span> <span class="nav-text">边缘网关管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E4%BA%A7%E7%AE%A1%E7%90%86"><span class="nav-number">2.11.</span> <span class="nav-text">资产管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5"><span class="nav-number">3.</span> <span class="nav-text">设备接入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%85%A5%E6%A8%A1%E5%9D%97%E4%BD%9C%E4%B8%BA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">3.1.</span> <span class="nav-text">接入模块作为客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BA%A4%E4%BA%92"><span class="nav-number">4.</span> <span class="nav-text">数据交互</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E4%BA%8B%E4%BB%B6%E4%B8%8A%E6%8A%A5"><span class="nav-number">4.1.</span> <span class="nav-text">设备事件上报</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81%E7%BB%B4%E6%8A%A4"><span class="nav-number">4.2.</span> <span class="nav-text">设备连接状态维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%91%BD%E4%BB%A4%E4%B8%8B%E5%8F%91"><span class="nav-number">4.3.</span> <span class="nav-text">应用命令下发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E9%85%8D%E7%BD%AE%E5%8F%98%E6%9B%B4"><span class="nav-number">4.4.</span> <span class="nav-text">运行时配置变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E4%BA%91%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">4.5.</span> <span class="nav-text">边云数据同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.6.</span> <span class="nav-text">微服务设计汇总</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E4%BD%BF%E7%94%A8%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.</span> <span class="nav-text">组件使用汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kafka%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.1.</span> <span class="nav-text">kafka相关设计汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redis%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.2.</span> <span class="nav-text">redis相关设计汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mqtt%E8%AE%BE%E8%AE%A1%E6%B1%87%E6%80%BB"><span class="nav-number">4.7.3.</span> <span class="nav-text">mqtt设计汇总</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E"><span class="nav-number">5.</span> <span class="nav-text">规则引擎</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%9B%B8%E5%85%B3%E5%B9%B3%E5%8F%B0"><span class="nav-number">6.</span> <span class="nav-text">其他相关平台</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -179,7 +179,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-count">62</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -258,7 +258,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-06-30 09:50:17" itemprop="dateModified" datetime="2021-06-30T09:50:17+08:00">2021-06-30</time>
+        <time title="修改时间：2021-07-02 09:37:51" itemprop="dateModified" datetime="2021-07-02T09:37:51+08:00">2021-07-02</time>
       </span>
 
   
@@ -303,8 +303,8 @@
 <li>品牌(brand)。设备制造商的标示；</li>
 <li>型号(model)。设备制造商给设备设计的型号；</li>
 <li>序列号(serialNumber，简称sn)。设备制造商给设备分配的编号；</li>
-<li>通信驱动(driver)。每个驱动标识对应一个具体代码的通信模块。即使是同一件设备，不同固件的通信方式可能有所改变，比如v1和v2的接口可能不兼容；</li>
-<li>驱动配置(driverParam)。某些驱动可能会依赖其他的字段，比如第三方平台的账号密码等，如果没有的话无法正常建立通信。这里可以选择租户已经添加的配置；</li>
+<li>通信协议(protocol)。每个协议标识对应一个具体代码的通信模块。即使是同一件设备，不同固件的通信方式可能有所改变，比如v1和v2的接口可能不兼容；</li>
+<li>协议配置(protocolParam)。某些协议可能会依赖其他的字段，比如第三方平台的账号密码等，如果没有的话无法正常建立通信。这里可以选择租户已经添加的配置；</li>
 <li>其他<strong>扩展字段</strong>(extend)。比如设备通信地址（ip地址、蓝牙地址等），安装坐标；或者某类设备独有的属性，摄像头是球机和枪机、门禁是进还是出等等；允许自行添加kv字段，在数据库里可以用json/jsonb或者纵表；</li>
 <li>支持事件(event)。同一类(type)设备往往支持类似的事件，如环境设备都支持上传环境数据，但是具体到设备上要看安装了多少传感器；</li>
 <li>支持命令(command)。设备可执行的命令，同类(type)设备往往支持类似的命令，比如人脸识别设备一般支持远程开/关门；</li>
@@ -314,12 +314,12 @@
 <ul>
 <li>设备ID应该由物联网平台生成，支持通过界面添加或者其他服务调用平台接口添加；</li>
 <li>设备的brand-type-sn，应该构成唯一性，即同一品牌同一类型的设备序列号唯一；</li>
-<li>设备的driver决定了设备通信的方式，添加设备时可以通过设备类型+设备品牌筛选driver；</li>
-<li>可用的driver列表是与代码中的通信模块一一映射的，因此该列表由开发人员维护；</li>
-<li>标准HTTP接口和标准MQTT接口是我方提供的两种通用的driver，选择这两种接入时，服务端会自动生成访问密钥；</li>
-<li>设备通过边缘网关接入和直连上云的唯一区别是驱动参数需要选择对应的边缘网关，边缘网关和设备之间仍然使用驱动模块通信，边缘网关和平台之间使用标准mqtt接口通信；</li>
+<li>protocol决定了设备通信的方式，添加设备时可以通过设备类型+设备品牌筛选protocol；</li>
+<li>可用的protocol列表是与代码中的通信模块一一映射的，因此该列表由开发人员维护；</li>
+<li>标准HTTP接口和标准MQTT接口是我方提供的两种通用的protocol，选择这两种接入时，服务端会自动生成访问密钥；</li>
+<li>设备通过边缘网关接入和直连上云的唯一区别是协议参数需要选择对应的边缘网关，边缘网关和设备之间仍然使用协议模块通信，边缘网关和平台之间使用标准mqtt接口通信；</li>
 <li>当设备/边缘网关采用标准HTTP接口通信时，仅当设备/边缘端有固定外网地址时，才能接受云端下发的命令。有时需要考虑内网穿透问题；</li>
-<li>理论上，设备的brand-type-model-driver决定了设备支持的事件和命令，以及事件/命令具体的参数；</li>
+<li>理论上，设备的brand-type-model-protocol决定了设备支持的事件和命令，以及事件/命令具体的参数；</li>
 </ul>
 <p>综上，需要设计以下表单/API进行设备数据录入(以下字段并非数据库中的字段，仅为示例)：</p>
 <h3 id="设备类型管理"><a href="#设备类型管理" class="headerlink" title="设备类型管理"></a>设备类型管理</h3><table>
@@ -367,7 +367,8 @@
 <td>该品牌涉及的设备类型，为了方便搜索</td>
 </tr>
 </tbody></table>
-<h3 id="品牌型号管理"><a href="#品牌型号管理" class="headerlink" title="品牌型号管理"></a>品牌型号管理</h3><table>
+<h3 id="品牌型号管理"><a href="#品牌型号管理" class="headerlink" title="品牌型号管理"></a>品牌型号管理</h3><p>品牌型号的录入，只是为了细化设备对应的协议和支持事件/命令，其实也可以没有。</p>
+<table>
 <thead>
 <tr>
 <th>字段</th>
@@ -396,7 +397,7 @@
 <td>设备类型</td>
 </tr>
 </tbody></table>
-<h3 id="连接驱动管理"><a href="#连接驱动管理" class="headerlink" title="连接驱动管理"></a>连接驱动管理</h3><table>
+<h3 id="连接协议管理"><a href="#连接协议管理" class="headerlink" title="连接协议管理"></a>连接协议管理</h3><table>
 <thead>
 <tr>
 <th>字段</th>
@@ -435,9 +436,9 @@
 <td>该驱动参数的json schema描述（后端）</td>
 </tr>
 </tbody></table>
-<p>该表<strong>由开发人员维护</strong>。在未正式接入实际项目之前，前期先实现<code>std-mqtt</code>和<code>std-http</code>两类驱动。</p>
+<p>该表<strong>由开发人员维护</strong>。在未正式接入实际项目之前，前期先实现<code>std-mqtt</code>和<code>std-http</code>两类协议。</p>
 <p><a target="_blank" rel="noopener" href="https://json-schema.org/">json schema</a>是一种json数据结构自描述规范，前端需要据此动态渲染表格给用户展示，可以参考alibaba的<a target="_blank" rel="noopener" href="https://github.com/alibaba/x-render">x-render</a>项目(react)，或者<a target="_blank" rel="noopener" href="https://github.com/lljj-x/vue-json-schema-form">vue的版本</a>。</p>
-<h3 id="驱动关联管理"><a href="#驱动关联管理" class="headerlink" title="驱动关联管理"></a>驱动关联管理</h3><table>
+<h3 id="协议关联管理"><a href="#协议关联管理" class="headerlink" title="协议关联管理"></a>协议关联管理</h3><table>
 <thead>
 <tr>
 <th>字段</th>
@@ -456,16 +457,16 @@
 <td>设备类型</td>
 </tr>
 <tr>
-<td>driverCode</td>
+<td>protocol</td>
 <td>string</td>
-<td>支持驱动</td>
+<td>支持协议</td>
 </tr>
 </tbody></table>
-<p><strong>该表用于用户添加设备时，选取可用驱动。</strong></p>
-<p>对于标准HTTP/MQTT接口，brandId设为0，表示该驱动支持所有品牌。</p>
-<p>之所以独立成表，是因为存在贴牌设备的问题，比如小米电视贴牌海信，实际通信驱动是海信，即多对一可能。</p>
+<p><strong>该表用于用户添加设备时，选取可用协议。</strong></p>
+<p>对于标准HTTP/MQTT接口，brandId设为0，表示该协议支持所有品牌。</p>
+<p>之所以独立成表，是因为存在贴牌设备的问题，比如小米电视贴牌海信，实际通信协议是海信，即多对一可能。</p>
 <p>也可以增加一个deviceModels字段，允许精确到设备型号进行筛选，不过维护列表的工作量较大。</p>
-<h3 id="驱动参数管理"><a href="#驱动参数管理" class="headerlink" title="驱动参数管理"></a>驱动参数管理</h3><table>
+<h3 id="协议参数管理"><a href="#协议参数管理" class="headerlink" title="协议参数管理"></a>协议参数管理</h3><table>
 <thead>
 <tr>
 <th>字段</th>
@@ -474,9 +475,9 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>driverCode</td>
+<td>protocol</td>
 <td>string</td>
-<td>驱动编码</td>
+<td>协议代码</td>
 </tr>
 <tr>
 <td>name</td>
@@ -496,14 +497,14 @@
 <tr>
 <td>data</td>
 <td>json</td>
-<td>对应driver中的params</td>
+<td>对应protocol中的params</td>
 </tr>
 </tbody></table>
 <p>gatewayId决定设备是直接上云，还是通过边缘网关上云。</p>
-<p><strong>当设备仅支持局域网接入，而平台和设备无法在一个局域网时，只能通过边缘网关上云</strong>。如果设备可以使用第三方的边缘网关上云，则我方只需要对接该网关，此时视为<strong>直接上云</strong>；当平台和设备部署在同一个局域网时，也视为直接上云；<strong>仅当采用自研软边缘网关接入时</strong>，这里需要选择边缘网关的id。</p>
-<p>data为一个动态表格，用户选择驱动后填入依赖的参数。不同驱动对应的字段需求不同，所以data内容不固定。对于前端，可以</p>
-<p>由于驱动依赖往往涉及到第三方的密码之类，所以必须进行数据隔离，加入tenantId字段。<strong>但是有时该驱动参数为所有租户公用</strong>，此时可以设置tenantId为空，比如所有租户的视频都要接入我方租用的海康的ISC平台。当然</p>
-<p>另外就是一些允许客户自定义的参数，如采集周期，限流设置等，也可以在驱动参数里设置。</p>
+<p><strong>当设备仅支持局域网接入，而平台和设备无法在一个局域网时，只能通过边缘网关上云</strong>。如果设备可以使用第三方的边缘网关上云，则我方只需要对接该网关，此时视为<strong>直接上云</strong>，录入设备时协议选择对应硬件网关的协议即可；当平台和设备部署在同一个局域网时，也视为直接上云；<strong>仅当采用自研软边缘网关接入时</strong>，这里需要选择边缘网关的id。</p>
+<p>data为一个动态表格，用户选择协议后填入依赖的参数。不同协议对应的字段需求不同，所以data内容不固定。对于前端，可以</p>
+<p>由于协议依赖往往涉及到第三方的密码之类，所以必须进行数据隔离，加入tenantId字段。<strong>但是有时该协议参数为所有租户公用</strong>，此时可以设置tenantId为空，比如所有租户的视频都要接入我方租用的海康的ISC平台。当然</p>
+<p>另外就是一些允许客户自定义的参数，如采集周期，限流设置等，也可以在协议参数里设置。</p>
 <p>该表由运营人员或者售后人员维护，<strong>一般用户可能无法维护</strong>，涉及技术参数较多。</p>
 <h3 id="设备事件管理"><a href="#设备事件管理" class="headerlink" title="设备事件管理"></a>设备事件管理</h3><table>
 <thead>
@@ -591,9 +592,9 @@
 <td>设备型号列表</td>
 </tr>
 <tr>
-<td>driverIds</td>
+<td>protocolIds</td>
 <td>[int]</td>
-<td>驱动列表</td>
+<td>协议列表</td>
 </tr>
 <tr>
 <td>events</td>
@@ -630,36 +631,38 @@
 <p>其实边缘网关就是一个特殊的设备，与平台采用标准MQTT通信，所以服务端也会自动生成访问的token。</p>
 <h3 id="资产管理"><a href="#资产管理" class="headerlink" title="资产管理"></a>资产管理</h3><p>资产是设备的聚合，严格来说这并不是接入平台需要考虑的功能。产品可以根据需求自行发挥。</p>
 <p>但是需要注意的是，某些设备之间是有关联的。比如视频设备和视频AI设备，可以在录入视频AI设备时，在扩展字段里选择关联设备。</p>
-<h2 id="设备接入"><a href="#设备接入" class="headerlink" title="设备接入"></a>设备接入</h2><p>设备接入采用模块化设计，每个**模块(Module)<strong>对应一个上文中</strong>驱动(Driver)**。</p>
+<h2 id="设备接入"><a href="#设备接入" class="headerlink" title="设备接入"></a>设备接入</h2><p>设备接入采用模块化设计，每个**模块(Module)<strong>对应一个上文中</strong>协议(Protocol)**。</p>
 <p>可以将每个模块写在单独的jar包里，通过bean的生命周期启动(@PostConstruct)/停止(@PreDestroy)服务，最后部署的服务只需要引入实际设备对应模块就可以完成最小化部署。但是saas情况下不宜采用该方案，jar包会非常多；也可以全部写在一个服务里，然后通过<code>ConditionOnBean</code>之类的方式通过配置动态开关服务，唯一缺陷是最终的package体积可能会比较大；或者两种方法进行折中，根据某种方式（如设备品牌）聚合一下。</p>
 <p>一个Module的设计如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IModule</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onInit</span><span class="params">()</span></span>; <span class="comment">//初始化时启动模块驱动</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span></span>; <span class="comment">//模块关闭时清理资源</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">call</span><span class="params">(Command command)</span></span>; <span class="comment">//接受外部命令</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Accessors(chain = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Command</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="comment">//通用的命令，应用平台通过HTTP/RPC/Kafka发送过来</span></span><br><span class="line">    <span class="keyword">private</span> String code; <span class="comment">//对应上文中的设备命令，如CMD_TOGGLE_SWITCH</span></span><br><span class="line">    <span class="keyword">private</span> String reqId; <span class="comment">//请求的唯一ID，用于链路追踪</span></span><br><span class="line">    <span class="keyword">private</span> String reqSrc; <span class="comment">//请求来源服务的标示，如智慧工地/智慧园区的标示等</span></span><br><span class="line">    <span class="keyword">private</span> Device target; <span class="comment">//目标设备</span></span><br><span class="line">    <span class="keyword">private</span> T data; <span class="comment">//请求的具体参数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> sync; <span class="comment">//同步命令还是异步命令，默认异步</span></span><br><span class="line">  	<span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="keyword">private</span> CompleteFuture&lt;String&gt; result; <span class="comment">//请求结果，非传入值。请求为同步命令时，用于将异步转化为同步</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Device</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> Integer type; <span class="comment">//设备类型</span></span><br><span class="line">    <span class="keyword">private</span> String sn; <span class="comment">//设备序列号</span></span><br><span class="line">    <span class="keyword">private</span> Long brandId; <span class="comment">//设备品牌ID</span></span><br><span class="line">    <span class="keyword">private</span> Long modelId; <span class="comment">//设备型号ID</span></span><br><span class="line">    <span class="keyword">private</span> String driver; <span class="comment">//设备驱动</span></span><br><span class="line">  	<span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IModule</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onInit</span><span class="params">()</span></span>; <span class="comment">//初始化时启动模块协议</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span></span>; <span class="comment">//模块关闭时清理资源</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">call</span><span class="params">(Command command)</span></span>; <span class="comment">//接受外部命令</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Accessors(chain = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Command</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="comment">//通用的命令，应用平台通过HTTP/RPC/Kafka发送过来</span></span><br><span class="line">    <span class="keyword">private</span> String code; <span class="comment">//对应上文中的设备命令，如CMD_TOGGLE_SWITCH</span></span><br><span class="line">    <span class="keyword">private</span> String reqId; <span class="comment">//请求的唯一ID，用于链路追踪</span></span><br><span class="line">    <span class="keyword">private</span> String reqSrc; <span class="comment">//请求来源服务的标示，如智慧工地/智慧园区的标示等</span></span><br><span class="line">    <span class="keyword">private</span> Device target; <span class="comment">//目标设备</span></span><br><span class="line">    <span class="keyword">private</span> T data; <span class="comment">//请求的具体参数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> sync; <span class="comment">//同步命令还是异步命令，默认异步</span></span><br><span class="line">  	<span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="keyword">private</span> CompleteFuture&lt;String&gt; result; <span class="comment">//请求结果，非传入值。请求为同步命令时，用于将异步转化为同步</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Device</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> Integer type; <span class="comment">//设备类型</span></span><br><span class="line">    <span class="keyword">private</span> String sn; <span class="comment">//设备序列号</span></span><br><span class="line">    <span class="keyword">private</span> Long brandId; <span class="comment">//设备品牌ID</span></span><br><span class="line">    <span class="keyword">private</span> Long modelId; <span class="comment">//设备型号ID</span></span><br><span class="line">    <span class="keyword">private</span> String protocol; <span class="comment">//设备协议</span></span><br><span class="line">  	<span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>Module一般是基于Netty编码，Bean的名字就是driver的名字。</p>
-<p>有一个专门的module负责处理与应用平台通信，接收到平台命令时，通过target的driver找到对应的通信模块，调用<code>call</code>将命令转发过去即可。Netty一般在自己的线程里处理命令，需要同步返回结果的，将结果放入result字段；异步返回结果的，也可以通过reqId+reqSrc实现。</p>
+<p>Module一般是基于Netty编码，Bean的名字就是protocol的名字。</p>
+<p>有一个专门的module负责处理与应用平台通信，接收到平台命令时，通过target的protocol找到对应的通信模块，调用<code>call</code>将命令转发过去即可。Netty一般在自己的线程里处理命令，需要同步返回结果的，将结果放入result字段；异步返回结果的，也可以通过reqId+reqSrc实现。</p>
 <p>事件上报同样由专门的模块实现，其他模块调用该模块的<code>call</code>来上报事件。为了防止数据丢失，必须保证数据放入kafka(ack all)后，再对设备端发ack. 当然设备端必须有重发机制，否则无论如何设备数据都可能丢失。</p>
-<p>如果简化设计，可以使用kafka全异步通信，将所有Event和Command都是通过kafka来传递。<strong>以下会按全异步设计来写具体方案</strong>，同步设计只需要用上面的<code>result</code>进行转换，也可以在平台外面wrapper一层同步的HTTP/RPC接口。</p>
+<p>如果简化设计，可以使用kafka全异步通信，将所有Event和Command都是通过kafka来传递。<strong>以下会按全异步设计来写具体方案</strong>，同步设计只需要用上面的<code>result</code>进行转换，也可以在平台外面wrap一层同步的HTTP/RPC接口。</p>
 <p>接入层架构图如下：</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gs01yzlpaaj31fq0ragpz.jpg" alt="image-20210630095010872"></p>
-<p>这里标准MQTT还是选择用emqx作为broker，thingsboard内置的mqtt服务与thingsboard平台深度绑定，不建议使用。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gs2bfhy91vj31gi0rejvv.jpg"></p>
+<p>这里标准MQTT还是选择用emqx作为broker，thingsboard内置的mqtt服务与thingsboard平台深度绑定，且不支持共享订阅，不建议使用。边缘端设备接入可以用emqx-edge（即设备本身就是用mqtt协议，且接入层部署在边缘端时）。</p>
+<p>按着saas的设计，接入层全部在云端部署，此时接入集群共同订阅kafka的Command即可；还有一种方案是接入层整体部署在用户的本地（上面虚框部分），此时<strong>接入层整体视为一个边缘网关</strong>，云端只需要部署标准MQTT集群，该集群会将命令通过MQTT下发给接入层集群。接入层集群使用MQTT的<strong>共享订阅</strong>功能完成负载均衡。</p>
+<p>如果用户有多个园区/工地/社区要管理，那么在园区/工地/社区本地部署接入层，在用户机房部署其他部分，这种设计可以派上用场。如果仅仅是单独的园区/工地/社区，那么全部部署在本地，此时设备全部视为直接上云。</p>
 <p>接入层可以任意水平扩展，但是如果设备与服务端使用的是长连接，此时如果想要给设备发送命令，就必须知道设备实际连接到哪个结点了。下文会在<strong>设备状态维护</strong>里谈到该问题的解决方案。</p>
 <h3 id="接入模块作为客户端"><a href="#接入模块作为客户端" class="headerlink" title="接入模块作为客户端"></a>接入模块作为客户端</h3><p>理想情况下，接入模块应该是作为服务端，设备主动向平台发送数据。但是实际上设备很多时候连接了厂商的中控平台或者云平台。此时连接模块只能作为客户端，主动向中间平台请求数据。</p>
 <p>该场景下仍然可以用netty来写模块，但是存在一个额外的问题。即<strong>多服务结点时，如何进行通信任务的分发</strong>。</p>
-<p>这里需要一个额外的服务来完成该工作，假设名为scanner。当租户添加的驱动参数同时满足：</p>
+<p>这里需要一个额外的服务来完成该工作，假设名为scanner。当租户添加的协议参数同时满足：</p>
 <ol>
-<li>这是一个客户端模式的驱动；</li>
-<li>该驱动为云端接入（非边缘模式）；</li>
+<li>这是一个客户端模式的协议；</li>
+<li>该协议为云端接入（非边缘模式）；</li>
 </ol>
-<p>则将该驱动视为一个待分发的客户端。scanner定期扫描所有待分发的客户端，将其push到kafka Command topic里，视为一种特殊的Command。获取到Command的接入层结点call驱动对应的接入模块，模块则根据驱动参数增加定时任务或者建立长连接等。</p>
+<p>则将该协议视为一个待分发的客户端。scanner定期扫描所有待分发的客户端，将其push到kafka Command topic里，视为一种特殊的Command。获取到Command的接入层结点call协议对应的接入模块，模块则根据协议参数增加定时任务或者建立长连接等。</p>
 <p>模块接受Command之后，要标记该客户端为已分发（比如采用redis kv标记）；在该服务节点关闭前，需要清除该标记，以便scanner重新分发该客户端。</p>
-<p>边缘网关采用的是硬分配原则，所以边缘端从本地数据库扫描到客户端模式的驱动配置后，直接启动服务即可。参考<strong>边云数据同步</strong>部分设计。</p>
+<p>边缘网关采用的是硬分配原则，所以边缘端从本地数据库扫描到客户端模式的协议配置后，直接启动服务即可。参考<strong>边云数据同步</strong>部分设计。</p>
 <h2 id="数据交互"><a href="#数据交互" class="headerlink" title="数据交互"></a>数据交互</h2><h3 id="设备事件上报"><a href="#设备事件上报" class="headerlink" title="设备事件上报"></a>设备事件上报</h3><p>上文已经写了上报的大致流程，上报到kafka的数据结构大致如下(json格式)：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;code&quot;</span>: <span class="string">&quot;EVENT_UPLOAD_DATA&quot;</span>, <span class="comment">//事件编码</span></span><br><span class="line">  <span class="string">&quot;ts&quot;</span>: <span class="number">1234567890</span>, <span class="comment">//毫秒级Unix时间戳</span></span><br><span class="line">  <span class="string">&quot;deviceId&quot;</span>: <span class="number">12345</span>, <span class="comment">//设备id</span></span><br><span class="line">  <span class="string">&quot;tenantId&quot;</span>: <span class="string">&quot;abc&quot;</span>, <span class="comment">//设备此时的租户id</span></span><br><span class="line">  <span class="string">&quot;data&quot;</span>:&#123; <span class="comment">//具体的事件数据</span></span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>根据事件的优先级投递到不同的topic. 在投递之前可以根据event的schema进行校验和规格化（也可以不处理，后续再进行流式处理）。</p>
 <p>kafka后接不同消费者组，再对数据进行进一步处理，本平台会实现数据落库以及推送到规则引擎。大数据组或者应用组也可以订阅该数据做进一步处理，如推送给大屏/客户端等。</p>
 <h3 id="设备连接状态维护"><a href="#设备连接状态维护" class="headerlink" title="设备连接状态维护"></a>设备连接状态维护</h3><p>设备连接状态的变化其实就是一类特殊的事件，比如可以命名为<code>EVENT_DEVICE_TOGGLE_ONLINE</code>.</p>
-<p>设备在线一般是通过应用层心跳来维持的，如果采用长连接，可以用netty的<code>IdleStateHandler</code>来设置最小活跃周期（通过读取驱动参数）；但是如果是HTTP短链接的话，每次请求可能router到不同接入层结点上，因此不能在内存中维持。此外如果有查询平台/租户所有在线设备等统计需求，也不能只将连接状态维护在内存里。</p>
+<p>设备在线一般是通过应用层心跳来维持的，如果采用长连接，可以用netty的<code>IdleStateHandler</code>来设置最小活跃周期（通过读取协议参数）；但是如果是HTTP短链接的话，每次请求可能router到不同接入层结点上，因此不能在内存中维持。此外如果有查询平台/租户所有在线设备等统计需求，也不能只将连接状态维护在内存里。</p>
 <p>这里设计一个简单的解决方案：使用lua脚本，将设备最近一次心跳时间记录在redis zset里（可以根据最小活跃周期设置多个zset）。然后定时（周期比最小活跃周期小即可）扫描这些zset，确定心跳过期后认为设备离线。</p>
 <p>设置设备在线示例代码如下，假设记录的key为<code>iot:device:heartbeat:120</code>，其中120表示心跳过期时间为120秒：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- argv[1]: 设备id, argv[2]: 心跳时间戳</span></span><br><span class="line"><span class="comment">-- ret[1]: 是否由离线变为在线</span></span><br><span class="line"><span class="keyword">local</span> old_ts = <span class="built_in">tonumber</span>(redis.call(<span class="string">&#x27;zrank&#x27;</span>, KEYS[<span class="number">1</span>], argv[<span class="number">1</span>]))</span><br><span class="line"><span class="keyword">local</span> update_ts = <span class="built_in">tonumber</span>(argv[<span class="number">2</span>])</span><br><span class="line"><span class="comment">-- 如果原来的值不存在，直接更新；或者时间戳更新</span></span><br><span class="line"><span class="keyword">if</span> old_ts == <span class="literal">nil</span> <span class="keyword">or</span> old_ts &lt; update_ts <span class="keyword">then</span></span><br><span class="line">  redis.call(<span class="string">&#x27;zadd&#x27;</span>, KEYS[<span class="number">1</span>], update_ts)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> old_ts == <span class="literal">nil</span></span><br></pre></td></tr></table></figure>
@@ -673,23 +676,24 @@
 <p>当服务结点关闭时，长连接模块的清理方法需要将所有关联结点设置为离线，然后逐个断开连接并关闭服务。</p>
 <p><strong>注意</strong>：一般不考虑服务端宕机或者网络断开问题，否则要处理的边界条件会大幅增加。</p>
 <h3 id="应用命令下发"><a href="#应用命令下发" class="headerlink" title="应用命令下发"></a>应用命令下发</h3><p>如上文所述，平台可以提供HTTP/RPC/Kafka等多种通信方式供其他平台下发命令，但是考虑到某些命令的执行周期会很长（如向人脸识别设备下发1w个人员信息），全部设计为异步接口更加泛用。</p>
-<p>假设这里使用Kafka通信，所有接入层结点对Command成为一个消费者组。接入层结点有一个专门的模块，假设为<code>module-command</code>,订阅该topic，接收到Command之后查找driver模块，调用<code>call</code>发送命令. 如果是长连接模块（短链接模块直接执行命令即可），该模块要检查连接是否在本结点，如果是的话直接执行就行；不是的话要考虑转发或者返回”目标不在线”的错误信息。</p>
-<p>注意上面未考虑接入层服务拆分问题。如果拆分的话，还需要一个分布式的driver到服务节点的映射。比如<code>std-mqtt</code>和<code>std-http</code>是两个独立的服务，组成一个Command Topic的消费组，前者拿到命令发现设备实际使用后者通信，那么需要一个机制找到后者服务节点，然后转发命令。</p>
+<p>假设这里使用Kafka通信，所有接入层结点对Command成为一个消费者组。接入层结点有一个专门的模块，假设为<code>module-command</code>,订阅该topic，接收到Command之后查找Module，调用<code>call</code>发送命令. 如果是长连接模块（短链接模块直接执行命令即可），该模块要检查连接是否在本结点，如果是的话直接执行就行；不是的话要考虑转发或者返回”目标不在线”的错误信息。</p>
+<p>注意上面未考虑接入层服务拆分问题。如果拆分的话，还需要一个protocol到服务节点的映射。比如<code>std-mqtt</code>和<code>std-http</code>是两个独立的服务，组成一个Command Topic的消费组，前者拿到命令发现设备实际使用后者通信，那么需要一个机制找到后者服务节点，然后转发命令。</p>
 <p>理论上所有的命令都一个返回值，由于是全异步通信，<code>Command</code>类中就不再需要<code>result</code>字段。netty线程中执行完命令后，直接调用<code>module-command</code>的<code>call</code>，后者将数据push到kafka中专门应答的topic中即可。</p>
 <p>设计数据结构如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Accessors(chain = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Command</span>&lt;<span class="title">T</span>&gt; </span>&#123; <span class="comment">//通用的命令，应用平台通过HTTP/RPC/Kafka发送过来</span></span><br><span class="line">    <span class="keyword">private</span> String code; <span class="comment">//对应上文中的设备命令，如CMD_TOGGLE_SWITCH</span></span><br><span class="line">    <span class="keyword">private</span> String reqId; <span class="comment">//请求的唯一ID，用于链路追踪</span></span><br><span class="line">    <span class="keyword">private</span> String reqSrc; <span class="comment">//请求来源服务的标示，如智慧工地/智慧园区的标示等</span></span><br><span class="line">    <span class="keyword">private</span> Device target; <span class="comment">//目标设备</span></span><br><span class="line">    <span class="keyword">private</span> T data; <span class="comment">//请求的具体参数</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Response</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">  	<span class="keyword">private</span> String cmd; <span class="comment">//对应请求中的code</span></span><br><span class="line">  	<span class="keyword">private</span> <span class="keyword">int</span> status; <span class="comment">//状态码</span></span><br><span class="line">    <span class="keyword">private</span> String msg; <span class="comment">//应答描述，一般是错误信息</span></span><br><span class="line">    <span class="keyword">private</span> String reqId;</span><br><span class="line">    <span class="keyword">private</span> String reqSrc;</span><br><span class="line">    <span class="keyword">private</span> T data; <span class="comment">//具体数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>应用层订阅该应答的topic，即可获取命令执行的最终结果。可以按reqSrc分为不同业务的topic，避免数据混乱。</p>
-<h3 id="运行时配置变更"><a href="#运行时配置变更" class="headerlink" title="运行时配置变更"></a>运行时配置变更</h3><p>显然，在接入层通信过程中，应用平台依然可以修改设备信息、驱动参数等关键配置，这些配置变更必须立刻通知到接入层。</p>
+<h3 id="运行时配置变更"><a href="#运行时配置变更" class="headerlink" title="运行时配置变更"></a>运行时配置变更</h3><p>显然，在接入层通信过程中，应用平台依然可以修改设备信息、协议参数等关键配置，这些配置变更必须立刻通知到接入层。</p>
 <p>一个方案是使用maxwell/canon等组件订阅mysql binlog，发现对应表格数据变化后，向kafka Command Topic中push一条特殊的命令。订阅端清除redis中相关的缓存，并通知对应的模块断开原来的连接等。</p>
 <p>如果不想引入额外的组件，也可以在变更save到db之后，手动执行该操作。</p>
 <h3 id="边云数据同步"><a href="#边云数据同步" class="headerlink" title="边云数据同步"></a>边云数据同步</h3><p>当接入层在边缘侧时，需要考虑的问题要更加复杂一些。</p>
-<p>边缘网关启动后，需要定时拉取该网关关联的设备列表和对应的驱动参数，并将其save到本地数据库（以保证边云连接断开时，边缘端仍可正常运行）。可以根据数据最后更新的时间(update_time)，决定本地对应条目是否需要更新；或者通过update_time进行筛选增量拉取；</p>
-<p>当配置参数变更时，消费端发现该设备/驱动项是通过边缘端接入的，则会直接向mqtt broker publish qos为0对应的信息，边缘端也可以根据该消息进行即时处理。</p>
+<p>边缘网关启动后，需要定时拉取该网关关联的设备列表和对应的协议参数，并将其save到本地数据库（以保证边云连接断开时，边缘端仍可正常运行）。可以根据数据最后更新的时间(update_time)，决定本地对应条目是否需要更新；或者通过update_time进行筛选增量拉取；</p>
+<p>当配置参数变更时，消费端发现该设备/协议项是通过边缘端接入的，则会直接向mqtt broker publish qos为0对应的信息，边缘端也可以根据该消息进行即时处理。</p>
 <p>但是由于边缘端和云端的连接无法保证稳定性，边缘端简单设计的话，<strong>仅进行定时拉取即可</strong>。</p>
-<p>对于一般的Command，消费者模块发现driver配置为边缘接入时，也可以直接publish到边缘网关对应订阅的topic，qos也应该为0。</p>
+<p>对于一般的Command，消费者模块发现protocol配置为边缘接入时，也可以直接publish到边缘网关对应订阅的topic，qos也应该为0。</p>
 <h3 id="微服务设计汇总"><a href="#微服务设计汇总" class="headerlink" title="微服务设计汇总"></a>微服务设计汇总</h3><ul>
 <li>接入层。接入层整体作为一个集群，可以全部写在一起，也可以根据需求进行拆分。比如std-mqtt和std-http都作为单独服务。拆分后注意接入层内部需要转发平台的命令；</li>
+<li>单实例的scanner服务（负责客户端模式下的任务的分发），和心跳检测服务，可以写在一起。可以考虑其他方案；</li>
 <li>web服务。基本的API供其他服务调用（根据技术选型，也可能是rpc服务）；如果平台需要做一个界面，相关接口也写在这里；</li>
 <li>物联数据落库服务。订阅kafka数据流并落入时序数据库；</li>
 <li>规则引擎服务。设计见下文；</li>
@@ -710,7 +714,7 @@
 <li>标准MQTT接入只有事件上报的topic和命令下发的topic；</li>
 <li>边缘网关使用mqtt通信，必须设置非内存的store，保证qos&gt;0的数据不会遗失；</li>
 <li>边缘网关应用层心跳使用qos为0的通信，其他信息使用qos为1的信息；</li>
-<li>边缘网关只关心自己负责设备相关的配置的变更，所以推送的topic中应含有边缘网关的id，如<code>iot/edge/1/device/update</code>，表示给ID为1的边缘网关推送设备信息变更，<code>iot/edge/2/driver/create</code>给ID为2的边缘网关推送新增的驱动信息；当然<strong>如果采取定时拉取的方案，不必设计这块的东西</strong>；</li>
+<li>边缘网关只关心自己负责设备相关的配置的变更，所以推送的topic中应含有边缘网关的id，如<code>iot/edge/1/device/update</code>，表示给ID为1的边缘网关推送设备信息变更，<code>iot/edge/2/protocol/create</code>给ID为2的边缘网关推送新增的协议信息；当然<strong>如果采取定时拉取的方案，不必设计这块的东西</strong>；</li>
 </ul>
 <h2 id="规则引擎"><a href="#规则引擎" class="headerlink" title="规则引擎"></a>规则引擎</h2><p>规则引擎的设计较为复杂，需要进一步调研，thingsboard的规则引擎其实是一个数据流处理器（类似flink）。</p>
 <p>这里给出原来的设计方案以供参考，该方案较为简单，但是可以满足一般的设备联动和自定义告警需求。</p>
@@ -722,8 +726,9 @@
 <p>前端根据用户选择拼凑出条件，就是规则引擎的可视化。</p>
 <p>我们定义一个命令(deviceType=0)，比如叫<code>SYSTEM_NOTIFY</code>，表示系统通知。参数是通知方式（短信、微信、电话等），通知频率等。用户设置condition，并选择该命令，这就完成了通用的告警配置。</p>
 <p>用户也可以配置condition之后，选择一个设备，配置action，就可以完成设备联动。比如当环境监测仪上报的光照度&lt; nLux之后，就打开某个路灯的照明开关。</p>
+<p>复杂的规则引擎支持规则链，或者等待多个条件等等。可以考虑借鉴工作流来实现。</p>
 <h2 id="其他相关平台"><a href="#其他相关平台" class="headerlink" title="其他相关平台"></a>其他相关平台</h2><ul>
-<li>鉴权服务。该平台不开放给普通用户使用，因此本设计方案里不涉及用户和权限部分。可以与其他内部平台共享同一套鉴权系统；</li>
+<li>鉴权服务。该平台不开放给普通用户使用，因此本设计方案里不涉及用户和权限部分。可以与其他内部平台共享同一套鉴权系统；另外需要注意，上文设计时仅考虑了单业务系统，如果是多业务系统租户id可能重复的时候，还要加上一个业务系统ID字段；</li>
 <li>数据分析服务。接入平台只负责将物联数据写入到TSDB，数据分析需要独立的服务；</li>
 <li>大数据流处理。原始的物联数据可能无法满足业务层的需要，一个典型的例子是人脸识别只能上报人员身份标示（如身份证号），该数据需要和业务系统中人员数据关联起来，才能被业务使用。此时就需要使用kafka streams等技术进行二次加工数据；</li>
 <li>全平台日志审计。关键业务数据的增删改需要记录操作日志，以免出现问题时无法溯源；</li>
@@ -750,6 +755,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2021/07/01/springcloud-alibaba%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="springcloud-alibaba学习笔记">
+                  springcloud-alibaba学习笔记 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

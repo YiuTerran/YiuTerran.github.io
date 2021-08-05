@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-count">62</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,251 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">java Proxy模式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:48:04" itemprop="dateCreated datePublished" datetime="2017-06-12T23:48:04+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-03-31 19:30:15" itemprop="dateModified" datetime="2019-03-31T19:30:15+08:00">2019-03-31</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/java%20Proxy%E6%A8%A1%E5%BC%8F/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/java Proxy模式/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>java也可以使用反射生成动态代理，从而完成面向切面编程，这是spring框架的基础。<br>由于java的第一元素只有object，所以函数处于第二阶梯，这导致在其他语言中很容易(函数是第一类的语言中）实现的动态代理，在java中就必须以对象的形式实现。</p>
+<p>在Python中使用<code>getattr(object, method)</code>可以轻易完成反射；最简单的可以这么做：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._real = Real()</span><br><span class="line">        <span class="keyword">for</span> method <span class="keyword">in</span> inspect.getmembers(_real, predicate=inspect.ismethod):</span><br><span class="line">            <span class="built_in">setattr</span>(self, method[<span class="number">0</span>], self._call_real(m[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_call_real</span>(<span class="params">self, method</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_real_proxy</span>(<span class="params">*args, **kargs</span>):</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">getattr</span>(self._real, method)(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> _real_proxy</span><br></pre></td></tr></table></figure>
+
+<p>java生成动态代理的主要使用了<code>java.lang.reflect.Proxy</code>类的<code>newProxyInstance()</code>方法，其原型如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader,</span><br><span class="line">                                        Class&lt;?&gt;[] interfaces,</span><br><span class="line">                                        InvacationHandler h)throws IllegalArgumentException;</span><br></pre></td></tr></table></figure>
+<p>参数：<br>loader - 定义代理类的类加载器<br>interfaces - 代理类要实现的接口列表<br>h - 指派方法调用的调用处理程序<br>返回：<br>一个带有代理类的指定调用处理程序的代理实例，它由指定的类加载器定义，并实现指定的接口<br>抛出：<br>IllegalArgumentException - 如果违反传递到 getProxyClass 的参数上的任何限制<br>NullPointerException - 如果 interfaces 数组参数或其任何元素为 null，或如果调用处理程序 h 为 null</p>
+<p>动态代理类：在运行时生成的class，在其生成过程中，你必须提供一组接口给它，然后该class就声称实现了这些接口。可以把该class的实例当做这些接口中的任何一个来用。其实，这个Dynamic Proxy就是一个Proxy，他不会替你做任何实质性的工作。在生成它的实例时，必须提供一个Handler，由它接管实际的工作。<br>在使用动态代理类时，必须实现InvocationHandler接口。</p>
+<p><code>InvaocationHandler</code>接口必须实现的方法是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Object invoke(Object proxy,</span><br><span class="line">              Method method,</span><br><span class="line">              Object[] args)</span><br><span class="line">              throws Throwable</span><br></pre></td></tr></table></figure>
+<p>此处控制流翻转，该方法被回调，传入用户尝试调用的方法和参数，以及代理本身的实例。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">cometd 学习文档</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-06-12 23:47:35" itemprop="dateCreated datePublished" datetime="2017-06-12T23:47:35+08:00">2017-06-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2017-06-13 00:22:36" itemprop="dateModified" datetime="2017-06-13T00:22:36+08:00">2017-06-13</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2017/06/12/Cometd%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/12/Cometd使用笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ol>
+<li><p>cometd client 分为remote client和local client，remote client即是传统的cometd客户端，分为java和javascript两个版本；当remote client与server建立bayeux协议连接后，server session才被创建；而local client则是server侧的client，当server想要创建一个不与remote client直接连接的session时，必须先创建一个local client；</p>
+</li>
+<li><p>local client的作用在于，如果server并非简单的无条件转发信息到其他remote client，而是想要做一些server端的处理（比如仅仅发往特定的客户端），就需要一个local client。service通道都对应一个local client；</p>
+</li>
+<li><p>通道类型分为meta channel, broadcast channel和service channel，meta channel是禁止订阅的，用来处理协议的基本功能，包括/meta/handshake, /meta/connect, /meta/disconnect, /meta/subscribe, /meta/unsubscribe, /meta/publish, /meta/unsucessful；而broadcast channel类似与聊天室，服务器无条件转发来自broadcast channel的信息到所有的subscribers；service channel则类似于私聊，服务器有条件转发到指定的订阅了该服务的某一个或多个remote client；</p>
+</li>
+<li><p>server端是一个<code>BayeuxServer</code>对象，相关联的对象包括：</p>
+<ul>
+<li>transport，包括http和websocket，或其他自己实现的接口，这里用来实现bayeux的底层通信方式；</li>
+<li>channels，通道</li>
+<li>extensions，扩展用来与bayeux协议交互，是一种listener，可以用于在消息接收后、发送前等时刻对消息进行自定义处理</li>
+<li>authorization，认证机制，一般通过<code>SecurityPolicy</code>来实现；也可以通过<code>Authorizer</code>进行更细粒度（如针对某个channel）的处理；</li>
+<li>消息处理，可以通过回调（监听）对客户端发来的消息进行处理；</li>
+</ul>
+</li>
+<li><p>Listener.</p>
+<ul>
+<li>客户端对某个channel的listener，用来处理服务器发送（或转发）的message(通过<code>ClientSession.getChannel(String).addListener(ClientSessionChannel.MessageListener)</code>来添加)；此外也可以通过添加extension对消息做最初或最后的处理；</li>
+<li>Server端的Listener类似，但更加丰富，包括：<ul>
+<li>extension, 对server的或对session的</li>
+<li>channel create|destroy listener</li>
+<li>subscribe|unsubscribe channel</li>
+<li>session被remove</li>
+<li>与server的message queue交互(<code>MaxQueueListener</code>, <code>DeQueueListener</code>等)</li>
+<li>MessageListener</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>消息流动的过程：</p>
+<ol>
+<li>客户端通过client-side的channel发送消息，这些消息首先通过clientsession extension，做最后的过滤；然后通过底层的transport发往server。transport会将message转换为JSON格式，server transport接受到这些消息后，再将JSON字符串转为普通消息；</li>
+<li>消息在server侧首先通过server extension，做最初的处理，此时如果被拒绝，返回给client的错误标示该消息已被删除；</li>
+<li>消息随即被送往serversession extension，如果被拒绝，操作同上；</li>
+<li>消息被送往security policy和authorizers接受审核，如果被拒绝，返回给客户端说明未通过认证；</li>
+<li>消息被送往channel listener，服务器可以在channel listener里面对消息做任意修改；该步骤后，消息被冻结；</li>
+<li>如果是nonbroadcast channel，会随即回复一条消息给发送者，表明服务器已收到消息并且该消息不是广播消息（貌似是将消息原样返回）；</li>
+<li>如果是broadcast message，消息会通过serversession extension，然后插入server的message queue，准备发出；</li>
+<li>如果是lazy message，消息需要等待一段时间，否则消息被立即发送出去；如果消息被发往remote client，会单独开一个线程进行异步发送，后续步骤包括转换为JSON格式，通过底层的transport等，类似客户端发送消息之前的方式；如果是local client，就直接发送过去；</li>
+<li>不管是不是广播消息，消息被插入消息队列后，服务器会返回一条信息给发送者，标明发送结束；</li>
+<li>客户端接收到消息，底层的tranport将消息转回普通格式，然后依次经过client session extension, channel listener和channel subscriber；</li>
+<li>server每收到一条bayeux消息，会分配一个单独的线程进行消息处理，所有的listener都在这个单独的线程中被依序唤醒。client与server之间的连接是有限的，如果同一个连接在短时间内收到大量消息，而消息的处理过程过慢，就会导致后续消息被堵塞而无法得到及时处理。因此服务器在处理消息过程中如果有<strong>耗时处理</strong>，务必要<strong>单开线程</strong>；</li>
+</ol>
+</li>
+<li><p>消息类型：</p>
+<ul>
+<li>客户端发往server的，主要是meta消息；</li>
+<li>客户端发往指定客户端的，需要通过service通道，然后通过clientId deliver过去</li>
+<li>服务器发往客户端的，需要服务器本地起一个local client session，与服务器握手，然后在该通道publish一个消息，这个local client充当了消息的sender</li>
+<li>即使client没有subscribe一个channel，也可以在这个channel上publish message</li>
+</ul>
+</li>
+<li><p>cometd server无法保证消息被正确送往client，除非client和server都打开message acknowledgment extension，这样二者在handshake时会在ext段增加特殊属性，协商完毕后，客户端会对每一条接受到的消息做出应答；这种机制提供了一种<strong>不可靠的</strong>失败重传功能；</p>
+</li>
+<li><p>seti是oort集群时用来发送消息的一种工具，如果a想向b发送信息，但是二者连在不同的comet节点上，这时候就需要转发消息、操作clientId等。seti可以将client与其他标识进行关联，这种关联可以是一对一的，也可以是一对多的。比如说，一个userid有多个deviceid，我们可以将userid与该用户的所有device的clientId都关联起来，也可以将其deviceid和对应的clientid对应起来，这样就可以直接转发了。</p>
+</li>
+<li><p>每个oort节点仅有1个seti对象，当userid第一次与seti关联时，会向所有节点广播此消息，这样其他节点都知道如果需要向某个userid发消息，需要把消息转发给这个seti；用户断开连接或者超时被移除session，这种关联会自动取消。当一个seti中，userid关联的所有session都断开连接时，userid会解除与seti的关联，然后广播此消息。我们可以监听这两种广播消息。</p>
+</li>
+<li><p>通过seti发送消息很简单，我们只需要指定userid，seti会自动找到其所连接的comet节点，进行发送；</p>
+</li>
+<li><p>comet节点之间的数据共享。<code>OortObject</code>用于解决此问题，这是一个分布式的架构，所有节点拥有此对象，此对象存放所有节点的共享数据，每个节点只能修改属于自己的那一部分，其他的是只读的，每次修改会广播给其他节点，其他节点可以监听这种广播，并做一些自定义修改。</p>
+</li>
+<li><p>服务转发功能，如果集群各个节点提供的服务不一致，可能需要此功能用于转发服务。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1486,115 +1731,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">Heka源码解析</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2016-05-29 14:29:20" itemprop="dateCreated datePublished" datetime="2016-05-29T14:29:20+08:00">2016-05-29</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-05-20 09:42:30" itemprop="dateModified" datetime="2020-05-20T09:42:30+08:00">2020-05-20</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2016/05/29/Heka%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/05/29/Heka源码解析/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Heka是目前我需要在工作中使用的唯一Go语言项目，出于对Golang的好感，我觉得仔细学习以下Heka的源码。如果力所能及的话，也可以为代码做出一些贡献。</p>
-<p>先看最外层的文件目录结构(0.11.0dev):</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ tree -L 1 -av --dirsfirst</span><br><span class="line">.</span><br><span class="line">├── .git</span><br><span class="line">├── build           # source &#96;build.sh&#96;生成</span><br><span class="line">├── client</span><br><span class="line">├── cmake</span><br><span class="line">├── cmd             # 命令行工具</span><br><span class="line">├── dasher          # 监控的前端文件，使用bootstrap和Backbone构建</span><br><span class="line">├── docker          # docker相关</span><br><span class="line">├── docs            # 文档</span><br><span class="line">├── examples</span><br><span class="line">├── externals       # 用户自定义程序放置位置</span><br><span class="line">├── logstreamer     # 日志流相关</span><br><span class="line">├── message         # Message相关</span><br><span class="line">├── packaging       # 打包</span><br><span class="line">├── pipeline        # 流程</span><br><span class="line">├── plugins         # 插件</span><br><span class="line">├── ringbuf</span><br><span class="line">├── rpm             # build to rpm</span><br><span class="line">├── sandbox         # 沙盒系统(lua)</span><br><span class="line">├── .dockerignore</span><br><span class="line">├── .gitattributes</span><br><span class="line">├── .gitignore</span><br><span class="line">├── .gitmodules</span><br><span class="line">├── .travis.yml     # for Travis Ci</span><br><span class="line">├── CHANGES.txt</span><br><span class="line">├── CMakeLists.txt  # cmake root file</span><br><span class="line">├── CPackConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── LICENSE.txt</span><br><span class="line">├── README.md</span><br><span class="line">├── build.bat</span><br><span class="line">├── build.sh</span><br><span class="line">├── coverage.txt    # 测试代码覆盖率</span><br><span class="line">├── env.bat</span><br><span class="line">└── env.sh</span><br></pre></td></tr></table></figure>
-
-<p>这是一个比较大的项目，从这里可以学到一些大型工程的基础知识，这是我所欠缺的。</p>
-<p><code>.gitattributes</code>里面是控制git对换行符的处理的；<code>.gitmodules</code>比较有意思，是用来在项目中引用其他git项目的。仔细查找了<a target="_blank" rel="noopener" href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/">一些资料</a>，得出的结论是：submodule用起来并不友好，尽量小心使用。</p>
-<p><code>.travis.yml</code>是Travis Ci的配置文件，这个东西是用来做持续集成的。可以看到很多github repo的ReadMe中有一个图标表示<code>build|passing</code>之类的信息，一般就是来自于Travis Ci的反馈信息。</p>
-<p>项目使用cmake构建，所以根目录有一个<code>CMakeLists.txt</code>文件。</p>
-<p>Dockerfile用来搭建一个纯净的docker环境，方便各种构建。使用<code>sudo docker build .</code>来根据该文件创造docker镜像。</p>
-<h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p>从<code>examples/host_filter.go</code>中可以看出，插件的入口在<code>init</code>函数中的<code>pipeline.RegisterPlugin</code>中。那么就从这里开始看起。</p>
-<p>这个函数位于<code>pipeline/config.go</code>中，它的作用仅仅是把注册的组件放入一个<code>pipeline</code>包的全局变量中。</p>
-<p>通过搜索这个变量，可以看到在<code>plugin_maker.go</code>的<code>NewPluginMaker</code>中被使用，而这个函数是用来通过<code>toml</code>产生新插件的。继续反向搜索使用这个函数的文件，迭代此过程，可以找到整个程序的入口文件<code>heka/cmd/hekad/main.go</code>文件。</p>
-<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>从main函数开始读代码，逻辑是很清晰的。首先是命令行解析，使用了标准库中的<code>flag</code>库。 Heka的命令行参数很少，除了打印版本号以外，只剩下加载配置文件一个功能。</p>
-<p>加载配置文件后，首先进行全局配置，然后如果pid文件存在，就检测进程是否仍然存活。  (这里defer的顺序值得学习, <code>os.Exit</code>会忽略所有的defer，所以必须放在最前面，最后执行)。</p>
-<p>然后是各种profile的记录，最后来到了pipeline. 通过全局配置生成一个<code>PipelineConfig</code>，然后再遍历配置文件。</p>
-<p><code>PreloadFromConfigFile</code>从TOML配置文件里面生成<code>PluginMaker</code>，并存放起来(category-&gt;maker的映射)。这个过程中就调用了注册插件的构造函数。</p>
-<p><code>LoadConfig</code>集中处理<code>MultiDecoder</code>的情况，然后将plugin分类到几个不同的字段(runner)中。</p>
-<p>最后，调用<code>Run</code>方法，开始运行。</p>
-<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><p>定位到pipeline/pipeline_runner文件中的Run函数，该函数驱动整个工作流的进行。</p>
-<p>首先启动的是Output插件，随之是Filter，最后是input相关插件。各个插件运行在不同的goroutine里。最后注册外界信号处理函数。</p>
-<p>最后是注册各种清理函数，当程序收到信号退出时执行。</p>
-<p>各类Runner要实现pipeline/pipeline_runners.go中的接口才能正常运行。</p>
-<h3 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h3><p><code>PluginRunner</code>是各类Runner的接口（抽象基类），不过这里还有一个更基础的<code>flag_interfaces.go</code>，里面定义了一些接口。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/">1</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/4/">4</a><span class="page-number current">5</span>
+    <a class="extend prev" rel="prev" href="/archives/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/">1</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/archives/page/6/">6</a><a class="extend next" rel="next" href="/archives/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
