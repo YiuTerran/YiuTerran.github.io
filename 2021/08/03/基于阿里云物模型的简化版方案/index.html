@@ -26,19 +26,19 @@
 <meta name="description" content="抽象概念 产品(Product)：使用相同连接方式+相同物模型的一类设备。基本字段：  唯一标识：平台生成的产品唯一标识，一般是uuid；  名称；  描述；  节点类型：直连设备、网关设备和网关子设备；  联网方式：WiFi、蜂窝、以太网，以及lora，lora需要填入一些参数（前期先不支持）；  连接协议：指的是数据到上一级节点的通信协议。我们暂时不使用阿里云那种自定义topic+脚本转换的方">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于阿里云iot平台的简化版设计方案">
-<meta property="og:url" content="http://yiuterran.github.io/2017/07/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:url" content="http://yiuterran.github.io/2021/08/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/index.html">
 <meta property="og:site_name" content="无心呢喃">
 <meta property="og:description" content="抽象概念 产品(Product)：使用相同连接方式+相同物模型的一类设备。基本字段：  唯一标识：平台生成的产品唯一标识，一般是uuid；  名称；  描述；  节点类型：直连设备、网关设备和网关子设备；  联网方式：WiFi、蜂窝、以太网，以及lora，lora需要填入一些参数（前期先不支持）；  连接协议：指的是数据到上一级节点的通信协议。我们暂时不使用阿里云那种自定义topic+脚本转换的方">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2017-07-03T06:21:18.000Z">
-<meta property="article:modified_time" content="2021-08-05T00:18:58.485Z">
+<meta property="article:published_time" content="2021-08-03T06:21:18.000Z">
+<meta property="article:modified_time" content="2021-08-05T00:20:36.567Z">
 <meta property="article:author" content="tryao">
 <meta property="article:tag" content="design">
 <meta property="article:tag" content="iot">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://yiuterran.github.io/2017/07/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/">
+<link rel="canonical" href="http://yiuterran.github.io/2021/08/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/">
 
 
 <script class="page-configurations">
@@ -226,7 +226,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/08/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -250,14 +250,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2017-07-03 14:21:18" itemprop="dateCreated datePublished" datetime="2017-07-03T14:21:18+08:00">2017-07-03</time>
+      <time title="创建时间：2021-08-03 14:21:18" itemprop="dateCreated datePublished" datetime="2021-08-03T14:21:18+08:00">2021-08-03</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-05 08:18:58" itemprop="dateModified" datetime="2021-08-05T08:18:58+08:00">2021-08-05</time>
+        <time title="修改时间：2021-08-05 08:20:36" itemprop="dateModified" datetime="2021-08-05T08:20:36+08:00">2021-08-05</time>
       </span>
 
   
@@ -269,8 +269,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/2017/07/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/03/基于阿里云物模型的简化版方案/" itemprop="commentCount"></span>
+    <a title="disqus" href="/2021/08/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/08/03/基于阿里云物模型的简化版方案/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -468,14 +468,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/" rel="prev" title="maven和gradle一些选项">
-                  <i class="fa fa-chevron-left"></i> maven和gradle一些选项
+                <a href="/2021/07/01/springcloud-alibaba%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="springcloud-alibaba学习笔记">
+                  <i class="fa fa-chevron-left"></i> springcloud-alibaba学习笔记
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="oracle学习笔记">
-                  oracle学习笔记 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -564,8 +561,8 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "http://yiuterran.github.io/2017/07/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/";
-    this.page.identifier = "2017/07/03/基于阿里云物模型的简化版方案/";
+    this.page.url = "http://yiuterran.github.io/2021/08/03/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%A9%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88%E6%96%B9%E6%A1%88/";
+    this.page.identifier = "2021/08/03/基于阿里云物模型的简化版方案/";
     this.page.title = "基于阿里云iot平台的简化版设计方案";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
