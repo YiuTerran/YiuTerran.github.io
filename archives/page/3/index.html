@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-count">65</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,214 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" class="post-title-link" itemprop="url">微服务设计迷思-数据存储</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-10-31 11:14:08 / 修改时间：13:16:22" itemprop="dateCreated datePublished" datetime="2019-10-31T11:14:08+08:00">2019-10-31</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/10/31/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%BF%B7%E6%80%9D-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/31/微服务设计迷思-数据存储/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>后台数据的存储，其演变路线是非常明晰的。从全部用传统DBMS(oracle/mysql)到NoSQL配合db，直到现在的分布式数据库(NewSQL)。对应的，后台服务的主流架构也由单体式到SOA到微服务。当然，OLAP还引入了hbase，hive等大数据分析系统；然后各专业领域还有es或者neo4j之类的数据库，这里先不讨论这个。</p>
+<p>这么多年，后端的设计其实没有大的改变，主要解决的就是流量问题：越来越庞大的访问量，和随之产生的数据量。银行证券等金融系统，最开始使用的是db2，sysbase等硬件数据库，然后是oracle这种较为成熟的单点数据库，这两年才逐渐拥抱开源，用pgsql代替oracle或是引入分布式数据库。访问量更为庞大、同时实时性也要求更高的互联网服务（很多金融系统的实时性其实很差，比如跨国swift汇款，可能要一个星期才到账。它涉及到风控等外部因素，实时性并不是第一位的。当然也有要求高的，比如股票购买。），则更为激进，在移动互联网时代就大规模引入redis、mongodb等NoSQL组件，以提高响应速度。</p>
+<h2 id="单点时代"><a href="#单点时代" class="headerlink" title="单点时代"></a>单点时代</h2><p>即使C10K时代，单点数据库一般也足够满足需求。这时候最多考虑的是HA问题，mysql等常见db都提供了副本集的设计，也有比较成熟的集群架构（比如PXC架构）。这些技术在当今也很常见，中小规模的互联网公司仍在使用。oracle自带的分区功能也可以较少单表读写压力。</p>
+<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>稍大规模的服务，也可以根据key值进行手动的分片。虽然麻烦了一些，但是仍然够用，事务的一致性可以通过db得到保证。但是如果引入了NoSQL，如redis，不同组件之间的数据一致性和事务性无法得到保证。</p>
+<p>在代码里进行分库分表耦合太深，所以出现了mycat这一类透明代理，这样代码里仍然把数据库当作单点处理。代理反向解析sql语句，将请求送入正确的db，并进行数据汇总。当然OLAP用这个会有join问题，分页问题等。</p>
+<p>mongodb虽然支持集群，但是不支持表之间的join操作，所以其实也算是一种分片。关于分片的设计，前面的博客有分析（数据密集型应用设计）。</p>
+<h2 id="一库一服"><a href="#一库一服" class="headerlink" title="一库一服"></a>一库一服</h2><p>有人说微服务与SOA最大的区别就是一库一服，实际上这并没有解决任何问题，只是转移了问题，并且带来了新的问题。</p>
+<p>将服务拆分成更小粒度的服务，每个服务使用单独的数据库。这些单独的数据库仍然可以使用分片进行水平扩展分解压力，显然这是一种<strong>分治</strong>的思想。但是分库破坏了db的acid特性，会导致数据失去强一致性。</p>
+<p>以支付服务为例，在同一个db中，可以利用数据库的事务性保证付款和减少库存两个操作的一致性。如果通过微服务，支付服务和库存服务独立的情况下，只能拆分成支付服务扣钱-&gt;通知库存服务减少-&gt;库存减少成功/失败-&gt;回调支付服务确认，这就是所谓的TCC解决方案。</p>
+<p>显然，某些业务（比如股票/火车票购买）是不能用这种模型的，扣钱成功必须保证买到商品，否则用户肯定会投诉的。所以这时候就只能用二阶段提交等一致性搞好的方案，但是效率又得不到保证。</p>
+<h2 id="分布式数据库"><a href="#分布式数据库" class="headerlink" title="分布式数据库"></a>分布式数据库</h2><p>NewSQL的分布式数据库，从db层面上解决了数据扩展性的问题。说白了，它是将分布式事务的问题从服务层面重新转回db层面。于是一切又回到了单点时代，对于服务而言，分布式数据库就当作一个单点来使用即可。</p>
+<p>当然分布式数据库至今仍然有一些问题，不过已经可以在生产上使用。</p>
+<h2 id="未来"><a href="#未来" class="headerlink" title="未来"></a>未来</h2><p>从程序设计的角度来看，一切正在回到初始。</p>
+<p>ServiceMesh和NewSQL，这两项技术将一切外部组件的复杂性进行了屏蔽，那么很多业务就重新回到CURD的简单工作了。</p>
+<p>然而终究没有银弹，在很长一段时间内，上面的技术都会并存于世。合理的进行选型设计才是架构师应该考虑的问题。</p>
+<p>多嘴说一句，Dubbo, SpringCloud这种架构注定会过时的，它将外部组件的复杂性引入了代码，这不符合低耦合高聚集的程序设计原则，注定会被ServiceMesh替代。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">面试刷题总结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-18 18:07:21" itemprop="dateCreated datePublished" datetime="2019-10-18T18:07:21+08:00">2019-10-18</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-10-21 14:26:21" itemprop="dateModified" datetime="2019-10-21T14:26:21+08:00">2019-10-21</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/10/18/%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/18/刷题总结/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="题目类型"><a href="#题目类型" class="headerlink" title="题目类型"></a>题目类型</h1><h2 id="字符串-数组"><a href="#字符串-数组" class="headerlink" title="字符串/数组"></a>字符串/数组</h2><p>字符串是数组的一个特例，常用处理方案是一致的。思路包括：</p>
+<ol>
+<li>双指针（首尾）</li>
+<li>回溯</li>
+<li>贪心/dp</li>
+<li>Trie树</li>
+<li>二分搜索（各种变种）</li>
+</ol>
+<h3 id="特殊题型"><a href="#特殊题型" class="headerlink" title="特殊题型"></a>特殊题型</h3><ol>
+<li>旋转数组：多次反转</li>
+<li>判断是否存在，超大规模使用布隆过滤器（能精准判断不存在，但是不能精准判断存在）</li>
+<li>矩阵相关：注意遍历的起始位置，根据矩阵的特点从右上角、左下角开始能迅速计算出目标</li>
+</ol>
+<h2 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h2><p>在Java中通过PriorityQueue实现最大/最小堆（默认是最小）<br>python中通过heapq这个库来实现数组堆化，当然也可以用queue.PriorityQueue<br>堆可以用来解决<strong>topK问题</strong></p>
+<h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><p>栈通常用来解决优先级问题，一系列的操作中，有些优先级高，有些优先级低。可以将优先级低的先压栈，取出优先级高的进行处理。</p>
+<h2 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h2><p>队列可以用来解决二叉树层次遍历问题。</p>
+<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><ol>
+<li>双指针（快慢）<ol>
+<li>快慢指针能相遇则链表有环</li>
+<li>相遇点和链表头各设一个指针，同时前进，交点即环的入口</li>
+<li>两个链表的问题，可以根据长度差X设置两个指针，长链表指针先走X步</li>
+</ol>
+</li>
+</ol>
+<h2 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h2><p>概念：<br>    1. 满二叉树：除了叶子节点，所有节点都有两个子节点的二叉树；层数为K，节点数为2^K - 1个<br>    2. 完全二叉树：最后一层节点从左到右连续，其他层节点达到最大值。满二叉树是完全二叉树的特殊情况<br>    3. 二叉搜索树(BST)：左子树的节点均小于根结点，右子树的节点均大于根结点，子节点也是二叉搜索树<br>       1. 中序遍历BST得到排序后的数组；<br>       2. 反向转换：取mid作为根，左边递归是左子树，右边递归是右子树<br>       3. 二叉搜索树的所有操作复杂度为O(h)，h为树的高度，当树高度不平衡时，退化为O(n)，即链表操作<br>    4. 平衡二叉树：左右子树高度差不超过1，且子节点都是平衡二叉树<br>    5. AVL：自平衡二叉搜索树<br>    6. 红黑树：也是自平衡二叉搜索树，理论性能优于AVL树 =&gt; 由于十分难写，很多实现采用skiplist代替<br>    7. 区间树/线段树：二叉搜索树的元素不再是元素，而是某个区间<br>    8. B树：自平衡多叉树，高度较低，适用于磁盘存储<br>    9.  R树：一般用于存储空间位置信息</p>
+<p>解法：<br>    1. 递归。由于二叉树本身就是递归结构，所以几乎所有的解法都需要递归<br>    2. 遍历：前序、中序、后序都是深度优先搜索（DFS），使用递归即可；层次遍历是广度优先搜索（BFS），使用队列辅助完成；<br>    3. 序列化：用层次遍历即可，先把root放进去然后分别放入其子节点</p>
+<h2 id="排序和搜索"><a href="#排序和搜索" class="headerlink" title="排序和搜索"></a>排序和搜索</h2><p>概念：<br>    1. 经典排序算法：插入、选择、冒泡，复杂度都是O(n^2)，实际上一般并不单独使用<br>    2. 普通排序算法的最佳复杂度就是O(nlgn)，一般我们使用快排，但是它的最差复杂度是O(n^2)，相比之下归并排序具有更稳定的复杂度但是却需要占用更多的空间<br>    3. 如果需要稳定排序，一般还是用归并排序<br>    4. 特殊情况下，可以达到线性事件排序，如桶排序、基数排序等<br>    5. 求Kth最大/小的值，一般采用类似快速排序的切割算法，期望复杂度是O(n)，C++中可以用STL中的nth实现<br>    6. 二分搜索的前提是数组已经排好序</p>
+<h2 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h2><p>dp问题没有固定的解法，一般用于最优化问题（统筹规划），需要根据观察列出dp方程，并找到剪枝方式，从而简化求解过程。<br>dp方程的个数取决于状态的个数，自变量的个数则需要分析题意。</p>
+<p>使用动态规划将问题划分为若干个子问题，这些子问题之间相互重叠，通过记忆化查表的方式简化这些计算，动态规划一般分为自底向上和自顶向下两种设计方式。<br>贪心算法则是对子问题直接作出贪心选择，从而简化计算，贪心算法一般都是自顶向下的。</p>
+<h2 id="图论"><a href="#图论" class="headerlink" title="图论"></a>图论</h2><p>掌握dfs，bfs和并查集<br>并查集主要是join和search两个操作<br>最短路径算法<br>最小生成树</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1340,310 +1548,6 @@
 
 <p>其中<code>0.12.4</code>版本mac上运行的时候，需要设置最后两个参数才能保证字体大小看起来比较正常.</p>
 <p>pdfkit渲染速度超快，非常👍</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">oracle学习笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-07-03 14:21:18" itemprop="dateCreated datePublished" datetime="2017-07-03T14:21:18+08:00">2017-07-03</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2018-01-04 11:20:40" itemprop="dateModified" datetime="2018-01-04T11:20:40+08:00">2018-01-04</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/07/03/oracle%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/03/oracle学习笔记/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>工作以后只用过MySQL，互联网公司也基本都是MySQL了。现在来到了金融公司，不得不进行Oracle的逆入门（毕竟一般人都是Oracle到MySQL）。</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Mac下可以使用docker安装，可以参考<a target="_blank" rel="noopener" href="http://blog.csdn.net/xp541130126/article/details/70138904">这篇博客</a>.</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><code>OLTP</code>：在线事务处理系统，强调数据库的内存效率，强调内存各种指标的命中率，强调绑定变量，强调并发操作。用户并发数都很多，但他们只对数据库做很小的操作，数据库侧重于对用户操作的快速响应。<br><code>OLAP</code>：在线分析系统，强调数据分析，强调SQL 执行时长，强调磁盘I/O，强调分区等。主要用户数据分析，对于性能要求没那么高。</p>
-<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>oracle的索引分为B-tree, Bitmap，Hash等，其中位图索引不能被声明为唯一索引，适合候选值很少，且不频繁改动的列。对于高并发系统，不要使用位图索引。</p>
-<p>函数索引：如果查询的时候总是使用某个函数，使用函数索引较多。例如，对于搜索大小写不敏感的字段，查询的时候总会使用<code>Upper</code>函数将其转为大写，但是存放的时候还是用户的原始数据，就可以建立一个函数索引。</p>
-<h3 id="分区表"><a href="#分区表" class="headerlink" title="分区表"></a>分区表</h3><p>类似MySQL中的shard，不同的是Oracle自带了这个功能。现在基于MySQL的TiDB，以及各类开源的Proxy功能也可以实现透明分区。注意：含有LONG、LONGRAW数据类型的表不能进行分区。</p>
-<p>分区方法：<br>    1. 范围分区：以某个字段的range为标准进行分区，适合以日期分割的历史数据，如交易记录<br>    1. 哈希分区：以某个字段的hash为标准进行分区，分区<br>    1. 列表分区：以某个字段的值为标准进行分区，适合列为有限枚举值的情况<br>    1. 组合分区：以Range分区作为根分区方法，其他分区作为子分区</p>
-<p>Oracle可以自动根据时间建立分区表。</p>
-<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>整体和MySQL类似。使用<code>LOCK TABLE tablename</code>的格式加表锁。</p>
-<p>使用<code>SELECT..FOR UPDATE</code>方式加行级锁。</p>
-<p>当<code>COMMIT</code>或者<code>ROLLBACK</code>后，释放锁。但是<code>ROLLBACK</code>不能释放行级锁。其他的锁主要是供系统使用，是DBA需要掌握的内容，包括如何解决死锁等。</p>
-<h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><p>MySQL的体系结构非常简单：<code>database</code> ——&gt; <code>table</code>，可以随意创建用户，然后我们通过<code>grant</code>命令赋予用户对库、表的访问权利。</p>
-<p>Oracle的体系稍微麻烦一些，<code>database</code>（数据库实例，又称为SID）还存在，但是下一级不是<code>table</code>，而是<code>tablespace</code>（表空间，一个实例可以有N个表空间。表空间创建时可以指定大小），再下一层是具体的数据文件。如果想要建表，必须创建用户(<code>user</code>)，并为用户指定表空间。这个是物理存储角度下oracle的结构。</p>
-<p>在逻辑概念上，SID下面一层是用户，存储过程、函数、表、序列等等，则是隶属于这个用户的对象(<code>object</code>)。用户创建任意object后，会默认生成一个方案(<code>schema</code>，与用户对应)，在逻辑上，这个用户创建的所有object属于这个schema，即使这些object属于不同的<code>tablespace</code>.</p>
-<p>在权限管理上，user默认有自己schema的所有权限，如果用户想要访问其他schema的object，必须赋权。</p>
-<p>一般流程：创建<code>database</code> -&gt; 创建<code>tablespace</code> -&gt; 创建<code>user</code>（指定默认的<code>tablespace</code>） -&gt; 用户建表。</p>
-<p>有关表的元数据被存放在数据字典中。</p>
-<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>默认情况下，oracle会自动创建若干个用户，如<code>sys</code>, <code>system</code>和<code>scott(Tiger)</code>，并提示输入默认密码. 使用<code>sqlplus</code>登入后，使用命令<code>select username,account_status from dba_users;</code>获取所有账户状态，有需要的话可以使用<code>password</code>命令修改密码。</p>
-<p>创建用户：类似MySQL，使用<code>create user root identified by &#39;123456&#39;;</code>，然后使用<code>alter user root account unlock</code>解锁用户。</p>
-<p>权限：分为系统权限（如建表、建库等）和具体的数据权限（增删改查等）。用户可以将自己<code>schema</code>下的object授权给其他用户，或者使用管理员账户进行授权。语句格式大致为<code>grant select on emp to root with grant option</code>.</p>
-<p>收回权限：<code>revoke select on emp from root</code>.</p>
-<p>删除用户： <code>drop user root cascade</code>，删除用户会导致用户名下所有的数据都被删除，谨慎使用。</p>
-<p>可以使用<code>profile</code>进行安全策略的限制（输错密码次数、密码过期时间、密码强度限制等等）。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们先通过<code>sys</code>等系统dba账户登入，创建项目需要的管理员账户，然后赋予<code>connect</code>, <code>resource</code>和<code>dba</code>的权利。然后使用这个账户登入，创建项目需要的表。</p>
-<p>注意：oracle命令默认是<strong>区分</strong>大小写的，但是如果不加双引号的话，所有的字段、命令都会被转化为大写。一般情况下，使用单引号来引用字符串，如果字符串里面有单引号，需要使用两个单引号转义。如果用了系统关键字（或者空格等符号），则使用双引号包围字符串。</p>
-<p>使用上和MySQL有很多细节的不同，主要包括：</p>
-<ol>
-<li>自增。需要先<code>create sequence myseq increment by 1 start with 1000</code>创建一个自增序列，然后在插入的时候使用<code>myseq.nextval</code>来取得自增的值（有点类似mongo）；</li>
-<li>外部脚本。使用<code>@ xxx.sql</code>导入；</li>
-<li>表达式。使用<code>select 3 * 2 from dual</code>;</li>
-<li>系统时间。使用<code>select sysdate from dual</code>，具体格式可以使用<code>select to_char(sysdate,&#39;yyyy-mm-dd&#39;) from dual;</code>;</li>
-<li>修改表名。 <code>rename xx to yy</code>;</li>
-<li>分页。Oracle的分页做的很挫…最好使用id分页，如果要用数据库自身的分页，需要使用嵌套子查询。oracle对每一列有<code>rownum</code>和<code>rowid</code>两个虚列，前者是结果集的序列（从1开始），后者是物理上每一行的id。</li>
-</ol>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> A.<span class="operator">*</span>, ROWNUM RN</span><br><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> TABLE_NAME <span class="keyword">ORDER</span> <span class="keyword">BY</span> x) A</span><br><span class="line"><span class="keyword">WHERE</span> ROWNUM <span class="operator">&lt;=</span> <span class="number">40</span></span><br><span class="line">) T</span><br><span class="line"><span class="keyword">WHERE</span> RN <span class="operator">&gt;=</span> <span class="number">21</span></span><br></pre></td></tr></table></figure>
-
-<p>这里最里面那一层是真正的SQL语句，进行全表搜索。然后<code>ROWNUM&lt;=40</code>表示只要前四十行，最外层表示在这前40行里面只要第二页（假设每页20个）的.<br>需要注意：</p>
-<ol>
-<li><code>rownum</code>是自动生成的，所以内层的<code>rownum</code>只能用<code>&lt;=</code>，而绝对不能用<code>&gt;=10</code>这种，因为生成的列永远从1开始；</li>
-<li>如果有<code>order by</code>字段，必须有三层查询，最内层做排序，次外层选择前N条，最外层做偏移量</li>
-</ol>
-<h3 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h3><p>oracle建表有很多可选参数，其中：</p>
-<pre><code>pctfree：用于指定BLOCK中必需保留的最小空间的比例。
-pctused：为一个百分比数值，当BLOCK中已经使用的空间降低到该数值以下时，该BLOCK才是可用的，达到或是超过这个数值的BLOCK是不可用的。
-一般在控制具有独立segment结构的对象时，使用这两个参数来控制BLOCK的存储管理。
-initrans：指定可以并发操作该表的事务的数目。
-</code></pre>
-<p>如果你预计只有很少的更新操作会增加行的大小，则可将PCTFREE设置为较低的值（如5或者10），使得ORACLE填满每个块的更多的空间。但是，如果你预计更新操作将会经常增加行的大小，则将PCTFREE设置为较高的值（如20或30），使得ORACLE为已有行的更新操作保留更多的块空间；否则，将出现行链。</p>
-<p>如果你预计很少有删除操作，则可设置PCTUSED为较高的值（如60），当偶然的删除操作发生时，使数据块弹出可用清单。但是，如果你预计将PCTUSED 设置为较低的值（如40），使ORACLE不常产生块在表的可用空间中移进或移出的开销。</p>
-<h2 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h2><p>PL/SQL是针对Oracle特有的SQL语句，不可移植。</p>
-<p>基本单位：块(block).</p>
-<p>语句：声明(declare)，执行(begin…end)，异常处理(exception..end)</p>
-<p>运算符：注意<code>||</code>是字符串连接，其他和MySQL差不多</p>
-<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>命名：<code>DECLARE test VARCHAR(20)</code>，命名规范：</p>
-<pre><code>至多有30个字符
-不能是保留字
-必须以字母开头
-不允许和数据库中表的列名相同
-不可包括$,_和数字以外的字符
-</code></pre>
-<p>变量定义（类似go语言）： <code>v_number NUMBER(2) NOT NULL := 20</code>，常量使用<code>CONSTANT</code>. 可以在声明时指定其他变量的类型作为其类型（类似泛型），格式是<code>var%TYPE</code></p>
-<p>基本数据类型就是JDBC中的那些，常用的是Number和varchar2, boolean, date这几个。数组类型使用<code>VARRAY(size) OF element_type [NOT NULL]</code>的形式，使用<code>(n)</code>进行下标访问</p>
-<p>复合数据类型:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TYPE type_name <span class="keyword">IS</span> RECORD(</span><br><span class="line">    fieldname fieldtype,</span><br><span class="line">    fieldname fieldtype</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-
-<p>显然这玩意儿类似C语言中的<code>struct</code>. 也可以直接用<code>table%RAWTYPE</code>声明一个同表结构的记录。甚至可以直接声明表类型，类似一个数据，格式为：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">declare</span></span><br><span class="line">            type ename_table_type <span class="keyword">is</span> <span class="keyword">table</span> <span class="keyword">of</span> emp.ename<span class="operator">%</span>type</span><br><span class="line">            index <span class="keyword">by</span> binary_integer;</span><br><span class="line">ename_table ename_table_type;</span><br></pre></td></tr></table></figure>
-
-<p>可以使用<code>ename_table(-1)</code>进行下标访问，使用<code>.FIRST</code>和<code>.LAST</code>访问第一行和最后一行。</p>
-<p>除了普通变量外，还有替换变量。主要用于人机交互，<code>&amp;</code>前缀表示提示用户输入，且仅此次有效，<code>&amp;&amp;</code>前缀则表示永久有效，仅需要输入一次。</p>
-<p>变量的可见范围，在<code>DECLARE</code>中声明的变量，在后面的<code>BEGIN</code>块中可见。</p>
-<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><p>游标是查询结果集的指针。<br>显式使用语法：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CURSOR</span> cursor_name[(<span class="keyword">parameter</span>[, <span class="keyword">parameter</span>]…)]</span><br><span class="line">       [<span class="keyword">RETURN</span> datatype]</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">    select_statement;</span><br></pre></td></tr></table></figure>
-
-<p>游标里面显然不能用<code>SELECT..INTO..</code>，而是要手动遍历。使用<code>OPEN cursor_name</code>打开游标，执行语句。<br>使用<code>FETCH cursor_name INTO xxx</code>取出游标对应的行，<code>FETCH</code>以后，游标会自动指向下一行。游标不能回退，使用完毕后要记得<code>CLOSE</code>掉。</p>
-<p>可以通过参数类型<code>sys_refcursor</code>传递游标。接受的函数/存储过程必须使用<code>OPEN xxx FOR SELECT</code>打开游标进行赋值。</p>
-<p>游标属性包括：</p>
-<pre><code>Cursor_name%FOUND     布尔型属性，当最近一次提取游标操作FETCH成功则为 TRUE,否则为FALSE；
-Cursor_name%NOTFOUND   布尔型属性，与%FOUND相反；
-Cursor_name%ISOPEN     布尔型属性，当游标已打开时返回 TRUE；
-Cursor_name%ROWCOUNT   数字型属性，返回已从游标中读取的记录数。
-</code></pre>
-<p>可以直接使用<code>FOR var IN CURSOR LOOP</code>进行循环取值。</p>
-<p>除了显式使用以外，普通的update、insert和delete语句也会自动生成隐式游标，可以用<code>SQL</code>查询上面的属性。</p>
-<p>使用<code>SELECT FOR UPDATE [NOWAIT]</code>加悲观锁，如果使用 FOR UPDATE 声明游标，则可在DELETE和UPDATE 语句中使用<code>WHERE CURRENT OF cursor_name</code>子句，修改或删除游标结果集合当前行对应的数据库表中的数据行。</p>
-<p>除了静态游标外，还可以使用游标变量，形式是：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TYPE ref_type_name <span class="keyword">IS</span> <span class="keyword">REF</span> <span class="keyword">CURSOR</span></span><br><span class="line"> [ <span class="keyword">RETURN</span> return_type];</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h3><p>条件语句：<code>IF..THEN..ELSIF..ELSE..ENDIF</code>，或者<code>CASE..WHEN..THEN..ELSE..END</code></p>
-<p>循环语句：<code>LOOP..EXIT WHEN..END LOOP</code>, 或者<code>FOR..IN..LOOP..END LOOP</code>, 或者<code>WHILE..LOOP..END LOOP</code></p>
-<p>范围循环使用<code>..</code>连接上下限.</p>
-<p>使用<code>GOTO</code>跳转到label, label使用<code>&lt;&lt;&gt;&gt;</code>标示起来</p>
-<h3 id="包（package）"><a href="#包（package）" class="headerlink" title="包（package）"></a>包（package）</h3><p>有点类似C/C++，先声明包头，然后创建包体。包名自动被注册到<code>schema</code>下，可以直接调用。</p>
-<p>包是pl/sql实现抽象的主要途径。创建包的语法为：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> [<span class="keyword">OR</span> REPLACE] PACKAGE package_name</span><br><span class="line">  &#123;IS | AS&#125;</span><br><span class="line">  [公有游标定义[公有游标定义]…]</span><br><span class="line">  [公有函数定义[公有函数定义]…]</span><br><span class="line">  [公有过程定义[公有过程定义]…]</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  执行部分(初始化部分)</span><br><span class="line"><span class="keyword">END</span> package_name;</span><br></pre></td></tr></table></figure>
-
-<p>上面类似C/C++中的头文件，导出了可供外部调用的函数和过程、游标。</p>
-<p>包体则对应具体的实现，其语法为：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> REPLACE PACKAGE BODY pkg_name</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">[私有内容定义]</span><br><span class="line">[公有内容定义]</span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
-
-<p>这样，就可以在其他函数/存储过程里面通过<code>package_name.function_name</code>来调用包内的函数/过程了。</p>
-<h3 id="函数-function-amp-存储过程-Proceduce"><a href="#函数-function-amp-存储过程-Proceduce" class="headerlink" title="函数(function) &amp; 存储过程(Proceduce)"></a>函数(function) &amp; 存储过程(Proceduce)</h3><p>调用函数可以用命名传递方式，即<code>func_name(1, param2 =&gt; 1)</code>，同时声明的函数参数可以用<code>DEFAULT</code>关键字指定默认值。</p>
-<p>类似函数，除了无返回值，定义语法：</p>
-<pre><code> CREATE ［OR REPLACE］PROCEDURE procedure_name
- [(argument_name [IN | OUT | IN OUT] argument_type [DEFAULT value])]
- AS | IS
- BEGIN
-     procedure_body;
- END [procedure_name];
-</code></pre>
-<p>其中:</p>
-<pre><code>IN：表示是一个输入参数，可以指定缺省值。如省略参数类型，则缺省为in类型
-OUT：表示是一个输出参数
-IN OUT：既可以作为一个输入参数，也可以作为一个输出参数来输出结果
-</code></pre>
-<p>调用语法：</p>
-<pre><code>EXECUTE ｜CALL procedure_name [(argument_list)]
-</code></pre>
-<h3 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h3><p>使用<code>dbms_job.submit</code>可以异步调用存储过程</p>
-<h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><p>预定义了以下异常：</p>
-<pre><code>NO_DATA_FOUND          SELECT ... INTO ... 时，没有找到数据
-DUL_VAL_ON_INDEX       试图在一个有惟一性约束的列上存储重复值
-CURSOR_ALREADY_OPEN    试图打开一个已经打开的游标
-TOO_MANY_ROWS          SELECT ... INTO ... 时，查询的结果是多值
-ZERO_DIVIDE            零被整除
-</code></pre>
-<p>当然也可以自己声明<code>EXCEPTION</code>, 在程序中<code>RAISE</code>出来。处理语法是<code>BEGIN..EXCEPTION..WHEN..THEN..WHEN OTHERS THEN...END</code></p>
-<p>使用<code>SQLCODE</code>和<code>SQLERRM</code>分别取得错误码和错误信息，还可以使用<code>RAISE_APPLICATION_ERROR(error_number,error_message,[keep_errors] );</code>将异常传递到客户端</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">maven和gradle一些选项</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2017-06-26 09:32:23 / 修改时间：11:21:49" itemprop="dateCreated datePublished" datetime="2017-06-26T09:32:23+08:00">2017-06-26</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/06/26/maven%E5%92%8Cgradle%E4%B8%80%E4%BA%9B%E9%80%89%E9%A1%B9/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/26/maven和gradle一些选项/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Java的包依赖系统简单粗暴，就是直接下载jar包，经历了<code>Ant</code> -&gt; <code>Maven</code> -&gt; <code>Gradle</code>这几个阶段，目前的项目里面还是Maven比较多，后续我会试着迁到Gradle上。</p>
-<p>如果用一句话来表明区别的话：Gradle的配置文件是一种DSL，而Maven则使用XML，表达能力不可同日而语。</p>
-<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>Maven在多个模块依赖同一个模块时，需要手动处理版本冲突问题（将公共依赖手动排除），而Gradle会尝试自动解决该问题（使用公共依赖的最新版本）。</p>
-<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p>类似<code>npm</code>中的概念：这个包是啥时候被需要。显然有些包只是编译的时候需求，运行的时候不再被需要，因为Maven中的<code>scope</code>分为以下几种：</p>
-<ul>
-<li>compile. 默认范围，会被打包。</li>
-<li>provided. 这个概念比较模糊，意思是这东西由外部容器提供，不需要自己打包进去。</li>
-<li>runtime. 只有运行和测试系统的时候需要，编译的时候不需要。一个典型的例子就是<code>jdbc</code>的接口API在编译时必须要可用，但是具体实现可以只在运行时插入。</li>
-<li>test. 只被测试依赖。Maven有标准的测试流程。</li>
-<li>system. 系统范围，jar包被放在本地，无须从仓库中寻找。当然一般不推荐使用。</li>
-</ul>
-<h2 id="Idea的使用"><a href="#Idea的使用" class="headerlink" title="Idea的使用"></a>Idea的使用</h2><p>Idea中可以在<code>Project Structure</code>里面直接修改配置，会自动生成/修改对应的Pom文件，主要在<code>modules/dependencies</code>里面改。</p>
 
       
     </div>

@@ -3612,4 +3612,131 @@ ZERO_DIVIDE            零被整除
         <tag>iot</tag>
       </tags>
   </entry>
+  <entry>
+    <title>flink学习纪要</title>
+    <url>/2021/08/12/flink%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/</url>
+    <content><![CDATA[<p>flink有两套API，一套是datastream，类似spark的RDD；另外一套则是TableSQL，这是一种更新的流批一体技术，两者可以相互转换。至于传统的批处理DataSet技术，将会在未来被废弃，不必再学习。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>根据Google的dataflow论文，批处理可以视为有界流，这是流批一体的理论基础。</p>
+<p><img src="https://ci.apache.org/projects/flink/flink-docs-release-1.13/fig/program_dataflow.svg" alt="A DataStream program, and its dataflow."></p>
+<p>上图是一段官方的示例代码，一个典型flink应用程序，数据从source中抽取，然后经过一系列<em>Operator</em>的<em>Transformation</em>，最后汇集到<em>sink</em>里。</p>
+<p>注意，所有的operator之间是可以并发执行的，前提是对流进行按key hash，这也是为啥最后有一个sink等待结果汇总。</p>
+<p>一般情况下，流数据都有一个时间戳<em>Event Time</em>，事件本身发生的时间顺序非常重要；与之对应的还有摄取时间（<em>ingestion time</em>）和算子的<em>processing time</em>。由于乱序到达问题，需要对事件进行按<em>Event Time</em>重排序，但是我们不能<strong>无限制</strong>的等待较早事件到来的可能，这会导致所有的事件都会被放弃处理。引入<em>watermark</em>的概念来解决这个问题，这是一个特殊事件发生器，将一个特殊时间戳插入流中，表示t之前的数据都已经全部到达。如果真的有事件早于t在watermark之后到来，称之为延迟事件。默认情况下，延迟事件将被删除。可以使用旁路输出单独获取这些延迟流；或者加一个允许延迟，在允许延迟范围内仍然会单独触发窗口；</p>
+<p>Flink的算子可以<strong>保留状态</strong>，这种保留可以是持久化的，即便发生故障，也能达到<strong>精确一次计算</strong>( 每一个事件都会影响 Flink 管理的状态精确一次)的语义。当然端到端的精确一次需要程序本身的幂等性来实现。</p>
+<p>可以看出，整体执行路径是一个有向图。</p>
+<p><em>window</em>:  将事件流拆分成窗口，常见的方式有固定时间、滑动窗口、固定数量、滑动数量以及会话窗口（最小间隔），一些注意事项：</p>
+<ol>
+<li>滑动窗口是通过复制实现的；</li>
+<li>时间窗口会和整数时间对齐；</li>
+<li>如果窗口之间的距离足够小，窗口就会merge；</li>
+</ol>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><p>flink提供了四层抽象等级，最上面一层是纯SQL</p>
+<p>然后是Table SQL</p>
+<p>然后是DataStream/DataSet的抽象</p>
+<p>目前推荐使用的是：TableSQL/DataStream，这两类API，并根据需求创建UDF</p>
+<h3 id="datastream"><a href="#datastream" class="headerlink" title="datastream"></a>datastream</h3><p>流式处理模式，主要需要掌握的是如何写自定义Function，使用state和window；以及Watermark的配置和使用。</p>
+<h3 id="CEP"><a href="#CEP" class="headerlink" title="CEP"></a>CEP</h3><p>复杂事件处理</p>
+<p>配合规则引擎可以动态处理事件规则</p>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:apache/flink-training.git</span><br><span class="line">git checkout release-1.13</span><br><span class="line"><span class="built_in">cd</span> flink-training</span><br></pre></td></tr></table></figure>
+
+<p>通过readme进行练习测试。</p>
+]]></content>
+      <tags>
+        <tag>flink</tag>
+        <tag>bigdata</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hive速记</title>
+    <url>/2021/08/24/hive%E9%80%9F%E8%AE%B0/</url>
+    <content><![CDATA[<p>众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。</p>
+<p>Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。</p>
+<p>现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。</p>
+<p>Hive依赖MySQL（或其他数据库），用来存放元数据(hive meta)。命令行下一般使用<em>beeline</em>访问hive server。</p>
+<h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> [<span class="keyword">external</span>] <span class="keyword">table</span> [if <span class="keyword">not</span> exist] xxx (</span><br><span class="line">	name type comment <span class="string">&#x27;&#x27;</span> # 列定义，语法类似MySQL</span><br><span class="line">) comment <span class="string">&#x27;&#x27;</span></span><br><span class="line">	<span class="keyword">partition</span> <span class="keyword">by</span> ()  # 分区</span><br><span class="line">  clustered <span class="keyword">by</span> () <span class="keyword">into</span> n buckets # 分桶</span><br><span class="line">  [<span class="type">row</span> format delimited] # 序列化定义</span><br><span class="line">  fields terminated <span class="keyword">by</span> x # 字段分隔符</span><br><span class="line">  stored <span class="keyword">as</span> xxx # 存储格式</span><br><span class="line">  [location <span class="string">&#x27;/xxx&#x27;</span>] # 存储位置</span><br><span class="line">  tblproperties (); # 其他属性</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>CREATE TABLE 创建一个指定名字的表。如果相同名字的表已经存在，则抛出异常；用户可以用 IF NOT EXIST 选项来忽略这个异常。</p>
+</li>
+<li><p>EXTERNAL 关键字可以让用户创建一个外部表，在建表的同时指定一个指向实际数据的路径（LOCATION），Hive创建内部表时，会将数据移动到数据仓库指向的路径；若创建外部表，仅记录数据所在的路径，不对数据的位置做任何改变。在删除表的时候，内部表的元数据和数据会被一起删除，而外部表只删除元数据，不删除数据。</p>
+</li>
+<li><p>LIKE 允许用户复制现有的表结构，但是不复制数据。</p>
+</li>
+<li><p>用户在建表的时候可以自定义 SerDe 或者使用自带的 SerDe。如果没有指定 ROW FORMAT 或者 ROW FORMAT DELIMITED，将会使用自带的 SerDe。在建表的时候，用户还需要为表指定列，用户在指定表的列的同时也会指定自定义的 SerDe，Hive 通过 SerDe 确定表的具体的列的数据。</p>
+</li>
+<li><p>如果文件数据是纯文本，可以使用 STORED AS TEXTFILE。如果数据需要压缩，使用 STORED AS SEQUENCE；新版本一般使用ORC文件或者PARQUET格式，如果不使用复杂数据列，或者spark引擎，则优先考虑orc格式；</p>
+</li>
+<li><p>有分区的表可以在创建的时候使用 PARTITIONED BY 语句。一个表可以拥有一个或者多个分区，每一个分区单独存在一个目录下。而且，表和分区都可以对某个列进行 CLUSTERED BY 操作，将若干个列放入一个桶（bucket）中。也可以利用SORT BY 对数据进行排序，这样可以为特定应用提高性能。用来partition的维度<strong>并不是实际数据的某一列</strong>，具体分区的标志是由插入内容时给定的；</p>
+</li>
+<li><p>表名和列名不区分大小写，SerDe 和属性名区分大小写；表和列的注释是字符串；</p>
+</li>
+<li><p>SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。</p>
+</li>
+<li><p>数据库常用间隔符的读取。我们的常用间隔符一般是Ascii码5，Ascii码7等。在hive中Ascii码5用’\005’表示， Ascii码7用’\007’表示，依此类推。使用不可见字符是为了防止和真实数据冲突；</p>
+</li>
+<li><p>分隔符设置：</p>
+<blockquote>
+<p>FIELDS TERMINATED BY：设置字段与字段之间的分隔符<br>COLLECTION ITEMS TERMINATED BY：设置一个复杂类型（array,struct)字段的各个item之间的分隔符<br>MAP KEYS TERMINATED BY：设置一个复杂类型(Map)字段的key value之间的分隔符<br>LINES TERMINATED BY：设置行与行之间的分隔符</p>
+</blockquote>
+</li>
+<li><p>hive中不存在主键、外键的概念，也不推荐使用索引；</p>
+</li>
+</ul>
+<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><h3 id="批量插入"><a href="#批量插入" class="headerlink" title="批量插入"></a>批量插入</h3><p>一般使用<code>LOAD DATA [LOCAL] INPATH &#39;filepath&#39; [OVERWRITE] INTO TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)]</code>直接装载数据到分区。</p>
+<p>或者使用<code>INSERT OVERWRITE TABLE tablename PARTITION (partcol1[=val1], partcol2[=val2] ...) select_statement FROM from_statement</code>从别的表里插入数据。</p>
+<p>也可以倒装成<code>from ... insert </code></p>
+<p>其中<code>overwrite</code>用来先清空表格再插入。</p>
+<h3 id="单条插入"><a href="#单条插入" class="headerlink" title="单条插入"></a>单条插入</h3><p>当建表时使用orc格式时，可以对单行数据CURD，甚至可以使用事务。语法类似MySQL。</p>
+<h2 id="导出数据"><a href="#导出数据" class="headerlink" title="导出数据"></a>导出数据</h2><p><code>INSERT OVERWRITE [LOCAL] DIRECTORY directory1 SELECT ... FROM ...</code></p>
+<h2 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h2><p><code>delete from ... where...</code>，仅orc支持。</p>
+<p>其他存储格式，只能删除整张表，不允许修改或者删除单行数据。</p>
+<h2 id="事务支持"><a href="#事务支持" class="headerlink" title="事务支持"></a>事务支持</h2><p>如上文所述，事务支持必须使用ORC存储，且表必须分桶。orc不支持直接LOAD DATA，必须从其他表插入。</p>
+<p>修改hive-site.xml配置，做以下修改：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.support.concurrency<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.exec.dynamic.partition.mode<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>nonstrict<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.txn.manager<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.initiator.on<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.worker.threads<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在MySQL里面插入元数据（3.x不需要）：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_lock_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_compaction_queue_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_txn_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>修改结束后，需要重启服务。如果使用CDH或者HDP，可以直接在控制台上修改。</p>
+<p>建表：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 (id <span class="type">int</span>, name string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>NOTE</strong>：需要先安装好Hadoop并启动(<code>brew install hadoop</code>，然后修改一些配置)</p>
+<p>可以手动插入一条数据做测试：<code>insert into t1 values(1, &quot;aaa&quot;)</code>，可以看到插入速度是非常慢的。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 (id <span class="type">int</span>, name string, cty string, st string) <span class="type">row</span> format delimited fields terminated <span class="keyword">by</span> <span class="string">&#x27;,&#x27;</span> lines terminated <span class="keyword">by</span> <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个txt文件，随便写点数据：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1,a,us,ca</span><br><span class="line">2,b,us,cb</span><br><span class="line">3,c,cn,cc</span><br><span class="line">4,d,fr,cd</span><br></pre></td></tr></table></figure>
+
+<p>然后使用语句导入：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">load data <span class="keyword">local</span> inpath <span class="string">&#x27;/tmp/test.txt&#x27;</span> <span class="keyword">into</span> <span class="keyword">table</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t3 <span class="keyword">like</span> t2;</span><br><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> t3 <span class="keyword">select</span> id,name,cty,st <span class="keyword">from</span> t2 <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分区分桶：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t4 (id <span class="type">int</span>, name string) partitioned <span class="keyword">by</span> (country string, state string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">table</span> t4 <span class="keyword">partition</span>(country,state) <span class="keyword">select</span> id, name, cty <span class="keyword">as</span> country,st <span class="keyword">as</span> state <span class="keyword">from</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>注意partition后面的分区列必须和建表语句中声明的一致，后面select 需要用as转换出分区列的名字。</p>
+<h2 id="优化与技巧"><a href="#优化与技巧" class="headerlink" title="优化与技巧"></a>优化与技巧</h2><ul>
+<li><p>可以设置<code>set hive.mapred.mode=strict</code>强制使用分区过滤；</p>
+</li>
+<li><p>使用<code>hive -e</code>执行外部sql脚本；</p>
+</li>
+<li><p>外部表也可以建立分区，在外部添加分区目录后，使用<code>alter table xx add partition(col=$name) location &#39;&#39;</code>增加分区即可；</p>
+</li>
+<li><p>在hive命令行里可以执行<code>dfs</code>命令，和在bash里面跑<code>hdfs dfs</code>的命令一样；</p>
+</li>
+<li><p><code>load</code>命令不支持动态分区插入，所以必须建立一个中间表过渡；</p>
+</li>
+<li></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>bigdata</tag>
+        <tag>hive</tag>
+      </tags>
+  </entry>
 </search>

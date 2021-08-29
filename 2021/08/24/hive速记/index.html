@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。 Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。 现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hive速记">
+<meta property="og:url" content="http://yiuterran.github.io/2021/08/24/hive%E9%80%9F%E8%AE%B0/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。 Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。 现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-24T06:33:44.000Z">
+<meta property="article:modified_time" content="2021-08-29T02:28:13.855Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="bigdata">
+<meta property="article:tag" content="hive">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2021/08/24/hive%E9%80%9F%E8%AE%B0/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>hive速记 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">建表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="nav-number">2.</span> <span class="nav-text">插入数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E6%8F%92%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">批量插入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E6%9D%A1%E6%8F%92%E5%85%A5"><span class="nav-number">2.2.</span> <span class="nav-text">单条插入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%BC%E5%87%BA%E6%95%B0%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">导出数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">删除数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E6%94%AF%E6%8C%81"><span class="nav-number">5.</span> <span class="nav-text">事务支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90"><span class="nav-number">6.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">7.</span> <span class="nav-text">优化与技巧</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">65</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/08/24/hive%E9%80%9F%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          hive速记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-24 14:33:44" itemprop="dateCreated datePublished" datetime="2021-08-24T14:33:44+08:00">2021-08-24</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-08-29 10:28:13" itemprop="dateModified" datetime="2021-08-29T10:28:13+08:00">2021-08-29</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/08/24/hive%E9%80%9F%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/08/24/hive速记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。</p>
+<p>Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。</p>
+<p>现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。</p>
+<p>Hive依赖MySQL（或其他数据库），用来存放元数据(hive meta)。命令行下一般使用<em>beeline</em>访问hive server。</p>
+<h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> [<span class="keyword">external</span>] <span class="keyword">table</span> [if <span class="keyword">not</span> exist] xxx (</span><br><span class="line">	name type comment <span class="string">&#x27;&#x27;</span> # 列定义，语法类似MySQL</span><br><span class="line">) comment <span class="string">&#x27;&#x27;</span></span><br><span class="line">	<span class="keyword">partition</span> <span class="keyword">by</span> ()  # 分区</span><br><span class="line">  clustered <span class="keyword">by</span> () <span class="keyword">into</span> n buckets # 分桶</span><br><span class="line">  [<span class="type">row</span> format delimited] # 序列化定义</span><br><span class="line">  fields terminated <span class="keyword">by</span> x # 字段分隔符</span><br><span class="line">  stored <span class="keyword">as</span> xxx # 存储格式</span><br><span class="line">  [location <span class="string">&#x27;/xxx&#x27;</span>] # 存储位置</span><br><span class="line">  tblproperties (); # 其他属性</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>CREATE TABLE 创建一个指定名字的表。如果相同名字的表已经存在，则抛出异常；用户可以用 IF NOT EXIST 选项来忽略这个异常。</p>
+</li>
+<li><p>EXTERNAL 关键字可以让用户创建一个外部表，在建表的同时指定一个指向实际数据的路径（LOCATION），Hive创建内部表时，会将数据移动到数据仓库指向的路径；若创建外部表，仅记录数据所在的路径，不对数据的位置做任何改变。在删除表的时候，内部表的元数据和数据会被一起删除，而外部表只删除元数据，不删除数据。</p>
+</li>
+<li><p>LIKE 允许用户复制现有的表结构，但是不复制数据。</p>
+</li>
+<li><p>用户在建表的时候可以自定义 SerDe 或者使用自带的 SerDe。如果没有指定 ROW FORMAT 或者 ROW FORMAT DELIMITED，将会使用自带的 SerDe。在建表的时候，用户还需要为表指定列，用户在指定表的列的同时也会指定自定义的 SerDe，Hive 通过 SerDe 确定表的具体的列的数据。</p>
+</li>
+<li><p>如果文件数据是纯文本，可以使用 STORED AS TEXTFILE。如果数据需要压缩，使用 STORED AS SEQUENCE；新版本一般使用ORC文件或者PARQUET格式，如果不使用复杂数据列，或者spark引擎，则优先考虑orc格式；</p>
+</li>
+<li><p>有分区的表可以在创建的时候使用 PARTITIONED BY 语句。一个表可以拥有一个或者多个分区，每一个分区单独存在一个目录下。而且，表和分区都可以对某个列进行 CLUSTERED BY 操作，将若干个列放入一个桶（bucket）中。也可以利用SORT BY 对数据进行排序，这样可以为特定应用提高性能。用来partition的维度<strong>并不是实际数据的某一列</strong>，具体分区的标志是由插入内容时给定的；</p>
+</li>
+<li><p>表名和列名不区分大小写，SerDe 和属性名区分大小写；表和列的注释是字符串；</p>
+</li>
+<li><p>SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。</p>
+</li>
+<li><p>数据库常用间隔符的读取。我们的常用间隔符一般是Ascii码5，Ascii码7等。在hive中Ascii码5用’\005’表示， Ascii码7用’\007’表示，依此类推。使用不可见字符是为了防止和真实数据冲突；</p>
+</li>
+<li><p>分隔符设置：</p>
+<blockquote>
+<p>FIELDS TERMINATED BY：设置字段与字段之间的分隔符<br>COLLECTION ITEMS TERMINATED BY：设置一个复杂类型（array,struct)字段的各个item之间的分隔符<br>MAP KEYS TERMINATED BY：设置一个复杂类型(Map)字段的key value之间的分隔符<br>LINES TERMINATED BY：设置行与行之间的分隔符</p>
+</blockquote>
+</li>
+<li><p>hive中不存在主键、外键的概念，也不推荐使用索引；</p>
+</li>
+</ul>
+<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><h3 id="批量插入"><a href="#批量插入" class="headerlink" title="批量插入"></a>批量插入</h3><p>一般使用<code>LOAD DATA [LOCAL] INPATH &#39;filepath&#39; [OVERWRITE] INTO TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)]</code>直接装载数据到分区。</p>
+<p>或者使用<code>INSERT OVERWRITE TABLE tablename PARTITION (partcol1[=val1], partcol2[=val2] ...) select_statement FROM from_statement</code>从别的表里插入数据。</p>
+<p>也可以倒装成<code>from ... insert </code></p>
+<p>其中<code>overwrite</code>用来先清空表格再插入。</p>
+<h3 id="单条插入"><a href="#单条插入" class="headerlink" title="单条插入"></a>单条插入</h3><p>当建表时使用orc格式时，可以对单行数据CURD，甚至可以使用事务。语法类似MySQL。</p>
+<h2 id="导出数据"><a href="#导出数据" class="headerlink" title="导出数据"></a>导出数据</h2><p><code>INSERT OVERWRITE [LOCAL] DIRECTORY directory1 SELECT ... FROM ...</code></p>
+<h2 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h2><p><code>delete from ... where...</code>，仅orc支持。</p>
+<p>其他存储格式，只能删除整张表，不允许修改或者删除单行数据。</p>
+<h2 id="事务支持"><a href="#事务支持" class="headerlink" title="事务支持"></a>事务支持</h2><p>如上文所述，事务支持必须使用ORC存储，且表必须分桶。orc不支持直接LOAD DATA，必须从其他表插入。</p>
+<p>修改hive-site.xml配置，做以下修改：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.support.concurrency<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.exec.dynamic.partition.mode<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>nonstrict<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.txn.manager<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.initiator.on<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.worker.threads<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在MySQL里面插入元数据（3.x不需要）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_lock_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_compaction_queue_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_txn_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>修改结束后，需要重启服务。如果使用CDH或者HDP，可以直接在控制台上修改。</p>
+<p>建表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 (id <span class="type">int</span>, name string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>NOTE</strong>：需要先安装好Hadoop并启动(<code>brew install hadoop</code>，然后修改一些配置)</p>
+<p>可以手动插入一条数据做测试：<code>insert into t1 values(1, &quot;aaa&quot;)</code>，可以看到插入速度是非常慢的。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 (id <span class="type">int</span>, name string, cty string, st string) <span class="type">row</span> format delimited fields terminated <span class="keyword">by</span> <span class="string">&#x27;,&#x27;</span> lines terminated <span class="keyword">by</span> <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个txt文件，随便写点数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1,a,us,ca</span><br><span class="line">2,b,us,cb</span><br><span class="line">3,c,cn,cc</span><br><span class="line">4,d,fr,cd</span><br></pre></td></tr></table></figure>
+
+<p>然后使用语句导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load data <span class="keyword">local</span> inpath <span class="string">&#x27;/tmp/test.txt&#x27;</span> <span class="keyword">into</span> <span class="keyword">table</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t3 <span class="keyword">like</span> t2;</span><br><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> t3 <span class="keyword">select</span> id,name,cty,st <span class="keyword">from</span> t2 <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分区分桶：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t4 (id <span class="type">int</span>, name string) partitioned <span class="keyword">by</span> (country string, state string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">table</span> t4 <span class="keyword">partition</span>(country,state) <span class="keyword">select</span> id, name, cty <span class="keyword">as</span> country,st <span class="keyword">as</span> state <span class="keyword">from</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>注意partition后面的分区列必须和建表语句中声明的一致，后面select 需要用as转换出分区列的名字。</p>
+<h2 id="优化与技巧"><a href="#优化与技巧" class="headerlink" title="优化与技巧"></a>优化与技巧</h2><ul>
+<li><p>可以设置<code>set hive.mapred.mode=strict</code>强制使用分区过滤；</p>
+</li>
+<li><p>使用<code>hive -e</code>执行外部sql脚本；</p>
+</li>
+<li><p>外部表也可以建立分区，在外部添加分区目录后，使用<code>alter table xx add partition(col=$name) location &#39;&#39;</code>增加分区即可；</p>
+</li>
+<li><p>在hive命令行里可以执行<code>dfs</code>命令，和在bash里面跑<code>hdfs dfs</code>的命令一样；</p>
+</li>
+<li><p><code>load</code>命令不支持动态分区插入，所以必须建立一个中间表过渡；</p>
+</li>
+<li></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/bigdata/" rel="tag"># bigdata</a>
+              <a href="/tags/hive/" rel="tag"># hive</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/12/flink%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/" rel="prev" title="flink学习纪要">
+                  <i class="fa fa-chevron-left"></i> flink学习纪要
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yiuterran.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yiuterran.github.io/2021/08/24/hive%E9%80%9F%E8%AE%B0/";
+    this.page.identifier = "2021/08/24/hive速记/";
+    this.page.title = "hive速记";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yiuterran.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

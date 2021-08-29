@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-count">65</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,283 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/08/24/hive%E9%80%9F%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/24/hive%E9%80%9F%E8%AE%B0/" class="post-title-link" itemprop="url">hive速记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-24 14:33:44" itemprop="dateCreated datePublished" datetime="2021-08-24T14:33:44+08:00">2021-08-24</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-08-29 10:28:13" itemprop="dateModified" datetime="2021-08-29T10:28:13+08:00">2021-08-29</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/08/24/hive%E9%80%9F%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/08/24/hive速记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。</p>
+<p>Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。</p>
+<p>现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。</p>
+<p>Hive依赖MySQL（或其他数据库），用来存放元数据(hive meta)。命令行下一般使用<em>beeline</em>访问hive server。</p>
+<h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> [<span class="keyword">external</span>] <span class="keyword">table</span> [if <span class="keyword">not</span> exist] xxx (</span><br><span class="line">	name type comment <span class="string">&#x27;&#x27;</span> # 列定义，语法类似MySQL</span><br><span class="line">) comment <span class="string">&#x27;&#x27;</span></span><br><span class="line">	<span class="keyword">partition</span> <span class="keyword">by</span> ()  # 分区</span><br><span class="line">  clustered <span class="keyword">by</span> () <span class="keyword">into</span> n buckets # 分桶</span><br><span class="line">  [<span class="type">row</span> format delimited] # 序列化定义</span><br><span class="line">  fields terminated <span class="keyword">by</span> x # 字段分隔符</span><br><span class="line">  stored <span class="keyword">as</span> xxx # 存储格式</span><br><span class="line">  [location <span class="string">&#x27;/xxx&#x27;</span>] # 存储位置</span><br><span class="line">  tblproperties (); # 其他属性</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>CREATE TABLE 创建一个指定名字的表。如果相同名字的表已经存在，则抛出异常；用户可以用 IF NOT EXIST 选项来忽略这个异常。</p>
+</li>
+<li><p>EXTERNAL 关键字可以让用户创建一个外部表，在建表的同时指定一个指向实际数据的路径（LOCATION），Hive创建内部表时，会将数据移动到数据仓库指向的路径；若创建外部表，仅记录数据所在的路径，不对数据的位置做任何改变。在删除表的时候，内部表的元数据和数据会被一起删除，而外部表只删除元数据，不删除数据。</p>
+</li>
+<li><p>LIKE 允许用户复制现有的表结构，但是不复制数据。</p>
+</li>
+<li><p>用户在建表的时候可以自定义 SerDe 或者使用自带的 SerDe。如果没有指定 ROW FORMAT 或者 ROW FORMAT DELIMITED，将会使用自带的 SerDe。在建表的时候，用户还需要为表指定列，用户在指定表的列的同时也会指定自定义的 SerDe，Hive 通过 SerDe 确定表的具体的列的数据。</p>
+</li>
+<li><p>如果文件数据是纯文本，可以使用 STORED AS TEXTFILE。如果数据需要压缩，使用 STORED AS SEQUENCE；新版本一般使用ORC文件或者PARQUET格式，如果不使用复杂数据列，或者spark引擎，则优先考虑orc格式；</p>
+</li>
+<li><p>有分区的表可以在创建的时候使用 PARTITIONED BY 语句。一个表可以拥有一个或者多个分区，每一个分区单独存在一个目录下。而且，表和分区都可以对某个列进行 CLUSTERED BY 操作，将若干个列放入一个桶（bucket）中。也可以利用SORT BY 对数据进行排序，这样可以为特定应用提高性能。用来partition的维度<strong>并不是实际数据的某一列</strong>，具体分区的标志是由插入内容时给定的；</p>
+</li>
+<li><p>表名和列名不区分大小写，SerDe 和属性名区分大小写；表和列的注释是字符串；</p>
+</li>
+<li><p>SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。</p>
+</li>
+<li><p>数据库常用间隔符的读取。我们的常用间隔符一般是Ascii码5，Ascii码7等。在hive中Ascii码5用’\005’表示， Ascii码7用’\007’表示，依此类推。使用不可见字符是为了防止和真实数据冲突；</p>
+</li>
+<li><p>分隔符设置：</p>
+<blockquote>
+<p>FIELDS TERMINATED BY：设置字段与字段之间的分隔符<br>COLLECTION ITEMS TERMINATED BY：设置一个复杂类型（array,struct)字段的各个item之间的分隔符<br>MAP KEYS TERMINATED BY：设置一个复杂类型(Map)字段的key value之间的分隔符<br>LINES TERMINATED BY：设置行与行之间的分隔符</p>
+</blockquote>
+</li>
+<li><p>hive中不存在主键、外键的概念，也不推荐使用索引；</p>
+</li>
+</ul>
+<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><h3 id="批量插入"><a href="#批量插入" class="headerlink" title="批量插入"></a>批量插入</h3><p>一般使用<code>LOAD DATA [LOCAL] INPATH &#39;filepath&#39; [OVERWRITE] INTO TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)]</code>直接装载数据到分区。</p>
+<p>或者使用<code>INSERT OVERWRITE TABLE tablename PARTITION (partcol1[=val1], partcol2[=val2] ...) select_statement FROM from_statement</code>从别的表里插入数据。</p>
+<p>也可以倒装成<code>from ... insert </code></p>
+<p>其中<code>overwrite</code>用来先清空表格再插入。</p>
+<h3 id="单条插入"><a href="#单条插入" class="headerlink" title="单条插入"></a>单条插入</h3><p>当建表时使用orc格式时，可以对单行数据CURD，甚至可以使用事务。语法类似MySQL。</p>
+<h2 id="导出数据"><a href="#导出数据" class="headerlink" title="导出数据"></a>导出数据</h2><p><code>INSERT OVERWRITE [LOCAL] DIRECTORY directory1 SELECT ... FROM ...</code></p>
+<h2 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h2><p><code>delete from ... where...</code>，仅orc支持。</p>
+<p>其他存储格式，只能删除整张表，不允许修改或者删除单行数据。</p>
+<h2 id="事务支持"><a href="#事务支持" class="headerlink" title="事务支持"></a>事务支持</h2><p>如上文所述，事务支持必须使用ORC存储，且表必须分桶。orc不支持直接LOAD DATA，必须从其他表插入。</p>
+<p>修改hive-site.xml配置，做以下修改：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.support.concurrency<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.exec.dynamic.partition.mode<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>nonstrict<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.txn.manager<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.initiator.on<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.compactor.worker.threads<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在MySQL里面插入元数据（3.x不需要）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_lock_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_compaction_queue_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> next_txn_id <span class="keyword">values</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>修改结束后，需要重启服务。如果使用CDH或者HDP，可以直接在控制台上修改。</p>
+<p>建表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 (id <span class="type">int</span>, name string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>NOTE</strong>：需要先安装好Hadoop并启动(<code>brew install hadoop</code>，然后修改一些配置)</p>
+<p>可以手动插入一条数据做测试：<code>insert into t1 values(1, &quot;aaa&quot;)</code>，可以看到插入速度是非常慢的。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 (id <span class="type">int</span>, name string, cty string, st string) <span class="type">row</span> format delimited fields terminated <span class="keyword">by</span> <span class="string">&#x27;,&#x27;</span> lines terminated <span class="keyword">by</span> <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个txt文件，随便写点数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1,a,us,ca</span><br><span class="line">2,b,us,cb</span><br><span class="line">3,c,cn,cc</span><br><span class="line">4,d,fr,cd</span><br></pre></td></tr></table></figure>
+
+<p>然后使用语句导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load data <span class="keyword">local</span> inpath <span class="string">&#x27;/tmp/test.txt&#x27;</span> <span class="keyword">into</span> <span class="keyword">table</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t3 <span class="keyword">like</span> t2;</span><br><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> t3 <span class="keyword">select</span> id,name,cty,st <span class="keyword">from</span> t2 <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分区分桶：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t4 (id <span class="type">int</span>, name string) partitioned <span class="keyword">by</span> (country string, state string) clustered <span class="keyword">by</span> (id) <span class="keyword">into</span> <span class="number">8</span> buckets stored <span class="keyword">as</span> orc tblproperties (<span class="string">&#x27;transactional&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>筛选导入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">table</span> t4 <span class="keyword">partition</span>(country,state) <span class="keyword">select</span> id, name, cty <span class="keyword">as</span> country,st <span class="keyword">as</span> state <span class="keyword">from</span> t2;</span><br></pre></td></tr></table></figure>
+
+<p>注意partition后面的分区列必须和建表语句中声明的一致，后面select 需要用as转换出分区列的名字。</p>
+<h2 id="优化与技巧"><a href="#优化与技巧" class="headerlink" title="优化与技巧"></a>优化与技巧</h2><ul>
+<li><p>可以设置<code>set hive.mapred.mode=strict</code>强制使用分区过滤；</p>
+</li>
+<li><p>使用<code>hive -e</code>执行外部sql脚本；</p>
+</li>
+<li><p>外部表也可以建立分区，在外部添加分区目录后，使用<code>alter table xx add partition(col=$name) location &#39;&#39;</code>增加分区即可；</p>
+</li>
+<li><p>在hive命令行里可以执行<code>dfs</code>命令，和在bash里面跑<code>hdfs dfs</code>的命令一样；</p>
+</li>
+<li><p><code>load</code>命令不支持动态分区插入，所以必须建立一个中间表过渡；</p>
+</li>
+<li></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/08/12/flink%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/12/flink%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/" class="post-title-link" itemprop="url">flink学习纪要</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-12 14:40:53" itemprop="dateCreated datePublished" datetime="2021-08-12T14:40:53+08:00">2021-08-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-08-16 09:04:29" itemprop="dateModified" datetime="2021-08-16T09:04:29+08:00">2021-08-16</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/08/12/flink%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/08/12/flink学习纪要/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>flink有两套API，一套是datastream，类似spark的RDD；另外一套则是TableSQL，这是一种更新的流批一体技术，两者可以相互转换。至于传统的批处理DataSet技术，将会在未来被废弃，不必再学习。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>根据Google的dataflow论文，批处理可以视为有界流，这是流批一体的理论基础。</p>
+<p><img src="https://ci.apache.org/projects/flink/flink-docs-release-1.13/fig/program_dataflow.svg" alt="A DataStream program, and its dataflow."></p>
+<p>上图是一段官方的示例代码，一个典型flink应用程序，数据从source中抽取，然后经过一系列<em>Operator</em>的<em>Transformation</em>，最后汇集到<em>sink</em>里。</p>
+<p>注意，所有的operator之间是可以并发执行的，前提是对流进行按key hash，这也是为啥最后有一个sink等待结果汇总。</p>
+<p>一般情况下，流数据都有一个时间戳<em>Event Time</em>，事件本身发生的时间顺序非常重要；与之对应的还有摄取时间（<em>ingestion time</em>）和算子的<em>processing time</em>。由于乱序到达问题，需要对事件进行按<em>Event Time</em>重排序，但是我们不能<strong>无限制</strong>的等待较早事件到来的可能，这会导致所有的事件都会被放弃处理。引入<em>watermark</em>的概念来解决这个问题，这是一个特殊事件发生器，将一个特殊时间戳插入流中，表示t之前的数据都已经全部到达。如果真的有事件早于t在watermark之后到来，称之为延迟事件。默认情况下，延迟事件将被删除。可以使用旁路输出单独获取这些延迟流；或者加一个允许延迟，在允许延迟范围内仍然会单独触发窗口；</p>
+<p>Flink的算子可以<strong>保留状态</strong>，这种保留可以是持久化的，即便发生故障，也能达到<strong>精确一次计算</strong>( 每一个事件都会影响 Flink 管理的状态精确一次)的语义。当然端到端的精确一次需要程序本身的幂等性来实现。</p>
+<p>可以看出，整体执行路径是一个有向图。</p>
+<p><em>window</em>:  将事件流拆分成窗口，常见的方式有固定时间、滑动窗口、固定数量、滑动数量以及会话窗口（最小间隔），一些注意事项：</p>
+<ol>
+<li>滑动窗口是通过复制实现的；</li>
+<li>时间窗口会和整数时间对齐；</li>
+<li>如果窗口之间的距离足够小，窗口就会merge；</li>
+</ol>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><p>flink提供了四层抽象等级，最上面一层是纯SQL</p>
+<p>然后是Table SQL</p>
+<p>然后是DataStream/DataSet的抽象</p>
+<p>目前推荐使用的是：TableSQL/DataStream，这两类API，并根据需求创建UDF</p>
+<h3 id="datastream"><a href="#datastream" class="headerlink" title="datastream"></a>datastream</h3><p>流式处理模式，主要需要掌握的是如何写自定义Function，使用state和window；以及Watermark的配置和使用。</p>
+<h3 id="CEP"><a href="#CEP" class="headerlink" title="CEP"></a>CEP</h3><p>复杂事件处理</p>
+<p>配合规则引擎可以动态处理事件规则</p>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:apache/flink-training.git</span><br><span class="line">git checkout release-1.13</span><br><span class="line"><span class="built_in">cd</span> flink-training</span><br></pre></td></tr></table></figure>
+
+<p>通过readme进行练习测试。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1867,205 +2144,6 @@
 <p>首先每个通信协议对应一个Bean，类似上文中Leaf的<code>Module</code>，Bean的名称采用设备<code>品牌-类型-驱动</code>，并实现一个<code>call(reqId, args…)</code>的方法。对于长连接通信，显然bean里面需要保存设备id与channel的映射（并在断开连接时清理）。</p>
 <p>注意这个设计里，call的执行线程是与应用层通信的bean所在的线程，和实际通信的线程可能并不一样。不过channel.write本身是线程安全的。当应用层发送命令时，通过目标设备的<code>品牌-类型-驱动</code>找到对应的bean，然后调用call发送命令即可。</p>
 <p>更优雅的设计则是，将命令发送到消息循环里。服务端可以通过<code>fireUserEventTriggered</code>向channel中传递一个自定义对象，channel在<code>userEventTriggered</code>回调里面处理对应的消息，可以保证回调和channel的读写在同一个线程里面进行。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/" class="post-title-link" itemprop="url">golang文件操作的一个坑</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2020-06-05 13:52:07 / 修改时间：13:54:13" itemprop="dateCreated datePublished" datetime="2020-06-05T13:52:07+08:00">2020-06-05</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/06/05/golang%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/06/05/golang文件操作的一个坑/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>今天遇到一个蛋疼的问题，定位了很久，发现在windows上<code>path.Dir</code>获取的结果总是<code>.</code>，后来发现：</p>
-<p><strong>在windows上永远只用<code>filepath</code>这个库里面的函数</strong>，不要直接用path</p>
-<p>哎，浪费了一上午=_=</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2020/05/21/Workflow%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/05/21/Workflow%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Workflow入门.md</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-05-21 11:31:49" itemprop="dateCreated datePublished" datetime="2020-05-21T11:31:49+08:00">2020-05-21</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-06-07 21:30:40" itemprop="dateModified" datetime="2020-06-07T21:30:40+08:00">2020-06-07</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2020/05/21/Workflow%E5%85%A5%E9%97%A8/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/21/Workflow入门/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>目前业务需要引入工作流引擎，现在开始调研相关技术和概念。目前开源的工作流引擎基本都是base在BPMN这套概念上的，所以对其深入了解是必须的（其实也很简单）。</p>
-<p>入门文档最好的材料是<a target="_blank" rel="noopener" href="https://docs.awspaas.com/reference-guide/aws-paas-process-reference-guide/index.html">国产的某个paas官方中文文档</a>，比较翔实。</p>
-<h2 id="选型"><a href="#选型" class="headerlink" title="选型"></a>选型</h2><p>这块其实可选的很少，最知名的是Activiti，目前最新版本是7，亮点是支持k8s集成等云原生组件；然后就是Activiti早期版本fork出来的camunda；最后是Activiti后期版本fork出来的flowable.</p>
-<p>这里我选择flowable，因为资料比较丰富，而且自带的前端界面有中文，方便内部使用。目前我们遇到的问题是不太清楚客户的具体需求，所以要使用工作流引擎保证可扩展性，但是不需要用户自己配置工作流（而是我们替他们配置好），所以自带的中文界面就比较重要了。这样是最简单快速的集成方案，后续可以自己实现一套前后端增删改查的接口，集成到自己的平台上。</p>
-<p>那么这里主要描述如何将flowable集成到我们目前的系统里（一个SpringBoot项目，单db，暂时还没拆分成微服务）。</p>
-<p>目标是：</p>
-<ol>
-<li>搞清楚如何通过自带的界面创建表单、流程；</li>
-<li>如何把flowable整合到现有的业务中；</li>
-<li>理清楚flowable创建表格/数据的意义，自己开发对应的API；</li>
-</ol>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>因为是测试，所以先切换到一个新分支进行开发。然后根据<a target="_blank" rel="noopener" href="https://flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot/">官方指南</a>，先把maven依赖集成到项目中：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.flowable&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;flowable-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;flowable.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>我这里用的是最新的6.5.0版本，倒入依赖，重新编译项目。发现Jar包比原来大了13M左右，这个引擎的依赖还是挺多的…</p>
-<p>在配置文件里加入</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flowable.async-executor-activate&#x3D;false</span><br><span class="line">flowable.database-schema-update&#x3D;true</span><br><span class="line"># 必要的字体设置</span><br></pre></td></tr></table></figure>
-<p>注意后面那个必须设置为true，即使要手动建表。不过默认就是true，所以可以不设置。</p>
-<h2 id="第一次运行"><a href="#第一次运行" class="headerlink" title="第一次运行"></a>第一次运行</h2><p><code>mvn clean install</code>之后，<code>mvn -o spring-boot:run -Drun.profiles=dev</code>试图跑起来，结果发现缺失某个依赖，加上：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.fasterxml.jackson.module&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;jackson-module-jaxb-annotations&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>然后再跑，报bean<code>taskExecutor</code>报冲突。</p>
-<p>这里可以自己配置一下异步线程，避免和自己定义的默认线程池冲突。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlowableConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Process</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">processTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">3</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">10</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">&quot;flowable-task-&quot;</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cmmn</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskExecutor <span class="title">cmmnTaskExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">1</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">5</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.setKeepAliveSeconds(<span class="number">60</span>);</span><br><span class="line">        String threadNamePrefix = <span class="string">&quot;flowable-cmmn-&quot;</span>;</span><br><span class="line">        executor.setThreadNamePrefix(threadNamePrefix);</span><br><span class="line"></span><br><span class="line">        executor.setRejectedExecutionHandler(<span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">        executor.setWaitForTasksToCompleteOnShutdown(<span class="keyword">true</span>);</span><br><span class="line">        executor.setAwaitTerminationSeconds(<span class="number">120</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再跑，会报表不存在的错误。在datasource后面加上<code>&amp;nullCatalogMeansCurrent=true</code>，让程序自己建表。</p>
-<p>不过建议还是手动建表，因为默认的编码有点问题。mysql的原始sql在<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql%EF%BC%8C%E4%B8%8B%E4%B8%8B%E6%9D%A5%E6%94%B9%E4%B8%80%E4%B8%8B%E7%BC%96%E7%A0%81%E5%88%B0utf8mb4%EF%BC%8C%E7%84%B6%E5%90%8E%E6%89%8B%E5%8A%A8%E5%BB%BA%E8%A1%A8%E3%80%82">https://raw.githubusercontent.com/flowable/flowable-engine/flowable-6.5.0/distro/sql/create/all/flowable.mysql.all.create.sql，下下来改一下编码到utf8mb4，然后手动建表。</a></p>
-<p>现在再跑，应该一切正常了。可以看到flowable的表都是大写的，不管是字段还是表名。</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><a target="_blank" rel="noopener" href="http://www.shareniu.com/flowable6.5_zh_document/bpm/index.html">官方中文指南在此</a></p>
-<p>首先BPMN图形本质上是一段xml代码，然后我们又知道xml可以与bean映射，所以这就完美融合了，即BPMN就是“代码生成器”。</p>
-<h3 id="基本步骤"><a href="#基本步骤" class="headerlink" title="基本步骤"></a>基本步骤</h3><p>首先通过手动或者springboot的自动注册生成<code>ProcessEngine</code>对象，即规则引擎的工厂（线程安全）。然后手动编写流程bpmn对应的xml，或者通过界面生成也行。</p>
-<p>然后利用服务部署这个流程。</p>
-<p>每个流程有一个唯一id，调用流程就是通过id启动流程。把参数传进去，开始状态机的转换。</p>
-<p>未完待续</p>
 
       
     </div>
