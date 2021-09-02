@@ -31,7 +31,7 @@
 <meta property="og:description" content="众所周知，hadoop可以大略分为hdfs文件系统+MR引擎两部分构成，然后再加上yarn这个调度引擎（有的公司改用k8s调度了）。 Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。 现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-08-24T06:33:44.000Z">
-<meta property="article:modified_time" content="2021-08-29T02:28:13.855Z">
+<meta property="article:modified_time" content="2021-08-29T02:42:00.940Z">
 <meta property="article:author" content="tryao">
 <meta property="article:tag" content="bigdata">
 <meta property="article:tag" content="hive">
@@ -178,7 +178,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">65</span>
+        <span class="site-state-item-count">68</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -257,7 +257,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-29 10:28:13" itemprop="dateModified" datetime="2021-08-29T10:28:13+08:00">2021-08-29</time>
+        <time title="修改时间：2021-08-29 10:42:00" itemprop="dateModified" datetime="2021-08-29T10:42:00+08:00">2021-08-29</time>
       </span>
 
   
@@ -288,7 +288,7 @@
 <p>Hive是用来将SQL语句转成MR的，最初是Facebook贡献，后转为Apache开源项目。</p>
 <p>现在流行的是Hive on tez，后者取代MR作为DAG计算引擎。此外还有Hive On Spark，使用spark代替MR，Hadoop3之后，默认引擎变成了tez。</p>
 <p>Hive依赖MySQL（或其他数据库），用来存放元数据(hive meta)。命令行下一般使用<em>beeline</em>访问hive server。</p>
-<h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> [<span class="keyword">external</span>] <span class="keyword">table</span> [if <span class="keyword">not</span> exist] xxx (</span><br><span class="line">	name type comment <span class="string">&#x27;&#x27;</span> # 列定义，语法类似MySQL</span><br><span class="line">) comment <span class="string">&#x27;&#x27;</span></span><br><span class="line">	<span class="keyword">partition</span> <span class="keyword">by</span> ()  # 分区</span><br><span class="line">  clustered <span class="keyword">by</span> () <span class="keyword">into</span> n buckets # 分桶</span><br><span class="line">  [<span class="type">row</span> format delimited] # 序列化定义</span><br><span class="line">  fields terminated <span class="keyword">by</span> x # 字段分隔符</span><br><span class="line">  stored <span class="keyword">as</span> xxx # 存储格式</span><br><span class="line">  [location <span class="string">&#x27;/xxx&#x27;</span>] # 存储位置</span><br><span class="line">  tblproperties (); # 其他属性</span><br></pre></td></tr></table></figure>
+<h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> [<span class="keyword">external</span>] <span class="keyword">table</span> [if <span class="keyword">not</span> exist] xxx (</span><br><span class="line">	name type comment <span class="string">&#x27;&#x27;</span> # 列定义，语法类似MySQL</span><br><span class="line">) comment <span class="string">&#x27;&#x27;</span></span><br><span class="line">	<span class="keyword">partition</span> <span class="keyword">by</span> ()  # 分区</span><br><span class="line">  clustered <span class="keyword">by</span> () <span class="keyword">into</span> n buckets # 分桶</span><br><span class="line">  [<span class="type">row</span> format delimited] # 序列化定义</span><br><span class="line">  <span class="keyword">NULL</span> defined <span class="keyword">as</span> <span class="string">&#x27;&#x27;</span> # <span class="keyword">null</span>值处理</span><br><span class="line">  fields terminated <span class="keyword">by</span> x # 字段分隔符</span><br><span class="line">  stored <span class="keyword">as</span> xxx # 存储格式</span><br><span class="line">  [location <span class="string">&#x27;/xxx&#x27;</span>] # 存储位置</span><br><span class="line">  tblproperties (); # 其他属性</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li><p>CREATE TABLE 创建一个指定名字的表。如果相同名字的表已经存在，则抛出异常；用户可以用 IF NOT EXIST 选项来忽略这个异常。</p>
@@ -315,6 +315,9 @@
 </blockquote>
 </li>
 <li><p>hive中不存在主键、外键的概念，也不推荐使用索引；</p>
+</li>
+<li><p>HIVE表中默认将NULL存为\N，可查看表的源文件（hadoop fs -cat或者hadoop fs -text），文件中存储大量\N，<br>这样造成浪费大量空间。而且用java、python直接进入路径操作源数据时，解析也要注意。</p>
+<p>另外，hive表的源文件中，默认列分隔符为\001(SOH)，行分隔符为\n（目前只支持\n，别的不能用，所以定义时不需要显示声明）。<br>元素间分隔符\002，map中key和value的分隔符为\003。</p>
 </li>
 </ul>
 <h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><h3 id="批量插入"><a href="#批量插入" class="headerlink" title="批量插入"></a>批量插入</h3><p>一般使用<code>LOAD DATA [LOCAL] INPATH &#39;filepath&#39; [OVERWRITE] INTO TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)]</code>直接装载数据到分区。</p>
@@ -367,7 +370,13 @@
 </li>
 <li><p><code>load</code>命令不支持动态分区插入，所以必须建立一个中间表过渡；</p>
 </li>
-<li></li>
+<li><p>null相关处理函数有：</p>
+<ul>
+<li><code>nullif(a, b)</code>，如果a==b返回null，否则返回a</li>
+<li><code>coalesce(a1,a2,a3...)</code>，返回第一个非null值</li>
+<li><code>nvl(a, b)</code>，如果a==null返回b，否则返回a</li>
+</ul>
+</li>
 </ul>
 
     </div>
@@ -391,6 +400,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2021/08/29/%E6%95%B0%E4%BB%93%E6%A8%A1%E5%9E%8B%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0/" rel="next" title="数仓模型理论知识笔记">
+                  数仓模型理论知识笔记 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
