@@ -4241,8 +4241,8 @@ ZERO_DIVIDE            零被整除
 <li>ansi sql里面，没有什么很好的方法将string转成unix时间戳；配置<code>\start_ts</code>为<code>$&#123;field.value:toDate(&#39;yyyy-MM-dd HH:mm:ss.SSS&#39;):toNumber()&#125;</code>进行转换；</li>
 <li>另外就是calcite默认不支持中文，目前没找到设置的办法，配置<code>\type</code>等于<code>$&#123;field.value:contains(&#39;氧气&#39;):ifElse(3, $&#123;field.value:contains(&#39;温度&#39;):ifElse(1, 24)&#125;)&#125;</code>来转换；</li>
 </ul>
-<ol>
-<li>添加一个<code>PutRecord</code>，将<code>QueryRecord</code>和<code>PutRecord</code>连接起来，关系就是<code>extract</code>；</li>
+<ol start="6">
+<li>然后添加一个<code>PutRecord</code>，将<code>QueryRecord</code>和<code>PutRecord</code>连接起来，关系就是<code>extract</code>；</li>
 <li>配置<code>PutRecord</code>属性，填入目标数据库表信息；</li>
 </ol>
 <p>最后大概样子：</p>
