@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-count">71</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,299 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/" class="post-title-link" itemprop="url">gb28181实现调研</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-23 10:48:56" itemprop="dateCreated datePublished" datetime="2019-12-23T10:48:56+08:00">2019-12-23</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-02-18 13:14:09" itemprop="dateModified" datetime="2020-02-18T13:14:09+08:00">2020-02-18</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/12/23/gb28181%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%A0%94/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/23/gb28181实现调研/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>由于工地接入的摄像头五花八门，依靠厂家提供的平台不足以满足需求。公司需要直连摄像头和NVR进行视频取流等工作，我现在进行技术调研。</p>
+<p>首先直接搜gb28181的话，可以看到github上有一个c#的平台，用的<code>.net core</code>实现。然后仔细看相关文档，你会发现这玩意用了sip协议，后者开源的框架就相当多了，不过大部分是c/c++的，纯c的比较多。java的实现也有比较完整的版本，但是很久没更新了。go的话，目前还没有比较稳定的开源实现，有一些不太完整的版本。</p>
+<p>视频流这块，用了RTP/RTCP协议，发送的是PS流，发送给客户端的话，需要转换成可以拿来直播的其他流。</p>
+<p>换句话说，我们需要实现<strong>一个sip网关</strong>用来进行控制，和<strong>一个媒体流网关</strong>用来传输实时媒体数据。</p>
+<p>如果想要做嵌入式网关的话，推荐用纯C版本的库(pjsip实现了sip/RTP/RTCP/RTSP等所有的功能，live555/ffmpeg和gstreamer都是C实现)，自己写上层C++代码实现。</p>
+<p>考虑开发速度可以用高等语言来写其中的一部分，那个开源的<code>.net core</code>就是用C#写的（但是没有流媒体相关的实现）。为了熟悉协议，也可以自己先造个轮子（工作量很大）。</p>
+<p>值得注意的是标准的SDP协议部分使用了扩展字段y，一般开源代码并不支持，需要拿到源码<a target="_blank" rel="noopener" href="https://blog.csdn.net/comhaqs/article/details/101760176">!进行修改</a>。</p>
+<h2 id="协议解析"><a href="#协议解析" class="headerlink" title="协议解析"></a>协议解析</h2><p>github上那个c#的repo里面有协议的pdf文件，可以先下载下来。以下部分内容直接引用自协议文本。</p>
+<pre><code>安全注册、实时视音频点播、历史视音频的回放等应用的会话控制采用IETFRFC3261规定的 Register、Invite 等请求和响应方法实现,历史视音频回放控制采用SIP扩展协议IETFRFC2976规定的INFO方法实现,前端设备控制、信息查询、报警事件通知和分发等应用的会话控制采用SIP扩展协议IETFRFC3428规定的Mesage方法实现。
+</code></pre>
+<p>这里提到的几个方法，都是SIP协议规定的内容。SIP基于TCP/UDP，在应用层是纯文本协议，类似HTTP，也可以使用证书进行加密。</p>
+<p>类似HTTP，sip有标准的header和body。一个标准的SIP Message请求如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">To:sip:目的设备编码@目的域名</span><br><span class="line">CSeq:1 Message</span><br><span class="line">Cal-ID:a84b4c76e66710</span><br><span class="line">Via:SIP&#x2F;2.0&#x2F;UDP源域名或IP地址</span><br><span class="line">From:&lt;sip:源设备编码@源域名&gt;;tag&#x3D;237f57dc</span><br><span class="line">Content-Type:Application&#x2F;MANSCDP+xml</span><br><span class="line">Max-Forwards:69</span><br><span class="line">Content-Length:消息实体的字节长度</span><br><span class="line"></span><br><span class="line">&lt;?xmlversion&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;Control&gt;</span><br><span class="line">&lt;CmdType&gt;DeviceControl&lt;&#x2F;CmdType&gt;</span><br><span class="line">&lt;SN&gt;11&lt;&#x2F;SN&gt;</span><br><span class="line">&lt;DeviceID&gt;64010000041310000345&lt;&#x2F;DeviceID&gt;</span><br><span class="line">&lt;PTZCmd&gt;A50F4D1000001021&lt;&#x2F;PTZCmd&gt;</span><br><span class="line">&lt;Info&gt;</span><br><span class="line">&lt;ControlPriority&gt;5&lt;&#x2F;ControlPriority&gt;</span><br><span class="line">&lt;&#x2F;Info&gt;</span><br><span class="line">&lt;&#x2F;Control&gt;</span><br></pre></td></tr></table></figure>
+
+<p>注意sip是长链接协议，所以规定了标准的register流程。</p>
+<p>经过实际调研，最终决定暂时搁置这块的开发，其实SIP服务器实现起来不难，关键是流媒体转码相关的技术水比较深。目前公司还有其他优先级更高的事情，本文等待后续更新。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">通用多租户自定义角色权限模型</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-12-23 09:25:55 / 修改时间：10:47:55" itemprop="dateCreated datePublished" datetime="2019-12-23T09:25:55+08:00">2019-12-23</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/12/23/%E9%80%9A%E7%94%A8%E5%A4%9A%E7%A7%9F%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/23/通用多租户自定义角色权限模型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前段时间在忙一个saas系统的设计，这里总结一下经验。</p>
+<p>首先是用户付费方式一般以模块的形式进行，如果saas系统各租户的需求在细节上有很多不同，那就要对模块进行一些微调，在代码上使用策略模式进行归类区分抽象。但是总的来说，系统大的功能点应该相差不大，否则就属于定制化开发的范畴了。</p>
+<p>权限系统可以抽象为以下部分：</p>
+<ol>
+<li>功能点。功能点是一个全集，与后台的API对应。不同用户能够看到的功能点是不一样的，这取决于购买的需求；</li>
+<li>UI。功能点对应的UI可以由很多套，不同平台的客户端，不同版本的移动端，都可能有不同的UI；功能点分别关联到UI和API；</li>
+<li>角色。各租户除了内置的管理员，其他角色可以由用户自己定义；<strong>注意</strong>：并不是所有的saas系统都有这种需求，统一设计角色的话，系统设计会精简很多；</li>
+<li>权限。角色在定义的时候关联了功能点的权限。</li>
+</ol>
+<p>详细解释如下——</p>
+<h2 id="功能点"><a href="#功能点" class="headerlink" title="功能点"></a>功能点</h2><p>系统按着模块拆分功能点，功能点是最细的权限粒度。保证UI和API相对功能点都是一对多的关系，不存在多对多的关系。</p>
+<p>如果感觉用户操作功能点分配权限过于繁琐，可以对功能点做一个功能集，这样分配的粒度就会比较粗，但是也可以随时细化。</p>
+<p>功能点都有一个对应的权限描述方式，可以采用二进制位运算表示，也可以用权限字符串（参考shiro）。如果权限的判定需要根据用户请求的参数来决定，那就要动态的权限字符串（参考spel）。我这里用了spel的方式来描述权限，可以用Spring security来实现，或者自己用Spring AOP写一个权限描述。最后的形式类似于<code>#prj:device:view</code>，表示某个project的设备查看。</p>
+<p>每个API都有自己的权限需求，这与功能点的权限描述字符串对应。这里也是一对多的关系，API可以要求多个权限。用户必须拥有全部权限才能访问API。</p>
+<p>功能点理论上也是树型的，不过某些功能点可能对其他功能点有额外的依赖。</p>
+<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><p>UI分为两部分，一个是匹配规则，一个是UI树本身。</p>
+<p>这个比较简单，就是为不同版本、产品，甚至租户设置不同的UI，根据客户端的情况和用户的功能点权限返回UI树给用户渲染。</p>
+<p>UI树不一定需要在服务器存一套完整的，需要权限控制的部分才需要存入数据库。</p>
+<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>简单起见，只有租户的管理员才可以给组织建立对应的角色树。</p>
+<p>角色树关联功能点，某些功能点可能和具体的数据有关，需要额外选择。</p>
+<h2 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h2><p>指的是不同人看到的字段都不一样，或者字段的渲染不一样。</p>
+<p>这个比较麻烦，不太好做成通用的。非要做的话，每个API返回的字段都要存到表里，然后在功能点那一层，最后关联到字段。即<code>#prj:device:view:field</code>，但是这样太过繁琐，对执行效率影响很大。如果没有很通用的需求，可以在代码里对一些特殊API做单独的处理。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">sass项目顶层设计</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2019-11-19 15:42:52 / 修改时间：22:36:44" itemprop="dateCreated datePublished" datetime="2019-11-19T15:42:52+08:00">2019-11-19</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/11/19/sass%E9%A1%B9%E7%9B%AE%E9%A1%B6%E5%B1%82%E8%AE%BE%E8%AE%A1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/19/sass项目顶层设计/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>sass本质上是想做一个标准化的平台，供使用者接入。但是由于接入者是付费方，或者说甲方，对于平台使用中总会有各种各样的诉求，这就导致平台在开发过程中总是会收到各种各样的定制化需求。如何处理标准化与定制化之间的取舍成为每个saas平台都要面临的问题。</p>
+<p>几个需要讨论的问题：</p>
+<ol>
+<li>所在行业是否能够做成saas，这是立项之基。很多事情表面上看可以抽象成同一种模式，实际实行起来千差万别，这就导致很难对行业进行标准化的过程抽象。做起来会淹没在无尽的需求细节之中；</li>
+<li>平台的服务边界在哪里。既然要做标准化，那就要知道哪些是平台应该提供的，哪些集成第三方的；</li>
+<li>如何架构系统。saas要满足多租户需求，即一套平台，N种接入。后端服务拆分/微服务化，前端组件化是一种必须；理想情况下，可以做到前端一套代码，根据后端配置动态渲染客户所需的页面；后端接入新客户时，只需要运营在中台进行适当的配置，无需编码即可提供标准化的服务；</li>
+<li>如何应对定制化需求。saas就是上面千条线，下面一根针。客户提出的需求有些是通用的，可以加入标准化组件。有些则是很特殊的，可能需要进行回绝，或者评估工作量进行商务上的会谈；</li>
+<li>如何对现有系统进行改造。平台建设早期被项目推着走，积累了一些经验，但是也产生了一些技术债务。在公司正常运营的情况下，如何将已有项目平缓过渡到重构后的平台服务中去，也是需要商讨的话题之一；</li>
+</ol>
+<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><p>待议话题：</p>
+<ol>
+<li>目前已有系统如何抽象、拆分服务；</li>
+<li>前端展示层如何设计；</li>
+<li>重构后要保证平台满足当前所有已接入所有业务；</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -945,570 +1238,6 @@
 </ul>
 <h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
 <h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">摄影笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-10-07 09:57:51" itemprop="dateCreated datePublished" datetime="2018-10-07T09:57:51+08:00">2018-10-07</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-03-31 18:19:14" itemprop="dateModified" datetime="2019-03-31T18:19:14+08:00">2019-03-31</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2018/10/07/%E6%91%84%E5%BD%B1%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/07/摄影笔记/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
-<li>快门：取值的倒数，数据越大快门速度越快。高速记录瞬间，低速记录过程；</li>
-<li>光圈：由于光圈值是以 2 的倍数变化的，直接用光圈数值表示镜头的通光量，光圈直径应呈 √2（约等于 1.4）系数关系递增。光圈值越大，通光量越小，景深越小；</li>
-<li>焦距：即镜片中心到 CMOS 底面的距离，焦距越长，景深越浅，且角度越小；短焦距的一般称作广角镜头，长焦距就称为长焦镜头。</li>
-<li>曝光补偿：用以修正曝光值；</li>
-<li>感光度（ISO）：感光度越大，需要的光线越少，但是图像的质量越低。在相同曝光值下，ISO 越低越好；</li>
-<li>长曝光：曝光时间超过 1s，一般用以夜拍，需要三脚架稳定，增大光圈获取更多光线；另外长曝光可以让运动物体呈现梦幻效果（车流、星轨、流水等）；</li>
-</ol>
-<h2 id="快门的参数"><a href="#快门的参数" class="headerlink" title="快门的参数"></a>快门的参数</h2><ol>
-<li>B 门（BuLb），也称为手控快门，是指按下快门时，快门打开，开始曝光，松开快门，快门关闭即停止曝光。也就是说，B 门是由快门按下时间的长短来决定每一次曝光时间的，无需设定曝光时间，可以自由控制。B 门的名称取自英语的“球”（bulb），它起源于旧时照相馆摄影师开启快门时所挤捏的橡皮球。这种橡皮球快门释放装置沿用至今，仍可以在很多现代照相馆的照相机上看到。</li>
-<li>T 门，是指按下快门按钮快门打开，开始曝光，而且快门持续打开，直至再次按下按钮时快门关闭即停止曝光。T 门与 B 门在功能上比较接近，由于 T 门无需一直按住快门按钮，即可使快门持续打开，因此 T 门比 B 门使用方便一些。</li>
-</ol>
-<h2 id="长曝光"><a href="#长曝光" class="headerlink" title="长曝光"></a>长曝光</h2><ol>
-<li>白天的长时间曝光一般都可以直接使用相机的光圈优先模式，先选定光圈，然后由相机决定快门时间，30 秒内的曝光无需进入 M 档，如果相机出现 LO 字样，则需要切换到 M 档进行曝光；白天的长时间曝光，在相机能够自动识别场景，能进行自动对焦的时候，有主体的画面对着主体对焦，无明显主体的场景对着场景的前三分之一处对焦；有主体但是无法自动对焦时，用强光电筒照亮主体对焦处再按相机自动对焦按钮；对焦完成，切记要把对焦模式转为 MF 手动模式。</li>
-<li>夜间长时间曝光选用相机的 M 档（M 模式），先选定光圈，然后旋转相机的主拨轮调节快门时间，超过 30 秒后就出现 BULB，即相机的 B 门，用 B 门进行长时间曝光；用 B 门进行曝光的时候必须使用快门线；靠手按住相机的快门按钮进行长时间曝光是不现实的，晃动的几率太大，非常容易失败；</li>
-</ol>
-<h2 id="倒易率"><a href="#倒易率" class="headerlink" title="倒易率"></a>倒易率</h2><p>倒易律指出底片的响应取决于总曝光量，即光线强度 × 时间。因此，在减少曝光时间但增加光线强度的情况下，底片的响应（比如显影后胶卷的光学密度）不变，反之亦然。<br>换句话说，一般对于某一给定的曝光结果，光圈与快门之间呈反比例关系，即若开大光圈则需要更快的快门以保持曝光不变。</p>
-<h2 id="景深三要素"><a href="#景深三要素" class="headerlink" title="景深三要素"></a>景深三要素</h2><ol>
-<li>与光圈成反比</li>
-<li>与焦距成反比</li>
-<li>与对焦距离成正比</li>
-</ol>
-<p>所以一般拍虚化人像（即散景）时，需要用大光圈长焦镜头。画幅越大越容易拍出更好的虚化效果。</p>
-<h2 id="测光"><a href="#测光" class="headerlink" title="测光"></a>测光</h2><p>手动曝光需要测光，合适的曝光值会显示在屏幕/取景器的测光表上。影响曝光的要素包括：</p>
-<ol>
-<li>快门速度</li>
-<li>光圈大小</li>
-<li>感光度</li>
-<li>曝光补偿</li>
-</ol>
-<p>即使测光宝校 0 成功，也不一定是合适的曝光，需要自己用眼睛去确认。根据被拍摄物体的颜色进行曝光补偿的调整，一般是白加黑减。</p>
-<h2 id="AF-L-amp-AE-L"><a href="#AF-L-amp-AE-L" class="headerlink" title="AF-L &amp; AE-L"></a>AF-L &amp; AE-L</h2><p>「AF-L」用來锁定对焦，「AE-L」用來锁定曝光，两者主要在 AF 模式下使用。其中AE-L使用较多，先选择场景中灰度适中的物体进行测光，点击AE-L后，再进行构图对角拍照；AF-L一般是拍摄运动物体，用于提前锁定焦点。</p>
-<h2 id="AF-S-amp-AF-C"><a href="#AF-S-amp-AF-C" class="headerlink" title="AF-S &amp; AF-C"></a>AF-S &amp; AF-C</h2><p>S和C分别表示单张和连续多张</p>
-<h2 id="BKT"><a href="#BKT" class="headerlink" title="BKT"></a>BKT</h2><p>包围曝光。在测光困难的场景下，可以设置包围曝光，按下快门后根据当前参数下不同的曝光补偿连续拍下多张图片，方便后期进行合成。</p>
-<h2 id="夜景"><a href="#夜景" class="headerlink" title="夜景"></a>夜景</h2><ol>
-<li>使用三脚架（关闭防抖）、长曝光拍摄。如果拍摄星轨，还需要关闭长曝光降噪。</li>
-<li>如果要拍人像，使用闪光灯（后帘同步、白平衡使用闪光灯模式），快门优先，稍高的 ISO、稍大的光圈，先拍摄背景，确定合适的快门速度，在此基础上加快 1~2 倍的快门速度；试拍看一下，根据需要做闪光补偿；</li>
-</ol>
-<h2 id="ND减光镜"><a href="#ND减光镜" class="headerlink" title="ND减光镜"></a>ND减光镜</h2><p>在风光拍摄时，有时候光照可能过于强烈，即使在小光圈+低ISO时，仍然有高光溢出的问题。此时可以使用在镜头前使用减光镜减少进光量。</p>
-<h2 id="恒定光圈变焦镜头"><a href="#恒定光圈变焦镜头" class="headerlink" title="恒定光圈变焦镜头"></a>恒定光圈变焦镜头</h2><p>从进光原理上说，焦距越大光圈越小，相机厂家通过复杂的机械结构实现了无论焦距多大其最大光圈都不变的镜头，即称为恒定光圈镜头。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">读书笔记-数据密集型应用设计</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-02-16 08:49:36" itemprop="dateCreated datePublished" datetime="2018-02-16T08:49:36+08:00">2018-02-16</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-09-18 19:22:43" itemprop="dateModified" datetime="2019-09-18T19:22:43+08:00">2019-09-18</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2018/02/16/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/16/读书笔记-数据密集型应用设计/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本书原著为英文，即《Designing Data-Intensive Applications》，主要讲述数据库底层原理和设计思路，读来受益颇多。</p>
-<h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>我们期望数据系统可靠、可扩展、可维护，但是由于 CAP 原理的限制，我们无法完全做到这些，因此在设计分布式数据库系统时，必然存在各种考量与限制。这里的数据库，指的不是狭义的关系型数据库，或者非关系型数据库。而是一种广泛的<code>Data System</code>，包括消息队列、RDBMS, NOSQL, 以及图数据库、列式数据库等等负责存储数据的组件。</p>
-<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>考量以下几点：</p>
-<ol>
-<li> 提供正常正确的功能；</li>
-<li> 错误容忍性；</li>
-<li> 性能；</li>
-<li> 安全认证；</li>
-</ol>
-<p>其中错误容忍性又分为硬件错误（如断电、内存不足、磁盘不足、网络断开等）和软件错误（各种软件 bug 等），以及人工错误（操作错误、输入错误等）</p>
-<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p>当组件性能、容量无法满足需求时，组件能够通过扩展的方式满足需求，这就是所谓的可扩展性。</p>
-<p>书中举了 Twitter 的 timeline 设计作为例子，我们知道 timeline 展示的是 follower 的发布的状态，那么不考虑任何优化的情况下，设计如下：如果用关系型来描述的话，需要一个 user 表，一个用户 follow 关系表，一个 tweets 表，对于 user id 为 1 的用户，其首页的 timeline 生成是</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> t.<span class="operator">*</span> <span class="keyword">from</span> tweets t <span class="keyword">join</span> follow f <span class="keyword">on</span> f.follower_id<span class="operator">=</span>t.user_id <span class="keyword">where</span> f.user_id<span class="operator">=</span><span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> t.created_at limit <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-
-<p>显然 tweets 表会迅速膨胀成一个超大的表，这种设计不能满足性能的需求。采用写扩散的方案，将每个用户的 timeline 独立存储，用户新的 post 插入 tweets 表后，还要将这个 tweet 插入用户的 follower的timeline 缓存中。除了这个方案以外，还有很多其他的方法，比如使用消息队列。用户 ins/del po, follow/unfollow some one 触发事件，需要对 timeline 进行重新生成。Twitter最终采用了两种方案混合的方式。</p>
-<p>性能描述的常用指标包括：延迟、吞吐量、响应时间等。平均响应时间有时候并不能很好的描述性能，中位数响应时间更合适（一半的请求小于该时间，另一半的大于该时间）。中位数响应时间即 50%分位响应时间，如果要求的更严格，可能需要使用 95%分位响应时间等，甚至 99.9%分位。99%分位以上的又被称为尾部延迟。</p>
-<p>一般将可扩展性分为水平扩展和垂直扩展，两者可以结合起来。如果系统具有自动根据负载进行扩展的能力，这种系统是所谓的“弹性系统”。</p>
-<h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><p>这里主要指的是系统本身简单可维护，且代码清晰易改动。可维护性显然不仅仅是架构的问题，涉及到方方面面吧，比如：</p>
-<ol>
-<li> 系统健康监控</li>
-<li> 错误跟踪系统</li>
-<li> 自动化部署</li>
-<li> 完善的文档系统</li>
-<li> 优雅的抽象，模块化</li>
-<li> 持续迭代</li>
-</ol>
-<p>显然这些其实项目管理的内容。</p>
-<h2 id="数据模型和查询语言"><a href="#数据模型和查询语言" class="headerlink" title="数据模型和查询语言"></a>数据模型和查询语言</h2><p>常见的数据模型包括关系型数据模型，文档性数据模型，网络数据模型和图数据模型</p>
-<h3 id="关系型数据模型"><a href="#关系型数据模型" class="headerlink" title="关系型数据模型"></a>关系型数据模型</h3><p>关系型数据库是最经典的数据库，也是最常用的模型。在 1 对多环境下，文档性数据模型（一般是类 JSON 格式）可以很好的描述数据关系；但是多对多就比较麻烦了。而且现在已有的文档型数据库中，大部分是不支持不同表格之前关联查询的。</p>
-<p>随着技术的进步，关系型数据库和文档型数据库产生了一些融合，现在关系型数据库一般也支持 JSON 字段了，虽然这种有效的融合本质上是反模式的。</p>
-<p>关系型数据库统一使用 sql 语言操作，sql 是一种 DML，类似 CSS。文档型、图数据库的查询语言不通用由各个实现自己定义。当然随着分布式关系型数据库的发展，sql 仍然是最重要的数据操纵语言。</p>
-<p>图数据模型比较复杂，按着一般图的概念，结点和关系构成了整张图。属性图模型的设计如下：</p>
-<ol>
-<li> 一个图中会记录节点和关系</li>
-<li> 关系可以用来关联两个节点</li>
-<li> 节点和关系都可以拥有自己的属性</li>
-<li> 可以赋予节点多个标签(类别)</li>
-</ol>
-<p>在某些应用场景里（如社交网络、金融风控等多对多场景），图数据库在描述关系上具有无与伦比的优势，可以大幅简化查询设计。除了属性图外，还有其他图数据模型实现，如 Triple-Stores，将数据存为主谓宾三元组，一般是使用 SPARQL 进行查询；然后还有 RDF 数据模型，一般使用 XML 语言描述。</p>
-<h2 id="存储和取回"><a href="#存储和取回" class="headerlink" title="存储和取回"></a>存储和取回</h2><p>本章阐述了数据库底层存储和查询的原理。文中先举例了一个 KV 数据库最简单的实现，将数据存在文件中，写入就直接写在文件尾部，读取则用 tail 值（逆序查找即可）。这种直接写到文件尾部的只读文件，本质上是一种 log.</p>
-<p>当然这个实现有个很明显的问题：写入很快，但是查找很慢。如果 key 根本不存在，需要遍历整个文件，因此需要引入索引(index)的实现。比如这里将所有的 key 存入一个红黑树或者哈希表，然后存放对应的偏移量作为值，即成为一个索引。</p>
-<p>由于数据存入文件是 append only 的，很容易导致磁盘空间耗尽，因此需要周期性的对文件进行压缩。对于 KV 数据库而言，每个 key 值最后对应的 value 是唯一的，所谓的压缩其实就是将对同一个 key 的赋值仅保留最后一个。显然这个过程可以分片同步进行（类似归并排序的流程），也可以放在后台进行，不影响前台正常的读写。</p>
-<p>哈希索引是最快的查询索引，仅需要 O(1)时间，但是问题是哈希表必须存入内存之中，一般多用在内存数据库中。而对于存储在磁盘上的数据，一般使用 b-tree 来存放。</p>
-<h3 id="SSTABLE-和-LSM-TREE"><a href="#SSTABLE-和-LSM-TREE" class="headerlink" title="SSTABLE 和 LSM-TREE"></a>SSTABLE 和 LSM-TREE</h3><p>如果将上述实现的 KV 数据库中的 KEY 排序，得到的表就是所谓 SSTABLE(SORTED STRING TABLE)，这种表格归并和查找的速度都明显超过普通的文件，这样就不再需要额外的完整索引来进行查找加速（但是可能需要稀疏索引来加速搜索）。</p>
-<p>SSTABLE 在内存中可以使用各种平衡二叉树，比如红黑树或者 AVL 树。为了性能考虑，先把数据写入内存表（即缓存），然后等到内存中的数据达到一定的阈值后，再序列化写入硬盘，写入硬盘的部分也可以分片。最后，周期性运行数据压缩，消除冗余 key 值。</p>
-<p>SSTABLE 的设计比较完善，考虑到掉电问题，还需要对内存表的操作保留一份日志，以便进行错误恢复。可以使用 WAL（WRITE AHEAD LOG)日志来记录。</p>
-<p>以上思路，就是所谓的 LOG STRUCTURED MERGE-TREE, 即 LSM-TREE，Lucence 这个搜索引擎在底层即使用了这种数据结构，然后 Level DB 等数据库也使用了这种数据结构，Level 指的是数据归并压缩时使用的策略。将 key 根据范围划分为不同的 Level，从而用来加速归并和压缩的速度。</p>
-<p>可以使用<code>Bloom filters</code>算法加速搜索，确认 key 不存在。</p>
-<h3 id="B-TREE"><a href="#B-TREE" class="headerlink" title="B-TREE"></a>B-TREE</h3><p>b-tree 是磁盘存储数据时最常用的索引结构，这是一种自平衡多路查找树，特点是能够保持较低的高度。</p>
-<p>b-tree 将数据抽象成固定大小的 block 或者说 page，一般是 4Kb 每页（机器硬盘），每次读写一页。每个 page 里面是数据和指向其他 page 的指针，这棵树也有一个根节点，是每次搜索的开始。每页包含指向子叶的指针数，即所谓的“分支因子”（一般是几百个）。page 里面是索引列的有序键值，但是这个键值是稀疏的排序，树的高度被保证为较小的值，这样通过 3~4 层的搜索能够找到大部分 key 值。</p>
-<p>还有一些常见的其他的优化措施，如 WAL 啊，多线程保护（latch）啊，写时复制啊，或者使用变体的分型树、<code>b+</code>树、<code>b*</code>树等.</p>
-<p>对比B-Tree和LSM-Tree，后者拥有更好的写性能（速度和吞吐量），前者拥有更好的读性能。同时，后者由于会定期重写SSTables清除碎片，对磁盘空间的需求量也小的多。但是LSM-Tree在压缩数据时会影响磁盘的IO性能，进而影响到数据库的读写速度。</p>
-<h3 id="聚簇索引与非聚簇索引"><a href="#聚簇索引与非聚簇索引" class="headerlink" title="聚簇索引与非聚簇索引"></a>聚簇索引与非聚簇索引</h3><p>简单来说，直接将值放在索引里的是聚簇索引；放的是数据的引用/指针的则是非聚簇索引。后者需要回表索取原始数据，所以性能会差一些。综合两者的被称为覆盖索引。</p>
-<h3 id="多列索引"><a href="#多列索引" class="headerlink" title="多列索引"></a>多列索引</h3><p>简单的实现是直接将多列拼接成同一个 key，复杂情况使用其他优化的数据结构。Mysql中通常成为复合索引，适用最左匹配原则。</p>
-<p>GIS 中的地理位置索引，包含经度和纬度，一般使用 R-TREE 来实现。</p>
-<h3 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h3><p>对于搜索引擎，需要的是进行模糊查询，一般的索引技术不能满足需求。数据结构以外，还需要结合分词技术、机器学习等其他技术才能满足各种需求。</p>
-<h3 id="内存数据库"><a href="#内存数据库" class="headerlink" title="内存数据库"></a>内存数据库</h3><p>随着内存价格的降低和容量的增加，全内存型数据库也开始涌现。对于 IO 性能要求较高的场合，大量使用内存数据库（如游戏）。关系型内存数据库常见的如 voltdb，KV 型的如 redis 等。</p>
-<p>内存数据库速度快的原因不是把所有数据都放在内存里，因为传统关系型数据库也有 cache，这个优势并没有想象的那么大。内存数据库避免了序列化/反序列化的额外负担，同时还可以实现一些无法在磁盘中实现的功能，如 Redis 中的 set, zset 等。</p>
-<p>内存数据库可以存放超过内存大小的数据，简单来说就是将最近未使用的数据写入磁盘，需要的时候再重载入内存，类似操作系统的虚拟内存技术。随着非易失性内存技术的发展，最终硬盘和内存将会殊途同归，也就不用再考虑这些问题了。</p>
-<h3 id="OLTP-与-OLAP"><a href="#OLTP-与-OLAP" class="headerlink" title="OLTP 与 OLAP"></a>OLTP 与 OLAP</h3><p>前者用于大量写入，对事务的性能要求较高，后者用于数据分析。</p>
-<p>刚开始的时候都用普通 db，随着量级的发展，OLAP 一般使用独立的数仓来完成。数仓将 OLTP 数据库中的数据进行 ETL，存入专门用来数据分析的 db. OLAP 数据库和 OLTP 使用不同的优化方式，前者使用了一些其他的索引技术。</p>
-<p>OLAP 一般使用星型模型/雪花模型，将多维度数据聚合到事实表中，从而避免大量 join 查询。此外，OLAP 会使用列式数据库（如HBase），列式可以更方便的进行数据压缩，对查询进行更好的优化。</p>
-<p>列式数据库的写入很麻烦，一般使用 LSM-TREE 进行优化，先写入内存，异步写入文件。</p>
-<p>除了这些技术以外，还有很多其他辅助手段用来提升 OLAP 的查询速度，如物化视图。对于需要经常查询的聚合数据，适用物化视图相当于加了个触发器，自动根据原始数据更新对应的聚合数据表。这样查询的时候就不要实时聚合，大幅度提高了查询速度。</p>
-<h2 id="编码与迭代"><a href="#编码与迭代" class="headerlink" title="编码与迭代"></a>编码与迭代</h2><p>本章主要讨论消息序列化的编码结构（不是字符编码），以及这些编码形式如何应对字段变更、滚动升级等需求。</p>
-<h3 id="二进制序列化"><a href="#二进制序列化" class="headerlink" title="二进制序列化"></a>二进制序列化</h3><p>各个语言有自己的二进制序列化机制，但是一般并不推荐使用，其兼容性、适用性和安全性都有一些问题。不过二进制序列化速度一般比纯文本格式要快一些。</p>
-<h3 id="JSON-XML-和二进制编码"><a href="#JSON-XML-和二进制编码" class="headerlink" title="JSON, XML 和二进制编码"></a>JSON, XML 和二进制编码</h3><p>一般情况下，JSON 和 XML 足够用了，除了一些缺点。JSON 的问题是只支持浮点数，且无法指定精度，有溢出风险。XML 的话就是有点过于笨重，但是支持 XPATH 这种高级检索语言。基于 JSON 和 XML 也有一些二进制编码。</p>
-<p>如果使用 RPC 通信，可以考虑使用二进制编码，例如 Thift 或者 Protobuf，此外还有 Avro 等.</p>
-<p>显然 JSON 是通过字段的 key 值来保持兼容性的，而 XML 则使用属性。而 Thift 和 Protobuf 则使用的是字段的 tag，旧的代码读到不认识的 tag，就会忽略掉对应的字段，从而保持兼容性。当然，这里有个问题，新增的字段不可定义为<code>required</code>，就如同给关系型数据库新增字段不能为 NOT NULL 且没有 DEFAULT 值一样。如果是移除字段，也只能移除<code>optional</code>的，且该字段的 tag 将来一定不能被重复使用。如果想要修改字段类型，就有一定的风险，需要视字段间的兼容性和精度而定。protobuf3移除了这两个关键字（并且加入了map），所有的字段都被视为optional.<code>protobuf</code>的一个问题是他不允许嵌套的array和map（当然可以通过嵌套message变相实现），Thrift则允许。</p>
-<p>对于 Avro，其 IDL 里面根本没有 tag，读方的 schema 和写方的 schema 可以不一致，avro 会自动处理兼容的字段，忽略不兼容的字段（或者赋默认值）。Avro 是为了给 Hadoop 使用的，这种设计的目的是为了关系型数据库增减字段时不需要人工手动修改 IDL 的 schema.</p>
-<h3 id="HTTP-RPC-MQ"><a href="#HTTP-RPC-MQ" class="headerlink" title="HTTP, RPC, MQ"></a>HTTP, RPC, MQ</h3><p>基于不同传输协议的数据封装讨论，都是一些开发者耳熟能详的知识点，不再赘述。</p>
-<h2 id="副本集"><a href="#副本集" class="headerlink" title="副本集"></a>副本集</h2><p>副本集一般有三种架构：single leader，multi leader， no leader。对应mysql，一主多从的架构有MHA，多主的架构有PXC。副本集的主要目的是保证数据高可用，副效果是降低单机的负载。</p>
-<h3 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h3><p>即单主模式，写到 leader，leader 通过 log 或者 Stream 同步到 follower，读的时候可以从从库读，也可以从主库读（即读写分离）。</p>
-<p>主库到从库的同步可能是同步或异步的，后者会出现读出的数据是 old data 的情况。</p>
-<p>故障恢复：如果从库 down 了，重启后通过日志重新同步即可；但是如果主库 down 了，就需要重新选举一个 leader，否则整个服务就不可用了。选举的过程包括：</p>
-<ol>
-<li> 认定 leader down，一般使用 timeout</li>
-<li> 选举新的 leader；一般使用具有最新数据的副本当leader（共识问题）</li>
-<li> 使用选举出来的新 leader</li>
-</ol>
-<p>需要解决的问题：</p>
-<ol>
-<li> 如果 follower 与 leader 之间的数据同步是异步进行的，old leader down 之前可能还没来得及将数据同步给其他 follower，那么新的 leader 就有丢失一部分数据。old leader 恢复后，需要成为 follower，并丢弃这部分未同步的内容；这种丢弃是很危险的，有可能出现各种问题；</li>
-<li> 可能会出现两个节点都以为自己是 leader 的问题，即所谓的脑裂问题；</li>
-<li> 判定服务 down 的 timeout 确定；</li>
-<li> 原来的主库重新上线后，可能有冲突要解决；</li>
-</ol>
-<h4 id="副本-log-的实现原理"><a href="#副本-log-的实现原理" class="headerlink" title="副本 log 的实现原理"></a>副本 log 的实现原理</h4><p>对于关系型数据库而言，一种显而易见的实现方式是将所有写语句(CREATE, UPDATE, DELETE, ALTER)都记录到日志里，follower 依序重复执行这些语句。但是这里可能有一些问题：</p>
-<ol>
-<li> 有些函数是不可能重复执行的，如 RAND(), NOW()之类的；</li>
-<li> 如果依赖已经存在的数据，必须保证执行顺序，这意味着不能并发执行 log 中的语句；</li>
-<li> 有副作用的语句在各个副本集中造成的副作用可能不一致；</li>
-</ol>
-<p>这些问题可以通过将非确定性的语句修改为确定性的（即将 NOW()的结果记录）来解决，MySQL 则直接使用了 ROW-BASED 将行数据覆盖的方法（又称为 logic log）来解决。还可以使用 WAL 这种直接修改磁盘字节的方法来进行，这种方法最大的问题是要求所有的 follower 必须和 leader 保持同样的二进制结构（如存储引擎），这会导致无法平滑升级服务。最后还有一种基于触发器实现的同步，一般是在应用层同步数据时当作工具来使用。</p>
-<h4 id="副本-log-的问题"><a href="#副本-log-的问题" class="headerlink" title="副本 log 的问题"></a>副本 log 的问题</h4><ol>
-<li> 读写一致性问题。用户写完以后立刻读，必须保证读到的是刚写的数据，但是由于从库的同步是异步的，所以可能会出问题；主从异步同步模式仅仅能保证最终一致性，而不是实时强一致；</li>
-<li> 数据时序性问题。如果用户使用了一系列的读（落到不同的 follower 上），可能由于同步进度的问题，导致部分读到的是新数据，部分是旧数据；</li>
-</ol>
-<p>解决方案：</p>
-<ol>
-<li>如果能明确区分数据属于用户自己，则直接从主库读取；</li>
-<li>最简单的方案是用户总是从同一个副本中读取（即所谓的单调读）；不过这样还要考虑副本down了的HA；然而除了这种顺序以外，还有一种：假设用户A和用户B在对话，二者读的是不同的从库。那么用户C在旁观这种对话过程中，可能观察到错误的对话顺序。在IM群聊中这种场景比较常见，对应这样的场景，需要保证一个群总是对应唯一的服务器节点，保证这种因果关系的顺序性。</li>
-</ol>
-<p>换句话来说，这两个问题都没有完美的解决方案，只能根据业务的实际情况来区别对待。</p>
-<h3 id="多-leader-模式"><a href="#多-leader-模式" class="headerlink" title="多 leader 模式"></a>多 leader 模式</h3><p>单主模式情况下，如果服务器和主库的网络发生故障，服务就不再可用。在局域网中这种情况基本不太可能，但是如果存在多个数据中心（异地），这时候各个 data center 各有一个 leader 是更合适的，所有的写发往 local 的 leader，然后由 leader 之间相互同步。显然，多 leader 之间的数据同步会引发各种问题。而且新加入的节点需要同步全量数据，开销很大。</p>
-<p>还有一种特殊的多 leader 模式：如果应用需要能够离线工作（如日历），但是设备没有连接上英特网，那么此时设备本地的 db 就是 leader.</p>
-<p>多主模式下，两个不同节点的事务可能都提交成功，但是db之间合并数据时可能会出现冲突。解决方案：</p>
-<ol>
-<li> 避免这种情况，根据用户的 ip 地址就近选择数据中心，游戏分服就是这样解决的。但是如果用户换了地方，原来账号的体验就会比较差了。</li>
-<li> 自动解决冲突：数据加入时间戳（自增 ID），使用最新的值解决冲突（即LWW，会丢数据）；或者允许用户自定义冲突解决代码，当发现冲突时自动调用这段代码；</li>
-<li> 手动解决冲突：数据库记录下所有冲突，当该值被阅读时，返回所有值，提示用户手动解决冲突，CouchDB 使用该方案；</li>
-</ol>
-<p>多 leader 之间同步拓扑：</p>
-<ol>
-<li> 环形拓扑：每个 leader 只同步给另外一个 leader，这里要注意单节点挂掉的问题；</li>
-<li> 星形拓扑：使用一个 root 节点，其他所有节点与该节点进行同步，root 节点可能挂掉；</li>
-<li> all to all，每个节点和其他所有节点拓扑，这时要注意时序问题；</li>
-</ol>
-<p>总的来说，目前多主模式在实际运行中的冲突问题还没有完美的自动化解决方案，需要根据业务场景确定策略。</p>
-<h3 id="leaderless-模式"><a href="#leaderless-模式" class="headerlink" title="leaderless 模式"></a>leaderless 模式</h3><p>这种模式没有主从，客户端的读写同时发送给所有的结点。如果有节点 down 掉，写请求会忽略挂掉的结点；当结点恢复后，会出现数据不一致的问题，客户端从多份节点数据中选取时，选取 version number 较大的数据，作为准确的数据返回。</p>
-<p>上面这种宕机情况，数据修复方案：</p>
-<ol>
-<li> 客户端修复，客户端发现某个节点的数据版本落后于其他节点，那么就将最新版本的数据写入其他节点；这个的问题就是有些数据可能不怎么会被读到，数据长时间存在不一致的问题；</li>
-<li> 多节点之间自动同步，异步，无特定拓扑顺序，所以可能滞后很多；</li>
-</ol>
-<p>多节点同时读取还有读取/写入数量，以及可信度的问题。一般而言，一共有 n 个结点，至少写入 w 个节点保证写成功，至少读取 r 个节点保证读成功，则必须有<code>w+r&gt;n</code>才能保证系统的可靠性。一般情况下，n 是一个奇数，<code>w=r=(n+1)/2</code>. 当然可以根据实际需要调整 w 和 r，以协调自己所需的性能和可靠性。</p>
-<p>显然 leaderless 模式会遇到和 multi-leader 类似的问题：时序问题、冲突问题，解决方案也类似。</p>
-<h4 id="版本向量"><a href="#版本向量" class="headerlink" title="版本向量"></a>版本向量</h4><p>一种多客户端写入时解决冲突的方案，即对客户端的每个请求创建的数据都生成一个版本号。在返回客户端时，除了原始数据外也将数据的版本号返回客户端，客户端请求的时候带着本地的最新版本号，这样就可以根据数据的版本进行自动的数据合并。</p>
-<h2 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h2><p>数据分片与副本集不同，是将数据进行垂直切分，也就是所谓的 sharding 技术，经常与副本技术配合使用。对于 KV 型数据库，常见的分区策略包括：</p>
-<ol>
-<li> 按 key 值范围，缺点是分区可能不均匀；</li>
-<li> 按 key 值的 hash 值范围，解决不均匀问题。此时要注意 hash 值必须唯一，如 md5。这会引入一个新问题：无法范围查询 key 值，因为他们不再毗邻。Cassandra 的解决方案是用联合主键，如果第一位确认，后面的还能保证都在一个 partition 上，如(user_id, timestamp)；</li>
-<li> 即使使用了 hash，有时候也会遇到单点过热问题，如社交网络上某个名人的行为总会引起大的数据波动，这个只能在应用层解决了；</li>
-</ol>
-<h3 id="次级索引"><a href="#次级索引" class="headerlink" title="次级索引"></a>次级索引</h3><p>对于 RDBMS，除了主键，一般还有其他索引，如果访问需要通过多个索引字段进行，分片的方式就需要斟酌了。次级索引包括：</p>
-<ol>
-<li>分区本地索引；此时范围查询的请求只能发给所有分片，然后再归并查询结果(scatter/gather);</li>
-<li>全局索引；即对全局数据进行规约后的索引，但是全局索引也要分片，只是分片的方案需要根据业务来取舍；</li>
-</ol>
-<h3 id="再平衡"><a href="#再平衡" class="headerlink" title="再平衡"></a>再平衡</h3><p>在运行一段时间后，数据在各个分片中可能不太均衡，或者需要增加/减少节点，需要将数据在节点之中进行数据搬运。这被称为<strong>再平衡</strong>。</p>
-<ol>
-<li>一个简单的方案是为每个节点预先分配多个分区，当新的节点加入时将其他节点的部分分区数据迁移到该节点即可；删除节点执行反向操作；这个方案的问题是，预分配的分区数量可能难以确定；</li>
-<li>使用动态分区。数据库会根据数据量的大小动态增加或者缩减分区个数；当然初始数据量很小的时候，可能只需要一个分区，此时可以预分区；</li>
-<li>每个节点的分区数保持不变；当加入新节点时，增加对应数量的分区。这样可以更好的平衡各个节点；</li>
-</ol>
-<p>使用一致性哈希算法，可以有效减少再平衡时需要移动的数据数量。</p>
-<p>再平衡后的服务发现问题：服务器需要知道从哪个节点取数据。一般来说有3个解决方案：</p>
-<ol>
-<li>服务器自己知道：将分区依据写成配置。手动再平衡完毕后修改配置；</li>
-<li>使用代理的路由层，代理知道如何寻址；注意路由层本身也应该是个分布式的组件（例如zookeeper）；</li>
-<li>随便发给任意一个节点，节点自己转发；</li>
-</ol>
-<p>除了方案1的静态配置，其他两个方案需要动态发现正确的路由。这涉及到分布式环境的共识问题，</p>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>关系型数据库一般都有 ACID 特性，其中 A 指的是原子性，即一件事要么发生，要么不发生，即使这件事里面包含多个动作；I 指的是隔离性，不同事务之间不相互影响，不会出现脏读等问题；D 指的是持久化能力；而 C 指的是一致性，这个其实无法由数据库来保证，在分布式系统里，最终一致性需要很多条件才能保证。</p>
-<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><p>一般数据库都能保证单对象写入的原子性，但是只有少部分数据库能保证多对象写入的原子性（即支持事务）。</p>
-<h3 id="隔离性"><a href="#隔离性" class="headerlink" title="隔离性"></a>隔离性</h3><p>那么根据不同的隔离级别，有以下几种弱隔离性实现：脏读-&gt;不可重复读-&gt;可重复读（幻读）-&gt;串行化.</p>
-<p>数据库一般默认使用 MVCC 技术实现隔离。不可重复读一般情况下没啥影响，但是如果数据库同时在进行备份，可能中间状态就丢了，大部分db的默认隔离级别是这个。</p>
-<p>使用 MVCC 将隔离级别上升为可重复读，或者说叫快照隔离（mysql默认该级别）。此时当事务开始时，会获得一个事务全局递增的唯一事务编号，而更新将会被拆分成删除+创建。这样，一个更新操作实际上产生了两个版本的数据。当一个事务开始时，做如下判定：</p>
-<ol>
-<li> 首先确定当前正在进行但还未提交的事务，使用这些事务开始前的数据版本；</li>
-<li> 已经 rollback 的事务，其数据修改被直接废弃；</li>
-<li> 事务 ID 号大于当前事务的提交，不管事务有没有提交，忽略其提交结果；</li>
-<li> 除了上诉情况以外，其他的写入可以被当前事务感知到；</li>
-</ol>
-<p>这种实现对索引的使用：多个版本同个字段使用索引，使用 B 树时，update 不是直接修改 page，而是产生一个新 page，也就是<code>copy-on-write</code>。</p>
-<h4 id="写丢失"><a href="#写丢失" class="headerlink" title="写丢失"></a>写丢失</h4><p>两个事务同时写，一个的写入可能会丢失。解决方案：</p>
-<ol>
-<li>原子写入，包括使用CAS。但是用ORM的时候有时候会很难写出k=k+1这种语句，因为k会被直接解释为变量当前的值；</li>
-<li>使用悲观锁，即<code>select ... for update</code>，不过在数据不存在时，不能用这个方案；而是要使用类似数据库的upsert语义方言。如mysql的<code>ON DUPLICATE UPDATE</code>，oracle的<code>merge</code>；</li>
-<li>部分 db（不含 mysql）实现了 lost update detection，可以自动侦测到该问题；</li>
-</ol>
-<h4 id="幻读问题"><a href="#幻读问题" class="headerlink" title="幻读问题"></a>幻读问题</h4><p>可重复读会导致幻读，如果想要解决这个问题，只能使用串行化，这种隔离的实现方案包括：</p>
-<ol>
-<li> 单线程执行所有事务，这样就自动串行化了。如 Redis、VoltDB（使用存储过程，将读写都写在一起，优化方案）；</li>
-<li> 2PL，即两阶段锁。类似读写锁，如果事务对对象没有写入，就允许共享同一个对象。但是一旦开始写入，则使用排他锁进行独占；这比单独的写锁性能更好（这是显然的）；</li>
-</ol>
-<h4 id="序列化算法"><a href="#序列化算法" class="headerlink" title="序列化算法"></a>序列化算法</h4><ol>
-<li>共享锁、排他锁、读写锁；</li>
-<li>谓词锁。即对某个条件产生锁，即使该条件下尚不存在数据。显然谓词锁可能会大幅度降低数据库的性能（创建太多），他的替代品是：</li>
-<li>间隙锁。即对搜索条件使用的某个字段的索引进行加锁；但是如果无法命中索引的话，会退化成表锁，大幅度影响性能；</li>
-</ol>
-<p>将最后两个隔离方案结合起来，就是所谓的<code>serializable snapshot isolation</code>，即 SSI，这是一个新算法（2008 年提出），在 PostgreSQL 9.1 以后使用，较有潜力。</p>
-<h2 id="分布式系统的问题"><a href="#分布式系统的问题" class="headerlink" title="分布式系统的问题"></a>分布式系统的问题</h2><h3 id="局部失败"><a href="#局部失败" class="headerlink" title="局部失败"></a>局部失败</h3><p>分布式系统某个节点挂掉引起的一系列问题。</p>
-<ol>
-<li> 如果是单主集群，需要重新选举；</li>
-<li> 需要考虑节点恢复后如何重新纳入集群；</li>
-<li> 需要考虑如何判定节点挂掉，一般是用网络超时，但是这个值比较难以假定；</li>
-<li> 考虑单节点阻塞导致的丢包问题；</li>
-</ol>
-<h3 id="时序问题"><a href="#时序问题" class="headerlink" title="时序问题"></a>时序问题</h3><p>分布式系统不同节点之间的时钟同步。</p>
-<ol>
-<li> 依赖时序策略的影响，如 LWW（可以使用逻辑时钟代替墙上时钟）；</li>
-<li> NTP 同步的精确度，NTP 本身的延迟，NTP 服务本身的不可靠性；</li>
-<li> Google spanner 的时钟策略，返回一个[least, most]的时钟范围，保证准确的时间落在该范围之内；</li>
-</ol>
-<h3 id="系统阻塞"><a href="#系统阻塞" class="headerlink" title="系统阻塞"></a>系统阻塞</h3><ol>
-<li> GC 引起的 stop the world</li>
-<li> 单线程阻塞</li>
-</ol>
-<p>其他原因造成的系统结点卡顿，以至于其他结点访问超时，误以为该节点挂了。</p>
-<h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><h3 id="线性一致性-Linearizability"><a href="#线性一致性-Linearizability" class="headerlink" title="线性一致性(Linearizability)"></a>线性一致性(Linearizability)</h3><p>所谓线性一致性，指的是对于一个分布式系统的多个副本集，读出的结果永远都是一致的（就好像从唯一一个副本集中读出的一样）。该一致性模型是我们能实现的最强一致性模型，所以又被称为 strong consistency.这种模型假设操作具有一个全局有效时钟的时间戳，但是这个时钟仅具有有限的精确度。要求时间戳在前的进程先执行，换句话说，所有的操作都不是并发的，而是有严格的顺序的（全序）。</p>
-<p>单 leader 的副本集群，理论上可以做到线性一致，但是在节点故障的时候可能出现脑裂等问题，此时就会违反线性一致性；而多 leader 节点一定不会是线性一致的，无 leader 集群则不一定，取决于配置（只有 read repair 策略下或许可行，但是这个效率很低，故一般认为不保证。）。另外 LWW 策略必然是非线性的（依赖时钟）。</p>
-<p>在某些场景下，只允许线性一致性，比如 leader 选举等。显然该一致性的性能是最差的。</p>
-<h3 id="因果一致性-causal-consistency"><a href="#因果一致性-causal-consistency" class="headerlink" title="因果一致性(causal consistency)"></a>因果一致性(causal consistency)</h3><p>当一个读操作后面跟着一个写操作时，这两个事件就具有潜在的因果关系，同样，读操作也与为读操作提供数据的写操作因果相关。没有因果关系的操作被称为并发的。</p>
-<p>所有进程必须以相同的顺序看到具有潜在因果关系的写操作，不同机器上的进程可以以不同的顺序被看到并发的写操作。</p>
-<p>实现因果一致性要求跟踪哪些进程看到了哪些写操作。这就意味着必须构建和维护一张记录哪些操作依赖于哪些操作的依赖关系图。一种实现方法是版本（向量）时间戳。</p>
-<p>几乎所有的分布式系统都支持因果一致性。前面讨论的事务追踪数据过期抛出失败，也就是保证了因果一致性。</p>
-<p>使用 Lamport 时间戳可以保证因果一致性，其实现原理如下：</p>
-<ol>
-<li> 不同的结点各有自己的编号 n；</li>
-<li> 每个结点使用自己的计数器 c；</li>
-<li> 使用(c, n)表示 lamport 时间戳；</li>
-<li> 客户端/node 跟踪 c 值，当 node 发现客户端请求的 c 值大于自身 c 值时，立刻将自身 c 值设为请求的 c 值（对客户端亦然）；</li>
-<li> 定义当 n 相等时 c 值较小的逻辑时间较小；否则 n 值较小的逻辑时间较小；</li>
-</ol>
-<p>显然 lamport 时间戳定义了一个全序的操作序列。问题在于这个顺序必须在动作执行完成后（即 node 返回后）才能确定下来，这对于某些场合不够用（比如唯一约束）。</p>
-<h3 id="弱一致性-weak-consistency"><a href="#弱一致性-weak-consistency" class="headerlink" title="弱一致性(weak consistency)"></a>弱一致性(weak consistency)</h3><p>引入同步变量 S，其仅有一个关联操作 synchronize(S)，该操作同步数据存储的所有本地拷贝。</p>
-<p>使用同步变量来部分地定义一致性就得到称为弱一致性模型，其具有三个属性：</p>
-<ul>
-<li>对数据存储所关联的同步变量的访问是顺序一致的；</li>
-<li>每个拷贝完成所有先前执行的写操作之前，不允许对同步变量进行任何操作；</li>
-<li>所有先前对同步变量执行的操作都执行完毕之前，不允许对数据项进行任何读或写操作。</li>
-</ul>
-<h3 id="CAP-理论"><a href="#CAP-理论" class="headerlink" title="CAP 理论"></a>CAP 理论</h3><p>在网络分区的情况下，一致性和高可用性只能取其一，即所谓 CAP 理论。CAP 理论在最开始时(2000 年)对分布式系统的设计起到了很重要的指导作用，但是现在要考虑的情况要复杂的多，因此一般不再提起该理论。</p>
-<h3 id="全序广播"><a href="#全序广播" class="headerlink" title="全序广播"></a>全序广播</h3><p>通过单 Leader 多 Follower 机制，在 Leader 节点上对所有操作进行排序，从而决定了整个操作顺序，并将操作顺序进行广播。</p>
-<p>全序广播要求满足如下两个属性总是被满足：</p>
-<ul>
-<li>可靠的交付,没有消息丢失：</li>
-<li>如果消息被传递到一个节点，它将被传递给所有节点。完全有序传递，消息以相同的顺序传递给每个节点。</li>
-</ul>
-<p>全序广播是异步的：消息保证以固定的顺序可靠地传递，但不能保证何时传递消息（因此存在节点可能落后于其他节点）。而线性化一致性能够保证：每次读操作能够读到最新值的写入。我们可以依托于全序广播，在存储上实现线性化一致性。全序广播需要一个序列生成器，然而这又是一个共识问题。</p>
-<h2 id="共识"><a href="#共识" class="headerlink" title="共识"></a>共识</h2><p>所谓共识，指的就是最终一致性。在理论上，如果节点可能崩溃，则共识不可能达成（FLP）。不过在现实中，节点崩溃是可以探测的，所以共识还是可以达成的。</p>
-<h3 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h3><p>当客户端准备提交事务时，协调者（事务管理器）开始阶段 1：所有参与者进行预提交，根据响应，分为两种情况：</p>
-<ol>
-<li> 所有节点准备完毕（使用 transaction id，完成相关写入）。进入阶段 2，开始真正的 commit；</li>
-<li> 任一节点未正确响应，进入 abort;</li>
-</ol>
-<p>显然，各节点即使准备完毕，也可能因为异常导致并未正确提交，所以该节点在未做出正确答复之前，协调者会持续询问。</p>
-<p>但是如果协调者也挂了，2PC就会卡住，必须等待协调者恢复，此时的状态称为存疑事务。</p>
-<h3 id="三阶段提交"><a href="#三阶段提交" class="headerlink" title="三阶段提交"></a>三阶段提交</h3><p>改进的二阶段提交，加入了询问机制。该协议假设网络延迟有界，这不符合正常的场景，所以一般还是用2PC.</p>
-<h3 id="异构系统的分布式事务方案：XA事务"><a href="#异构系统的分布式事务方案：XA事务" class="headerlink" title="异构系统的分布式事务方案：XA事务"></a>异构系统的分布式事务方案：XA事务</h3><p>这是一种协议，由数据库自己实现。具体来说就是应用程序自己充当协调者发起异构系统之间的二阶段提交。</p>
-<h3 id="paxos-算法"><a href="#paxos-算法" class="headerlink" title="paxos 算法"></a>paxos 算法</h3><p>paxos 算法是分布式系统实现最终共识的当前唯一正确算法，raft 等算法只是其变种。他解决的是最终一致性（共识）问题，这个前面提的一致性不是一个概念。其流程如下：</p>
-<pre><code>阶段一：
-
-(a) Proposer选择一个提案编号N，然后向半数以上的Acceptor发送编号为N的Prepare请求。
-
-(b) 如果一个Acceptor收到一个编号为N的Prepare请求，且N大于该Acceptor已经响应过的所有Prepare请求的编号，那么它就会将它已经接受过的编号最大的提案（如果有的话）作为响应反馈给Proposer，同时该Acceptor承诺不再接受任何编号小于N的提案。
-
-阶段二：
-
-(a) 如果Proposer收到半数以上Acceptor对其发出的编号为N的Prepare请求的响应，那么它就会发送一个针对[N,V]提案的Accept请求给半数以上的Acceptor。注意：V就是收到的响应中编号最大的提案的value，如果响应中不包含任何提案，那么V就由Proposer自己决定。
-
-(b) 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要该Acceptor没有对编号大于N的Prepare请求做出过响应，它就接受该提案。
-</code></pre>
-<h2 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h2><p>这一章介绍了一些常用的处理工具，包括unix上常见的sed、awk等小工具和map-reduce. 后续还介绍了流式数据处理需要注意的问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">redis知识点总结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-01-28 13:14:37" itemprop="dateCreated datePublished" datetime="2018-01-28T13:14:37+08:00">2018-01-28</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2019-09-19 19:42:20" itemprop="dateModified" datetime="2019-09-19T19:42:20+08:00">2019-09-19</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2018/01/28/redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/28/redis知识点总结/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>redis是现在web开发中用的最广泛的组件之一了，用了很多年，是时候总结一下用法和经验了。</p>
-<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>两个方案：DUMP和LOG。前者就是直接生成快照（SAVE），或者主进程fork一个进程（BGSAVE，内存使用要加倍）然后将内存里面的数据全部存入文件；后一个方案类似LSM-TREE的思路，将操作生成日志，并定期重写。</p>
-<p>SAVE会导致其他命令被阻塞，BGSAVE同样也会（数据量过大时，复制内存本身也很消耗时间），而且系统如果down掉，save之后的数据就会丢失。</p>
-<p>AOF的方案有两个问题：1是生成日志体积可能过大，2是恢复数据的速度比较慢。好在这两个都可以通过重写日志来改进。一般情况下，这两个方案是同时使用的。</p>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis并不支持传统意义上的事务，想要原子提交，最简单的办法是：使用lua脚本。注意lua脚本逻辑如果太过复杂，可能会使redis阻塞较长时间。</p>
-<p>另一种方案是用<code>WATCH</code>配合<code>MULTI</code>和<code>EXEC</code>这两个命令，watch会生成一个乐观锁，当监控的变量改变时，后面的pipeline就会中断执行并在程序中抛出异常。事务在收到<code>EXEC</code>的时候才开始执行，前面的命令只是入列，而<code>WATCH</code>恰好持续到<code>EXEC</code>为止。注意如果pipeline中有命令出错，redis事务并不会终止，而是会接着把所有命令跑完，而且redis事务本身也不支持回滚，有需要的话你只能手动回滚。</p>
-<h2 id="HA"><a href="#HA" class="headerlink" title="HA"></a>HA</h2><p>简单的是一主一从，用SYNC（新版是PSYNC）同步到从库。</p>
-<p>稍微复杂的是一主多从的哨兵模式，主down了以后会在从库中选出新的主。</p>
-<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>本质仍然是sharding. redis集群节点之间相互通信，知道需要处理的命令在哪个分片，如果客户端查询到错误的节点，该节点会返回一个MOVED错误，redirect客户端到正确的节点。当然，如果使用redis驱动的话，对客户端是透明的。</p>
-<p>由于每个节点负责多个分区（在这里称为slot），再平衡过程很简单，就是将其他节点的分区转移到新节点即可（移除节点也类似）。</p>
-<p>集群和副本集配合使用，节点的副本即所谓“从节点”。</p>
-<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>字符串 -&gt; 作者自己实现的简单动态字符串（SDS）；<br>zset -&gt; skiplist（类似红黑树，但是更简单）<br>list -&gt; 就是链表<br>set/hset -&gt; hash表</p>
-<p>优化：如果set都是数值，且数量较少，会使用intset节省内存；如果array和hset都是小整数或者短字符串，会使用ziplist节省内存。</p>
-<p>GC：自己实现的引用计数。</p>
-<h2 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h2><p>redis将所有key的过期时间保存在一个公用的过期字典里，用来计算ttl.</p>
-<p>过期删除使用惰性策略+定期删除。</p>
-<p>save的时候会忽略掉已经过期的key，aof只有在显式删除key后才会追加DEL命令。不过aof重写日志的时候也会判断键是不是过期，类似save.</p>
 
       
     </div>
