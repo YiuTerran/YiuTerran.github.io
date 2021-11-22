@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiuterran.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.3.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="毕业之后基本没搞过图像，最近做视频相关项目，复习补充一下基本知识。 图像任意色彩都可以用三个基色的强度来描述，最常用的就是RGB三原色，通过红黄蓝三种颜色调整强度来叠加出所有其他颜色。 CYM则是另一种描述的思路：人类在自然界中能看到颜色，是因为有光（太阳光是白色）照射到物体表面，物体吸收了其中一部分波，剩下的被物体反射到人眼中。人眼看到的颜色&#x3D;白色-物体吸收的颜色，因此如果要打印一张照片，需要考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multimedia入门知识">
+<meta property="og:url" content="http://yiuterran.github.io/2021/11/19/Multimedia%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="无心呢喃">
+<meta property="og:description" content="毕业之后基本没搞过图像，最近做视频相关项目，复习补充一下基本知识。 图像任意色彩都可以用三个基色的强度来描述，最常用的就是RGB三原色，通过红黄蓝三种颜色调整强度来叠加出所有其他颜色。 CYM则是另一种描述的思路：人类在自然界中能看到颜色，是因为有光（太阳光是白色）照射到物体表面，物体吸收了其中一部分波，剩下的被物体反射到人眼中。人眼看到的颜色&#x3D;白色-物体吸收的颜色，因此如果要打印一张照片，需要考">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gwkkeqgxiuj30uy0l4ad2.jpg">
+<meta property="article:published_time" content="2021-11-19T01:35:50.000Z">
+<meta property="article:modified_time" content="2021-11-22T01:59:09.170Z">
+<meta property="article:author" content="tryao">
+<meta property="article:tag" content="Multimedia">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gwkkeqgxiuj30uy0l4ad2.jpg">
+
+
+<link rel="canonical" href="http://yiuterran.github.io/2021/11/19/Multimedia%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>Multimedia入门知识 | 无心呢喃</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="无心呢喃" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">无心呢喃</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术类文章博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%83%8F"><span class="nav-number">1.</span> <span class="nav-text">图像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A3%B0%E9%9F%B3"><span class="nav-number">2.</span> <span class="nav-text">声音</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E9%A2%91"><span class="nav-number">3.</span> <span class="nav-text">视频</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%86%E6%9E%B6"><span class="nav-number">4.</span> <span class="nav-text">框架</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tryao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/YiuTerran" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;YiuTerran" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yaotairan@gmail.com" title="E-Mail → mailto:yaotairan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2021/11/19/Multimedia%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Multimedia入门知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-19 09:35:50" itemprop="dateCreated datePublished" datetime="2021-11-19T09:35:50+08:00">2021-11-19</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-11-22 09:59:09" itemprop="dateModified" datetime="2021-11-22T09:59:09+08:00">2021-11-22</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2021/11/19/Multimedia%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/19/Multimedia入门知识/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>毕业之后基本没搞过图像，最近做视频相关项目，复习补充一下基本知识。</p>
+<h2 id="图像"><a href="#图像" class="headerlink" title="图像"></a>图像</h2><p>任意色彩都可以用三个基色的强度来描述，最常用的就是RGB三原色，通过红黄蓝三种颜色调整强度来叠加出所有其他颜色。</p>
+<p>CYM则是另一种描述的思路：人类在自然界中能看到颜色，是因为有光（太阳光是白色）照射到物体表面，物体吸收了其中一部分波，剩下的被物体反射到人眼中。人眼看到的颜色=白色-物体吸收的颜色，因此如果要打印一张照片，需要考虑的不是rgb，而是CYM。实际使用中一般是C(青)Y(黄)M(酒红)K(黑色)，即所谓的印刷四分色（这是因为CYM无法混合出纯黑）。需要注意的是CYMK能描述的色彩空间比RGB小得多，这也是为啥打印出来经常会失真的原因。</p>
+<p>在计算机中，二维图像由像素矩阵构成（即对图像进行数字化采样），每个像素点对应着色彩空间中RGB的信息，每种基色一个字节(0~255)，因此每个像素点需要3个字节。直接用RGB存放图像，缺点是图像体积过大，带宽/硬盘/内存资源消耗较大。特别地，当R=G=B=0时，显示黑色；R=G=B=255时，显示白色。如果在三原色基础上加上透明度(alpha, 0表示不透明)通道，即所谓的RGBA色彩空间，png使用该色彩空间描述。</p>
+<p>YUV（Y:明亮度，UV:色度）是另外一种图片编码方法，也是默认的图片/视频压缩编码。对于YUV图像来说，并不是每个像素点都需要包含Y、U、V三个分量，常用的有<code>4:2:2</code>,<code>4:4:4</code>和<code>4:2:0</code>，这决定了Y分量和UV分量的比例，如果没有UV分量，图片是黑白的。最常用的是<code>4:2:0</code>和<code>4:1:1</code>. 所谓<code>4:2:0</code>，指的是在<code>每一行</code>扫描时，只<code>扫描</code>一种<code>U/V其中一种色度分量</code>，而<code>Y</code>按照<code>2:1</code>的方式采样。YCC(YCbCr)是YUV家族的一员，也是数字时代实际使用最常用的编码方案，jpg一般采用YCC描述。模拟时代的YPP基本已经不提了。</p>
+<p>需要注意的是，在硬件设备真正渲染显示时，YUV需要转换为RGB。</p>
+<h2 id="声音"><a href="#声音" class="headerlink" title="声音"></a>声音</h2><p>声波是一种一维机械波，声波通过声电转换器转换为电波（模拟量），并经过采样变成数字信号（模数转换），数字信号经过调制(PCM/PDM)之后进行存储，就是我们常见的音频文件。其中PCM对应的音频文件就是WAV格式，PDM对应DSD格式，后者比较少见。</p>
+<p>PCM的音质在频率上受限于其采样率，根据Nyquist采样定理，两倍以上的采样率可以真实还原出原波形，所以考虑到人耳的听力最高到20kHz，通常PCM音频的采样率都在40kHz以上（如常见的44.1kHz和48kHz）；在振幅上受限于其采样位深。因此采样率低会导致声音高频被裁掉，而采样位深低会导致振幅分辨率下降，音频的动态范围下降，这两者共同导致音频的失真。</p>
+<p>原始wav格式体积过大，因此需要压缩。无损压缩的音频格式包括常见的FLAC/AALC/APE/TAK/WavPack，而有损的则包括常见的AAC/MP3/OGG/WMA等。</p>
+<p>声音在采样之后，需要进行量化，即声音的分辨率，指的是声音的连续强度被数字表示后可以分为多少级。一般用8/16bit表示，2个字节已经是cd音质了。将量化后的结果进行二进制编码，可以选用整数或者浮点数，显然后者的精度更高。</p>
+<p>音频数据是流式的，本身没有明确的一帧帧的概念，在实际的应用中，为了音频算法处理/传输的方便，一般约定俗成取2.5ms~60ms为单位的数据量为一帧音频。这个时间被称之为“采样时间”，其长度没有特别的标准，它是根据编解码器和具体应用的需求来决定的。</p>
+<p>多声道音频，体积是单声道的N倍，因为每个声道需要单独存储，最后输出到音响中。多声道是人头模拟技术，为了制造更好的临场感。</p>
+<h2 id="视频"><a href="#视频" class="headerlink" title="视频"></a>视频</h2><p>视频是对图像、音频和时间轴的整合（这里不讨论字幕）。视频编码常见的包括：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gwkkeqgxiuj30uy0l4ad2.jpg" alt="截屏2021-11-19 17.00.39"></p>
+<p>在监控领域常见的是H.264/H.265.</p>
+<p>视频画面原始的图像显然是YUV格式，H264对原始流再次编码压缩。播放器播放的时候需要将其还原成YUV（进一步还原成RGB）才能被人眼感知。</p>
+<p>视频帧中真正的图像数据，被称为I帧（即<strong>Intra</strong>关键帧）；除了I帧之外，还有P（<strong>predictive</strong>，前向预测）帧和B帧（<strong>bi-directional</strong>，双向预测帧）。可以理解P/B帧都是为了进一步压缩视频，存储的不是全量数据，而是差量。</p>
+<p>有一种特殊的I帧，称为IDR帧（<strong>Instantaneous Decoding Refresh</strong>），作用是立即刷新图像，不再使用P/B帧解码。</p>
+<p>音视频同步编码，需要保证在解码时二者一致，这涉及两个概念：</p>
+<ul>
+<li><strong>DTS</strong>，英文全称<strong>Decoding Time Stamp</strong>，即解码时间戳，这个时间戳的意义在于告诉解码器该在什么时候解码这一帧的数据。</li>
+<li><strong>PTS</strong>，英文全称<strong>Presentation Time Stamp</strong>，即显示时间戳，这个时间戳用来告诉播放器该在什么时候显示这一帧的数据。</li>
+</ul>
+<p>GOP：Group Of Pictures，即一组图像。在码率不变的前提下，GOP值越大，P帧、B帧的数量会越多，平均每个I帧、P帧、B帧所占用的字节数就越多，也就更容易获取较好的图像质量；Reference越大，B帧的数量越多，同理也更容易获得较好的图像质量。</p>
+<p>将音视频和字幕元素按时间轨进行组合存储，再加上一些播放信息、头尾描述等，就是所谓的封装。视频封装格式就是我们常见的文件名后缀，如mp4, avi, mkv等。</p>
+<p>流媒体协议：如RTP/RTMP，指的是基于TCP/UDP网络协议传输流媒体数据的网络协议。RTP是基于UDP的，配合RTCP对服务质量进行控制，SRTCP在RTCP的基础上加入加密/身份认证功能。RTSP则是构建于RTP/RTCP之上，不同的是它还可以选择用TCP传输数据。</p>
+<p>RTMP/MMS是上个世代的主要流媒体传输协议，前者是Flash时代最重要的流媒体传输协议，后者则是微软的发明。HLS则是苹果的发明，但是其基于HTTP协议，所以具有天然的跨平台能力，也是web前端最容易使用的协议，只是延迟会比其他协议都要高。</p>
+<h2 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h2><p>多媒体相关，最有名的库就是FFmpeg和OpenCV，前者主要是各种解码/转码；后者主要是各种算法处理。</p>
+<p>多媒体涉及的数据量极大，所以相关计算非常耗费CPU，所有框架目前还是以C++为主。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Multimedia/" rel="tag"># Multimedia</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/09/14/spring-kafka%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" rel="prev" title="spring-kafka注意事项">
+                  <i class="fa fa-chevron-left"></i> spring-kafka注意事项
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tryao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yiuterran.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yiuterran.github.io/2021/11/19/Multimedia%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86/";
+    this.page.identifier = "2021/11/19/Multimedia入门知识/";
+    this.page.title = "Multimedia入门知识";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://yiuterran.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

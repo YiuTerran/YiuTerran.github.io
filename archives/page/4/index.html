@@ -172,7 +172,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">71</span>
+        <span class="site-state-item-count">72</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -210,6 +210,125 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tryao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无心呢喃">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/" class="post-title-link" itemprop="url">k8s学习纪要</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-02-17 20:18:59" itemprop="dateCreated datePublished" datetime="2019-02-17T20:18:59+08:00">2019-02-17</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2019-02-24 19:28:31" itemprop="dateModified" datetime="2019-02-24T19:28:31+08:00">2019-02-24</time>
+      </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/02/17/k8s%E5%AD%A6%E4%B9%A0%E7%BA%AA%E8%A6%81/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/17/k8s学习纪要/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>近两年来，由于互联网规模再次扩大，原有的分布式技术（SOA、ESB等）都存在各种各样的缺陷，不能满足日益复杂的需求，所以各种新概念和框架应用而生，目前服务端最流行的是将复杂业务拆分微服务化，以减轻业务和代码的复杂度。在运维端，使用k8s和docker进行快速部署、扩容、监控、编排、回滚等常见运维操作，同时使用istio等Service mesh组件，达到分布式事务、track、router、限流、断路等常见服务需求。</p>
+<h2 id="k8s及其概念"><a href="#k8s及其概念" class="headerlink" title="k8s及其概念"></a>k8s及其概念</h2><p>k8s的架构有一点类似linux的分层技术，比较复杂，所以最好边学变实践，不然根本记不住。<strong>API对象</strong>是K8s集群中的管理操作单元。K8s集群系统每支持一项新功能，引入一项新技术，一定会新引入对应的API对象，支持对该功能的管理操作。例如副本集Replica Set对应的API对象是RS。下面是各种API对象：</p>
+<h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><p>Pod是在K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。</p>
+<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><p>节点是所有Pod运行所在的工作主机，可以是物理机也可以是虚拟机。工作主机的统一特征是上面要运行kubelet管理节点上运行的容器。</p>
+<h3 id="RS"><a href="#RS" class="headerlink" title="RS"></a>RS</h3><p>副本集，在MongoDB中有此概念，这里其实差不多。提供服务的高可用性。</p>
+<h3 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h3><p>即部署，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。部署通过创建新的RS，将流量转移到新的RS，然后逐渐关闭旧的RS来实现。</p>
+<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>客户端直接访问的服务对象，长期伺服型。每个Service会对应一个集群内部有效的虚拟IP，集群内部通过虚拟IP访问一个服务。在K8s集群中微服务的负载均衡是由Kube-proxy实现的。Kube-proxy是K8s集群内部的负载均衡器。它是一个分布式代理服务器，在K8s的每个节点上都有一个。</p>
+<h3 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h3><p>Job是K8s用来控制批处理型任务的API对象，有点类似Oracle数据库中的Job，例如定时任务等。</p>
+<h3 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h3><p>后台支撑服务集，运行存储，日志和监控等在每个节点上支持K8s集群运行的服务。</p>
+<h3 id="PetSet"><a href="#PetSet" class="headerlink" title="PetSet"></a>PetSet</h3><p>有状态服务集，显然RS是无状态的，这样才能迅速deployment。但是对于db对象，更新的时候显然不能把数据扔了，这时候就需要用PetSet新建一个同名的pod，然后挂载存储继续服务。</p>
+<h3 id="Federation"><a href="#Federation" class="headerlink" title="Federation"></a>Federation</h3><p>集群联邦，为提供跨Region跨服务商K8s集群服务而设计，适用于超大规模集群。</p>
+<h3 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h3><p>类似docker的存储卷，但是更加抽象，pod支持多种存储卷，包括各种云服务的存储（如s3等）</p>
+<h3 id="PV和PVC"><a href="#PV和PVC" class="headerlink" title="PV和PVC"></a>PV和PVC</h3><p>持久存储卷（声明），用以抽象具体的存储逻辑。</p>
+<h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><p>Secret是用来保存和传递密码、密钥、认证凭证这些敏感信息的对象。</p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>为集群提供隔离功能的命名空间。</p>
+<h3 id="RBAC访问授权"><a href="#RBAC访问授权" class="headerlink" title="RBAC访问授权"></a>RBAC访问授权</h3><p>集群的管理需要一定的授权控制，引入常见的RBAC API对象</p>
+<h2 id="单机搭建k8s环境"><a href="#单机搭建k8s环境" class="headerlink" title="单机搭建k8s环境"></a>单机搭建k8s环境</h2><p>单机使用minikube进行环境搭建，首先使用包管理器安装minikube和推荐的驱动<code>hyperkit</code>（或者你装virtualbox也可以)，然后运行<code>minikube start --vm-driver=hyperkit</code>激活管理器。 在<code>demo</code>文件下创建<code>server.js</code>，内容如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handleRequest = <span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;Received request for URL: &#x27;</span> + request.url);</span><br><span class="line">  response.writeHead(<span class="number">200</span>);</span><br><span class="line">  response.end(<span class="string">&#x27;Hello World!&#x27;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> www = http.createServer(handleRequest);</span><br><span class="line">www.listen(<span class="number">8080</span>);</span><br></pre></td></tr></table></figure>
+
+<p>显然这个js只是简单的创建了一个对任意请求返回<code>hello world</code>的http服务器，然后在<code>demo</code>文件夹下创建<code>Dockerfile</code>，内容如下：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">6.14</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> server.js .</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> node server.js</span></span><br></pre></td></tr></table></figure>
+
+<p>显然这里就是简单的从node环境中导出8080端口并运行上面的<code>server.js</code>。运行<code>minikube dashboard</code>可以打开网页控制台查看相关信息。</p>
+<p>使用<code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>创建一个部署信息，使用<code>kubectl get deployments</code>获取部署信息，使用<code>kubectl get pods</code>获取节点信息，使用<code>kubectl get events</code>获取事件日志，使用<code>kubectl config view</code>查看配置信息。</p>
+<p>使用<code>kubectl expose deployment hello-node --type=LoadBalancer --port=8080</code>根据刚才的结点创建一个Service，默认情况下pod只能通过内部ip访问，如果想要在k8s外部（即客户端）来访问pod，需要将其导出为服务。现在使用<code>kubectl get services</code>即可看到<code>hello-node</code>的Service。最后使用<code>minikube service hello-node</code>即可访问该服务。</p>
+<p>最后，使用<code>minikube addons enable/disable xxx</code>即可打开/关闭附加服务。使用<code>kubectl delete service hello-node</code></p>
+<p>kubectl最常用的命令格式：</p>
+<ul>
+<li>kubectl get - list resources</li>
+<li>kubectl describe - show detailed information about a resource</li>
+<li>kubectl logs - print the logs from a container in a pod</li>
+<li>kubectl exec - execute a command on a container in a pod</li>
+</ul>
+<h2 id="搭建副本集"><a href="#搭建副本集" class="headerlink" title="搭建副本集"></a>搭建副本集</h2><p>使用<code>scale</code>命令进行副本集的扩展：<code>kubectl scale deployments/kubernetes-bootcamp --replicas=2</code></p>
+<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>使用<code>set image</code>进行升级，使用<code>rollout undo</code>进行回滚</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1522,192 +1641,6 @@ ZERO_DIVIDE            零被整除
     
     <div class="post-body" itemprop="articleBody">
           <p>经验证，最有效的方法是修改系统DNS为<code>4.2.2.1</code>，其他什么不用做…</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://yiuterran.github.io/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="tryao">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无心呢喃">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">jeesite代码解析</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2017-06-13 00:46:00" itemprop="dateCreated datePublished" datetime="2017-06-13T00:46:00+08:00">2017-06-13</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2017-06-23 10:22:21" itemprop="dateModified" datetime="2017-06-23T10:22:21+08:00">2017-06-23</time>
-      </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2017/06/13/jeesite%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/13/jeesite代码解析/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>现在某个项目需要用到Java Web来写控制台，考虑到外包人员的能力，这边只能用传统的JSP技术来写了… 技术选项上用了jeesite这个成熟框架。该框架使用了最传统的SpringMVC + MyBatis，然后装了一堆框架，我会根据需求删掉其中大部分内容但是保留其基础框架。</p>
-<h2 id="基础知识补充"><a href="#基础知识补充" class="headerlink" title="基础知识补充"></a>基础知识补充</h2><p>常见Java注解：</p>
-<p>四个元注解包括：</p>
-<ul>
-<li><code>Target</code>: 标示注解使用的位置；</li>
-<li><code>Retention</code>: 标示在什么级别保留注解信息；</li>
-<li><code>Documented</code>: 标示要讲注解记录在JavaDoc中；</li>
-<li><code>Inherited</code>: 允许子类继承父类的注解；</li>
-</ul>
-<h2 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h2><p>Java Web有一套成熟的抽象体系，自上到下分别是<code>Controller</code>(接入层) -&gt; <code>Service</code>(服务层) -&gt; <code>Entity</code>(数据实体层) -&gt; <code>DAO</code>(数据操作层)。</p>
-<h3 id="DAO"><a href="#DAO" class="headerlink" title="DAO"></a>DAO</h3><p>这里<code>DAO</code>底层是一个泛型接口<code>CrudDao&lt;T&gt;</code>，这里定义了一些常见的接口（增删改查）。</p>
-<p>对于每个具体的表，定义了接口，并使用<code>MyBatisDao</code>注解，通过查看代码可以知道，这是一个自定义注解，且是一个<code>Component</code>元注解。在<code>spring-context.xml</code>中有：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;com.thinkgem.jeesite&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:exclude-filter</span> <span class="attr">type</span>=<span class="string">&quot;annotation&quot;</span> <span class="attr">expression</span>=<span class="string">&quot;org.springframework.stereotype.Controller&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>这里表示扫描除了<code>Controller</code>层以外的其他组件。<code>MyBatis</code>的配置为：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;sqlSessionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.thinkgem.jeesite&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;typeAliasesSuperType&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.thinkgem.jeesite.common.persistence.BaseEntity&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;mapperLocations&quot;</span> <span class="attr">value</span>=<span class="string">&quot;classpath:/mappings/**/*.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;configLocation&quot;</span> <span class="attr">value</span>=<span class="string">&quot;classpath:/mybatis-config.xml&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p><code>dataSource</code>是数据源，这里配置为MySQL的连接池，用的是<code>Druid</code>这个阿里的开源库（这里是单库）。<code>typeAliasesPackage</code>是映射的起始路径包，<code>typeAliasesSuperType</code>是实体类的父类，<code>mapper</code>的注释在<code>mappings</code>下面，组件自身的配置在<code>mybatis-config.xml</code>里。</p>
-<p>在<code>resources/mappings</code>下面，定义了对应路径映射的model，这里的数据可能是代码生成器生成的（手动写的话工作量有点大啊…），以及各种<code>DAO</code>中定义接口的具体实现。这里的语法本质上是拼装sql…</p>
-<p>这里有个问题，idea对MyBatis的支持不太好，需要自己找插件（但是收费），也有一些免费但是不太好用的。</p>
-<h4 id="MyBatis的SQL语法"><a href="#MyBatis的SQL语法" class="headerlink" title="MyBatis的SQL语法"></a>MyBatis的SQL语法</h4><p>官方教程<a target="_blank" rel="noopener" href="http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html">在此</a></p>
-<p>用例子说明：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//`User` is Entity</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">CurdDao</span>&lt;<span class="title">User</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">get</span><span class="params">(String id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&lt;</span><span class="keyword">sql</span> id<span class="operator">=</span>&quot;userColumns&quot;<span class="operator">&gt;</span>  # <span class="keyword">sql</span>片段</span><br><span class="line">    a.id,</span><br><span class="line">    a.company_id <span class="keyword">AS</span> &quot;company.id&quot;,   # compony是`<span class="keyword">User</span>`的一个成员</span><br><span class="line">    a.office_id <span class="keyword">AS</span> &quot;office.id&quot;,</span><br><span class="line">    a.login_name,</span><br><span class="line">    a.password,</span><br><span class="line">    a.create_by <span class="keyword">AS</span> &quot;createBy.id&quot;,</span><br><span class="line">    a.create_date,</span><br><span class="line">    a.update_by <span class="keyword">AS</span> &quot;updateBy.id&quot;,</span><br><span class="line">    a.update_date,</span><br><span class="line">    a.del_flag,</span><br><span class="line">    c.name <span class="keyword">AS</span> &quot;company.name&quot;,</span><br><span class="line">    c.parent_id <span class="keyword">AS</span> &quot;company.parent.id&quot;,</span><br><span class="line">    c.parent_ids <span class="keyword">AS</span> &quot;company.parentIds&quot;,</span><br><span class="line"><span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">sql</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span><span class="keyword">sql</span> id<span class="operator">=</span>&quot;userJoins&quot;<span class="operator">&gt;</span>  # <span class="keyword">sql</span>片段</span><br><span class="line">    <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> sys_office c <span class="keyword">ON</span> c.id <span class="operator">=</span> a.company_id</span><br><span class="line"><span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">sql</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="operator">&lt;</span><span class="keyword">select</span> id<span class="operator">=</span>&quot;get&quot; resultType<span class="operator">=</span>&quot;User&quot; parameterType<span class="operator">=</span>&quot;string&quot;<span class="operator">&gt;</span>  # id对应Dao中方法的名字，resultType是</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			<span class="operator">&lt;</span>include refid<span class="operator">=</span>&quot;userColumns&quot;<span class="operator">/</span><span class="operator">&gt;</span></span><br><span class="line">		<span class="keyword">FROM</span> sys_user a</span><br><span class="line">		<span class="operator">&lt;</span>include refid<span class="operator">=</span>&quot;userJoins&quot;<span class="operator">/</span><span class="operator">&gt;</span></span><br><span class="line">		WHERE a.id = #&#123;id&#125;</span><br><span class="line">	<span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">select</span><span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span><span class="keyword">select</span><span class="operator">&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>熟悉了很快就能上手，一般情况下，自动映射可以处理绝大多数问题，只有特别复杂的结果集需要自定义<code>resultMap</code>.</p>
-<h3 id="ehcache"><a href="#ehcache" class="headerlink" title="ehcache"></a>ehcache</h3><p>Java中常用的cache，支持单机也支持分布式，但是分布式配置较为复杂，一般还是使用Redis居多。</p>
-<p>这里ehcache的使用看得我一脸懵逼，好像直接缓存了POJO类，然后取出来后直接强制转换回来就可以了。理论上这不对啊，缓存肯定要序列化的…然后仔细研究了一下Java的序列化（类似Python的<code>pickle</code>）。</p>
-<p>结果发现只要标记了<code>Serializable</code>的类都可以被序列化，但是如果类被修改了，就要注意是不是修改<code>serialVersionUID</code>了。必须要修改（一般是递增）该ID的情况有（来自Java官方网站）：</p>
-<ul>
-<li>删除了成员</li>
-<li>修改了类的继承层次</li>
-<li>将一个非静态成员改成静态，或者将一个非忽略成员改成忽略(transient)</li>
-<li>修了了原始类型成员的类型声明</li>
-<li>修改了<code>writeObject</code>或者<code>readObject</code>方法</li>
-<li>将类从<code>Serializable</code>改为<code>Externalizable</code>，或者移除了标记</li>
-<li>将类改为枚举类型</li>
-</ul>
-<p>但是以下情况无须修改：</p>
-<ul>
-<li>增加成员：新增成员会使用默认值</li>
-<li>增加类：也是使用默认值</li>
-<li>移除类</li>
-<li>增加<code>writeObject/readObject</code>方法</li>
-<li>移除<code>writeObject/readObject</code>方法</li>
-<li>增加<code>java.io.Serializable</code></li>
-<li>修改成员的修饰符</li>
-<li>将成员由静态改为非静态，或者忽略改成非忽略</li>
-</ul>
-<p>其实这些并不是很好记忆…所以更好的使用经验是，不要试图序列化整个类存在缓存中，而是只缓存一些必须的变量，然后用这些变量构造对象，变量使用Java标准库内置的数据结构，这些数据结构默认都是可序列化的。</p>
-<h3 id="Entity"><a href="#Entity" class="headerlink" title="Entity"></a>Entity</h3><p>这一层本质上是db上对应表的model，但是和Python不一样，这里和表不是一一对应的，而是一个整合的数据集。</p>
-<p>换句话说，每个<code>Entity</code>可能对应很多个表，这里的抽象思路和Python不一样。Entity是一个POJO，而不是继承某个类而得来。当然我还是更喜欢Python的抽象思路，Model原子性和Table保持一致，可以自由组合。</p>
-<p>项目抽象了<code>BaseEntity</code>，在此基础上又总结了集中常见的数据模型。</p>
-<h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>使用Spring的事务管理，最后只要在方法上使用<code>@Transactional</code>注解就可以使用一个事务式的方法（只能在<code>public</code>方法上使用），这个注解只会在被外部调用时触发。</p>
-<p>关于事务方法和非事务方法之间的相互调用，参考<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/6222600/transactional-method-calling-another-method-without-transactional-anotation">stackoverflow</a></p>
-<p><code>@Transactional</code> 默认只对 unchecked exception 异常进行回滚操作，checked、unchecked 异常使用不当造成事务无效，抛出的异常应该是<code>RuntimeException</code>的子类。</p>
-<h3 id="Service层"><a href="#Service层" class="headerlink" title="Service层"></a>Service层</h3><p>Service层处理实际的业务逻辑，这里抽象了基类<code>BaseService</code>里面定义了方法用来鉴权；<br>CurdService层是简单增删改查的服务，这是一个泛型类，泛型参数是<code>Dao</code>和<code>Entity</code>；<br>对于树形数据结构，还特别定义了<code>TreeService</code>对应了<code>TreeDao</code>和<code>TreeEntity</code>；</p>
-<h2 id="流程解析"><a href="#流程解析" class="headerlink" title="流程解析"></a>流程解析</h2><ol>
-<li>直接运行项目，会自动打开浏览器，跳转到登录页。这个应该是在哪里配置的，暂时不明；</li>
-<li>首页会匹配到<code>modules/sys/web/LoginController</code>里面的<code>index</code>方法；</li>
-<li>该类继承自<code>BaseController</code>，这里定义了<code>logger</code>, <code>adminPath</code>, <code>frontPath</code>和<code>urlSuffix</code>，这些变量是从bean里面注入的. 同时定义了一些通用的方法；</li>
-<li>所以index方法中的<code>RequestMapping</code>, <code>$&#123;adminPath&#125;</code>会被渲染为<code>a</code>，另外这个注释来自SpringMVC；</li>
-<li><code>RequiresPermissions</code>是使用<code>Apache shiro</code>进行鉴权，详见鉴权流程；</li>
-<li>如果用户没有登陆，会跳转到<code>a/login</code>，后者最终跳转到<code>modules/sys/sysLogin</code>；</li>
-<li>如果用户已经登陆，会跳转到<code>modules/sys/sysIndex</code>，即网站的首页；</li>
-<li>如果是mobile登陆，这里不再使用服务端渲染，还是返回了一个Json串；</li>
-</ol>
-<p>其他的模块也类似，入口都在模块下的<code>web</code>包里面。<code>Controller</code>层调用<code>Service</code>层（一般是Autowired注入的），<code>Controller</code>有个共同基类<code>BaseController</code>，这是一个POJO，里面定义了一些公用的方法，如参数鉴定、view渲染和异常处理。</p>
-<p>参数鉴定用的是<code>JSR303</code>里面规定的的一些注解，这些约束被写在<code>Entity</code>中。</p>
-<h2 id="Controller与JSP的交互"><a href="#Controller与JSP的交互" class="headerlink" title="Controller与JSP的交互"></a>Controller与JSP的交互</h2><p><code>Controller</code>与<code>JSP</code>这一层的联系通过大量注释和隐含条件完成。</p>
-<p>由于JSP是很集成化的东西，所以前端表格直接和后端Entity是对应的，前端用JQuery直接修改DOM元素做渲染，用户输入——JQuery修改界面——用户提交——后端从表格中取出模型形成数据——处理完毕返回新数据构成的页面。</p>
-<p>后端使用<code>ModelAttribute</code>注入模型，前端可以直接引用模型里面的元素。前端使用的后端模型中的元素作为querystring或者post中的元素，后端也可以声明为对应方法的参数。</p>
-<h2 id="鉴权流程"><a href="#鉴权流程" class="headerlink" title="鉴权流程"></a>鉴权流程</h2><p>使用了组件<code>Apache Shiro</code>，这个东西定义了通用的鉴权模型，参考<a target="_blank" rel="noopener" href="http://howiefh.github.io/2015/05/12/shiro-note/">这篇blog</a>。</p>
-<p>几个概念：</p>
-<ol>
-<li><code>Authentication</code>，一般指登陆，验证用户名和密码；</li>
-<li><code>Authorization</code>，授权，验证权限；</li>
-<li><code>Subject</code>，被管理的主体，一般指的是用户；</li>
-<li><code>SecurityManager</code>，实际鉴权者，<code>Subject</code>被绑定到<code>SecurityManager</code>；</li>
-<li><code>Realm</code>，领域，类似于DAO，最终落地的鉴权者。<code>Realm</code>是Plugable的，开发者主要负责实现这一块；</li>
-<li><code>Authenticator</code>，认证器。包含一些常见的、默认的鉴权实现（如密码、SSO等）；</li>
-<li><code>Authrizer</code>，授权器。包含一些常见的权限、角色设计（一个用户多个角色，权限是以<code>:</code>分割的字符串）；</li>
-<li><code>SessionManager</code>，可配置的Session管理器，可以通过简单的配置放在Redis中；</li>
-<li><code>CacheManager</code>，系统缓存管理器，也可以简单的配置到Redis中；</li>
-<li><code>Principal</code>，身份，一般是用户名、邮箱；</li>
-<li><code>Credential</code>，凭证，一般是密码；</li>
-</ol>
-<p>使用流程如下：</p>
-<ol>
-<li>定义配置文件，本项目中与spring结合，为<code>spring-context-shiro.xml</code>；</li>
-<li>大部分都是标准配置，注释掉的部分可以用redis作为sessionManager和CacheManager。在<code>SecurityManager</code>里面配置了<code>realm</code>，即为自己实现的<code>SystemAuthorizingRealm</code>；</li>
-<li>该类继承自<code>AuthorizingRealm</code>。<code>doGetAuthenticationInfo</code>是登陆验证，验证账号密码；<code>doGetAuthorizationInfo</code>是权限验证，这里也是用了自带的<code>SimpleAuthorizationInfo</code>；</li>
-<li>权限这里，根据用户角色，获取其前端菜单列表，每个菜单元素对应着一个权限字符串（如<code>sys:role:view</code>对应查看角色列表，<code>sys:role:create</code>对应创建新角色等）；</li>
-<li>由于用户角色、权限等信息需要在所有页面使用，所以这里注册了一个单例<code>SystemService</code>，来随时获取这些信息；</li>
-<li>在需要验证权限的地方，调用<code>hasRole</code>或者<code>isPermitted</code>等函数来验证权利（或者使用注解）.JSP里面也有相关的语法。</li>
-</ol>
-<h2 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h2><p>这里采用了一个设计，所有常量被存放在数据库中，而不是在代码中使用枚举。<code>sys_dict</code>表中根据<code>type</code>存放了所有枚举值，所以枚举的<code>value</code>类型被统一为<code>String</code>。</p>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
-<li>分页。这里分页有明显的性能问题，直接查找了所有数据，然后在内存中分页（以及排序），在数据集非常大的时候这是不可取的。应该在<code>BaseEntity</code>里面存入<code>limit</code>, <code>offset</code>和<code>orderBy</code>，然后在sql里面根据这些参数来写sql；</li>
-<li>id. ID应该用自增主键，主要是出于性能考虑。MySQL的uuid主键性能很差，这是由innoDB底层实现决定的。</li>
-</ol>
 
       
     </div>
